@@ -126,7 +126,7 @@ export function CubosPattern({ itemNum, test = "wisc", size = 56 }) {
 /* Poster: panel de referencia con los 14 diseños en grilla 7×2.
  * Se usa como NativeStimuli (fallback visual del test completo). */
 export function CubosPoster({ test = "wisc" }) {
-  const dict = test === "wais" ? WAIS_DESIGNS : WISC_DESIGNS;
+  const _dict = test === "wais" ? WAIS_DESIGNS : WISC_DESIGNS;
   const nums = Array.from({ length: 14 }, (_, i) => i + 1);
   return (
     <div className="grid grid-cols-7 gap-2 p-2">

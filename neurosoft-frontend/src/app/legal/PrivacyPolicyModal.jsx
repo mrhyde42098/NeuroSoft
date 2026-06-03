@@ -85,7 +85,7 @@ El consentimiento informado para la evaluación y el tratamiento de datos de sal
   {
     icon: "update",
     titulo: "7. Vigencia y Actualizaciones",
-    texto: `Esta política de privacidad está vigente desde la versión 2.0 de NeuroSoft. Puede ser actualizada en versiones posteriores del software para reflejar cambios normativos o funcionales. Se recomienda revisar esta sección en cada actualización de la aplicación.
+    texto: `Esta política de privacidad puede ser actualizada en versiones posteriores del software para reflejar cambios normativos o funcionales. Se recomienda revisar esta sección en cada actualización de la aplicación.
 
 La conservación de la historia clínica se rige por los plazos establecidos en la normativa vigente (mínimo 20 años para adultos; hasta los 25 años de edad para menores). El profesional es responsable de garantizar la conservación y confidencialidad de los datos durante este periodo.`,
   },

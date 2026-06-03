@@ -43,7 +43,7 @@ export default function DenominacionClavesActivity({ params = {}, onFinish, onCa
   const [idx, setIdx]         = useState(0);
   const [revealed, setRevealed] = useState(0); // nivel de clave mostrado (0=ninguno)
   const [results, setResults] = useState([]); // { word, level }
-  const [levelPick, setLevelPick] = useState(null);
+  const [_levelPick, setLevelPick] = useState(null);
 
   const item = items[idx];
 

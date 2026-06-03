@@ -19,7 +19,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { api, _parseError } from "../../api/client.js";
-import { Btn, Card, I, Sel, TopBar, Txta } from "../../ui/primitives.jsx";
+import { Btn, Card, I, Sel, TopBar, _Txta } from "../../ui/primitives.jsx";
 import { TEAL, NAVY, ACCENTS } from "../../ui/tokens.js";
 import { useToast } from "../../contexts.jsx";
 import { safeLS } from "../../utils/safeLS.js";
@@ -63,6 +63,7 @@ export default function TherapyPage() {
     api.get("/api/v1/patients/panel")
       .then(d => setPatients(d.pacientes || d || []))
       .catch(() => toast.error("Error al cargar datos"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* Cargar planes + sesiones + riesgo del paciente seleccionado */

@@ -7,7 +7,7 @@
  *  - Los items del Sidebar usan aria-current="page" cuando activos
  */
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from "@playwright/test";
 
 test.describe('Accesibilidad básica (S3.3)', () => {
   test.beforeEach(async ({ page }) => {

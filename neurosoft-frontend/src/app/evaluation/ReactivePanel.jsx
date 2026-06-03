@@ -4,14 +4,14 @@
  * ═══════════════════════════════════════════════════════════════════════ */
 
 import React, { useState } from "react";
-import { Card, Btn, I, Label } from "../../ui/primitives.jsx";
+import { Card, _Btn, I, Label } from "../../ui/primitives.jsx";
 import { TEAL, TEAL_LIGHT } from "../../ui/tokens.js";
 import { REACTIVOS } from "../../data/clinical.js";
 import ScoringGuide from "./ScoringGuide.jsx";
-import { getItem as getProtocolItem, getSubtest } from "../../data/protocolLoader.js";
+import { getItem as getProtocolItem, _getSubtest } from "../../data/protocolLoader.js";
 import { CubosPattern } from "../../data/PatronesCubos.jsx";
 import { FCROFigure } from "../../data/PatronFCRO.jsx";
-import BlockStimulus from "./BlockStimulus.jsx";
+import _BlockStimulus from "./BlockStimulus.jsx";
 
 /* ═══ Componente ReactivePanel — Renderiza ítems según tipo ═══ */
 export const ReactivePanel=({testId,puntajes,setPuntajes,itemScores,setItemScores})=>{
@@ -70,7 +70,7 @@ export const ReactivePanel=({testId,puntajes,setPuntajes,itemScores,setItemScore
     </Card></>;
   }
   if(cfg.type==="scored_items"){
-    const maxPer=cfg.scoring[cfg.scoring.length-1];
+    const _maxPer=cfg.scoring[cfg.scoring.length-1];
     return<Card className="p-5 space-y-3 border-l-4 border-purple-400">
       <div className="flex items-center justify-between"><h3 className="font-bold text-sm flex items-center gap-2"><I name="list_alt" className="text-purple-600 text-lg"/>Reactivos — {cfg.label}</h3><span className="text-xs font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700">PD: {puntajes[testId]||0}</span></div>
       <div className="space-y-1 max-h-72 overflow-y-auto pr-1">{cfg.items.map(it=>{

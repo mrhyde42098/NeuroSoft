@@ -15,7 +15,7 @@
 import React, { useEffect, useState } from "react";
 import { API } from "../../api/client.js";
 import { Btn, Card, I } from "../../ui/primitives.jsx";
-import { TEAL, TEAL_LIGHT, NAVY, CREAM, COLORS } from "../../ui/tokens.js";
+import { TEAL, TEAL_LIGHT, NAVY, CREAM, _COLORS } from "../../ui/tokens.js";
 import StroopActivity from "./StroopActivity.jsx";
 import NBackActivity from "./NBackActivity.jsx";
 import FluencyActivity from "./FluencyActivity.jsx";
@@ -87,7 +87,7 @@ export default function PublicRehabViewer({ token }) {
       if (!res.ok) throw await res.json();
       setCompleted((s) => new Set([...s, running.slug]));
       setFeedback({ type: "ok", msg: "¡Actividad enviada! Tu profesional la verá pronto." });
-    } catch (e) {
+    } catch {
       setFeedback({
         type: "err",
         msg: "No se pudo enviar tu resultado. Intenta de nuevo en un momento.",

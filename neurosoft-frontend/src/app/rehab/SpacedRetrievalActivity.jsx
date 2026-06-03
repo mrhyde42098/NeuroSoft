@@ -46,7 +46,7 @@ export default function SpacedRetrievalActivity({
 }) {
   const toast = useToast();
   const intervals = params.intervals || DEFAULT_INTERVALS;
-  const maxIntervalMin = params.max_interval_min || 16;
+  const _maxIntervalMin = params.max_interval_min || 16;
 
   const [phase, setPhase] = useState("setup");
     /* setup · encoding · waiting · prompting · feedback · done */

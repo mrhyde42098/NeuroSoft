@@ -1,0 +1,306 @@
+{
+  "timestamp": "2026-06-03T17:59:09.663951",
+  "checks": {
+    "baremo_outliers": {
+      "n_outliers": 25,
+      "outliers": [
+        {
+          "evaluation_id": "30ea7079-34c8-480c-822c-0279aedaac02",
+          "patient_id": "f3602019-f056-42ce-be36-15e467a96674",
+          "test_id": "NiLVS",
+          "pd": 16,
+          "razon": "PD=16 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "30ea7079-34c8-480c-822c-0279aedaac02",
+          "patient_id": "f3602019-f056-42ce-be36-15e467a96674",
+          "test_id": "NiComp",
+          "pd": 12,
+          "razon": "PD=12 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "dc2edda1-9550-4b93-a69a-fb31a74c807e",
+          "patient_id": "5ab7bfa6-cb57-4076-a051-d399c09eb57f",
+          "test_id": "NiWiscMat",
+          "pd": 38,
+          "razon": "PD=38 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "dc2edda1-9550-4b93-a69a-fb31a74c807e",
+          "patient_id": "5ab7bfa6-cb57-4076-a051-d399c09eb57f",
+          "test_id": "NiGADSCTAs",
+          "pd": 85.0,
+          "razon": "PD=85.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "e5a1b71b-b507-487f-8173-0204064e558a",
+          "patient_id": "84556d96-c21e-4e39-8853-16a94f14e22a",
+          "test_id": "NiCDI",
+          "pd": 22.0,
+          "razon": "PD=22.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "e5a1b71b-b507-487f-8173-0204064e558a",
+          "patient_id": "84556d96-c21e-4e39-8853-16a94f14e22a",
+          "test_id": "NiSpenceTo",
+          "pd": 65.0,
+          "razon": "PD=65.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISICV",
+          "pd": 65.0,
+          "razon": "PD=65.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISICP",
+          "pd": 58.0,
+          "razon": "PD=58.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISIVP",
+          "pd": 45.0,
+          "razon": "PD=45.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISEMan",
+          "pd": 105.0,
+          "razon": "PD=105.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "f8133903-5f6a-4b68-80b4-e4e24c351f19",
+          "patient_id": "58e49c15-613f-429e-9cf7-c19cbe0814e3",
+          "test_id": "NiLVS",
+          "pd": 16,
+          "razon": "PD=16 fuera del rango del baremo",
+          "fecha": "2026-06-05"
+        },
+        {
+          "evaluation_id": "f8133903-5f6a-4b68-80b4-e4e24c351f19",
+          "patient_id": "58e49c15-613f-429e-9cf7-c19cbe0814e3",
+          "test_id": "NiComp",
+          "pd": 12,
+          "razon": "PD=12 fuera del rango del baremo",
+          "fecha": "2026-06-05"
+        },
+        {
+          "evaluation_id": "c29ec4dd-7906-4a57-b2d1-cc562d076f4f",
+          "patient_id": "903a69e1-9ed1-4193-a893-935f3c986a90",
+          "test_id": "NiWiscMat",
+          "pd": 38,
+          "razon": "PD=38 fuera del rango del baremo",
+          "fecha": "2026-06-06"
+        },
+        {
+          "evaluation_id": "c29ec4dd-7906-4a57-b2d1-cc562d076f4f",
+          "patient_id": "903a69e1-9ed1-4193-a893-935f3c986a90",
+          "test_id": "NiGADSCTAs",
+          "pd": 85.0,
+          "razon": "PD=85.0 fuera del rango del baremo",
+          "fecha": "2026-06-06"
+        },
+        {
+          "evaluation_id": "07ada2d1-e642-4224-bb6a-40c9d02f9ff4",
+          "patient_id": "9b4ca936-98eb-401a-a868-b15fa29e684c",
+          "test_id": "NiCDI",
+          "pd": 22.0,
+          "razon": "PD=22.0 fuera del rango del baremo",
+          "fecha": "2026-06-08"
+        },
+        {
+          "evaluation_id": "07ada2d1-e642-4224-bb6a-40c9d02f9ff4",
+          "patient_id": "9b4ca936-98eb-401a-a868-b15fa29e684c",
+          "test_id": "NiSpenceTo",
+          "pd": 65.0,
+          "razon": "PD=65.0 fuera del rango del baremo",
+          "fecha": "2026-06-08"
+        },
+        {
+          "evaluation_id": "06a9b1af-8a5d-49b8-b555-5b89847d8fa4",
+          "patient_id": "db01155d-8e6b-4f56-90e8-2ba3d5396bab",
+          "test_id": "AdWAISICV",
+          "pd": 65.0,
+          "razon": "PD=65.0 fuera del rango del baremo",
+          "fecha": "2026-06-10"
+        },
+        {
+          "evaluation_id": "06a9b1af-8a5d-49b8-b555-5b89847d8fa4",
+          "patient_id": "db01155d-8e6b-4f56-90e8-2ba3d5396bab",
+          "test_id": "AdWAISICP",
+          "pd": 58.0,
+          "razon": "PD=58.0 fuera del rango del baremo",
+          "fecha": "2026-06-10"
+        },
+        {
+          "evaluation_id": "06a9b1af-8a5d-49b8-b555-5b89847d8fa4",
+          "patient_id": "db01155d-8e6b-4f56-90e8-2ba3d5396bab",
+          "test_id": "AdWAISIVP",
+          "pd": 45.0,
+          "razon": "PD=45.0 fuera del rango del baremo",
+          "fecha": "2026-06-10"
+        },
+        {
+          "evaluation_id": "06a9b1af-8a5d-49b8-b555-5b89847d8fa4",
+          "patient_id": "db01155d-8e6b-4f56-90e8-2ba3d5396bab",
+          "test_id": "AdWAISEMan",
+          "pd": 105.0,
+          "razon": "PD=105.0 fuera del rango del baremo",
+          "fecha": "2026-06-10"
+        }
+      ]
+    },
+    "dx_distribution": {
+      "total_with_dx": 27,
+      "top_5": [
+        {
+          "dx": "F90",
+          "count": 5,
+          "pct": 18.5
+        },
+        {
+          "dx": "F32",
+          "count": 3,
+          "pct": 11.1
+        },
+        {
+          "dx": "Z00",
+          "count": 3,
+          "pct": 11.1
+        },
+        {
+          "dx": "F81",
+          "count": 2,
+          "pct": 7.4
+        },
+        {
+          "dx": "F84",
+          "count": 2,
+          "pct": 7.4
+        }
+      ]
+    },
+    "pd_outliers": {
+      "n_outliers": 0,
+      "outliers": []
+    },
+    "stale_evaluations": {
+      "n_stale": 0,
+      "stale_ids": []
+    },
+    "audit_log_volume": {
+      "events_last_24h": 519
+    }
+  },
+  "alerts": [
+    {
+      "severity": "MEDIUM",
+      "type": "BARE_OUTLIER",
+      "message": "25 puntajes brutos fuera del rango del baremo detectados.",
+      "details": [
+        {
+          "evaluation_id": "30ea7079-34c8-480c-822c-0279aedaac02",
+          "patient_id": "f3602019-f056-42ce-be36-15e467a96674",
+          "test_id": "NiLVS",
+          "pd": 16,
+          "razon": "PD=16 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "30ea7079-34c8-480c-822c-0279aedaac02",
+          "patient_id": "f3602019-f056-42ce-be36-15e467a96674",
+          "test_id": "NiComp",
+          "pd": 12,
+          "razon": "PD=12 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "dc2edda1-9550-4b93-a69a-fb31a74c807e",
+          "patient_id": "5ab7bfa6-cb57-4076-a051-d399c09eb57f",
+          "test_id": "NiWiscMat",
+          "pd": 38,
+          "razon": "PD=38 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "dc2edda1-9550-4b93-a69a-fb31a74c807e",
+          "patient_id": "5ab7bfa6-cb57-4076-a051-d399c09eb57f",
+          "test_id": "NiGADSCTAs",
+          "pd": 85.0,
+          "razon": "PD=85.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "e5a1b71b-b507-487f-8173-0204064e558a",
+          "patient_id": "84556d96-c21e-4e39-8853-16a94f14e22a",
+          "test_id": "NiCDI",
+          "pd": 22.0,
+          "razon": "PD=22.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "e5a1b71b-b507-487f-8173-0204064e558a",
+          "patient_id": "84556d96-c21e-4e39-8853-16a94f14e22a",
+          "test_id": "NiSpenceTo",
+          "pd": 65.0,
+          "razon": "PD=65.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISICV",
+          "pd": 65.0,
+          "razon": "PD=65.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISICP",
+          "pd": 58.0,
+          "razon": "PD=58.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISIVP",
+          "pd": 45.0,
+          "razon": "PD=45.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        },
+        {
+          "evaluation_id": "295d2b7c-a847-4b52-8cc4-e4d115e271f4",
+          "patient_id": "d976d309-8fe4-4d7c-b61b-bedf42cc32e8",
+          "test_id": "AdWAISEMan",
+          "pd": 105.0,
+          "razon": "PD=105.0 fuera del rango del baremo",
+          "fecha": "2026-06-03"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_alerts": 1,
+    "by_severity": {
+      "MEDIUM": 1
+    }
+  }
+}

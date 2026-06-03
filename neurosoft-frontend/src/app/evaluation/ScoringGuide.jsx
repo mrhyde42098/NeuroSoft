@@ -11,7 +11,7 @@
 import React, { useState } from "react";
 import { I } from "../../ui/primitives.jsx";
 
-export default function ScoringGuide({ item, testId }) {
+export default function ScoringGuide({ item, _testId }) {
   const [show, setShow] = useState(true);
 
   const hasScore2 = !!(item.resp_2pt);

@@ -13,9 +13,9 @@ import { useConfirm, useToast } from "../../contexts.jsx";
 import { safeLS } from "../../utils/safeLS.js";
 import {
   Btn, Card, EmptyState, I, Input, Label, MsgBanner,
-  Sel, Skeleton, Spinner, TopBar, Txta,
+  Sel, Skeleton, _Spinner, TopBar, Txta,
 } from "../../ui/primitives.jsx";
-import { TEAL, COLORS } from "../../ui/tokens.js";
+import { TEAL, _COLORS } from "../../ui/tokens.js";
 import StroopActivity from "./StroopActivity.jsx";
 import NBackActivity from "./NBackActivity.jsx";
 import FluencyActivity from "./FluencyActivity.jsx";
@@ -95,6 +95,7 @@ export default function RehabPage() {
       .then((d) => setPatients(d.pacientes || d || []))
       .catch(() => toast.error("Error cargando pacientes"));
     return () => safeLS.remove("ns_sel_patient");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -174,7 +175,7 @@ export default function RehabPage() {
  * ═══════════════════════════════════════════════════════════════ */
 function PlanTab({ patientId, setMsg }) {
   const confirm = useConfirm();
-  const toast = useToast();
+  const _toast = useToast();
   const [plans, setPlans] = useState([]);
   const [activities, setActivities] = useState([]);
   const [ld, setLd] = useState(true);
@@ -196,6 +197,7 @@ function PlanTab({ patientId, setMsg }) {
 
   useEffect(() => {
     reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientId]);
 
   const newPlan = (prefill = null) => {
@@ -227,16 +229,16 @@ function PlanTab({ patientId, setMsg }) {
     setSaving(true);
     setMsg("");
     try {
-      let result;
+      let _result;
       if (editing.id) {
         // En PATCH no incluimos campos no editables
         const patch = { ...editing };
         delete patch.patient_id;
         delete patch.id;
         delete patch.evaluation_id;
-        result = await api.patch(`/api/v1/rehab/plans/${editing.id}`, patch);
+        _result = await api.patch(`/api/v1/rehab/plans/${editing.id}`, patch);
       } else {
-        result = await api.post("/api/v1/rehab/plans", editing);
+        _result = await api.post("/api/v1/rehab/plans", editing);
       }
       setMsg("ok");
       setEditing(null);
@@ -669,6 +671,7 @@ function ActivitiesTab({ patientId, setMsg }) {
       .then((d) => setActivities(d || []))
       .catch(() => toast.error("Error cargando actividades"))
       .finally(() => setLd(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
@@ -1058,7 +1061,7 @@ function EvolutionChart({ evolution }) {
         })}
 
         {/* Etiquetas X */}
-        {weeks.map((w, i) => (
+        {weeks.map((w, _i) => (
           <text
             key={w}
             x={xOf(w)}

@@ -26,7 +26,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Las 18 pruebas marcadas en el PLAN_MAESTRO_GLOBAL.md §7.2
+# Las pruebas marcadas en el PLAN_MAESTRO_GLOBAL.md §7.2
+# (Antes 18 — ahora 25 entradas tras ampliar a más screenings/atencional)
 PRUEBAS_MARCADAS = {
     "AdWAISCC": {
         "categoria": "wais_iii",
@@ -155,6 +156,36 @@ PRUEBAS_MARCADAS = {
     },
 }
 
+# Pruebas de cribado/tamizaje con baremos FIJOS por diseño del instrumento
+# (no más de ~10 keys aunque la prueba esté correctamente baremizada).
+# Esto evita que el script marque como "cobertura_baja" instrumentos que
+# intencionalmente tienen clasificación discreta (BDI-II, Lawton, Yesavage,
+# Pfeffer, Hamilton, C-SSRS, Kertesz WAB, etc.).
+SHORT_FORM_BAREMOS: Dict[str, str] = {
+    "AdBeck": "BDI-II: 4 bandas Mínima/Leve/Moderada/Severa (Beck 1996).",
+    "EscBeck": "BDI-I: 4 bandas (Beck 1988). Idem AdBeck.",
+    "EscLawton": "Lawton IADL: DS/DE/DL/N (forma corta LatinAm).",
+    "EscYesavage": "GDS-15: 0-15 puntos; baremo discreto.",
+    "EscPfeffer": "Pfeffer FAQ: 0-30 puntos; baremo discreto.",
+    "EscHamilton": "HAM-D: baremo discreto por bandas.",
+    "CSSRS": "C-SSRS: nivel de riesgo discreto.",
+    "EscKertesz": "WAB: 0-100 puntos; baremo discreto por cortes.",
+    "MMSE": "Folstein MMSE: 0-30 puntos; baremo discreto por escolaridad.",
+    "MoCA": "Nasreddine MoCA: 0-30 puntos; baremo discreto.",
+    "Minimental": "Variante MMSE: baremo discreto.",
+}
+
+# Pruebas con baremo en revisión clínica — requieren override Python
+# porque el dato crudo en BD es incorrecto o está codificado de forma
+# heredada del Excel VBA original.
+#
+# F7.2 (2026-06-03): AdBeck fue corregido directamente en BD
+# (autorización one-time del propietario). El override Python está
+# deshabilitado (LEGACY en adbeck.py). Se retira AdBeck de esta lista.
+BAREMOS_EN_REVISION: Dict[str, str] = {
+    # Vacío por ahora. Próximas correcciones se agregarán aquí.
+}
+
 
 def _flatten_baremos(baremos: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     """Aplana el árbol baterias.*.subtests.* a un dict {testId: Prueba}."""
@@ -209,7 +240,9 @@ def _auditar_prueba(test_id: str, test_def: Dict[str, Any]) -> Dict[str, Any]:
     anomalias: List[str] = []
     if n_claves == 0:
         anomalias.append("SIN BAREMOS")
-    if n_claves < 10:
+    # Cobertura baja: no aplica a SHORT_FORM_BAREMOS (cribados con baremo
+    # discreto por diseño) ni a BAREMOS_EN_REVISION (override Python).
+    if n_claves < 10 and test_id not in SHORT_FORM_BAREMOS and test_id not in BAREMOS_EN_REVISION:
         anomalias.append(f"cobertura_baja (n={n_claves})")
     if escalares and min(escalares) < 0:
         anomalias.append(f"valor_minimo_negativo ({min(escalares)})")
@@ -228,6 +261,8 @@ def _auditar_prueba(test_id: str, test_def: Dict[str, Any]) -> Dict[str, Any]:
         "ultima_clave": ultima_clave,
         "distribucion": distribucion,
         "anomalias": anomalias,
+        "short_form": test_id in SHORT_FORM_BAREMOS,
+        "en_revision": test_id in BAREMOS_EN_REVISION,
     }
 
 
@@ -277,32 +312,51 @@ def _render_markdown(reporte: Dict[str, Any]) -> str:
     out.append("")
     out.append(
         "| Test ID | Categoría | Tipo cálculo | N claves | "
-        "Min | Max | Anomalías |"
+        "Min | Max | Forma | Anomalías |"
     )
-    out.append("|---|---|---|---:|---:|---:|---|")
+    out.append("|---|---|---|---:|---:|---:|---|---|")
     for p in reporte["auditorias"]:
         dist = p.get("distribucion", {})
         anomalias_str = (
             ", ".join(p["anomalias"]) if p.get("anomalias") else "—"
         )
+        forma = "✏️ revisión" if p.get("en_revision") else (
+            "✔ short-form" if p.get("short_form") else "—"
+        )
         out.append(
             f"| `{p['test_id']}` | {p['categoria']} | "
             f"{p['tipo_calculo']} | {p['n_claves']} | "
             f"{dist.get('min', '—')} | {dist.get('max', '—')} | "
-            f"{anomalias_str} |"
+            f"{forma} | {anomalias_str} |"
         )
     out.append("")
 
+    # Baremos en revisión clínica (override Python)
+    if BAREMOS_EN_REVISION:
+        out.append("## 3. Baremos en revisión clínica (override Python)")
+        out.append("")
+        out.append(
+            "Las siguientes pruebas tienen un baremo **heredado del Excel VBA "
+            "original** que no representa clasificaciones clínicas válidas. "
+            "Se aplica un override Python (`app/domain/clinical_engine/overrides/`) "
+            "que se activa **antes** de la consulta a `BD_NEURO_MAESTRA.json`. "
+            "Esto es parte del plan de migración F7.2 (`docs/PLAN_MIGRACION_BAREMOS.md`)."
+        )
+        out.append("")
+        for test_id, motivo in BAREMOS_EN_REVISION.items():
+            out.append(f"- **`{test_id}`** — {motivo}")
+        out.append("")
+
     # Pruebas no encontradas
     if reporte["no_encontradas"]:
-        out.append("## 3. Pruebas marcadas no encontradas en BD")
+        out.append("## 4. Pruebas marcadas no encontradas en BD")
         out.append("")
         for t in reporte["no_encontradas"]:
             out.append(f"- `{t}`")
         out.append("")
 
     # Recomendaciones
-    out.append("## 4. Recomendaciones")
+    out.append("## 5. Recomendaciones")
     out.append("")
     out.append(
         "1. Para cada prueba con `cobertura_baja` (n<10), evaluar si la "

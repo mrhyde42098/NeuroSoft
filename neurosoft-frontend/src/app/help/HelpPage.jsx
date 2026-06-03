@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 import { Card, I, TopBar } from "../../ui/primitives.jsx";
-import { TEAL, NAVY } from "../../ui/tokens.js";
+import { TEAL, _NAVY } from "../../ui/tokens.js";
 import { CHANGELOG } from "../../data/changelog.js";
 import {
   CAPITULOS_NEURONORMA, NEURONORMA_COLOMBIA_REF, REGLAS_AJUSTE,

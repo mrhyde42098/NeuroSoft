@@ -52,6 +52,7 @@ class PediatricGenerator(NeuroPDFGeneratorPro):
         y = self._section_observacion_juego_y_cooperacion(c, data, y)
         y = self._section_resultados(c, data, y)
         y = self._section_sintesis(c, data, y)
+        y = self._section_resumen_familia(c, data, y)
         y = self._section_impresion(c, data, y)
         y = self._section_recomendaciones(c, data, y)
         if self.INCLUDE_ANNEX:

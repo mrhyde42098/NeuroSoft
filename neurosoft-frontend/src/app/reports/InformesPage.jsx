@@ -19,7 +19,7 @@ const STEPS = [
   { label: "Descargar",      icon: "download" },
 ];
 
-export default function InformesPage({ setPage }) {
+export default function InformesPage({ _setPage }) {
   const toast = useToast();
   const [patients, setPatients] = useState([]);
   const [patId, setPatId] = useState("");
@@ -50,6 +50,7 @@ export default function InformesPage({ setPage }) {
     api.get("/api/v1/patients/panel")
       .then(d => setPatients(d.pacientes || d || []))
       .catch(() => toast.error("Error al cargar datos"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadE = async (pid) => {
@@ -111,7 +112,7 @@ export default function InformesPage({ setPage }) {
       }
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
-    } catch (e) {
+    } catch {
       toast.error("No se pudo abrir diálogo de impresión");
     }
   };

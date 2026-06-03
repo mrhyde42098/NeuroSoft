@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from "react";
 import { api, _parseError } from "../../api/client.js";
 import {
-  Btn, Card, I, Input, Label, MsgBanner, Sel, TopBar,
+  Btn, Card, I, Input, Label, MsgBanner, _Sel, TopBar,
 } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 import { useA11y, useAuth, useToast } from "../../contexts.jsx";
@@ -25,7 +25,7 @@ import UpdateTab from "./UpdateTab.jsx"; // §update-system
 
 /* ══════════════ CONFIGURACIÓN ══════════════ */
 
-export default function ConfigPage({setPage}){
+export default function ConfigPage({_setPage}){
   const toast = useToast();
   const{highContrast,fontScale,setHighContrast,setFontScale}=useA11y();
   const{user}=useAuth();

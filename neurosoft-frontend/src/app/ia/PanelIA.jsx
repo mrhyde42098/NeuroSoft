@@ -460,7 +460,7 @@ export function AIConfigPage() {
   const [health,     setHealth]     = useState(null);
   const [ollama,     setOllama]     = useState(null);
   const [bundled,    setBundled]    = useState(null);
-  const [installing, setInstalling] = useState(false);
+  const [installing, _setInstalling] = useState(false);
   const [pullBusy,   setPullBusy]   = useState(false);
   const [pullProgress, setPullProgress] = useState(null);
 
@@ -539,6 +539,7 @@ export function AIConfigPage() {
       await checkOllama();
     } catch (e) { setMsg({ text: "Error: " + e.message, type: "error" }); }
     setPullBusy(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkOllama]);
 
   const autoSetup = async () => {

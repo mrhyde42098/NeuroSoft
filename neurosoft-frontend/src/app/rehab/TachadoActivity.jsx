@@ -10,7 +10,7 @@
  *      omisiones y se mide tiempo total.
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { _useEffect, useMemo, useRef, useState } from "react";
 import { Btn, Card, I } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 

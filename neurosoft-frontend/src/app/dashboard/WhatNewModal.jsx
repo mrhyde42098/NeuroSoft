@@ -55,7 +55,7 @@ export default function WhatNewModal({ show, onClose, version = null }) {
             <I name={entry.icono} className="text-3xl" style={{ color: entry.color }} fill />
           </div>
           <h2 className="text-xl font-extrabold" style={{ color: "var(--ns-text)" }}>
-            ¡NeuroSoft App {entry.version}!
+            ¡Novedades en NeuroSoft!
           </h2>
           <p className="text-sm mt-1" style={{ color: "var(--ns-muted)" }}>
             {entry.titulo} · {new Date(entry.fecha).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" })}
@@ -80,7 +80,7 @@ export default function WhatNewModal({ show, onClose, version = null }) {
         {/* Footer */}
         <div className="p-4 border-t flex items-center justify-between" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
           <span className="text-xs" style={{ color: "var(--ns-muted)" }}>
-            Actual: {entry.version} · {CHANGELOG.length} versiones publicadas
+            {new Date(entry.fecha).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" })}
           </span>
           <button
             onClick={dismiss}

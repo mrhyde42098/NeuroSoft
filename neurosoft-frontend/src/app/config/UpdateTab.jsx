@@ -140,7 +140,7 @@ export default function UpdateTab() {
             <I name="check_circle" fill className="text-2xl" style={{ color: "#10b981" }} />
             <div>
               <p className="font-bold text-sm" style={{ color: "#065f46" }}>Actualizacion aplicada</p>
-              <p className="text-xs" style={{ color: "#047857" }}>Version {result.version}. El sistema se reiniciara en unos segundos.</p>
+              <p className="text-xs" style={{ color: "#047857" }}>El sistema se reiniciara en unos segundos para aplicar los cambios.</p>
             </div>
           </div>
         </Card>

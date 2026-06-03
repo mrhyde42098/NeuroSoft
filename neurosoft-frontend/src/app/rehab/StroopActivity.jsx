@@ -16,7 +16,7 @@
  *   • onCancel()         abandono manual
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, _useMemo, useRef, useState } from "react";
 import { Btn, Card, I } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 
@@ -64,7 +64,7 @@ export default function StroopActivity({
   const trialStartRef = useRef(0);
 
   const current = trialsRef.current[idx];
-  const remaining = trialsRef.current.length - idx;
+  const _remaining = trialsRef.current.length - idx;
 
   /* Cuando se monta el trial activo, guardamos su timestamp inicial */
   useEffect(() => {

@@ -360,7 +360,7 @@ function TelepsicologiaTools({ sessionId, isLocked }) {
         el.textContent = "¡Copiado!";
         setTimeout(() => { el.textContent = txt; }, 1200);
       }
-    } catch (e) {
+    } catch {
       toast.info("Copia manualmente el link de telepsicología.");
     }
   };

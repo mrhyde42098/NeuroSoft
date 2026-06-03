@@ -10,7 +10,7 @@
  *        onFinish(result), onCancel()
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, _useMemo, useRef, useState } from "react";
 import { Btn, Card, I } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 
@@ -29,7 +29,7 @@ function makeCard() {
 
 const SHAPE_ICONS = { círculo:"circle", triángulo:"change_history", estrella:"star", cruz:"close" };
 const COLOR_HEX   = { rojo:"#ef4444", azul:"#3b82f6", amarillo:"#f59e0b", verde:"#22c55e" };
-const PILES = 4; // 4 pile targets, one per color/shape/number value
+const _PILES = 4; // 4 pile targets, one per color/shape/number value
 
 /* Devuelve los 4 "target cards" fijos (los pies de las pilas) */
 const TARGETS = [

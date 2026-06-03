@@ -78,8 +78,9 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
    * Una clave por paciente+evaluación: si se cierra el informe a medio
    * redactar, al volver se restauran las observaciones. */
   const obsDraftKey=()=>`ns_report_obs_${evalCtx?.patientId||"sin_paciente"}_${evalId||evalCtx?.proto||"sin_eval"}`;
-  const[obsDraftSavedAt,setObsDraftSavedAt]=useState(null);
+  const[_obsDraftSavedAt,setObsDraftSavedAt]=useState(null);
   /* Pre-fill observaciones desde notas por prueba */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>{if(!evalCtx?.obs)return;const perTest=evalCtx.obs;const byDom={};Object.entries(perTest).forEach(([tid,txt])=>{if(!txt)return;byDom[tid]=txt});if(Object.keys(byDom).length>0){const pre="Observaciones por prueba:\n"+Object.entries(byDom).map(([tid,txt])=>`• ${tid}: ${txt}`).join("\n");setObsT(o=>({...o,apariencia_conducta:pre}))}},[]);
 
   /* §autosave-results-1: restaurar borrador de informe al cargar la página.
@@ -127,6 +128,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
   /* Llamar al motor de scoring */
   useEffect(()=>{if(!evalCtx?.patientId||!evalCtx?.puntajes){setError("No hay datos de evaluación. Vuelva a la pantalla de aplicación.");setLoading(false);return}
     const run=async()=>{try{const body={patient_id:evalCtx.patientId,protocolo:evalCtx.protoNombre||"WISC-IV",puntajes:evalCtx.puntajes};const d=await api.post("/api/v1/scores/",body);setRes(d);setEvalId(d.evaluation_id||null);if(setEvalCtx)setEvalCtx(c=>({...c,scoringResult:d}))}catch(e){setError(_parseError(e))}setLoading(false)};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     run()},[]);
   /* Activar animación Z 200ms después de tener resultados */
   useEffect(()=>{if(res){const t=setTimeout(()=>setZAnimated(true),200);return()=>clearTimeout(t)}},[res]);

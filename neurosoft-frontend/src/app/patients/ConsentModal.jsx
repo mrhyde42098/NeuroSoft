@@ -27,6 +27,7 @@ export default function ConsentModal({patientId,patientName,onClose,onAllSigned}
     setPendientes(p||[]);setFirmados(f||[]);
     if(p&&p.length>0){const t=await api.get(`/api/v1/consentimientos/textos/${p[0]}`).catch(()=>null);setTextoActual(t)}
   }catch(e){toast.error(_parseError(e))}setLd(false)};
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>{load()},[patientId]);
   const cargarTipo=async(tipo)=>{const t=await api.get(`/api/v1/consentimientos/textos/${tipo}`).catch(()=>null);setTextoActual(t);setFirma("");setNombreFirmante("");setDocFirmante("");setAceptado(false);setRelacion("titular")};
   const firmar=async()=>{if(!firma||!nombreFirmante||!docFirmante||!aceptado){toast.error("Complete nombre, documento, firma y marque la casilla");return}setSaving(true);try{

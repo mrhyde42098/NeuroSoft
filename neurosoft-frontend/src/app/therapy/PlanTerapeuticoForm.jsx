@@ -9,7 +9,7 @@
 import React, { useState } from "react";
 import { api, _parseError } from "../../api/client.js";
 import { Btn, I, Input, Sel, Txta } from "../../ui/primitives.jsx";
-import { ACCENTS, NAVY } from "../../ui/tokens.js";
+import { ACCENTS, _NAVY } from "../../ui/tokens.js";
 import { useToast } from "../../contexts.jsx";
 import { ENFOQUES_TERAPEUTICOS } from "../../data/enfoquesTerapeuticos.js";
 

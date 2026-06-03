@@ -1,0 +1,47 @@
+{
+  "caso_id": 24,
+  "estado": "cierre_terapia",
+  "paciente": {
+    "id": "9d9a43d0-2901-466a-8911-1603321cbef5",
+    "documento": "52999123",
+    "nombre": "Andrea Guti\u00e9rrez",
+    "edad": "36 a\u00f1os, 8 meses",
+    "sexo": "M",
+    "escolaridad": "Universitaria"
+  },
+  "evaluacion": {
+    "id": "659974d1-ec2b-4729-ab45-65148c92466a",
+    "protocolo": "post_tratamiento_adulto",
+    "fecha": "2027-01-13",
+    "poblacion": "adulto_joven",
+    "n_pruebas": 8,
+    "resultados_count": 3,
+    "advertencias": [
+      "Test 'AdYesavage' no encontrado en BD_NEURO_MAESTRA.json.",
+      "'COMRENSI\u00d3N' (PD=35.0): fuera del rango del baremo para esta edad/llave \u2014 no se calific\u00f3.",
+      "Test 'AdTMTA' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdTMTB' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdStroopC' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdStroopPC' no encontrado en BD_NEURO_MAESTRA.json."
+    ]
+  },
+  "dx_principal": "F41.1 - Trastorno de ansiedad generalizada + cierre terap\u00e9utico exitoso",
+  "n_observaciones": 6,
+  "n_recomendaciones": 5,
+  "metadatos": {
+    "es_emergencia": false,
+    "es_medicolegal": false,
+    "es_cierre_terapia": true,
+    "es_bateria_completa": false,
+    "es_inconcluso": false,
+    "rci_calculado": {
+      "medida": "BDI-II",
+      "pre": 22,
+      "post": 6,
+      "cambio_bruto": -16,
+      "rci_jacobson_truax": -2.93,
+      "interpretacion": "Cambio CL\u00cdNICAMENTE SIGNIFICATIVO y CONFIABLE ESTAD\u00cdSTICAMENTE"
+    },
+    "cssrs_score": null
+  }
+}

@@ -3,7 +3,7 @@
  * Radar + barras con Z promedio y % bajo el promedio por dominio.
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useMemo } from "react";
+import React, { _useMemo } from "react";
 import {
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, Tooltip,

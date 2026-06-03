@@ -1,216 +1,225 @@
 {
- "version": "INS-2025-04",
- "source": "Protocolos Alternos para Casos Especiales (2025)",
- "notes": [
- "Baterías neuropsicológicas adaptadas para pacientes con limitaciones sensoriales, motoras o de escolaridad.",
- "Cada protocolo sustituye pruebas verbales/visuales/motoras/escritas por equivalentes factibles.",
- "Agrupado por condición y grupo etario. 'notas' contiene advertencias de interpretación."
- ],
- "conditions": {
- "hipoacusia": {
- "label": "Hipoacusia / Sordera",
- "general_notes": [
- "Evitar pruebas que dependen de input auditivo (dígitos orales, span oral, comprensión oral).",
- "Usar versión visual/escrita de instrucciones. Confirmar comprensión con ejemplo.",
- "Intérprete de lengua de señas si el paciente lo requiere."
- ],
- "batteries": {
- "nino": [
- "WISC-IV (omitir subpruebas orales: Información, Vocabulario, Comprensión)",
- "Figura Compleja de Rey-Osterrieth (FCRO) — Copia y Recobro",
- "Test de Colores y Palabras de Stroop (modalidad visual)",
- "Trail Making Test (TMT) A y B",
- "Span visoespacial (Corsi) directo e inverso",
- "Fluidez gráfica — Test de los Cinco Puntos (Regard)",
- "Dibujo del Reloj",
- "Matrices progresivas (Raven) — color o general",
- "HVLT visual / lista leída"
- ],
- "adulto": [
- "WAIS-IV (omitir Información, Vocabulario, Comprensión orales)",
- "Figura Compleja de Rey-Osterrieth — Copia y Recobro",
- "Trail Making Test A y B",
- "Span visoespacial (Corsi) directo e inverso",
- "Test de los Cinco Puntos (Fluidez gráfica)",
- "Stroop visual",
- "FCSRT (Grober-Buschke) — versión visual con tarjetas",
- "Dibujo del Reloj",
- "Matrices progresivas de Raven"
- ],
- "adulto_mayor": [
- "GROBER & BUSCHKE / HVLT versión visual (tarjetas con palabras escritas)",
- "FCRO Copia",
- "Trail Making Test A",
- "Span visoespacial (Corsi) directo",
- "Meses al revés — presentado por escrito",
- "FCRO Recobro",
- "Refranes (versión escrita del INECO)",
- "Semejanzas (versión escrita)",
- "Recobro GROBER / HVLT",
- "Memoria Remota y Reciente (cuestionario escrito)",
- "Fluidez gráfica (Cinco Puntos) en reemplazo de fluidez fonológica",
- "Denominación (Boston) — tarjetas visuales"
- ]
- }
- },
- "discapacidad_visual": {
- "label": "Discapacidad Visual / Ceguera",
- "general_notes": [
- "Evitar pruebas visuoconstructivas (FCRO, Cubos, Matrices) y lectura de estímulos.",
- "Toda instrucción oral. Material manipulable o verbal.",
- "Tiempos de ejecución pueden estar incrementados; priorizar exactitud sobre velocidad."
- ],
- "batteries": {
- "nino": [
- "WISC-IV verbal (Vocabulario, Comprensión, Semejanzas, Información, Aritmética)",
- "Span dígitos directo e inverso",
- "Fluidez verbal fonológica (F, A, S) y semántica (animales, frutas)",
- "Memoria de historias (WMS adaptado)",
- "Meses al revés / días al revés",
- "Refranes (interpretación verbal)",
- "Aprendizaje verbal (lista de palabras leída al paciente, 5 ensayos)",
- "Memoria auditiva inmediata y diferida"
- ],
- "adulto": [
- "WAIS-IV verbal (Comprensión Verbal + Memoria de Trabajo)",
- "Span dígitos directo e inverso",
- "Fluidez verbal fonológica y semántica",
- "Aprendizaje audio-verbal (lista de 15 palabras — Rey o FCSRT)",
- "Memoria de textos / historias",
- "Dígitos + Letras (WAIS-IV)",
- "Refranes INECO (verbal)",
- "Aritmética mental (WAIS)",
- "Praxias ideomotoras (descripción verbal del movimiento)"
- ],
- "adulto_mayor": [
- "GROBER & BUSCHKE audio-verbal (lista leída)",
- "Span dígitos directo e inverso",
- "Fluidez fonológica (P, M, R) y semántica (animales)",
- "Refranes INECO",
- "Semejanzas WAIS",
- "Meses al revés / sustracción seriada de 7",
- "Memoria de un texto corto",
- "Denominación por descripción verbal (definiciones)",
- "Orientación témporoespacial (preguntas orales)",
- "Memoria remota y reciente (cuestionario oral)"
- ]
- }
- },
- "visual_auditiva": {
- "label": "Discapacidad Visual + Auditiva (sordo-ciega)",
- "general_notes": [
- "Batería extremadamente acotada: depende de comunicación táctil (Braille, dactilología).",
- "La evaluación estandarizada formal NO es aplicable — resultados son cualitativos.",
- "Se recomienda entrevista clínica estructurada con cuidador y observación conductual."
- ],
- "batteries": {
- "nino": [
- "Observación clínica estructurada",
- "Escala de desarrollo adaptada (Batelle, Vineland) por entrevista con cuidador",
- "Pruebas táctiles de reconocimiento (objetos familiares)",
- "Memoria táctil (formas geométricas en 3D)",
- "Orientación corporal y espacial por palpación"
- ],
- "adulto": [
- "Entrevista estructurada con intérprete (dactilología / Braille)",
- "Pruebas táctiles: reconocimiento de objetos, formas, texturas",
- "Memoria táctil diferida",
- "Orientación témporoespacial por preguntas en Braille",
- "Evaluación funcional adaptativa (AVD por entrevista con cuidador)"
- ],
- "adulto_mayor": [
- "Entrevista estructurada con cuidador (DAD, IADL, DSM)",
- "Evaluación táctil acotada",
- "Orientación personal por preguntas en Braille/dactilología",
- "Observación conductual en entorno familiar",
- "Cuestionarios de cuidador (NPI-Q, GDS-15 aplicado por familiar)"
- ]
- }
- },
- "motora": {
- "label": "Discapacidad Motora (hemiparesia, parálisis, temblor, atetosis)",
- "general_notes": [
- "Evitar pruebas con demanda grafomotora precisa (FCRO copia, Stroop impreso, TMT trazado).",
- "Sustituir por versiones orales o con señalamiento / respuesta binaria.",
- "Si la afectación es unilateral, usar la mano no afectada. Registrar lateralidad."
- ],
- "batteries": {
- "nino": [
- "WISC-IV subpruebas verbales + Memoria de Trabajo (no Cubos ni Claves)",
- "Fluidez verbal fonológica y semántica",
- "Span dígitos directo e inverso",
- "Semejanzas",
- "Aritmética",
- "Memoria de historias",
- "FCRO — descripción verbal (no copia)",
- "Stroop oral (nombrar colores sin tachar)",
- "TMT adaptado: señalar con el dedo, no trazar"
- ],
- "adulto": [
- "WAIS-IV Comprensión Verbal + Memoria de Trabajo",
- "Fluidez verbal fonológica y semántica",
- "Stroop oral",
- "TMT oral (decir la secuencia, no trazar)",
- "Aprendizaje audio-verbal (Rey, FCSRT)",
- "Refranes INECO",
- "Semejanzas",
- "Span dígitos",
- "Dígitos + Letras (WAIS)"
- ],
- "adulto_mayor": [
- "GROBER & BUSCHKE audio-verbal",
- "Span dígitos directo",
- "Fluidez fonológica y semántica",
- "Semejanzas WAIS",
- "Refranes INECO",
- "Meses al revés",
- "Memoria de un texto corto",
- "Denominación (nombrar figuras que se muestran)",
- "Orientación témporoespacial",
- "Memoria remota y reciente"
- ]
- }
- },
- "analfabeta": {
- "label": "Analfabetismo / Baja Escolaridad (<3 años)",
- "general_notes": [
- "Evitar pruebas que requieran lectura o escritura (Stroop clásico, refranes escritos, dígitos-letras).",
- "Usar baremos ajustados por escolaridad cuando existan (NEURONORMA, NEUROPSI).",
- "Resultados se interpretan con cautela — contexto sociocultural es determinante."
- ],
- "batteries": {
- "nino": [
- "Observación clínica y desarrollo (Batelle / Vineland)",
- "Pruebas no verbales: Matrices Raven color, Cubos WISC",
- "Fluidez semántica (animales, frutas)",
- "Aprendizaje verbal con apoyo visual (figuras concretas)",
- "Span dígitos oral",
- "Memoria visual (Corsi, FCRO)",
- "Praxias ideomotoras"
- ],
- "adulto": [
- "NEUROPSI Breve (diseñado para baja escolaridad)",
- "Matrices Raven",
- "Fluidez semántica (animales, frutas) — fonológica con precaución",
- "Aprendizaje audio-verbal — lista de palabras concretas",
- "Span dígitos oral",
- "Praxias ideomotoras e ideatorias",
- "Denominación por confrontación (Boston — objetos familiares)",
- "Orientación témporoespacial"
- ],
- "adulto_mayor": [
- "NEUROPSI Breve",
- "GROBER & BUSCHKE audio-verbal (lista concreta, leída al paciente)",
- "Fluidez semántica (animales)",
- "Span dígitos directo",
- "Memoria de un texto breve leído",
- "Praxias (copia con las manos)",
- "Denominación (objetos cotidianos)",
- "Orientación (preguntas cotidianas)",
- "MoCA Básico (versión para baja escolaridad)",
- "Memoria remota — eventos familiares"
- ]
- }
- }
- }
+  "version": "INS-2025-04",
+  "source": "Protocolos Alternos para Casos Especiales (2025)",
+  "notes": [
+    "Baterías neuropsicológicas adaptadas para pacientes con limitaciones sensoriales, motoras o de escolaridad.",
+    "Cada protocolo sustituye pruebas verbales/visuales/motoras/escritas por equivalentes factibles.",
+    "Agrupado por condición y grupo etario. 'notas' contiene advertencias de interpretación."
+  ],
+  "conditions": {
+    "hipoacusia": {
+      "label": "Hipoacusia / Sordera",
+      "general_notes": [
+        "Evitar pruebas que dependen de input auditivo (dígitos orales, span oral, comprensión oral).",
+        "Usar versión visual/escrita de instrucciones. Confirmar comprensión con ejemplo.",
+        "Intérprete de lengua de señas si el paciente lo requiere."
+      ],
+      "batteries": {
+        "nino": [
+          "WISC-IV (omitir subpruebas orales: Información, Vocabulario, Comprensión)",
+          "Figura Compleja de Rey-Osterrieth (FCRO) — Copia y Recobro",
+          "Test de Colores y Palabras de Stroop (modalidad visual)",
+          "Trail Making Test (TMT) A y B",
+          "Span visoespacial (Corsi) directo e inverso",
+          "Fluidez gráfica — Test de los Cinco Puntos (Regard)",
+          "Dibujo del Reloj",
+          "Matrices progresivas (Raven) — color o general",
+          "HVLT visual / lista leída"
+        ],
+        "adulto": [
+          "WAIS-IV (omitir Información, Vocabulario, Comprensión orales)",
+          "Figura Compleja de Rey-Osterrieth — Copia y Recobro",
+          "Trail Making Test A y B",
+          "Span visoespacial (Corsi) directo e inverso",
+          "Test de los Cinco Puntos (Fluidez gráfica)",
+          "Stroop visual",
+          "FCSRT (Grober-Buschke) — versión visual con tarjetas",
+          "Dibujo del Reloj",
+          "Matrices progresivas de Raven"
+        ],
+        "adulto_mayor": [
+          "GROBER & BUSCHKE / HVLT versión visual (tarjetas con palabras escritas)",
+          "FCRO Copia",
+          "Trail Making Test A",
+          "Span visoespacial (Corsi) directo",
+          "Meses al revés — presentado por escrito",
+          "FCRO Recobro",
+          "Refranes (versión escrita del INECO)",
+          "Semejanzas (versión escrita)",
+          "Recobro GROBER / HVLT",
+          "Memoria Remota y Reciente (cuestionario escrito)",
+          "Fluidez gráfica (Cinco Puntos) en reemplazo de fluidez fonológica",
+          "Denominación (Boston) — tarjetas visuales"
+        ]
+      }
+    },
+    "discapacidad_visual": {
+      "label": "Discapacidad Visual / Ceguera",
+      "general_notes": [
+        "Evitar pruebas visuoconstructivas (FCRO, Cubos, Matrices) y lectura de estímulos.",
+        "Toda instrucción oral. Material manipulable o verbal.",
+        "Tiempos de ejecución pueden estar incrementados; priorizar exactitud sobre velocidad."
+      ],
+      "batteries": {
+        "nino": [
+          "WISC-IV verbal (Vocabulario, Comprensión, Semejanzas, Información, Aritmética)",
+          "Span dígitos directo e inverso",
+          "Fluidez verbal fonológica (F, A, S) y semántica (animales, frutas)",
+          "Memoria de historias (WMS adaptado)",
+          "Meses al revés / días al revés",
+          "Refranes (interpretación verbal)",
+          "Aprendizaje verbal (lista de palabras leída al paciente, 5 ensayos)",
+          "Memoria auditiva inmediata y diferida"
+        ],
+        "adulto": [
+          "WAIS-IV verbal (Comprensión Verbal + Memoria de Trabajo)",
+          "Span dígitos directo e inverso",
+          "Fluidez verbal fonológica y semántica",
+          "Aprendizaje audio-verbal (lista de 15 palabras — Rey o FCSRT)",
+          "Memoria de textos / historias",
+          "Dígitos + Letras (WAIS-IV)",
+          "Refranes INECO (verbal)",
+          "Aritmética mental (WAIS)",
+          "Praxias ideomotoras (descripción verbal del movimiento)"
+        ],
+        "adulto_mayor": [
+          "GROBER & BUSCHKE audio-verbal (lista leída)",
+          "Span dígitos directo e inverso",
+          "Fluidez fonológica (P, M, R) y semántica (animales)",
+          "Refranes INECO",
+          "Semejanzas WAIS",
+          "Meses al revés / sustracción seriada de 7",
+          "Memoria de un texto corto",
+          "Denominación por descripción verbal (definiciones)",
+          "Orientación témporoespacial (preguntas orales)",
+          "Memoria remota y reciente (cuestionario oral)"
+        ]
+      }
+    },
+    "visual_auditiva": {
+      "label": "Discapacidad Visual + Auditiva (sordo-ciega)",
+      "general_notes": [
+        "Batería extremadamente acotada: depende de comunicación táctil (Braille, dactilología).",
+        "La evaluación estandarizada formal NO es aplicable — resultados son cualitativos.",
+        "Se recomienda entrevista clínica estructurada con cuidador y observación conductual."
+      ],
+      "batteries": {
+        "nino": [
+          "Observación clínica estructurada",
+          "Escala de desarrollo adaptada (Batelle, Vineland) por entrevista con cuidador",
+          "Pruebas táctiles de reconocimiento (objetos familiares)",
+          "Memoria táctil (formas geométricas en 3D)",
+          "Orientación corporal y espacial por palpación"
+        ],
+        "adulto": [
+          "Entrevista estructurada con intérprete (dactilología / Braille)",
+          "Pruebas táctiles: reconocimiento de objetos, formas, texturas",
+          "Memoria táctil diferida",
+          "Orientación témporoespacial por preguntas en Braille",
+          "Evaluación funcional adaptativa (AVD por entrevista con cuidador)"
+        ],
+        "adulto_mayor": [
+          "Entrevista estructurada con cuidador (DAD, IADL, DSM)",
+          "Evaluación táctil acotada",
+          "Orientación personal por preguntas en Braille/dactilología",
+          "Observación conductual en entorno familiar",
+          "Cuestionarios de cuidador (NPI-Q, GDS-15 aplicado por familiar)"
+        ]
+      }
+    },
+    "motora": {
+      "label": "Discapacidad Motora (hemiparesia, parálisis, temblor, atetosis)",
+      "general_notes": [
+        "Evitar pruebas con demanda grafomotora precisa (FCRO copia, Stroop impreso, TMT trazado).",
+        "Sustituir por versiones orales o con señalamiento / respuesta binaria.",
+        "Si la afectación es unilateral, usar la mano no afectada. Registrar lateralidad."
+      ],
+      "batteries": {
+        "nino": [
+          "WISC-IV subpruebas verbales + Memoria de Trabajo (no Cubos ni Claves)",
+          "Fluidez verbal fonológica y semántica",
+          "Span dígitos directo e inverso",
+          "Semejanzas",
+          "Aritmética",
+          "Memoria de historias",
+          "FCRO — descripción verbal (no copia)",
+          "Stroop oral (nombrar colores sin tachar)",
+          "TMT adaptado: señalar con el dedo, no trazar"
+        ],
+        "adulto": [
+          "WAIS-IV Comprensión Verbal + Memoria de Trabajo",
+          "Fluidez verbal fonológica y semántica",
+          "Stroop oral",
+          "TMT oral (decir la secuencia, no trazar)",
+          "Aprendizaje audio-verbal (Rey, FCSRT)",
+          "Refranes INECO",
+          "Semejanzas",
+          "Span dígitos",
+          "Dígitos + Letras (WAIS)"
+        ],
+        "adulto_mayor": [
+          "GROBER & BUSCHKE audio-verbal",
+          "Span dígitos directo",
+          "Fluidez fonológica y semántica",
+          "Semejanzas WAIS",
+          "Refranes INECO",
+          "Meses al revés",
+          "Memoria de un texto corto",
+          "Denominación (nombrar figuras que se muestran)",
+          "Orientación témporoespacial",
+          "Memoria remota y reciente"
+        ]
+      }
+    },
+    "analfabeta": {
+      "label": "Analfabetismo / Baja Escolaridad (<3 años)",
+      "general_notes": [
+        "Evitar pruebas que requieran lectura o escritura (Stroop clásico, refranes escritos, dígitos-letras).",
+        "Usar baremos ajustados por escolaridad cuando existan (NEURONORMA, NEUROPSI).",
+        "Resultados se interpretan con cautela — contexto sociocultural es determinante."
+      ],
+      "batteries": {
+        "nino": [
+          "Observación clínica y desarrollo (Batelle / Vineland)",
+          "Pruebas no verbales: Matrices Raven color, Cubos WISC",
+          "Fluidez semántica (animales, frutas)",
+          "Aprendizaje verbal con apoyo visual (figuras concretas)",
+          "Span dígitos oral",
+          "Memoria visual (Corsi, FCRO)",
+          "Praxias ideomotoras"
+        ],
+        "adulto": [
+          "NEUROPSI Breve (diseñado para baja escolaridad)",
+          "Matrices Raven",
+          "Fluidez semántica (animales, frutas) — fonológica con precaución",
+          "Aprendizaje audio-verbal — lista de palabras concretas",
+          "Span dígitos oral",
+          "Praxias ideomotoras e ideatorias",
+          "Denominación por confrontación (Boston — objetos familiares)",
+          "Orientación témporoespacial"
+        ],
+        "adulto_mayor": [
+          "NEUROPSI Breve",
+          "GROBER & BUSCHKE audio-verbal (lista concreta, leída al paciente)",
+          "Fluidez semántica (animales)",
+          "Span dígitos directo",
+          "Memoria de un texto breve leído",
+          "Praxias (copia con las manos)",
+          "Denominación (objetos cotidianos)",
+          "Orientación (preguntas cotidianas)",
+          "MoCA Básico (versión para baja escolaridad)",
+          "Memoria remota — eventos familiares"
+        ]
+      }
+    }
+  },
+  "_meta": {
+    "id": "baterias_alternas",
+    "version": "1.0",
+    "autor": "NeuroSoft App",
+    "institucion": "",
+    "fuente": null,
+    "fecha_creacion": "2026-06-03",
+    "poblacion": "mixto"
+  }
 }

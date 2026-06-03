@@ -153,7 +153,7 @@ export function ShareButton({ evaluationId }) {
 }
 
 /* ─── SecondOpinionButton — segunda opinión entre colegas ──────────── */
-export function SecondOpinionButton({ evaluationId, patientName }) {
+export function SecondOpinionButton({ evaluationId, _patientName }) {
   const [open, setOpen]   = useState(false);
   const [anon, setAnon]   = useState(true);
   const [note, setNote]   = useState("");
@@ -434,6 +434,7 @@ export function SharedViewer({ token }) {
     } catch (e) { setErr(e.message); }
     setBusy(false);
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (token) load(); }, [token]);
 
   const submitPw = async () => {

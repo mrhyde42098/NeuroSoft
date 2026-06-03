@@ -25,7 +25,7 @@ import {
 import {
   CONSTRUCTOS,
   SCREENING_FORMS,
-  SCREENING_INDEX,
+  _SCREENING_INDEX,
   getFormsPorConstructo,
   sugerirPorConstructos,
   getScreeningMetadata,

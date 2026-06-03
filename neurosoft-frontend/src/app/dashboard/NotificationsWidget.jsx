@@ -58,7 +58,7 @@ export default function NotificationsWidget() {
   const [lastSeen, setLastSeen] = useState(() => safeLS.get(LAST_SEEN_KEY) || "");
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const prevUnread = useRef(0);
+  const _prevUnread = useRef(0);
 
   const refresh = useCallback(() => {
     api.get("/api/v1/notifications?dias=14&limit=20")

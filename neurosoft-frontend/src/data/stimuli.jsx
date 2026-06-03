@@ -355,7 +355,7 @@ function WordContextGrid() {
 
 /* ═══ Integración de Objetos — fragmentos desordenados para reconocer ═══ */
 function ObjectIntegration() {
-  const objects = [
+  const _objects = [
     { label: "Mariposa", parts: [[{x:90,y:40,r:28,fill:"#f59e0b"},{x:130,y:40,r:28,fill:"#f59e0b"},{cx:110,cy:40,label:"●"}] ] },
   ];
   const items = [

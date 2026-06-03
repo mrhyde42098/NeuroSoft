@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "version": "1.0_FINAL",
+    "version": "1.1_F7.2",
     "descripcion": "Base de datos neuropsicológica unificada",
     "interpretacion_escalar": {
       "Bajo": {
@@ -121,6 +121,43 @@
           "InstrConfiICO"
         ],
         "razon": "Mismas 4 claves identicas. InstrConflICO es el nombre correcto (Instrucciones Conflictivas, Torralva 2009 INECO FS)."
+      },
+      {
+        "fecha": "2026-06-03",
+        "tipo": "migracion_baremos",
+        "test_id": "AdBeck",
+        "antes": "6 keys '16190'..'16195' con valores [1619, n] (Cell IDs del Excel VBA heredado)",
+        "despues": "4 bandas BDI-II: 0=Mínima, 14=Leve, 20=Moderada, 29=Severa (rango 0-63)",
+        "fuente": "Beck, A. T., Steer, R. A., & Brown, G. K. (1996). Manual for the Beck Depression Inventory-II. San Antonio, TX: Psychological Corporation.",
+        "corte_clinico": 14,
+        "autorizacion": "Propietario Johan Salgado — 2026-06-03 (one-time)"
+      },
+      {
+        "fecha": "2026-06-03",
+        "tipo": "correccion_key_corrupto",
+        "test_id": "ViTMTB",
+        "antes": "key '6971619' (mezcla rango_am+pd sin separador)",
+        "despues": "key eliminada; motor devuelve 'sin_dato' para esa entrada",
+        "motivo": "Datos del Excel VBA pegados sin separador. No reconstruible sin acceso al Excel original.",
+        "autorizacion": "Propietario Johan Salgado — 2026-06-03 (one-time)"
+      },
+      {
+        "fecha": "2026-06-03",
+        "tipo": "correccion_key_corrupto",
+        "test_id": "ViTLEje",
+        "antes": "key '6971619' (mezcla rango_am+pd sin separador)",
+        "despues": "key eliminada; motor devuelve 'sin_dato' para esa entrada",
+        "motivo": "Datos del Excel VBA pegados sin separador. No reconstruible sin acceso al Excel original.",
+        "autorizacion": "Propietario Johan Salgado — 2026-06-03 (one-time)"
+      },
+      {
+        "fecha": "2026-06-03",
+        "tipo": "correccion_key_corrupto",
+        "test_id": "ViTLRes",
+        "antes": "key '6971619' (mezcla rango_am+pd sin separador)",
+        "despues": "key eliminada; motor devuelve 'sin_dato' para esa entrada",
+        "motivo": "Datos del Excel VBA pegados sin separador. No reconstruible sin acceso al Excel original.",
+        "autorizacion": "Propietario Johan Salgado — 2026-06-03 (one-time)"
       }
     ]
   },
@@ -67358,33 +67395,13 @@
         "tipo_metrica": "ci",
         "baremos": {
           "Rango": [
-            "EDAD",
-            "DIG"
+            0,
+            63
           ],
-          "16190": [
-            1619,
-            0
-          ],
-          "16191": [
-            1619,
-            1
-          ],
-          "16192": [
-            1619,
-            2
-          ],
-          "16193": [
-            1619,
-            3
-          ],
-          "16194": [
-            1619,
-            4
-          ],
-          "16195": [
-            1619,
-            5
-          ]
+          "0": "Mínima",
+          "14": "Leve",
+          "20": "Moderada",
+          "29": "Severa"
         }
       },
       "AdTMT_AB": {
@@ -79743,7 +79760,6 @@
           "6971616": 3,
           "6971617": 3,
           "6971618": 3,
-          "6971619": 3,
           "6971620": 3,
           "6971621": 3,
           "6971622": 3,
@@ -95178,7 +95194,6 @@
           "6971616": 7,
           "6971617": 7,
           "6971618": 7,
-          "6971619": 7,
           "6971620": 7,
           "6971621": 7,
           "6971622": 7,
@@ -121115,7 +121130,6 @@
           "6971616": 7,
           "6971617": 7,
           "6971618": 7,
-          "6971619": 7,
           "6971620": 7,
           "6971621": 7,
           "6971622": 7,

@@ -42,6 +42,7 @@ from .helpers import (
 from .narrative import (
     build_strengths_weaknesses,
     build_synthesis_paragraphs,
+    generar_resumen_paciente,
     parse_recomendaciones,
 )
 from .theme import (
@@ -149,6 +150,14 @@ class NeuroPDFGeneratorPro:
         c.setAuthor(data.profesional_nombre or "NeuroSoft")
         c.setSubject(f"Evaluación Neuropsicológica — {self.VARIANT_LABEL}")
         c.setCreator("NeuroSoft App")
+        # F9.3 — Keywords/Producer/ModDate para indexación y trazabilidad.
+        c.setKeywords(
+            "NeuroSoft,Neuropsicología,Informe,{},{}".format(
+                data.codigo_cie10 or "sin-CIE10",
+                data.eval_id[:8] if getattr(data, "eval_id", "") else "sin-id",
+            )
+        )
+        c.setProducer("NeuroSoft App — Generador de Informes Clínicos v2.0")
 
         self._build_pages(c, data)
 
@@ -174,6 +183,7 @@ class NeuroPDFGeneratorPro:
         y = self._section_observacion(c, data, y)
         y = self._section_resultados(c, data, y)
         y = self._section_sintesis(c, data, y)
+        y = self._section_resumen_familia(c, data, y)
         y = self._section_impresion(c, data, y)
         y = self._section_recomendaciones(c, data, y)
         if self.INCLUDE_ANNEX:
@@ -763,6 +773,115 @@ class NeuroPDFGeneratorPro:
                     y_s = bullet(c, item, L.margin + col_w + 16, y_s, col_w) - 2
             y = min(y_w, y_s)
         return y - 10
+
+    def _section_resumen_familia(self, c, data, y: float) -> float:
+        """Lenguaje enriquecido para padres / cuidadores / paciente.
+
+        Utiliza ``generar_resumen_paciente`` (narrative.py) que ya traduce
+        cada hallazgo técnico a frases cotidianas con ejemplos. Va en una
+        sección visualmente diferenciada (callout warm + iconografía) para
+        que cualquier adulto no-clínico la pueda leer.
+        """
+        L = LAYOUT
+        if not data.resultados or not data.nombre_completo:
+            return y
+        recomendaciones = []
+        if data.obs_recomendaciones and data.obs_recomendaciones not in ("N/A", ""):
+            for grupo in parse_recomendaciones(data.obs_recomendaciones).values():
+                for it in grupo:
+                    recomendaciones.append(it["texto"])
+        resumen = generar_resumen_paciente(
+            resultados=data.resultados,
+            paciente_nombre=data.nombre_completo,
+            recomendaciones=recomendaciones,
+        )
+        if not resumen:
+            return y
+        y = self._ensure_room(c, data, y, need=320)
+        y = section_title(
+            c, "Resumen para la Familia",
+            y, subtitle="Lenguaje sencillo para padres, cuidadores y paciente",
+        )
+        # ── Saludo ──
+        if resumen.get("saludo"):
+            y = callout(
+                c, resumen["saludo"], L.margin, y, L.content_w,
+                accent=SEMANTIC_PROMEDIO, fill=SURFACE, title="Saludo",
+                size=TYPE.body_sm,
+            )
+            y -= 6
+        # ── Qué hicimos ──
+        if resumen.get("que_hicimos"):
+            y = self._ensure_room(c, data, y, need=80)
+            y = block_header(c, "¿Qué hicimos en la evaluación?", y)
+            y = draw_paragraph(
+                c, resumen["que_hicimos"], L.margin, y, L.content_w,
+                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+                leading=TYPE.body_sm * 1.45,
+            ) - 4
+        # ── Qué encontramos ──
+        if resumen.get("que_encontramos"):
+            y = self._ensure_room(c, data, y, need=100)
+            y = block_header(c, "¿Qué encontramos?", y)
+            y = draw_paragraph(
+                c, resumen["que_encontramos"], L.margin, y, L.content_w,
+                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+                leading=TYPE.body_sm * 1.45,
+            ) - 4
+        # ── Fortalezas + Áreas de apoyo en dos columnas ──
+        col_w = (L.content_w - 12) / 2
+        izq_y = y
+        der_y = y
+        if resumen.get("fortalezas"):
+            izq_y = self._ensure_room(c, data, izq_y, need=100)
+            izq_y = block_header(c, "Fortalezas (lo que se hace bien)", izq_y)
+            for frase in resumen["fortalezas"][:5]:
+                izq_y = self._ensure_room(c, data, izq_y, need=40)
+                izq_y = bullet(
+                    c, frase, L.margin, izq_y, col_w,
+                ) - 2
+        if resumen.get("areas_apoyo"):
+            der_y = self._ensure_room(c, data, der_y, need=100)
+            der_y = block_header(c, "Áreas para apoyar (en qué trabajar)", der_y)
+            for frase in resumen["areas_apoyo"][:5]:
+                der_y = self._ensure_room(c, data, der_y, need=40)
+                der_y = bullet(
+                    c, frase, L.margin + col_w + 12, der_y, col_w,
+                ) - 2
+        y = min(izq_y, der_y) - 8
+        # ── Recomendaciones para la familia ──
+        if resumen.get("que_recomendamos"):
+            y = self._ensure_room(c, data, y, need=80)
+            y = block_header(c, "¿Qué recomendamos?", y)
+            y = draw_paragraph(
+                c, resumen["que_recomendamos"], L.margin, y, L.content_w,
+                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+                leading=TYPE.body_sm * 1.45,
+            ) - 4
+        # ── FAQ ──
+        if resumen.get("preguntas_frecuentes"):
+            y = self._ensure_room(c, data, y, need=80)
+            y = block_header(c, "Preguntas frecuentes", y)
+            for faq in resumen["preguntas_frecuentes"][:4]:
+                y = self._ensure_room(c, data, y, need=50)
+                if isinstance(faq, dict):
+                    pregunta = faq.get("pregunta", "")
+                    respuesta = faq.get("respuesta", "")
+                else:
+                    pregunta = str(faq[0]) if len(faq) > 0 else ""
+                    respuesta = str(faq[1]) if len(faq) > 1 else ""
+                if pregunta and respuesta:
+                    y = draw_paragraph(
+                        c, f"• {pregunta}", L.margin, y, L.content_w,
+                        font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=NAVY,
+                        leading=TYPE.body_sm * 1.4,
+                    ) - 2
+                    y = draw_paragraph(
+                        c, respuesta, L.margin + 14, y, L.content_w - 14,
+                        font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
+                        leading=TYPE.body_sm * 1.4,
+                    ) - 4
+        return y
 
     def _section_impresion(self, c, data, y: float) -> float:
         has_dx = data.obs_impresion_dx and data.obs_impresion_dx not in ("N/A", "")

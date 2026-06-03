@@ -38,6 +38,7 @@ export default function SignatureCanvas({ value, onChange }) {
       img.onload = () => ctx.drawImage(img, 0, 0, c.width, c.height);
       img.src = value;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   /* ─── Modo dibujar ─────────────────────────────────────────── */

@@ -1,0 +1,50 @@
+{
+  "caso_id": 22,
+  "estado": "emergencia",
+  "paciente": {
+    "id": "95ac837f-4d43-4a46-8cc5-69ef7499edce",
+    "documento": "20123456",
+    "nombre": "Carmen Vel\u00e1squez",
+    "edad": "74 a\u00f1os, 5 meses",
+    "sexo": "M",
+    "escolaridad": "Primaria Incompleta"
+  },
+  "evaluacion": {
+    "id": "c81db9a5-6132-45ae-9247-2fe0d905fa2b",
+    "protocolo": "bateria_emergencia_am",
+    "fecha": "2027-01-11",
+    "poblacion": "adulto_mayor",
+    "n_pruebas": 9,
+    "resultados_count": 9,
+    "advertencias": []
+  },
+  "dx_principal": "F32.1 - Episodio depresivo moderado + RIESGO SUICIDA ALTO",
+  "n_observaciones": 5,
+  "n_recomendaciones": 6,
+  "metadatos": {
+    "es_emergencia": true,
+    "es_medicolegal": false,
+    "es_cierre_terapia": false,
+    "es_bateria_completa": false,
+    "es_inconcluso": false,
+    "rci_calculado": null,
+    "cssrs_score": {
+      "ideacion": true,
+      "plan": true,
+      "intencion": true,
+      "intentos_previos": false,
+      "factores_riesgo": [
+        "viudez reciente (8 meses)",
+        "aislamiento social",
+        "enfermedad m\u00e9dica cr\u00f3nica",
+        "acceso a medios"
+      ],
+      "factores_proteccion": [
+        "hija comprometida",
+        "fe religiosa",
+        "apoyo familiar ampliado"
+      ],
+      "nivel": "ALTO"
+    }
+  }
+}

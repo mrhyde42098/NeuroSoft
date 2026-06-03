@@ -1,0 +1,35 @@
+{
+  "caso_id": 21,
+  "estado": "desercion",
+  "paciente": {
+    "id": "d2236008-75a0-4417-a6e9-6c1a6239edaf",
+    "documento": "80123456",
+    "nombre": "Felipe Rinc\u00f3n",
+    "edad": "34 a\u00f1os, 9 meses",
+    "sexo": "H",
+    "escolaridad": "Universitaria"
+  },
+  "evaluacion": {
+    "id": "dbf4339b-2295-484e-b5ca-d7c2dfba8527",
+    "protocolo": "screening_parcial",
+    "fecha": "2027-01-10",
+    "poblacion": "adulto_joven",
+    "n_pruebas": 2,
+    "resultados_count": 1,
+    "advertencias": [
+      "Test 'AdYesavage' no encontrado en BD_NEURO_MAESTRA.json."
+    ]
+  },
+  "dx_principal": "INCONCLUSO - Deserci\u00f3n prematura",
+  "n_observaciones": 5,
+  "n_recomendaciones": 3,
+  "metadatos": {
+    "es_emergencia": false,
+    "es_medicolegal": false,
+    "es_cierre_terapia": false,
+    "es_bateria_completa": false,
+    "es_inconcluso": true,
+    "rci_calculado": null,
+    "cssrs_score": null
+  }
+}

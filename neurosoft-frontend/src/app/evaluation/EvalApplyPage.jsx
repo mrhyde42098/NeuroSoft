@@ -29,7 +29,7 @@ import { getSubtest } from "../../data/protocolLoader.js";
 const DRAFT_KEY = (patientId, proto) => `ns_eval_draft_${patientId || "sin_paciente"}_${proto}`;
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días — luego expira
 
-export default function EvalApplyPage({setPage,nav,evalCtx,setEvalCtx}){
+export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  /* §M3-fix: toast + confirm modal (reemplazan alert/window.confirm). */
  const toast=useToast();const confirm=useConfirm();
  const[patients,setPatients]=useState([]);const[patId,setPatId]=useState(evalCtx?.patientId||safeLS.get("ns_sel_patient")||"");
@@ -51,6 +51,7 @@ export default function EvalApplyPage({setPage,nav,evalCtx,setEvalCtx}){
  const readRetentionTimes=()=>{if(typeof localStorage==="undefined")return{};const MIN_TS=1577836800000;/* 2020-01-01 */const MAX_TS=Date.now()+3600000;return tests.reduce((acc,x)=>{if(x.hito==="codificacion"){const raw=safeLS.get(getRetentionStorageKey(retentionScope,x.test_id));const ts=Number(raw);if(Number.isFinite(ts)&&ts>=MIN_TS&&ts<=MAX_TS)acc[x.test_id]=ts}return acc},{})};
  const[protoSug,setProtoSug]=useState(null);/* sugerencia por edad */
  const[estimulos,setEstimulos]=useState([]);/* estímulos de la prueba actual */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>{api.get("/api/v1/patients/panel").then(d=>setPatients(d.pacientes||d||[])).catch(()=>toast.error("Error cargando pacientes"))},[]);
  /* Auto-sugerir protocolo según edad del paciente seleccionado */
  useEffect(()=>{
@@ -70,6 +71,7 @@ export default function EvalApplyPage({setPage,nav,evalCtx,setEvalCtx}){
  setTests(prepareClinicalProtocolTests(filtered));
  setCur(0);setPuntajes({});setObs({});
  setDraftRestoredFrom(null);/* reset al cambiar protocolo */
+ // eslint-disable-next-line react-hooks/exhaustive-deps
  },[proto,adaptacion]);
 
  /* §autosave-1: restaurar borrador al seleccionar paciente o cambiar protocolo.
@@ -142,7 +144,7 @@ export default function EvalApplyPage({setPage,nav,evalCtx,setEvalCtx}){
  useEffect(()=>{if(timerOn)ref.current=setInterval(()=>setTimer(t=>t+1),1000);else clearInterval(ref.current);return()=>clearInterval(ref.current)},[timerOn]);
  /* §clock-beep: sonar UNA vez al cumplirse exactamente el tiempo máximo.
   * Usa WebAudio API (no requiere ningún archivo de audio bundled). */
- useEffect(()=>{const curT=tests[cur];if(!curT?.tiempo_max)return;if(timer!==curT.tiempo_max)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;const ctx=new Ctx();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.frequency.value=880;osc.type="sine";gain.gain.setValueAtTime(0.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.18,ctx.currentTime+0.02);gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.45);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+0.5)}catch(e){/* ignore audio errors */}},[timer,cur,tests]);
+ useEffect(()=>{const curT=tests[cur];if(!curT?.tiempo_max)return;if(timer!==curT.tiempo_max)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;const ctx=new Ctx();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.frequency.value=880;osc.type="sine";gain.gain.setValueAtTime(0.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.18,ctx.currentTime+0.02);gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.45);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+0.5)}catch{/* ignore audio errors */}},[timer,cur,tests]);
  /* §clock-space: Espacio inicia/pausa el cronómetro cuando NO se está
   * editando un input/textarea (no robar foco al clínico que escribe PD). */
  useEffect(()=>{const handler=(e)=>{if(e.code!=="Space")return;const tag=(e.target?.tagName||"").toLowerCase();if(tag==="input"||tag==="textarea"||tag==="select")return;const curT=tests[cur];if(!curT?.has_timer)return;e.preventDefault();setTimerOn(o=>!o)};window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)},[cur,tests]);

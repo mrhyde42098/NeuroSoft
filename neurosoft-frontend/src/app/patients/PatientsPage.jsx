@@ -8,7 +8,7 @@ import { Btn, Card, I, TopBar } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 import { SkeletonCard } from "../../ui/Skeleton.jsx";
 
-export default function PatientsPage({ setPage, nav, setEvalCtx }) {
+export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
   const [pts, setPts] = useState([]);
   const [ld, setLd] = useState(true);
   const [search, setSearch] = useState("");

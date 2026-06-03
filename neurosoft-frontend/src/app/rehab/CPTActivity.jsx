@@ -68,6 +68,7 @@ export default function CPTActivity({ params = {}, onFinish, onCancel }) {
     }, showMs);
 
     return () => clearTimeout(timerRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, phase]);
 
   const respond = () => {
@@ -96,6 +97,7 @@ export default function CPTActivity({ params = {}, onFinish, onCancel }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, show, idx]);
 
   const start = () => { setIdx(0); setPhase("running"); };

@@ -88,8 +88,10 @@ def semantic_color_for_z(z: float | None) -> tuple[float, float, float]:
 # Alias internos. Usar SIEMPRE estos nombres en canvas.setFont(...)
 FONT_SANS = "NSSans"
 FONT_SANS_BOLD = "NSSans-Bold"
+FONT_SANS_ITALIC = "NSSans-Italic"
 FONT_SERIF = "NSSerif"
 FONT_SERIF_BOLD = "NSSerif-Bold"
+FONT_SERIF_ITALIC = "NSSerif-Italic"
 
 # Tamaños de tipografía por jerarquía
 @dataclass(frozen=True)
@@ -188,11 +190,30 @@ def ensure_fonts_registered() -> bool:
     # Acepta tanto archivos individuales (Inter-Regular.ttf, Lora-Regular.ttf)
     # como bundles "Inter-VariableFont_slnt,wght.ttf" si Johan baja el zip de
     # Google Fonts y lo descomprime sin renombrar.
+    # Los archivos "variable" de Google Fonts (Inter[opsz,wght].ttf) contienen
+    # todos los pesos (100-900) internamente; ReportLab los puede usar.
     ttf_candidates = {
-        FONT_SANS: ["Inter-Regular.ttf", "Inter_18pt-Regular.ttf", "Inter-VariableFont_slnt,wght.ttf"],
-        FONT_SANS_BOLD: ["Inter-Bold.ttf", "Inter_18pt-Bold.ttf"],
-        FONT_SERIF: ["Lora-Regular.ttf", "Lora-VariableFont_wght.ttf"],
-        FONT_SERIF_BOLD: ["Lora-Bold.ttf"],
+        FONT_SANS: [
+            "Inter-Regular.ttf", "Inter_18pt-Regular.ttf",
+            "Inter[opsz,wght].ttf", "Inter-VariableFont_slnt,wght.ttf",
+        ],
+        FONT_SANS_BOLD: [
+            "Inter-Bold.ttf", "Inter_18pt-Bold.ttf",
+            # Si no hay bold estático, usamos la variable que tiene todos los pesos
+            "Inter-Regular.ttf", "Inter[opsz,wght].ttf",
+        ],
+        FONT_SANS_ITALIC: [
+            "Inter-Italic.ttf", "Inter-Italic[opsz,wght].ttf",
+        ],
+        FONT_SERIF: [
+            "Lora-Regular.ttf", "Lora[wght].ttf", "Lora-VariableFont_wght.ttf",
+        ],
+        FONT_SERIF_BOLD: [
+            "Lora-Bold.ttf", "Lora[wght].ttf", "Lora-Regular.ttf",
+        ],
+        FONT_SERIF_ITALIC: [
+            "Lora-Italic.ttf", "Lora-Italic[wght].ttf",
+        ],
     }
 
     registered: dict[str, bool] = {}
@@ -216,8 +237,10 @@ def ensure_fonts_registered() -> bool:
     _fallback_map = {
         FONT_SANS: "Helvetica",
         FONT_SANS_BOLD: "Helvetica-Bold",
+        FONT_SANS_ITALIC: "Helvetica-Oblique",
         FONT_SERIF: "Times-Roman",
         FONT_SERIF_BOLD: "Times-Bold",
+        FONT_SERIF_ITALIC: "Times-Italic",
     }
     needs_fallback = False
     for alias, ok in registered.items():
@@ -237,9 +260,10 @@ def ensure_fonts_registered() -> bool:
     _FONTS_USING_TTF = not needs_fallback
     if needs_fallback:
         logger.info(
-            "report_pro: fuentes TTF (Inter/Lora) no encontradas — usando "
-            "Helvetica/Times-Roman como fallback. "
-            "Para diseño premium, colocar las TTFs en app/assets/fonts/."
+            "report_pro: algunas fuentes TTF no encontradas — usando fallback. "
+            "Aliases registrados: %s. "
+            "Para diseño premium, colocar las TTFs en app/assets/fonts/.",
+            {k: v for k, v in registered.items()},
         )
     else:
         logger.info("report_pro: fuentes Inter/Lora registradas correctamente.")
@@ -251,8 +275,10 @@ def ensure_fonts_registered() -> bool:
 _BUILTIN_FALLBACK = {
     FONT_SANS: "Helvetica",
     FONT_SANS_BOLD: "Helvetica-Bold",
+    FONT_SANS_ITALIC: "Helvetica-Oblique",
     FONT_SERIF: "Times-Roman",
     FONT_SERIF_BOLD: "Times-Bold",
+    FONT_SERIF_ITALIC: "Times-Italic",
 }
 
 

@@ -1,0 +1,42 @@
+{
+  "caso_id": 23,
+  "estado": "medicolegal",
+  "paciente": {
+    "id": "d26c8c37-b958-4250-a7c4-cba451254fce",
+    "documento": "79555111",
+    "nombre": "Jorge Salazar",
+    "edad": "46 a\u00f1os, 2 meses",
+    "sexo": "H",
+    "escolaridad": "Tecn\u00f3logo"
+  },
+  "evaluacion": {
+    "id": "ce4125e9-fd0d-4ec9-9305-ce22bc2ebef2",
+    "protocolo": "peritaje_medicolegal_adulto",
+    "fecha": "2027-01-12",
+    "poblacion": "adulto_joven",
+    "n_pruebas": 18,
+    "resultados_count": 10,
+    "advertencias": [
+      "Test 'AdTMTA' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdTMTB' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdStroopC' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdStroopPC' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdStroopInterf' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdFCRO_Copia' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdFCRO_Tiempo' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'AdYesavage' no encontrado en BD_NEURO_MAESTRA.json."
+    ]
+  },
+  "dx_principal": "F07.2 - S\u00edndrome post-concusional + demanda laboral activa",
+  "n_observaciones": 6,
+  "n_recomendaciones": 7,
+  "metadatos": {
+    "es_emergencia": false,
+    "es_medicolegal": true,
+    "es_cierre_terapia": false,
+    "es_bateria_completa": false,
+    "es_inconcluso": false,
+    "rci_calculado": null,
+    "cssrs_score": null
+  }
+}

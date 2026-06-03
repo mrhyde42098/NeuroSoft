@@ -916,3 +916,456 @@ def generar_resumen_paciente(
     }
 
 
+# ═══════════════════════════════════════════════════════════════════
+# F9.2 — 7 principios de redacción clínica (extraídos del plan maestro)
+# ═══════════════════════════════════════════════════════════════════
+# Estos 7 principios son DIFERENTES de los 7 principios éticos de
+# PRINCIPIOS_NARRATIVOS (más arriba). Los de aquí son de ESTILO Y
+# ESTRUCTURA del informe, basados en Sattler 2008, Eisman 1962, CONFIL
+# 2012 y la práctica clínica estándar 2024 (APA Publications Manual 7th).
+#
+# Aplica SOLO a las variantes "profesionales" del informe
+# (pro, pediatrico, medicolegal, junta_medica). La variante "paciente"
+# usa lenguaje accesible (verificar_legible_paciente).
+# ═══════════════════════════════════════════════════════════════════
+
+
+PRINCIPIOS_REDACCION_2024 = [
+    {
+        "id": "R1",
+        "titulo": "Bottom-up (de dominios a funciones, no de pruebas a dominios)",
+        "descripcion": (
+            "La organización debe ir de DOMINIOS a FUNCIONES, no al revés. "
+            "❌ 'En la prueba WCST el paciente obtuvo X → interpretamos que "
+            "tiene alteración en funciones ejecutivas'. "
+            "✅ 'En el dominio de funciones ejecutivas se observa alteración "
+            "en la capacidad de set-shifting, documentada con la prueba WCST'."
+        ),
+        "auditable_auto": False,
+        "motivo_no_auto": "Estructura narrativa — el clínico decide el orden en su texto libre.",
+    },
+    {
+        "id": "R2",
+        "titulo": "En niños no usar 'conserva'; usar 'rinde acorde a lo esperado'",
+        "descripcion": (
+            "El término 'conserva' (de la escuela piagetiana) implica que algo "
+            "se preserva respecto a un estado anterior. En neuropsicología "
+            "infantil se prefiere 'rinde acorde a lo esperado para su edad y "
+            "escolaridad' o 'dentro de los rangos esperados para su grupo "
+            "normativo'. Aplica solo a informes con poblacion='infantil'."
+        ),
+        "auditable_auto": True,
+        "motivo_no_auto": None,
+    },
+    {
+        "id": "R3",
+        "titulo": "Prefijo 'DIS-' en adultos para déficits",
+        "descripcion": (
+            "En informes de ADULTOS, los déficits se prefijan con 'DIS-' para "
+            "diferenciarlos de variaciones del desarrollo (p. ej. 'función "
+            "DIS-atencional' vs 'función atencional'). Esto facilita la "
+            "lectura por otros profesionales y el seguimiento longitudinal. "
+            "NO se aplica a niños (en ellos las variaciones son propias del "
+            "desarrollo)."
+        ),
+        "auditable_auto": True,
+        "motivo_no_auto": None,
+    },
+    {
+        "id": "R4",
+        "titulo": "No repetir información del paciente entre secciones",
+        "descripcion": (
+            "Cada mención del paciente en una sección debe aportar información "
+            "nueva. ❌ 'El paciente, de 35 años, ingeniero...' repetido en 4 "
+            "secciones. ✅ Datos sociodemográficos solo en la sección inicial; "
+            "las secciones de resultados y análisis pueden usar 'el evaluado' "
+            "o 'el paciente' sin re-listar la información."
+        ),
+        "auditable_auto": False,
+        "motivo_no_auto": "Requiere análisis de coherencia global del texto, fuera del alcance del validador automático.",
+    },
+    {
+        "id": "R5",
+        "titulo": "Hablar de la FUNCIÓN no de la PRUEBA",
+        "descripcion": (
+            "❌ 'El paciente obtuvo puntaje bajo en WCST (X errores)' → "
+            "❌ 'El puntaje en WCST fue de 30 (percentil 5)'. "
+            "✅ 'El paciente presenta dificultades en funciones ejecutivas, "
+            "particularmente en la capacidad de flexibilidad cognitiva y "
+            "resolución de problemas, documentadas con un rendimiento "
+            "significativamente bajo en tareas de set-shifting (WCST)."
+        ),
+        "auditable_auto": True,
+        "motivo_no_auto": None,
+    },
+    {
+        "id": "R6",
+        "titulo": "Considerar desarrollo (no comparar 6 años con 16)",
+        "descripcion": (
+            "Los baremos siempre deben ser por edad (y escolaridad cuando "
+            "aplique). Comparar un niño de 6 con baremos de 16 es un error "
+            "metodológico grave. El informe debe mencionar el baremo "
+            "utilizado para cada prueba."
+        ),
+        "auditable_auto": True,
+        "motivo_no_auto": None,
+    },
+    {
+        "id": "R7",
+        "titulo": "Usar algoritmos diagnósticos como árbol (basado en práctica estándar)",
+        "descripcion": (
+            "El informe debe integrar los hallazgos cuantitativos en hipótesis "
+            "diagnósticas siguiendo un árbol de decisión (criterios DSM-5-TR). "
+            "Ejemplo: TDAH + IRP-bajo + IMT-bajo = screening positivo → "
+            "correlación clínica. No diagnosticar sin (a) cruce del umbral "
+            "clínico, (b) impacto funcional, (c) consistencia entre "
+            "evaluadores, (d) duración significativa."
+        ),
+        "auditable_auto": False,
+        "motivo_no_auto": "Depende del juicio clínico integral — no automatizable.",
+    },
+]
+
+
+# Anti-marcadores para R2 (no usar "conserva" en niños)
+_R2_ANTIMARCADORES = [
+    r"\bconserva\b",
+    r"\bpreserva\b",
+    r"\bconservad[oa]\b",
+]
+
+
+# Marcadores de funciones (R5) — verbos que indican que el clínico está
+# hablando de la FUNCIÓN (bien) y no solo del puntaje (mal).
+_R5_MARCADORES_FUNCION = [
+    r"\bcapacidad de\b",
+    r"\bdificultad(es)? en\b",
+    r"\bfunci[oó]n(es)?\s+(?:atencional|mnésica|ejecutiva|visuoespacial|verbal)\b",
+    r"\brendimiento en\b",
+    r"\bdesempe[ñn]o en\b",
+    r"\bDIS-(?:atencional|mnésico|ejecutivo)\b",
+    r"\bhabilidades?\s+de\b",
+]
+
+
+# Marcadores de baremos nombrados (R6) — para verificar que el informe
+# cita los baremos por edad.
+_R6_MARCADORES_BAREMOS = [
+    r"\bbaremos?\s+(?:de|para|con|seg[uú]n)\b",
+    r"\bNeuronorma\b",
+    r"\bArango[- ]Lasprilla\b",
+    r"\bWISC[- ]?IV\b",
+    r"\bWAIS[- ]?III\b",
+    r"\bforma\s+corta\b",
+    r"\bpor\s+edad\b",
+    r"\bgrupo\s+normativo\b",
+    r"\bpara\s+su\s+edad\b",
+]
+
+
+def validar_principios_redaccion_2024(
+    texto: str,
+    *,
+    poblacion_objetivo: str = "adulto_joven",
+    edad: int = None,
+    menciona_baremos: bool = None,
+) -> dict:
+    """
+    F9.2 — Audita una narrativa contra los 7 principios de redacción 2024.
+
+    Diferencia con ``validar_principios_narrativa``: aquí se audita el
+    ESTILO y la ESTRUCTURA del texto (no la ética clínica).
+
+    Parámetros
+    ----------
+    texto : str
+        Narrativa completa del informe (sin el bloque de firma).
+    poblacion_objetivo : str
+        ``"infantil"`` | ``"adulto_joven"`` | ``"adulto_mayor"``.
+    edad : int, opcional
+        Edad del paciente — útil para heurísticas futuras.
+    menciona_baremos : bool, opcional
+        Si se pasa explícitamente, se usa para R6; si es None, se
+        infiere del texto.
+
+    Devuelve un dict con la misma estructura que
+    ``validar_principios_narrativa``:
+        - ``cumple``: bool
+        - ``principios``: dict[id] → {titulo, estado, detalle, auditable_auto}
+        - ``alertas``: list[str]
+        - ``resumen``: str
+    """
+    import re
+
+    texto_lower = (texto or "").lower()
+    es_infantil = poblacion_objetivo == "infantil"
+    es_adulto = poblacion_objetivo in ("adulto_joven", "adulto_mayor")
+
+    principios: dict[str, dict] = {}
+
+    # R1: Bottom-up — no auditable automáticamente
+    principios["R1"] = {
+        "titulo": PRINCIPIOS_REDACCION_2024[0]["titulo"],
+        "estado": "no_aplica",
+        "detalle": "Estructura narrativa — verificar manualmente que el orden va de dominios a funciones.",
+        "auditable_auto": False,
+    }
+
+    # R2: No usar "conserva" en niños
+    if es_infantil:
+        matches = [p for p in _R2_ANTIMARCADORES if re.search(p, texto_lower, re.IGNORECASE)]
+        if matches:
+            principios["R2"] = {
+                "titulo": PRINCIPIOS_REDACCION_2024[1]["titulo"],
+                "estado": "revisar",
+                "detalle": (
+                    "Informe infantil contiene términos no recomendados ('conserva', "
+                    "'preserva'). Preferir 'rinde acorde a lo esperado para su "
+                    "edad' o 'dentro de los rangos esperados para su grupo "
+                    "normativo'."
+                ),
+                "auditable_auto": True,
+            }
+        else:
+            principios["R2"] = {
+                "titulo": PRINCIPIOS_REDACCION_2024[1]["titulo"],
+                "estado": "ok",
+                "detalle": "Sin uso de 'conserva'/'preserva'. Lenguaje apropiado para infantil.",
+                "auditable_auto": True,
+            }
+    else:
+        principios["R2"] = {
+            "titulo": PRINCIPIOS_REDACCION_2024[1]["titulo"],
+            "estado": "no_aplica",
+            "detalle": "R2 aplica solo a población infantil.",
+            "auditable_auto": True,
+        }
+
+    # R3: Prefijo DIS- en adultos para déficits
+    if es_adulto:
+        # Buscar términos de déficit: 'déficit', 'alteración', 'disfunción'
+        # precedidos o no de DIS-.
+        deficit_terms = re.findall(
+            r"\b(d[ée]ficit|alteraci[oó]n|disfunci[oó]n|disfuncion|problema)\s+"
+            r"(atencional|mn[eé]sic[oa]|ejecutiv[oa]|visuoespacial|verbal|de\s+memoria)",
+            texto_lower,
+            re.IGNORECASE,
+        )
+        if not deficit_terms:
+            principios["R3"] = {
+                "titulo": PRINCIPIOS_REDACCION_2024[2]["titulo"],
+                "estado": "no_aplica",
+                "detalle": "No se mencionan déficits específicos para validar el prefijo DIS-.",
+                "auditable_auto": True,
+            }
+        else:
+            with_dis = sum(1 for m in re.finditer(
+                r"\bDIS-(?:atencional|mn[eé]sic[oa]|ejecutiv[oa]|visuoespacial|verbal)",
+                texto, re.IGNORECASE,
+            ))
+            ratio = with_dis / max(1, len(deficit_terms))
+            if ratio >= 0.5:
+                principios["R3"] = {
+                    "titulo": PRINCIPIOS_REDACCION_2024[2]["titulo"],
+                    "estado": "ok",
+                    "detalle": f"Prefijo DIS- usado en {with_dis}/{len(deficit_terms)} menciones de déficit.",
+                    "auditable_auto": True,
+                }
+            else:
+                principios["R3"] = {
+                    "titulo": PRINCIPIOS_REDACCION_2024[2]["titulo"],
+                    "estado": "revisar",
+                    "detalle": (
+                        f"Prefijo DIS- usado en {with_dis}/{len(deficit_terms)} déficits. "
+                        "En adultos, prefijar consistentemente con DIS- para diferenciar "
+                        "de variaciones del desarrollo."
+                    ),
+                    "auditable_auto": True,
+                }
+    else:
+        principios["R3"] = {
+            "titulo": PRINCIPIOS_REDACCION_2024[2]["titulo"],
+            "estado": "no_aplica",
+            "detalle": "R3 aplica solo a adultos.",
+            "auditable_auto": True,
+        }
+
+    # R4: No repetir información del paciente entre secciones
+    principios["R4"] = {
+        "titulo": PRINCIPIOS_REDACCION_2024[3]["titulo"],
+        "estado": "no_aplica",
+        "detalle": "Requiere análisis de coherencia global — verificar manualmente.",
+        "auditable_auto": False,
+    }
+
+    # R5: Hablar de la FUNCIÓN no de la PRUEBA
+    # Detectar si el texto menciona pruebas por su nombre.
+    pruebas_mencionadas = re.findall(
+        r"\b(WCST|Stroop|TMT[- ]?[AB]|Trail\s+Making|WISC|WAIS|MoCA|MMSE|Test\s+de\s+\w+|Cubos\s+de\s+Kohs|Figura\s+Compleja\s+de\s+Rey)\b",
+        texto, re.IGNORECASE,
+    )
+    if not pruebas_mencionadas:
+        principios["R5"] = {
+            "titulo": PRINCIPIOS_REDACCION_2024[4]["titulo"],
+            "estado": "no_aplica",
+            "detalle": "No se mencionan pruebas específicas en el texto.",
+            "auditable_auto": True,
+        }
+    else:
+        # ¿Hay función verbalizada junto con la mención de la prueba?
+        funciones_count = sum(1 for p in _R5_MARCADORES_FUNCION if re.search(p, texto, re.IGNORECASE))
+        if funciones_count >= 1:
+            principios["R5"] = {
+                "titulo": PRINCIPIOS_REDACCION_2024[4]["titulo"],
+                "estado": "ok",
+                "detalle": f"Mención de {len(pruebas_mencionadas)} pruebas con {funciones_count} referencias a funciones.",
+                "auditable_auto": True,
+            }
+        else:
+            principios["R5"] = {
+                "titulo": PRINCIPIOS_REDACCION_2024[4]["titulo"],
+                "estado": "revisar",
+                "detalle": (
+                    f"Se mencionan {len(pruebas_mencionadas)} pruebas por nombre pero no se "
+                    "describe la FUNCIÓN afectada. Preferir 'dificultad en la capacidad de…' "
+                    "sobre 'puntaje bajo en…'."
+                ),
+                "auditable_auto": True,
+            }
+
+    # R6: Considerar desarrollo (citar baremos por edad)
+    if menciona_baremos is None:
+        menciona_baremos = any(re.search(p, texto, re.IGNORECASE) for p in _R6_MARCADORES_BAREMOS)
+    if menciona_baremos:
+        principios["R6"] = {
+            "titulo": PRINCIPIOS_REDACCION_2024[5]["titulo"],
+            "estado": "ok",
+            "detalle": "El informe cita baremos por edad (Neuronorma, WISC-IV, WAIS-III o equivalente).",
+            "auditable_auto": True,
+        }
+    else:
+        principios["R6"] = {
+            "titulo": PRINCIPIOS_REDACCION_2024[5]["titulo"],
+            "estado": "revisar",
+            "detalle": "No se identifica cita explícita de baremos por edad. Agregar referencia al baremo usado (p. ej. 'baremos de Neuronorma Colombia, Arango-Lasprilla & Rivera 2017').",
+            "auditable_auto": True,
+        }
+
+    # R7: Algoritmos diagnósticos como árbol — no auditable
+    principios["R7"] = {
+        "titulo": PRINCIPIOS_REDACCION_2024[6]["titulo"],
+        "estado": "no_aplica",
+        "detalle": "Depende del juicio clínico integral — verificar manualmente.",
+        "auditable_auto": False,
+    }
+
+    # Resumen
+    alertas = [
+        f"[{pid}] {p['titulo']}: {p['detalle']}"
+        for pid, p in principios.items()
+        if p["estado"] == "revisar"
+    ]
+    cumple = all(p["estado"] in ("ok", "no_aplica") for p in principios.values())
+
+    resumen_partes = []
+    for pid in ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]:
+        p = principios[pid]
+        icono = {"ok": "✓", "revisar": "⚠", "no_aplica": "—"}[p["estado"]]
+        resumen_partes.append(f"{icono} {pid} {p['titulo'][:50]}")
+    resumen = "  ".join(resumen_partes)
+
+    return {
+        "cumple": cumple,
+        "principios": principios,
+        "alertas": alertas,
+        "resumen": resumen,
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════
+# F9.3 — Cláusulas legales obligatorias en el encabezado del PDF
+# ═══════════════════════════════════════════════════════════════════
+# Bloques fijos que aparecen en el encabezado y pie de TODAS las
+# variantes profesionales. Se inyectan en el bloque de firma cuando
+# se genera el PDF.
+# ═══════════════════════════════════════════════════════════════════
+
+
+CLAUSULAS_INFORME_PROFESIONAL = {
+    "encabezado": (
+        "INFORME NEUROPSICOLÓGICO CONFIDENCIAL — DOCUMENTO CLÍNICO LEGAL"
+    ),
+    "declaracion_confidencialidad": (
+        "Este documento contiene información clínica protegida por la Ley 1581 "
+        "de 2012 (Habeas Data), la Resolución 1995 de 1999 (Historia Clínica) y "
+        "el artículo 36 de la Ley 1090 de 2006 (Secreto Profesional del "
+        "Psicólogo). Su reproducción, distribución o divulgación no autorizada "
+        "está sujeta a las sanciones legales vigentes."
+    ),
+    "responsabilidad_profesional": (
+        "El presente informe se emite bajo la responsabilidad profesional del "
+        "psicólogo firmante, quien certifica que la evaluación fue realizada "
+        "conforme a los estándares técnicos y éticos de la práctica "
+        "neuropsicológica colombiana."
+    ),
+    "uso_previsto_default": "Uso clínico",
+    "limitaciones_default": (
+        "Evaluación aplicada en una sola sesión. Los resultados describen el "
+        "rendimiento del paciente en el momento de la evaluación y pueden "
+        "verse influenciados por factores transitorios (fatiga, ansiedad, "
+        "medicación, condiciones de salud)."
+    ),
+}
+
+
+def construir_bloque_legal_encabezado(
+    *,
+    nombre_profesional: str = "",
+    tarjeta_profesional: str = "",
+    universidad: str = "",
+    resolucion: str = "",
+    nombre_paciente: str = "",
+    edad_display: str = "",
+    fecha_evaluacion: str = "",
+    objetivo: str = "",
+    uso_previsto: str = None,
+    limitaciones: str = None,
+    lugar: str = "",
+) -> str:
+    """
+    F9.3 — Construye el bloque legal/legal del encabezado (encabezado +
+    identificación del profesional + identificación del paciente + objetivo +
+    uso previsto + limitaciones + fecha/lugar).
+
+    Pensado para inyectarse al inicio del PDF profesional.
+    """
+    partes: list[str] = []
+    partes.append(CLAUSULAS_INFORME_PROFESIONAL["encabezado"])
+    partes.append("")
+    partes.append(CLAUSULAS_INFORME_PROFESIONAL["declaracion_confidencialidad"])
+    partes.append("")
+    partes.append("Profesional responsable:")
+    partes.append(f"  Nombre: {nombre_profesional or '—'}")
+    partes.append(f"  Tarjeta Profesional: {tarjeta_profesional or '—'}")
+    partes.append(f"  Universidad: {universidad or '—'}")
+    partes.append(f"  Resolución: {resolucion or '—'}")
+    partes.append("")
+    partes.append("Paciente:")
+    partes.append(f"  Nombre: {nombre_paciente or '—'}")
+    partes.append(f"  Edad: {edad_display or '—'}")
+    partes.append(f"  Fecha de evaluación: {fecha_evaluacion or '—'}")
+    partes.append("")
+    partes.append(f"Objetivo del informe: {objetivo or '—'}")
+    partes.append(
+        f"Uso previsto: {uso_previsto or CLAUSULAS_INFORME_PROFESIONAL['uso_previsto_default']}"
+    )
+    partes.append(
+        f"Limitaciones: {limitaciones or CLAUSULAS_INFORME_PROFESIONAL['limitaciones_default']}"
+    )
+    partes.append(f"Lugar: {lugar or '—'}")
+    partes.append("")
+    partes.append(CLAUSULAS_INFORME_PROFESIONAL["responsabilidad_profesional"])
+    return "\n".join(partes)
+
+
+

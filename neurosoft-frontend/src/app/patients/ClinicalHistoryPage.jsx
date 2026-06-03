@@ -167,6 +167,7 @@ export default function ClinicalHistoryPage({setPage}){
   const toast = useToast();
   const[patId,setPatId]=useState(()=>safeLS.get("ns_sel_patient")||"");const[loading,setLoading]=useState(false);
   const[patients,setPatients]=useState([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>{api.get("/api/v1/patients/panel").then(d=>setPatients(d.pacientes||d||[])).catch(()=>toast.error("Error cargando pacientes"));return()=>localStorage.removeItem("ns_sel_patient")},[]);
   const[tab,setTab]=useState(0);const tabs=["Desarrollo","Antecedentes","Familiar / Social","Plan de Atención"];
   const dflt={patient_id:"",numero_documento:"",fecha_atencion:new Date().toISOString().split("T")[0],codigo_cie10:"F809",row_version:null,motivo_consulta:"",mc_remitente:"",mc_subjetivo:"",enfermedad_actual:"",/* §1.1 acompañante */acompanante_nombre:"",acompanante_relacion:"",acompanante_telefono:"",/* §1.2 hipótesis */hipotesis_pre_eval:"",edad_materna:"",no_gestacion:"",riesgos:"No",cual_riesgo:"",estres_prenatal:"No",tipo_estres_prenatal:"",gestacion:"A Término",semanas:"",tipo_parto:"Natural",peso_gr:"",talla_cm:"",condiciones_neonatales:"",incubadora:"No",ucin:"No",sosten_cefalico:"",sedestacion:"",gateo:"",marcha:"",balbuceo:"",primeras_palabras:"",habla_claro:"",control_anual:"",control_vesical:"",patologicos_medicos:"",sensoriales_motores:"",psiquiatricos:"",farmacologicos:"",traumaticos:"",quirurgicos:"",toxicos:"",alergicos:"",terapeuticos:"",paraclinicos:"",familiares:"",vive_con:"",abc:"",escolar_laboral:"",cognitivo:"",comportamiento_animo:"",patron_sueno:"",patron_alimentacion:"",plan_atencion:"",impresion_diagnostica_hc:""};
@@ -175,7 +176,7 @@ export default function ClinicalHistoryPage({setPage}){
   const[cie,setCie]=useState([]);const[cieQ,setCieQ]=useState("");const[cieOpen,setCieOpen]=useState(false);
   const[showConsent,setShowConsent]=useState(false);const[pendCount,setPendCount]=useState(0);
   const checkConsents=async(pid)=>{if(!pid){setPendCount(0);return}try{const p=await api.get(`/api/v1/consentimientos/pendientes/${pid}`);setPendCount(p?.length||0);if(p&&p.length>0)setShowConsent(true)}catch{setPendCount(0)}};
-  const loadHC=async(pid)=>{if(!pid)return;setLoading(true);try{const[d,patData]=await Promise.all([api.get(`/api/v1/clinical-history/${pid}`).catch(()=>null),api.get(`/api/v1/patients/panel`).then(r=>(r.pacientes||r||[]).find(p=>p.id===pid)).catch(()=>null)]);if(d){const merged={...dflt};Object.keys(d).forEach(k=>{if(k in merged&&d[k]!==null)merged[k]=d[k]});const dec=decodeMC(merged.motivo_consulta||"");merged.mc_remitente=dec.rem;merged.mc_subjetivo=dec.sub;merged.enfermedad_actual=dec.act;if(patData){merged.acompanante_nombre=patData.acompanante||"";merged.acompanante_relacion=patData.acompanante_relacion||"";merged.acompanante_telefono=patData.acompanante_telefono||""}sF(merged)}}catch(e){}setLoading(false);checkConsents(pid)};
+  const loadHC=async(pid)=>{if(!pid)return;setLoading(true);try{const[d,patData]=await Promise.all([api.get(`/api/v1/clinical-history/${pid}`).catch(()=>null),api.get(`/api/v1/patients/panel`).then(r=>(r.pacientes||r||[]).find(p=>p.id===pid)).catch(()=>null)]);if(d){const merged={...dflt};Object.keys(d).forEach(k=>{if(k in merged&&d[k]!==null)merged[k]=d[k]});const dec=decodeMC(merged.motivo_consulta||"");merged.mc_remitente=dec.rem;merged.mc_subjetivo=dec.sub;merged.enfermedad_actual=dec.act;if(patData){merged.acompanante_nombre=patData.acompanante||"";merged.acompanante_relacion=patData.acompanante_relacion||"";merged.acompanante_telefono=patData.acompanante_telefono||""}sF(merged)}}catch{}setLoading(false);checkConsents(pid)};
   const searchCie=async(q)=>{
     setCieQ(q);
     if(q.length<2){setCie([]);return}
@@ -198,6 +199,7 @@ export default function ClinicalHistoryPage({setPage}){
   const devEsf=[["control_anual","Control Anal"],["control_vesical","Control Vesical"]];
   const antec=[["patologicos_medicos","Patológicos / Médicos"],["sensoriales_motores","Sensoriales / Motores"],["psiquiatricos","Psiquiátricos"],["farmacologicos","Farmacológicos"],["traumaticos","Traumáticos"],["quirurgicos","Quirúrgicos"],["toxicos","Tóxicos"],["alergicos","Alérgicos"],["terapeuticos","Terapéuticos"],["paraclinicos","Paraclínicos"],["familiares","Familiares"]];
   const famSoc=[["vive_con","¿Con quién vive?"],["abc","Actividades Básicas Cotidianas"],["escolar_laboral","Escolar / Laboral"],["cognitivo","Cognitivo"],["comportamiento_animo","Comportamiento y Ánimo"],["patron_sueno","Patrón de Sueño"],["patron_alimentacion","Patrón de Alimentación"]];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>{if(patId){set("patient_id",patId);loadHC(patId)}},[]);
   const patSel=patients.find(p=>p.id===f.patient_id);
   const patNombre=patSel?(patSel.nombre_completo||`${patSel.primer_nombre||""} ${patSel.primer_apellido||""}`.trim()):"";

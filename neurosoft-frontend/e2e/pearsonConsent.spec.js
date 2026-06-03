@@ -14,7 +14,7 @@
  * Precondición: dist/ compilado (npm run build) y backend en :8765.
  */
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from "@playwright/test";
 
 const STORAGE_KEY_VERSION = 'ns_pearson_consent_version';
 const STORAGE_KEY_DATE = 'ns_pearson_consent_global';

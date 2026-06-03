@@ -37,6 +37,7 @@ export default function RegisterPage({ setPage }) {
 
   useEffect(() => {
     api.get("/api/v1/config/profesionales").then(d => setProfs(d || [])).catch(() => toast.error("Error cargando profesionales"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const edad = f.fecha_nacimiento

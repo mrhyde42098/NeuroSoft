@@ -247,6 +247,7 @@ export default function NeuroCanvas({ mouseRef }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;

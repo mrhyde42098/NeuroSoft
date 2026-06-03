@@ -72,6 +72,7 @@ export function DarkProvider({ children }) {
   });
   useEffect(() => {
     if (dark) document.documentElement.classList.add("dark-mode");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return <DarkCtx.Provider value={{ dark, toggle }}>{children}</DarkCtx.Provider>;
 }
@@ -322,6 +323,7 @@ export function A11yProvider({ children }) {
   useEffect(() => {
     if (highContrast) document.documentElement.classList.add("high-contrast");
     applyFontScale(fontScale);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

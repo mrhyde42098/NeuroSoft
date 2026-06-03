@@ -56,6 +56,7 @@ export default function DashboardPage({ setPage }) {
         .slice(0, 5);
       setRehabSummary({ total: conPlan.length, promedio, activos });
     }).catch(() => setRehabSummary({ total: 0, promedio: 0, activos: [] }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const total = stats?.total_pacientes || 0;

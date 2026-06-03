@@ -24,7 +24,7 @@
  *   • onCancel()
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, _useMemo, useRef, useState } from "react";
 import { Btn, Card, I } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 

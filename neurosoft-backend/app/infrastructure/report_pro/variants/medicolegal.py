@@ -80,6 +80,7 @@ class MedicoLegalGenerator(NeuroPDFGeneratorPro):
         y = self._section_resultados(c, data, y)
         y = self._section_aculturacion(c, data, y)
         y = self._section_sintesis(c, data, y)
+        y = self._section_resumen_familia(c, data, y)
         y = self._section_impresion(c, data, y)
         y = self._section_recomendaciones(c, data, y)
         if self.INCLUDE_ANNEX:

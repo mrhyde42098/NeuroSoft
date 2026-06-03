@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import base64
 import io
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import date
@@ -140,6 +141,10 @@ class ReportData:
     # Resultados del engine
     resultados:         list[dict] = field(default_factory=list)  # List[ResultadoPruebaDTO.model_dump()]
     protocolo:          str = ""
+    puntos_debiles:     list[str] = field(default_factory=list)
+    puntos_fuertes:     list[str] = field(default_factory=list)
+    advertencias:       list[str] = field(default_factory=list)
+    pruebas_realizadas: int = 0
 
     # Profesional
     profesional_nombre:    str = ""
@@ -1077,8 +1082,13 @@ def build_report_data_from_db(
         codigo_cie10=_get(hc, 'codigo_cie10') if hc else "",
         codigo_cie10_desc=_lookup_cie10_desc(_get(hc, 'codigo_cie10') if hc else ""),
 
-        # Resultados
-        resultados=getattr(ev, 'resultados', []) or [],
+        # Resultados — el ORM guarda JSON en `resultados_json` (no hay attr `resultados`).
+        # Hay que deserializarlo; si no, la sección de resultados del PDF queda vacía.
+        resultados=json.loads(getattr(ev, 'resultados_json', '[]') or '[]') if ev else [],
+        puntos_debiles=json.loads(getattr(ev, 'puntos_debiles_json', '[]') or '[]') if ev else [],
+        puntos_fuertes=json.loads(getattr(ev, 'puntos_fuertes_json', '[]') or '[]') if ev else [],
+        advertencias=json.loads(getattr(ev, 'advertencias_json', '[]') or '[]') if ev else [],
+        pruebas_realizadas=getattr(ev, 'pruebas_realizadas', 0) or 0,
         protocolo=getattr(ev, 'protocolo', '') or "",
 
         # Profesional

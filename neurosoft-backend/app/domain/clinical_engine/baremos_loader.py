@@ -8,6 +8,16 @@ en memoria durante toda la vida del proceso. Lecturas en microsegundos.
 
 Patrón Singleton implementado con clase de estado de clase (no metaclass).
 Thread-safe para el contexto de FastAPI (asyncio single-thread).
+
+OVERRIDES (F7.2)
+----------------
+Algunos tests tienen baremos heredados del Excel VBA original que no
+son clasificaciones clínicas válidas (ej. AdBeck — keys `16190..16195`
+son Cell IDs del Excel, no bandas depresivas). En lugar de modificar
+el JSON (regla: el BD es intocable), este loader consulta
+`app.domain.clinical_engine.overrides` ANTES de devolver un
+`PruebaDefinicion`. Si hay override, se inyecta el baremo correcto.
+El checksum del BD se preserva para trazabilidad clínica.
 """
 
 from __future__ import annotations
@@ -20,6 +30,7 @@ from typing import Any
 
 from app.core.exceptions import BaremoDatabaseNotLoadedError, BaremoNotFoundError
 from app.domain.entities.models import PruebaDefinicion
+from app.domain.clinical_engine import overrides as baremos_overrides
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +66,8 @@ class BaremosLoader:
         self._baremo_version: str = "unknown"
         self._baremo_checksum: str = ""
         self._baremo_path: Path | None = None
+        # F7.2 — registro de overrides aplicados
+        self._overrides_aplicados: set[str] = set()
 
     # ──────────────────────────────────────────────────────────
     # Ciclo de vida del Singleton
@@ -132,16 +145,38 @@ class BaremosLoader:
                     self._ajustes_escolaridad = test_data
                     continue
 
+                # F7.2 — Aplica override Python si existe para este test.
+                # NO modifica el JSON. Sólo reemplaza los `baremos` en memoria.
+                baremos_originales = test_data.get("baremos", {})
+                baremos = baremos_originales
+                if baremos_overrides.has_override(test_id):
+                    baremos_override = baremos_overrides.get_override(test_id)
+                    if baremos_override is not None:
+                        baremos = baremos_override
+                        self._overrides_aplicados.add(test_id)
+                        logger.warning(
+                            "BaremosLoader: override F7.2 aplicado a '%s' "
+                            "(BD intocado, baremos=%d keys en lugar de %d)",
+                            test_id, len(baremos), len(baremos_originales),
+                        )
+
                 prueba = PruebaDefinicion(
                     id=test_id,
                     nombre=test_data.get("nombre", test_id),
                     tipo_calculo=test_data.get("tipo_calculo", "rango_puntaje"),
                     tipo_metrica=test_data.get("tipo_metrica", "escalar"),
                     poblacion=poblacion,
-                    baremos=test_data.get("baremos", {}),
+                    baremos=baremos,
                 )
                 self._index[test_id] = prueba
                 self._poblacion_index[test_id] = poblacion
+
+        if self._overrides_aplicados:
+            logger.info(
+                "BaremosLoader: %d override(s) F7.2 activos: %s",
+                len(self._overrides_aplicados),
+                sorted(self._overrides_aplicados),
+            )
 
     # ──────────────────────────────────────────────────────────
     # Acceso público
@@ -201,3 +236,18 @@ class BaremosLoader:
     @property
     def all_test_ids(self) -> list[str]:
         return list(self._index.keys())
+
+    # ── F7.2 introspection de overrides ────────────────────────
+    def baremo_en_revision(self, test_id: str) -> bool:
+        """
+        Retorna True si el baremo del test está siendo corregido por un
+        override Python (F7.2). Útil para que UI / informes / tests
+        reporten que la clasificación actual proviene de un override
+        validado contra literatura, no del dato crudo en el JSON.
+        """
+        return test_id in self._overrides_aplicados
+
+    @property
+    def overrides_aplicados(self) -> list[str]:
+        """Lista de test_ids con override activo. Para diagnóstico / logs."""
+        return sorted(self._overrides_aplicados)

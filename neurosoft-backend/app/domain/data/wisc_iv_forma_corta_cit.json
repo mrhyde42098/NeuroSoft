@@ -5,78 +5,306 @@
   "min_suma": 4,
   "max_suma": 76,
   "table": {
-    "4":  {"forma1": 42,  "forma2": 47},
-    "5":  {"forma1": 44,  "forma2": 48},
-    "6":  {"forma1": 45,  "forma2": 49},
-    "7":  {"forma1": 46,  "forma2": 50},
-    "8":  {"forma1": 47,  "forma2": 51},
-    "9":  {"forma1": 48,  "forma2": 52},
-    "10": {"forma1": 49,  "forma2": 53},
-    "11": {"forma1": 50,  "forma2": 55},
-    "12": {"forma1": 51,  "forma2": 56},
-    "13": {"forma1": 53,  "forma2": 57},
-    "14": {"forma1": 55,  "forma2": 59},
-    "15": {"forma1": 57,  "forma2": 61},
-    "16": {"forma1": 59,  "forma2": 63},
-    "17": {"forma1": 61,  "forma2": 65},
-    "18": {"forma1": 63,  "forma2": 67},
-    "19": {"forma1": 65,  "forma2": 69},
-    "20": {"forma1": 67,  "forma2": 71},
-    "21": {"forma1": 69,  "forma2": 73},
-    "22": {"forma1": 71,  "forma2": 75},
-    "23": {"forma1": 73,  "forma2": 77},
-    "24": {"forma1": 75,  "forma2": 79},
-    "25": {"forma1": 77,  "forma2": 81},
-    "26": {"forma1": 79,  "forma2": 83},
-    "27": {"forma1": 81,  "forma2": 85},
-    "28": {"forma1": 83,  "forma2": 87},
-    "29": {"forma1": 85,  "forma2": 89},
-    "30": {"forma1": 87,  "forma2": 91},
-    "31": {"forma1": 89,  "forma2": 92},
-    "32": {"forma1": 91,  "forma2": 93},
-    "33": {"forma1": 93,  "forma2": 94},
-    "34": {"forma1": 95,  "forma2": 96},
-    "35": {"forma1": 97,  "forma2": 97},
-    "36": {"forma1": 98,  "forma2": 98},
-    "37": {"forma1": 99,  "forma2": 99},
-    "38": {"forma1": 100, "forma2": 100},
-    "39": {"forma1": 100, "forma2": 100},
-    "40": {"forma1": 100, "forma2": 100},
-    "41": {"forma1": 101, "forma2": 101},
-    "42": {"forma1": 102, "forma2": 102},
-    "43": {"forma1": 103, "forma2": 103},
-    "44": {"forma1": 104, "forma2": 104},
-    "45": {"forma1": 105, "forma2": 106},
-    "46": {"forma1": 107, "forma2": 108},
-    "47": {"forma1": 109, "forma2": 110},
-    "48": {"forma1": 111, "forma2": 111},
-    "49": {"forma1": 112, "forma2": 112},
-    "50": {"forma1": 113, "forma2": 113},
-    "51": {"forma1": 115, "forma2": 115},
-    "52": {"forma1": 117, "forma2": 117},
-    "53": {"forma1": 119, "forma2": 118},
-    "54": {"forma1": 121, "forma2": 120},
-    "55": {"forma1": 123, "forma2": 122},
-    "56": {"forma1": 125, "forma2": 124},
-    "57": {"forma1": 127, "forma2": 125},
-    "58": {"forma1": 128, "forma2": 127},
-    "59": {"forma1": 130, "forma2": 129},
-    "60": {"forma1": 132, "forma2": 131},
-    "61": {"forma1": 134, "forma2": 133},
-    "62": {"forma1": 136, "forma2": 134},
-    "63": {"forma1": 138, "forma2": 136},
-    "64": {"forma1": 140, "forma2": 138},
-    "65": {"forma1": 142, "forma2": 139},
-    "66": {"forma1": 144, "forma2": 141},
-    "67": {"forma1": 146, "forma2": 142},
-    "68": {"forma1": 148, "forma2": 143},
-    "69": {"forma1": 150, "forma2": 144},
-    "70": {"forma1": 151, "forma2": 145},
-    "71": {"forma1": 152, "forma2": 146},
-    "72": {"forma1": 153, "forma2": 147},
-    "73": {"forma1": 154, "forma2": 148},
-    "74": {"forma1": 155, "forma2": 149},
-    "75": {"forma1": 156, "forma2": 150},
-    "76": {"forma1": 158, "forma2": 151}
+    "4": {
+      "forma1": 42,
+      "forma2": 47
+    },
+    "5": {
+      "forma1": 44,
+      "forma2": 48
+    },
+    "6": {
+      "forma1": 45,
+      "forma2": 49
+    },
+    "7": {
+      "forma1": 46,
+      "forma2": 50
+    },
+    "8": {
+      "forma1": 47,
+      "forma2": 51
+    },
+    "9": {
+      "forma1": 48,
+      "forma2": 52
+    },
+    "10": {
+      "forma1": 49,
+      "forma2": 53
+    },
+    "11": {
+      "forma1": 50,
+      "forma2": 55
+    },
+    "12": {
+      "forma1": 51,
+      "forma2": 56
+    },
+    "13": {
+      "forma1": 53,
+      "forma2": 57
+    },
+    "14": {
+      "forma1": 55,
+      "forma2": 59
+    },
+    "15": {
+      "forma1": 57,
+      "forma2": 61
+    },
+    "16": {
+      "forma1": 59,
+      "forma2": 63
+    },
+    "17": {
+      "forma1": 61,
+      "forma2": 65
+    },
+    "18": {
+      "forma1": 63,
+      "forma2": 67
+    },
+    "19": {
+      "forma1": 65,
+      "forma2": 69
+    },
+    "20": {
+      "forma1": 67,
+      "forma2": 71
+    },
+    "21": {
+      "forma1": 69,
+      "forma2": 73
+    },
+    "22": {
+      "forma1": 71,
+      "forma2": 75
+    },
+    "23": {
+      "forma1": 73,
+      "forma2": 77
+    },
+    "24": {
+      "forma1": 75,
+      "forma2": 79
+    },
+    "25": {
+      "forma1": 77,
+      "forma2": 81
+    },
+    "26": {
+      "forma1": 79,
+      "forma2": 83
+    },
+    "27": {
+      "forma1": 81,
+      "forma2": 85
+    },
+    "28": {
+      "forma1": 83,
+      "forma2": 87
+    },
+    "29": {
+      "forma1": 85,
+      "forma2": 89
+    },
+    "30": {
+      "forma1": 87,
+      "forma2": 91
+    },
+    "31": {
+      "forma1": 89,
+      "forma2": 92
+    },
+    "32": {
+      "forma1": 91,
+      "forma2": 93
+    },
+    "33": {
+      "forma1": 93,
+      "forma2": 94
+    },
+    "34": {
+      "forma1": 95,
+      "forma2": 96
+    },
+    "35": {
+      "forma1": 97,
+      "forma2": 97
+    },
+    "36": {
+      "forma1": 98,
+      "forma2": 98
+    },
+    "37": {
+      "forma1": 99,
+      "forma2": 99
+    },
+    "38": {
+      "forma1": 100,
+      "forma2": 100
+    },
+    "39": {
+      "forma1": 100,
+      "forma2": 100
+    },
+    "40": {
+      "forma1": 100,
+      "forma2": 100
+    },
+    "41": {
+      "forma1": 101,
+      "forma2": 101
+    },
+    "42": {
+      "forma1": 102,
+      "forma2": 102
+    },
+    "43": {
+      "forma1": 103,
+      "forma2": 103
+    },
+    "44": {
+      "forma1": 104,
+      "forma2": 104
+    },
+    "45": {
+      "forma1": 105,
+      "forma2": 106
+    },
+    "46": {
+      "forma1": 107,
+      "forma2": 108
+    },
+    "47": {
+      "forma1": 109,
+      "forma2": 110
+    },
+    "48": {
+      "forma1": 111,
+      "forma2": 111
+    },
+    "49": {
+      "forma1": 112,
+      "forma2": 112
+    },
+    "50": {
+      "forma1": 113,
+      "forma2": 113
+    },
+    "51": {
+      "forma1": 115,
+      "forma2": 115
+    },
+    "52": {
+      "forma1": 117,
+      "forma2": 117
+    },
+    "53": {
+      "forma1": 119,
+      "forma2": 118
+    },
+    "54": {
+      "forma1": 121,
+      "forma2": 120
+    },
+    "55": {
+      "forma1": 123,
+      "forma2": 122
+    },
+    "56": {
+      "forma1": 125,
+      "forma2": 124
+    },
+    "57": {
+      "forma1": 127,
+      "forma2": 125
+    },
+    "58": {
+      "forma1": 128,
+      "forma2": 127
+    },
+    "59": {
+      "forma1": 130,
+      "forma2": 129
+    },
+    "60": {
+      "forma1": 132,
+      "forma2": 131
+    },
+    "61": {
+      "forma1": 134,
+      "forma2": 133
+    },
+    "62": {
+      "forma1": 136,
+      "forma2": 134
+    },
+    "63": {
+      "forma1": 138,
+      "forma2": 136
+    },
+    "64": {
+      "forma1": 140,
+      "forma2": 138
+    },
+    "65": {
+      "forma1": 142,
+      "forma2": 139
+    },
+    "66": {
+      "forma1": 144,
+      "forma2": 141
+    },
+    "67": {
+      "forma1": 146,
+      "forma2": 142
+    },
+    "68": {
+      "forma1": 148,
+      "forma2": 143
+    },
+    "69": {
+      "forma1": 150,
+      "forma2": 144
+    },
+    "70": {
+      "forma1": 151,
+      "forma2": 145
+    },
+    "71": {
+      "forma1": 152,
+      "forma2": 146
+    },
+    "72": {
+      "forma1": 153,
+      "forma2": 147
+    },
+    "73": {
+      "forma1": 154,
+      "forma2": 148
+    },
+    "74": {
+      "forma1": 155,
+      "forma2": 149
+    },
+    "75": {
+      "forma1": 156,
+      "forma2": 150
+    },
+    "76": {
+      "forma1": 158,
+      "forma2": 151
+    }
+  },
+  "_meta": {
+    "id": "wisc_iv_forma_corta_cit",
+    "version": "1.0",
+    "autor": "NeuroSoft App",
+    "institucion": "",
+    "fuente": null,
+    "fecha_creacion": "2026-06-03",
+    "poblacion": "infantil"
   }
 }

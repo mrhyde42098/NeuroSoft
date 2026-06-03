@@ -108,6 +108,7 @@ export default function ScreeningPage() {
     api.get("/api/v1/patients/panel")
       .then((d) => setPatients(d.pacientes || d || []))
       .catch(() => toast.error("Error cargando pacientes"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const form = SCREENING_FORMS[test];

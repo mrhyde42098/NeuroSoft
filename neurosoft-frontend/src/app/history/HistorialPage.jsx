@@ -37,7 +37,9 @@ export default function HistorialPage({ setPage }) {
     api.get("/api/v1/patients/panel").then(d => setPatients(d.pacientes || d || [])).catch(() => toast.error("Error cargando pacientes"));
     api.get("/api/v1/inconclusos/stats").then(setIncStats).catch(() => toast.error("Error cargando inconclusos"));
     return () => safeLS.remove("ns_sel_patient");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (initPat) loadH(initPat);   }, []);
 
   const loadH = async (pid) => {

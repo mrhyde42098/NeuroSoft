@@ -31,7 +31,7 @@ const CAMBIO_STYLE = {
   sin_dato:  { bg: "#fef3c7", color: "#92400e", label: "Sin dato",   ico: "help" },
 };
 
-export default function ComparePage({ setPage }) {
+export default function ComparePage({ _setPage }) {
   const toast = useToast();
   const [patients, setPatients] = useState([]);
   const [patId, setPatId] = useState(() => safeLS.get("ns_sel_patient") || "");
@@ -47,6 +47,7 @@ export default function ComparePage({ setPage }) {
     api.get("/api/v1/patients/panel")
       .then(d => setPatients(d.pacientes || d || []))
       .catch(() => toast.error("Error cargando pacientes"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

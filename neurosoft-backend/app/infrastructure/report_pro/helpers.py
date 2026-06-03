@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from reportlab.pdfbase import pdfmetrics
+
 from .theme import (
     FONT_SANS,
     FONT_SANS_BOLD,
@@ -33,43 +35,94 @@ from .theme import (
 def char_width(font_name: str, size: float) -> float:
     """Ancho aproximado en puntos por carácter para un tipo + tamaño dados.
 
-    Mucho más rápido que ``pdfmetrics.stringWidth`` para wrap heurístico.
-    Sobreestima ligeramente para evitar overflow.
+    Usado como fallback cuando la fuente aún no está registrada (p.ej. tests
+    que no invocan ``ensure_fonts_registered()``). Prefiere ``measure_text``.
     """
-    # Promedios empíricos para Helvetica/Times: ~0.50 * size para sans, ~0.48 para serif
     if "Serif" in font_name or "Times" in font_name or "Lora" in font_name:
         return size * 0.50
     return size * 0.52
 
 
-def wrap_text(text: str, max_width: float, font_name: str, size: float) -> list[str]:
-    """Word-wrap heurístico (sin pdfmetrics) — produce líneas que entran en max_width.
+def measure_text(text: str, font_name: str, size: float) -> float:
+    """Ancho en puntos de ``text`` con la fuente PostScript real.
 
-    Maneja saltos de línea explícitos y palabras muy largas (las parte).
+    Usa ``pdfmetrics.stringWidth`` (resuelve aliases Inter/Lora/Helvetica/Times).
+    Si la fuente aún no está registrada, cae al heurístico ``char_width``.
+    """
+    if not text:
+        return 0.0
+    try:
+        return pdfmetrics.stringWidth(text, font(font_name), size)
+    except Exception:
+        return len(str(text)) * char_width(font_name, size)
+
+
+def _truncate_to_width(text: str, font_name: str, size: float, max_width: float) -> str:
+    """Recorta ``text`` con elipsis (…) para que entre en ``max_width`` puntos."""
+    if not text:
+        return text
+    s = str(text)
+    if measure_text(s, font_name, size) <= max_width:
+        return s
+    ellipsis = "…"
+    while s and measure_text(s + ellipsis, font_name, size) > max_width:
+        s = s[:-1]
+    return s + ellipsis if s else ellipsis
+
+
+def wrap_text(text: str, max_width: float, font_name: str, size: float) -> list[str]:
+    """Word-wrap usando ``pdfmetrics.stringWidth`` real.
+
+    Maneja saltos de línea explícitos (``\\n``) y parte palabras demasiado
+    largas para una línea (las corta con guion visual "-").
+
+    No produce overflow: cada línea tiene ``measure_text(line) <= max_width``.
     """
     if not text:
         return []
-    cw = char_width(font_name, size)
-    chars_per_line = max(8, int(max_width / cw))
     lines: list[str] = []
+    space_w = measure_text(" ", font_name, size)
+    hyphen_w = measure_text("-", font_name, size)
+
     for paragraph in str(text).splitlines() or [""]:
         if not paragraph.strip():
             lines.append("")
             continue
         words = paragraph.split()
         line = ""
+        line_w = 0.0
         for word in words:
-            if not line:
-                line = word
-            elif len(line) + 1 + len(word) <= chars_per_line:
-                line += " " + word
+            word_w = measure_text(word, font_name, size)
+            # Palabra sola más ancha que la línea → partir por glifos
+            if word_w > max_width and not line:
+                chunk = ""
+                chunk_w = 0.0
+                for ch in word:
+                    ch_w = measure_text(ch, font_name, size)
+                    if chunk_w + ch_w + hyphen_w > max_width and chunk:
+                        lines.append(chunk + "-")
+                        chunk = ch
+                        chunk_w = ch_w
+                    else:
+                        chunk += ch
+                        chunk_w += ch_w
+                if chunk:
+                    line = chunk
+                    line_w = chunk_w
+                continue
+            # ¿Cabe la palabra en la línea actual?
+            tentative = line_w + (space_w if line else 0) + word_w
+            if tentative <= max_width or not line:
+                if line:
+                    line += " " + word
+                    line_w = tentative
+                else:
+                    line = word
+                    line_w = word_w
             else:
                 lines.append(line)
                 line = word
-            # Palabra demasiado larga → partir
-            while len(line) > chars_per_line:
-                lines.append(line[:chars_per_line])
-                line = line[chars_per_line:]
+                line_w = word_w
         if line:
             lines.append(line)
     return lines
@@ -116,7 +169,7 @@ def draw_paragraph(
     if not text or not str(text).strip():
         return y
     if leading is None:
-        leading = size * 1.35
+        leading = size * 1.45
     lines = wrap_text(text, w, font_name, size)
     c.setFillColorRGB(*color)
     c.setFont(font(font_name), size)
@@ -134,7 +187,7 @@ def measure_paragraph_height(
     if not text:
         return 0.0
     if leading is None:
-        leading = size * 1.35
+        leading = size * 1.45
     lines = wrap_text(text, w, font_name, size)
     return len(lines) * leading
 
@@ -236,17 +289,25 @@ def field_pair(
     value_w: float = 200.0,
     size: float = TYPE.body_sm,
 ) -> float:
-    """Dibuja ``Label: valor`` en una línea — etiqueta en bold, valor en regular."""
+    """Dibuja ``Label: valor`` en una línea — etiqueta en bold, valor en regular.
+
+    El valor se trunca con elipsis (…) si excede ``value_w`` puntos (medido
+    con ``pdfmetrics.stringWidth``). La etiqueta se trunca igual si excede
+    ``label_w``. Line-height: ``size * 1.8`` (espacio respiratorio para 2 líneas).
+    """
+    # Etiqueta: truncar con elipsis si no cabe
+    label_text = f"{label}:"
+    label_text = _truncate_to_width(label_text, FONT_SANS_BOLD, size, label_w)
     draw_text(
-        c, f"{label}:", x, y,
+        c, label_text, x, y,
         font_name=FONT_SANS_BOLD, size=size, color=NAVY,
     )
     val = value if value not in (None, "", "N/A") else "—"
+    val_str = _truncate_to_width(str(val), FONT_SANS, size, value_w)
     draw_text(
-        c, str(val)[:int(value_w / char_width(FONT_SANS, size))],
-        x + label_w, y, font_name=FONT_SANS, size=size, color=SLATE,
+        c, val_str, x + label_w, y, font_name=FONT_SANS, size=size, color=SLATE,
     )
-    return y - size * 1.5
+    return y - size * 1.8
 
 
 # ──────────────────────────────────────────────────────────
@@ -288,7 +349,7 @@ def callout(
     if title:
         title_h = TYPE.title_h3 + 4
     body_lines = wrap_text(text, inner_w, FONT_SANS, size)
-    body_h = len(body_lines) * size * 1.4
+    body_h = len(body_lines) * size * 1.5
     box_h = padding * 2 + title_h + body_h + 2
 
     c.setFillColorRGB(*fill)
@@ -308,7 +369,7 @@ def callout(
     cy = inner_y - size
     for line in body_lines:
         c.drawString(x + padding + 4, cy, line)
-        cy -= size * 1.4
+        cy -= size * 1.5
     return y - box_h - 4
 
 
@@ -327,6 +388,9 @@ def kpi_card(
     """Tarjeta con un valor grande tipo "métrica clínica".
 
     Diseñada para los índices CIT/ICV/IRP… en la sección de resultados.
+    El label y la interpretation se truncan con elipsis según el ancho real
+    (medido con ``pdfmetrics.stringWidth``), no por número de caracteres
+    heurístico. La interpretation baja a ``size=TYPE.micro`` si no cabe.
     """
     # Borde + fondo
     c.setFillColorRGB(*SURFACE)
@@ -336,9 +400,11 @@ def kpi_card(
     # Top stripe
     c.setFillColorRGB(*accent)
     c.rect(x, y - 4, w, 4, fill=1, stroke=0)
-    # Label
+    # Label: truncar con elipsis al ancho real
+    label_max_w = w - 12
+    label_text = _truncate_to_width(label, FONT_SANS_BOLD, TYPE.caption, label_max_w)
     draw_text(
-        c, label[:18], x + w / 2, y - 14,
+        c, label_text, x + w / 2, y - 14,
         font_name=FONT_SANS_BOLD, size=TYPE.caption, color=accent, align="center",
     )
     # Value grande
@@ -346,10 +412,17 @@ def kpi_card(
         c, value, x + w / 2, y - 36,
         font_name=FONT_SERIF_BOLD, size=20, color=NAVY, align="center",
     )
-    # Interpretación
+    # Interpretación: bajar de tamaño si no cabe
+    inter_max_w = w - 12
+    inter_size = TYPE.micro + 0.5
+    inter_text = _truncate_to_width(interpretation, FONT_SANS, inter_size, inter_max_w)
+    if interpretation and inter_text.endswith("…") and inter_text != interpretation:
+        # Si truncó, intentar con un punto menos (sin elipsis) a menor tamaño
+        inter_size = TYPE.micro
+        inter_text = _truncate_to_width(interpretation, FONT_SANS, inter_size, inter_max_w)
     draw_text(
-        c, interpretation[:22], x + w / 2, y - h + 8,
-        font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE, align="center",
+        c, inter_text, x + w / 2, y - h + 8,
+        font_name=FONT_SANS, size=inter_size, color=SLATE, align="center",
     )
 
 
@@ -375,7 +448,8 @@ def draw_table(
     """Tabla simple con cabecera coloreada y filas alternas.
 
     ``row_colors[i]`` (si se pasa) pinta el texto de toda la fila i de ese color.
-    Retorna el nuevo y al finalizar la tabla.
+    Retorna el nuevo y al finalizar la tabla. Las celdas se truncan con elipsis
+    según el ancho real de cada columna (``pdfmetrics.stringWidth``).
     """
     # Header
     c.setFillColorRGB(*header_color)
@@ -383,8 +457,10 @@ def draw_table(
     c.rect(x, y - row_h, total_w, row_h, fill=1, stroke=0)
     cx = x
     for h_text, cw in zip(headers, col_widths):
+        header_max_w = cw - 8
+        h_trunc = _truncate_to_width(h_text, FONT_SANS_BOLD, size, header_max_w)
         draw_text(
-            c, h_text, cx + 4, y - row_h + 4,
+            c, h_trunc, cx + 4, y - row_h + 4,
             font_name=FONT_SANS_BOLD, size=size, color=header_text_color,
         )
         cx += cw
@@ -399,10 +475,10 @@ def draw_table(
         text_color = row_colors[i] if row_colors and i < len(row_colors) and row_colors[i] else SLATE
         cx = x
         for val, cw in zip(row, col_widths):
-            chars = max(1, int((cw - 8) / char_width(FONT_SANS, size)))
-            truncated = str(val)[:chars]
+            cell_max_w = cw - 8
+            cell_text = _truncate_to_width(str(val), FONT_SANS, size, cell_max_w)
             draw_text(
-                c, truncated, cx + 4, y - row_h + 4,
+                c, cell_text, cx + 4, y - row_h + 4,
                 font_name=FONT_SANS, size=size, color=text_color,
             )
             cx += cw
@@ -422,7 +498,8 @@ def two_column_layout(
 ) -> float:
     """Dibuja una lista de (label, value) en dos columnas balanceadas.
 
-    Útil para datos sociodemográficos.
+    Útil para datos sociodemográficos. Las dos columnas se alinean al fondo
+    usando ``min(y_left, y_right)`` para que las dos líneas inferiores coincidan.
     """
     if not items:
         return y

@@ -1,0 +1,52 @@
+{
+  "caso_id": 25,
+  "estado": "bateria_completa",
+  "paciente": {
+    "id": "42691564-7c06-4bf4-ab95-7f7bf6a8addf",
+    "documento": "1121000099",
+    "nombre": "Tom\u00e1s Restrepo",
+    "edad": "13 a\u00f1os, 8 meses",
+    "sexo": "H",
+    "escolaridad": "4\u00b0 Primaria"
+  },
+  "evaluacion": {
+    "id": "b3e32354-bcd3-4189-b040-97ee73022012",
+    "protocolo": "bateria_completa_infantil",
+    "fecha": "2027-01-14",
+    "poblacion": "infantil",
+    "n_pruebas": 37,
+    "resultados_count": 20,
+    "advertencias": [
+      "Test 'NiENIMemCod' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiENIMemVis' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiENIAten' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiENILen' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiENILect' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiENIEsc' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiKABCSim' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiKABCCon' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiKABCApr' no encontrado en BD_NEURO_MAESTRA.json.",
+      "'PAS Total' (PD=60.0): fuera del rango del baremo para esta edad/llave \u2014 no se calific\u00f3.",
+      "Test 'NiVinelandCom' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiVinelandDiar' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiVinelandSoc' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiVinelandMB' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiVinelandMot' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiVinelandTotal' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiStroopC' no encontrado en BD_NEURO_MAESTRA.json.",
+      "Test 'NiStroopPC' no encontrado en BD_NEURO_MAESTRA.json."
+    ]
+  },
+  "dx_principal": "F81.2 - Trastorno del c\u00e1lculo + comorbilidad atencional",
+  "n_observaciones": 7,
+  "n_recomendaciones": 7,
+  "metadatos": {
+    "es_emergencia": false,
+    "es_medicolegal": false,
+    "es_cierre_terapia": false,
+    "es_bateria_completa": true,
+    "es_inconcluso": false,
+    "rci_calculado": null,
+    "cssrs_score": null
+  }
+}

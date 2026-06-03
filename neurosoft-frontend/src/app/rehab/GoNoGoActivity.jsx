@@ -59,7 +59,7 @@ export default function GoNoGoActivity({ params = {}, onFinish, onCancel }) {
 
   useEffect(() => {
     if (phase !== "running") return;
-    const lv = LEVELS[level];
+    const _lv = LEVELS[level];
     if (!nextStimulus(block, idx)) {
       /* Fin del bloque */
       clearTimeout(timerRef.current);
@@ -73,6 +73,7 @@ export default function GoNoGoActivity({ params = {}, onFinish, onCancel }) {
         onFinish?.({ levels: [...allStats, { ...stats, level }] });
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, phase]);
 
   useEffect(() => () => clearTimeout(timerRef.current), []);

@@ -99,7 +99,7 @@ function analizarIndices(resultados) {
 /* ── Motor de detección de patrones clínicos ─────────────────────── */
 function detectarPatrones(indices, islas, subtests, edad) {
   const patrones = [];
-  const { ICV, IRP, IMT, IVP, CIT, ICG, ICC } = indices;
+  const { ICV, IRP, IMT, IVP, CIT, ICG, _ICC } = indices;
   const disponibles = [ICV, IRP, IMT, IVP].filter((v) => v != null);
 
   if (disponibles.length < 2) return patrones;
@@ -296,8 +296,8 @@ function detectarPatrones(indices, islas, subtests, edad) {
 }
 
 /* ── Generador de texto de observaciones clínicas ────────────────── */
-function generarTextoObservaciones(indices, islas, patrones, paciente) {
-  const { ICV, IRP, IMT, IVP, CIT, ICG, ICC } = indices;
+function generarTextoObservaciones(indices, islas, patrones, _paciente) {
+  const { ICV, IRP, IMT, IVP, CIT, ICG, _ICC } = indices;
   const partes = [];
 
   /* ── Rendimiento general ── */

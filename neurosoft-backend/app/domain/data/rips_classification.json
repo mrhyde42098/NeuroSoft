@@ -1,73 +1,262 @@
 {
- "version": " 2025-10-09",
- "source": "Clasificación de RIPS 2025 — Capacitación Clínica",
- "notes": "Clasificación CIE-10 empleada por para reporte RIPS en Colombia. Los rangos etarios son inclusivos. Usar el código CIE-10 exacto al emitir el RIPS.",
- "populations": {
- "nino_preescolar": {
- "label": "Niño preescolar",
- "age_range": [1, 5],
- "diagnoses": [
- {"label": "TEA", "cie10": "F840", "name": "Autismo en la niñez"},
- {"label": "Retraso Motor", "cie10": "F823", "name": "Trastorno específico del desarrollo motor"},
- {"label": "Retraso del Lenguaje", "cie10": "F801", "name": "Trastorno del desarrolloenguaje expresivo"},
- {"label": "Cognitivamente Sano", "cie10": "F89X", "name": "Trastorno del desarrollo psicológico, no especificado"},
- {"label": "Discapacidad Intelectual / Retraso Mental", "cie10": "F700", "name": "Retraso mental leve con comportamiento mínimamente alterado"},
- {"label": "Retraso Global del Desarrollo", "cie10": "F79X", "name": "Retraso mental, no especificado"}
- ]
- },
- "nino": {
- "label": "Niño",
- "age_range": [6, 17],
- "diagnoses": [
- {"label": "TEA", "cie10": "F840", "name": "Autismo en la niñez"},
- {"label": "TDAH", "cie10": "F900", "name": "Trastorno de la actividad y de la atención"},
- {"label": "Dislexia", "cie10": "F810", "name": "Trastorno específico de la lectura"},
- {"label": "Discalculia", "cie10": "F812", "name": "Trastorno específicoálculo aritmético"},
- {"label": "Trastorno del Aprendizaje Mixto", "cie10": "F813", "name": "Trastorno mixto de las habilidades escolares"},
- {"label": "Trastorno del Aprendizaje, no especificado", "cie10": "F819", "name": "Trastorno del desarrollo de las habilidades escolares, no especificado"},
- {"label": "CI Límite", "cie10": "F799", "name": "Retraso mental no especificado — funcionamiento limítrofe"},
- {"label": "Discapacidad Intelectual Leve", "cie10": "F700", "name": "Retraso mental leve"},
- {"label": "Discapacidad Intelectual Moderada", "cie10": "F701", "name": "Retraso mental leve con deterioro significativoomportamiento"},
- {"label": "Discapacidad Intelectual Grave", "cie10": "F718", "name": "Retraso mental moderado con otros trastornosomportamiento"},
- {"label": "Discapacidad Intelectual Profunda", "cie10": "F730", "name": "Retraso mental grave sin deterioroomportamiento"},
- {"label": "Trastorno del Desarrollo de la Coordinación", "cie10": "F823", "name": "Trastorno específico del desarrollo motor"},
- {"label": "Trastorno Mixto del Desarrollo", "cie10": "F83X", "name": "Trastorno específico mixto del desarrollo"}
- ]
- },
- "adulto": {
- "label": "Adulto",
- "age_range": [18, 49],
- "diagnoses": [
- {"label": "TDAH en el adulto", "cie10": "F900", "name": "Trastorno de la actividad y de la atención"},
- {"label": "CI Límite", "cie10": "F88X", "name": "Otros trastornos del desarrollo psicológico"},
- {"label": "Discapacidad Intelectual Leve", "cie10": "F700", "name": "Retraso mental leve"},
- {"label": "Discapacidad Intelectual Moderada", "cie10": "F710", "name": "Retraso mental moderado"},
- {"label": "Deterioro Cognitivo Leve (DCL)", "cie10": "F067", "name": "Trastorno cognoscitivo leve"},
- {"label": "Síndrome Frontal / Cambio de personalidad postlesional", "cie10": "F070", "name": "Trastorno de la personalidad orgánico"},
- {"label": "Síndrome Postconmocional", "cie10": "F072", "name": "Síndrome postconmocional"},
- {"label": "Secuelas Cognitivas de TCE", "cie10": "F079", "name": "Trastorno orgánico de la personalidad yomportamiento no especificado"},
- {"label": "Trastorno de Aprendizaje Adulto", "cie10": "F819", "name": "Trastorno del desarrollo de las habilidades escolares, no especificado"}
- ]
- },
- "adulto_mayor": {
- "label": "Adulto mayor",
- "age_range": [50, 99],
- "diagnoses": [
- {"label": "Deterioro Cognitivo Leve (DCL)", "cie10": "F067", "name": "Trastorno cognoscitivo leve"},
- {"label": "Enfermedad de Alzheimer — inicio temprano", "cie10": "F000", "name": "Demencia en la enfermedad de Alzheimer, de comienzo temprano"},
- {"label": "Enfermedad de Alzheimer — inicio tardío", "cie10": "F001", "name": "Demencia en la enfermedad de Alzheimer, de comienzo tardío"},
- {"label": "Enfermedad de Alzheimer — atípica / mixta", "cie10": "F002", "name": "Demencia en la enfermedad de Alzheimer, atípica o mixta"},
- {"label": "Demencia Vascular de comienzo agudo", "cie10": "F010", "name": "Demencia vascular de comienzo agudo"},
- {"label": "Demencia Vascular por infartos múltiples", "cie10": "F011", "name": "Demencia por infartos múltiples"},
- {"label": "Demencia Vascular subcortical", "cie10": "F012", "name": "Demencia vascular subcortical"},
- {"label": "Demencia Vascular mixta, cortical y subcortical", "cie10": "F013", "name": "Demencia vascular mixta, cortical y subcortical"},
- {"label": "Demencia Vascular, no especificada", "cie10": "F019", "name": "Demencia vascular, no especificada"},
- {"label": "Demencia Frontotemporal / Pick", "cie10": "F020", "name": "Demencia en la enfermedad de Pick"},
- {"label": "Demencia en otras enfermedades", "cie10": "F028", "name": "Demencia en otras enfermedades clasificadas en otra parte"},
- {"label": "Demencia, no especificada", "cie10": "F03X", "name": "Demencia, no especificada"},
- {"label": "Síndrome Frontal", "cie10": "F070", "name": "Trastorno de la personalidad orgánico"},
- {"label": "Secuelas Cognitivas postlesión", "cie10": "F079", "name": "Trastorno orgánico de la personalidad yomportamiento no especificado"}
- ]
- }
- }
+  "version": " 2025-10-09",
+  "source": "Clasificación de RIPS 2025 — Capacitación Clínica",
+  "notes": "Clasificación CIE-10 empleada por para reporte RIPS en Colombia. Los rangos etarios son inclusivos. Usar el código CIE-10 exacto al emitir el RIPS.",
+  "populations": {
+    "nino_preescolar": {
+      "label": "Niño preescolar",
+      "age_range": [
+        1,
+        5
+      ],
+      "diagnoses": [
+        {
+          "label": "TEA",
+          "cie10": "F840",
+          "name": "Autismo en la niñez"
+        },
+        {
+          "label": "Retraso Motor",
+          "cie10": "F823",
+          "name": "Trastorno específico del desarrollo motor"
+        },
+        {
+          "label": "Retraso del Lenguaje",
+          "cie10": "F801",
+          "name": "Trastorno del desarrolloenguaje expresivo"
+        },
+        {
+          "label": "Cognitivamente Sano",
+          "cie10": "F89X",
+          "name": "Trastorno del desarrollo psicológico, no especificado"
+        },
+        {
+          "label": "Discapacidad Intelectual / Retraso Mental",
+          "cie10": "F700",
+          "name": "Retraso mental leve con comportamiento mínimamente alterado"
+        },
+        {
+          "label": "Retraso Global del Desarrollo",
+          "cie10": "F79X",
+          "name": "Retraso mental, no especificado"
+        }
+      ]
+    },
+    "nino": {
+      "label": "Niño",
+      "age_range": [
+        6,
+        17
+      ],
+      "diagnoses": [
+        {
+          "label": "TEA",
+          "cie10": "F840",
+          "name": "Autismo en la niñez"
+        },
+        {
+          "label": "TDAH",
+          "cie10": "F900",
+          "name": "Trastorno de la actividad y de la atención"
+        },
+        {
+          "label": "Dislexia",
+          "cie10": "F810",
+          "name": "Trastorno específico de la lectura"
+        },
+        {
+          "label": "Discalculia",
+          "cie10": "F812",
+          "name": "Trastorno específicoálculo aritmético"
+        },
+        {
+          "label": "Trastorno del Aprendizaje Mixto",
+          "cie10": "F813",
+          "name": "Trastorno mixto de las habilidades escolares"
+        },
+        {
+          "label": "Trastorno del Aprendizaje, no especificado",
+          "cie10": "F819",
+          "name": "Trastorno del desarrollo de las habilidades escolares, no especificado"
+        },
+        {
+          "label": "CI Límite",
+          "cie10": "F799",
+          "name": "Retraso mental no especificado — funcionamiento limítrofe"
+        },
+        {
+          "label": "Discapacidad Intelectual Leve",
+          "cie10": "F700",
+          "name": "Retraso mental leve"
+        },
+        {
+          "label": "Discapacidad Intelectual Moderada",
+          "cie10": "F701",
+          "name": "Retraso mental leve con deterioro significativoomportamiento"
+        },
+        {
+          "label": "Discapacidad Intelectual Grave",
+          "cie10": "F718",
+          "name": "Retraso mental moderado con otros trastornosomportamiento"
+        },
+        {
+          "label": "Discapacidad Intelectual Profunda",
+          "cie10": "F730",
+          "name": "Retraso mental grave sin deterioroomportamiento"
+        },
+        {
+          "label": "Trastorno del Desarrollo de la Coordinación",
+          "cie10": "F823",
+          "name": "Trastorno específico del desarrollo motor"
+        },
+        {
+          "label": "Trastorno Mixto del Desarrollo",
+          "cie10": "F83X",
+          "name": "Trastorno específico mixto del desarrollo"
+        }
+      ]
+    },
+    "adulto": {
+      "label": "Adulto",
+      "age_range": [
+        18,
+        49
+      ],
+      "diagnoses": [
+        {
+          "label": "TDAH en el adulto",
+          "cie10": "F900",
+          "name": "Trastorno de la actividad y de la atención"
+        },
+        {
+          "label": "CI Límite",
+          "cie10": "F88X",
+          "name": "Otros trastornos del desarrollo psicológico"
+        },
+        {
+          "label": "Discapacidad Intelectual Leve",
+          "cie10": "F700",
+          "name": "Retraso mental leve"
+        },
+        {
+          "label": "Discapacidad Intelectual Moderada",
+          "cie10": "F710",
+          "name": "Retraso mental moderado"
+        },
+        {
+          "label": "Deterioro Cognitivo Leve (DCL)",
+          "cie10": "F067",
+          "name": "Trastorno cognoscitivo leve"
+        },
+        {
+          "label": "Síndrome Frontal / Cambio de personalidad postlesional",
+          "cie10": "F070",
+          "name": "Trastorno de la personalidad orgánico"
+        },
+        {
+          "label": "Síndrome Postconmocional",
+          "cie10": "F072",
+          "name": "Síndrome postconmocional"
+        },
+        {
+          "label": "Secuelas Cognitivas de TCE",
+          "cie10": "F079",
+          "name": "Trastorno orgánico de la personalidad yomportamiento no especificado"
+        },
+        {
+          "label": "Trastorno de Aprendizaje Adulto",
+          "cie10": "F819",
+          "name": "Trastorno del desarrollo de las habilidades escolares, no especificado"
+        }
+      ]
+    },
+    "adulto_mayor": {
+      "label": "Adulto mayor",
+      "age_range": [
+        50,
+        99
+      ],
+      "diagnoses": [
+        {
+          "label": "Deterioro Cognitivo Leve (DCL)",
+          "cie10": "F067",
+          "name": "Trastorno cognoscitivo leve"
+        },
+        {
+          "label": "Enfermedad de Alzheimer — inicio temprano",
+          "cie10": "F000",
+          "name": "Demencia en la enfermedad de Alzheimer, de comienzo temprano"
+        },
+        {
+          "label": "Enfermedad de Alzheimer — inicio tardío",
+          "cie10": "F001",
+          "name": "Demencia en la enfermedad de Alzheimer, de comienzo tardío"
+        },
+        {
+          "label": "Enfermedad de Alzheimer — atípica / mixta",
+          "cie10": "F002",
+          "name": "Demencia en la enfermedad de Alzheimer, atípica o mixta"
+        },
+        {
+          "label": "Demencia Vascular de comienzo agudo",
+          "cie10": "F010",
+          "name": "Demencia vascular de comienzo agudo"
+        },
+        {
+          "label": "Demencia Vascular por infartos múltiples",
+          "cie10": "F011",
+          "name": "Demencia por infartos múltiples"
+        },
+        {
+          "label": "Demencia Vascular subcortical",
+          "cie10": "F012",
+          "name": "Demencia vascular subcortical"
+        },
+        {
+          "label": "Demencia Vascular mixta, cortical y subcortical",
+          "cie10": "F013",
+          "name": "Demencia vascular mixta, cortical y subcortical"
+        },
+        {
+          "label": "Demencia Vascular, no especificada",
+          "cie10": "F019",
+          "name": "Demencia vascular, no especificada"
+        },
+        {
+          "label": "Demencia Frontotemporal / Pick",
+          "cie10": "F020",
+          "name": "Demencia en la enfermedad de Pick"
+        },
+        {
+          "label": "Demencia en otras enfermedades",
+          "cie10": "F028",
+          "name": "Demencia en otras enfermedades clasificadas en otra parte"
+        },
+        {
+          "label": "Demencia, no especificada",
+          "cie10": "F03X",
+          "name": "Demencia, no especificada"
+        },
+        {
+          "label": "Síndrome Frontal",
+          "cie10": "F070",
+          "name": "Trastorno de la personalidad orgánico"
+        },
+        {
+          "label": "Secuelas Cognitivas postlesión",
+          "cie10": "F079",
+          "name": "Trastorno orgánico de la personalidad yomportamiento no especificado"
+        }
+      ]
+    }
+  },
+  "_meta": {
+    "id": "rips_classification",
+    "version": "1.0",
+    "autor": "NeuroSoft App",
+    "institucion": "",
+    "fuente": null,
+    "fecha_creacion": "2026-06-03",
+    "poblacion": "mixto"
+  }
 }
