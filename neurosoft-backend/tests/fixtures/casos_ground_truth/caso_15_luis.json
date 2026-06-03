@@ -1,0 +1,26 @@
+{
+  "caso_id": 15,
+  "nombre_paciente": "Luis Eduardo Pérez Quintero",
+  "perfil_clinico": "Pseudodemencia depresiva",
+  "fecha_nacimiento": "1957-04-18",
+  "fecha_evaluacion": "2025-05-18",
+  "sexo": "M",
+  "escolaridad": "Secundaria",
+  "puntajes_input": {
+    "ViRDD": 5,
+    "ViRDInv": 3,
+    "ViTMTA": 110,
+    "ViStP": 75,
+    "ViGroberRLT": 22,
+    "ViGroberML_Tot": 9,
+    "ViGroberMC_Tot": 14,
+    "ViAni": 14,
+    "ViYesavage": 11
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

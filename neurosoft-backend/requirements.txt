@@ -1,0 +1,40 @@
+# requirements.txt — NeuroSoft Backend (runtime)
+# ================================================
+# Dependencias mínimas para ejecutar la API en producción.
+# Los paquetes de desarrollo (pytest, ruff, etc.) están en
+# requirements-dev.txt para reducir superficie de ataque y
+# tamaño de la imagen Docker.
+#
+# Instalar:  pip install -r requirements.txt
+# Pinned:    versiones exactas para builds reproducibles.
+
+# ── Framework web ─────────────────────────────────────────
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+
+# ── Validación y settings ─────────────────────────────────
+pydantic==2.7.0
+pydantic-settings==2.3.0
+
+# ── Base de datos ─────────────────────────────────────────
+sqlalchemy==2.0.31
+alembic>=1.13.0
+
+# ── Seguridad / auth ──────────────────────────────────────
+python-jose[cryptography]>=3.3.0   # JWT sign/verify
+passlib[bcrypt]>=1.7.4              # API de hashing
+bcrypt==4.0.1                       # Backend de passlib (pin por compatibilidad)
+
+# ── Uploads y fechas ──────────────────────────────────────
+python-multipart==0.0.9   # Upload de archivos (firma, restore, import)
+python-dateutil==2.9.0    # Parser de fechas robusto
+
+# ── Generación de informes ────────────────────────────────
+python-docx==1.1.2
+reportlab==4.2.0
+
+# ── Import legacy (.xlsm / .xlsx) ─────────────────────────
+openpyxl>=3.1.0
+
+# ── Tareas programadas (recordatorios de citas, backups) ──
+APScheduler>=3.10.0

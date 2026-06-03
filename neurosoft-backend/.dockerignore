@@ -1,0 +1,47 @@
+# .dockerignore — NeuroSoft Backend
+# ==================================
+# Evita copiar basura al contexto Docker: acelera builds y
+# reduce riesgo de filtrar secretos (.env, data/*.db).
+
+# Entornos virtuales y caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Datos locales (persistir siempre como volumen)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos y configs locales
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# Docs + IDE
+*.md
+.idea/
+.vscode/
+*.log
+test_output.log
+
+# Reports generados
+reports/
+
+# CI / build artefactos
+dist/
+build/
+*.egg-info/
+htmlcov/
+.coverage
+coverage.xml

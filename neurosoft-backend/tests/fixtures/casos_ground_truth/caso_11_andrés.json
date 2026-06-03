@@ -1,0 +1,25 @@
+{
+  "caso_id": 11,
+  "nombre_paciente": "Andrés Mauricio Torres",
+  "perfil_clinico": "TDAH adulto",
+  "fecha_nacimiento": "1996-10-22",
+  "fecha_evaluacion": "2025-05-18",
+  "sexo": "M",
+  "escolaridad": "Universitaria",
+  "puntajes_input": {
+    "AdWAISV": 50,
+    "AdSemWais": 25,
+    "AdSDWais": 65,
+    "AdDDir": 9,
+    "AdMatr": 21,
+    "AdTMT_AB": 110,
+    "AdStroop_Corr": 30,
+    "EscASRS": 42
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

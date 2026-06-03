@@ -1,0 +1,23 @@
+{
+  "caso_id": 5,
+  "nombre_paciente": "Mateo Quintero Salazar",
+  "perfil_clinico": "TEA nivel 1",
+  "fecha_nacimiento": "2019-03-08",
+  "fecha_evaluacion": "2025-05-12",
+  "sexo": "M",
+  "escolaridad": "Primaria",
+  "puntajes_input": {
+    "NiWiscDC": 24,
+    "NiWiscVoc": 28,
+    "NiWiscSem": 16,
+    "NiWiscMat": 18,
+    "NiWiscCl": 22,
+    "NiRecEmo": 2
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

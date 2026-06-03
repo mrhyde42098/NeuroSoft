@@ -1,0 +1,27 @@
+{
+  "caso_id": 3,
+  "nombre_paciente": "Sebastián Castillo Gómez",
+  "perfil_clinico": "TDAH combinado infantil",
+  "fecha_nacimiento": "2017-01-15",
+  "fecha_evaluacion": "2025-05-10",
+  "sexo": "M",
+  "escolaridad": "Primaria",
+  "puntajes_input": {
+    "NiWiscDC": 30,
+    "NiWiscSem": 18,
+    "NiWiscRDD": 11,
+    "NiWiscCl": 22,
+    "NiWiscVoc": 30,
+    "NiWiscLN": 11,
+    "NiWiscMat": 17,
+    "NiWiscCom": 18,
+    "NiWiscBusSim": 10,
+    "NiWiscAri": 14
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

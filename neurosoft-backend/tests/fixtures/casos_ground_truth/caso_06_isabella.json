@@ -1,0 +1,27 @@
+{
+  "caso_id": 6,
+  "nombre_paciente": "Isabella Mendoza Ariza",
+  "perfil_clinico": "Discapacidad intelectual leve",
+  "fecha_nacimiento": "2011-09-25",
+  "fecha_evaluacion": "2025-05-20",
+  "sexo": "F",
+  "escolaridad": "Primaria",
+  "puntajes_input": {
+    "NiWiscDC": 20,
+    "NiWiscSem": 11,
+    "NiWiscRDD": 9,
+    "NiWiscConD": 9,
+    "NiWiscCl": 35,
+    "NiWiscVoc": 18,
+    "NiWiscLN": 8,
+    "NiWiscMat": 11,
+    "NiWiscCom": 11,
+    "NiWiscBusSim": 12
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

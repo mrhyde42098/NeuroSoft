@@ -1,0 +1,28 @@
+{
+  "caso_id": 17,
+  "nombre_paciente": "José Antonio Bermúdez Caro",
+  "perfil_clinico": "Control normal (envejecimiento típico)",
+  "fecha_nacimiento": "1960-02-10",
+  "fecha_evaluacion": "2025-05-12",
+  "sexo": "M",
+  "escolaridad": "Universitaria",
+  "puntajes_input": {
+    "ViRDD": 7,
+    "ViRDInv": 5,
+    "ViTMTA": 45,
+    "ViTMTB": 110,
+    "ViStP": 110,
+    "ViGroberRLT": 30,
+    "ViGroberML_Tot": 14,
+    "ViGroberMC_Tot": 16,
+    "ViAni": 22,
+    "FluidP": 18,
+    "ViYesavage": 1
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

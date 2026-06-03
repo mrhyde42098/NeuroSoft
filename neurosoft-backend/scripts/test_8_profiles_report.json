@@ -1,0 +1,976 @@
+{
+  "resumen": {
+    "perfiles": 8,
+    "errores": 0,
+    "advertencias": 0
+  },
+  "errores": [],
+  "advertencias": [],
+  "resultados": {
+    "Nino 8a Promedio": {
+      "poblacion": "infantil",
+      "edad_display": "8 años, 4 meses",
+      "pruebas_realizadas": 11,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "NiWiscDC",
+          "nombre": "Diseño con Cubos",
+          "pd": 21.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "84721",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscSem",
+          "nombre": "Semejanzas",
+          "pd": 16.0,
+          "escalar": 11.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "84716",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscVoc",
+          "nombre": "Vocabulario",
+          "pd": 20.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "84720",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscLN",
+          "nombre": "Números y Letras",
+          "pd": 14.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "84714",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscCl",
+          "nombre": "Claves",
+          "pd": 25.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Velocidad de Proceso",
+          "llave": "84725",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscMat",
+          "nombre": "Matrices",
+          "pd": 16.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "84716",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscCom",
+          "nombre": "Comprensión",
+          "pd": 16.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "84716",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscAri",
+          "nombre": "Aritmética",
+          "pd": 14.0,
+          "escalar": 6.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Memoria de Trabajo",
+          "llave": "84714",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscBusSim",
+          "nombre": "Búsqueda de simbolos",
+          "pd": 20.0,
+          "escalar": 11.0,
+          "interpretacion": "Promedio",
+          "dominio": "Velocidad de Proceso",
+          "llave": "84720",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscRDD",
+          "nombre": "Regresión Dígitos Directos",
+          "pd": 14.0,
+          "escalar": 11.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "84714",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscConD",
+          "nombre": "Conceptos con Dibujos",
+          "pd": 16.0,
+          "escalar": 11.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "84716",
+          "metadata": {}
+        }
+      ]
+    },
+    "Nino 12a TDAH": {
+      "poblacion": "infantil",
+      "edad_display": "12 años, 2 meses",
+      "pruebas_realizadas": 11,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "NiWiscDC",
+          "nombre": "Diseño con Cubos",
+          "pd": 35.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "120335",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscSem",
+          "nombre": "Semejanzas",
+          "pd": 24.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "120324",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscVoc",
+          "nombre": "Vocabulario",
+          "pd": 26.0,
+          "escalar": 5.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Comprensión Verbal",
+          "llave": "120326",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscLN",
+          "nombre": "Números y Letras",
+          "pd": 8.0,
+          "escalar": 2.0,
+          "interpretacion": "Bajo",
+          "dominio": "Memoria de Trabajo",
+          "llave": "12038",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscCl",
+          "nombre": "Claves",
+          "pd": 28.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Velocidad de Proceso",
+          "llave": "120328",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscMat",
+          "nombre": "Matrices",
+          "pd": 24.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "120324",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscCom",
+          "nombre": "Comprensión",
+          "pd": 26.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "120326",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscAri",
+          "nombre": "Aritmética",
+          "pd": 10.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Memoria de Trabajo",
+          "llave": "120310",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscBusSim",
+          "nombre": "Búsqueda de simbolos",
+          "pd": 18.0,
+          "escalar": 6.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Velocidad de Proceso",
+          "llave": "120318",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscRDD",
+          "nombre": "Regresión Dígitos Directos",
+          "pd": 12.0,
+          "escalar": 6.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Memoria de Trabajo",
+          "llave": "120312",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscConD",
+          "nombre": "Conceptos con Dibujos",
+          "pd": 24.0,
+          "escalar": 15.0,
+          "interpretacion": "Superior",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "120324",
+          "metadata": {}
+        }
+      ]
+    },
+    "Adolescente 16a Mixto": {
+      "poblacion": "infantil",
+      "edad_display": "16 años, 9 meses",
+      "pruebas_realizadas": 11,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "NiWiscDC",
+          "nombre": "Diseño con Cubos",
+          "pd": 40.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "1681140",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscSem",
+          "nombre": "Semejanzas",
+          "pd": 30.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "1681130",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscVoc",
+          "nombre": "Vocabulario",
+          "pd": 38.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "1681138",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscLN",
+          "nombre": "Números y Letras",
+          "pd": 20.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "1681120",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscCl",
+          "nombre": "Claves",
+          "pd": 50.0,
+          "escalar": 5.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Velocidad de Proceso",
+          "llave": "1681150",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscMat",
+          "nombre": "Matrices",
+          "pd": 26.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "1681126",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscCom",
+          "nombre": "Comprensión",
+          "pd": 32.0,
+          "escalar": 11.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "1681132",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscAri",
+          "nombre": "Aritmética",
+          "pd": 16.0,
+          "escalar": 4.0,
+          "interpretacion": "Bajo",
+          "dominio": "Memoria de Trabajo",
+          "llave": "1681116",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscBusSim",
+          "nombre": "Búsqueda de simbolos",
+          "pd": 55.0,
+          "escalar": 19.0,
+          "interpretacion": "Superior",
+          "dominio": "Velocidad de Proceso",
+          "llave": "1681155",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscRDD",
+          "nombre": "Regresión Dígitos Directos",
+          "pd": 22.0,
+          "escalar": 12.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "1681122",
+          "metadata": {}
+        },
+        {
+          "test_id": "NiWiscConD",
+          "nombre": "Conceptos con Dibujos",
+          "pd": 28.0,
+          "escalar": 19.0,
+          "interpretacion": "Superior",
+          "dominio": "Razonamiento Perceptual",
+          "llave": "1681128",
+          "metadata": {}
+        }
+      ]
+    },
+    "Adulto 28a Promedio": {
+      "poblacion": "adulto_joven",
+      "edad_display": "28 años, 4 meses",
+      "pruebas_realizadas": 11,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "AdWAISV",
+          "nombre": "VOCABULARIO",
+          "pd": 55.0,
+          "escalar": 14.0,
+          "interpretacion": "Superior",
+          "dominio": "Comprensión Verbal",
+          "llave": "253455",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdSemWais",
+          "nombre": "SEMEJANZAS",
+          "pd": 22.0,
+          "escalar": 11.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "253422",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISC",
+          "nombre": "COMRENSIÓN",
+          "pd": 24.0,
+          "escalar": 12.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "253424",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISI",
+          "nombre": "INFORMACIÓN",
+          "pd": 16.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "253416",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISA",
+          "nombre": "ARITMETICA",
+          "pd": 14.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "253414",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISL",
+          "nombre": "LETRAS Y NÚMEROS",
+          "pd": 10.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "253410",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdSDWais",
+          "nombre": "CLAVE DE NÚMEROS",
+          "pd": 75.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Velocidad de Proceso",
+          "llave": "253475",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdMatr",
+          "nombre": "MATRICES",
+          "pd": 15.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Organización Perceptual",
+          "llave": "253415",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISFI",
+          "nombre": "FIG. INCOMPLETAS",
+          "pd": 16.0,
+          "escalar": 6.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Organización Perceptual",
+          "llave": "253416",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISCC",
+          "nombre": "CONSTRUCCIÓN CUBOS",
+          "pd": 26.0,
+          "escalar": 5.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Organización Perceptual",
+          "llave": "253426",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdDDir",
+          "nombre": "DIGITOS",
+          "pd": 10.0,
+          "escalar": 5.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Atención",
+          "llave": "253410",
+          "metadata": {}
+        }
+      ]
+    },
+    "Adulto 42a Deterioro": {
+      "poblacion": "adulto_joven",
+      "edad_display": "42 años, 2 meses",
+      "pruebas_realizadas": 11,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "AdWAISV",
+          "nombre": "VOCABULARIO",
+          "pd": 45.0,
+          "escalar": 12.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "355445",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdSemWais",
+          "nombre": "SEMEJANZAS",
+          "pd": 16.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "355416",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISC",
+          "nombre": "COMRENSIÓN",
+          "pd": 18.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "355418",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISI",
+          "nombre": "INFORMACIÓN",
+          "pd": 12.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "355412",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISA",
+          "nombre": "ARITMETICA",
+          "pd": 10.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Comprensión Verbal",
+          "llave": "355410",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISL",
+          "nombre": "LETRAS Y NÚMEROS",
+          "pd": 6.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "35546",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdSDWais",
+          "nombre": "CLAVE DE NÚMEROS",
+          "pd": 55.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Velocidad de Proceso",
+          "llave": "355455",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdMatr",
+          "nombre": "MATRICES",
+          "pd": 10.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Organización Perceptual",
+          "llave": "355410",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISFI",
+          "nombre": "FIG. INCOMPLETAS",
+          "pd": 12.0,
+          "escalar": 6.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Organización Perceptual",
+          "llave": "355412",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdWAISCC",
+          "nombre": "CONSTRUCCIÓN CUBOS",
+          "pd": 20.0,
+          "escalar": 6.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Organización Perceptual",
+          "llave": "355420",
+          "metadata": {}
+        },
+        {
+          "test_id": "AdDDir",
+          "nombre": "DIGITOS",
+          "pd": 6.0,
+          "escalar": 4.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "35546",
+          "metadata": {}
+        }
+      ]
+    },
+    "AM 65a Normal": {
+      "poblacion": "adulto_mayor",
+      "edad_display": "65 años, 1 meses",
+      "pruebas_realizadas": 9,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "ViTMTA",
+          "nombre": "TMT A",
+          "pd": 80.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Atención",
+          "llave": "636580",
+          "metadata": {
+            "raw_value": 7
+          }
+        },
+        {
+          "test_id": "ViTMTB",
+          "nombre": "TMT B",
+          "pd": 180.0,
+          "escalar": 7.0,
+          "interpretacion": "Promedio",
+          "dominio": "Funciones Ejecutivas",
+          "llave": "6365180",
+          "metadata": {
+            "raw_value": 7
+          }
+        },
+        {
+          "test_id": "ViRDD",
+          "nombre": "Span Retención Dígitos Directo",
+          "pd": 8.0,
+          "escalar": 16.0,
+          "interpretacion": "Superior",
+          "dominio": "Memoria de Trabajo",
+          "llave": "63658",
+          "metadata": {
+            "raw_value": 16
+          }
+        },
+        {
+          "test_id": "ViRDInv",
+          "nombre": "Span Retención Dígitos Inverso",
+          "pd": 5.0,
+          "escalar": 15.0,
+          "interpretacion": "Superior",
+          "dominio": "Memoria de Trabajo",
+          "llave": "63655",
+          "metadata": {
+            "raw_value": 15
+          }
+        },
+        {
+          "test_id": "ViStP",
+          "nombre": "Test de Stroop Palabra",
+          "pd": 45.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "636545",
+          "metadata": {
+            "raw_value": 3
+          }
+        },
+        {
+          "test_id": "ViStC",
+          "nombre": "Test de Stroop Color",
+          "pd": 30.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "636530",
+          "metadata": {
+            "raw_value": 3
+          }
+        },
+        {
+          "test_id": "ViAni",
+          "nombre": "Fluidez Verbal Animales",
+          "pd": 18.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Lenguaje - Fluidez",
+          "llave": "636518",
+          "metadata": {
+            "raw_value": 10
+          }
+        },
+        {
+          "test_id": "ViSem",
+          "nombre": "ViSem",
+          "pd": 22.0,
+          "escalar": 22.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Lenguaje",
+          "llave": "65S",
+          "metadata": {
+            "pc50": 7.5,
+            "diferencia_vs_norma": 14.5
+          }
+        },
+        {
+          "test_id": "ViYesavage",
+          "nombre": "Escala de Depresión Geriátrica Yesavage",
+          "pd": 3.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Socioemocional - Depresión",
+          "llave": "clasificacion_fija",
+          "metadata": {
+            "clasificacion_beck": "Mínima"
+          }
+        }
+      ]
+    },
+    "AM 78a Deterioro": {
+      "poblacion": "adulto_mayor",
+      "edad_display": "78 años, 4 meses",
+      "pruebas_realizadas": 9,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "ViTMTA",
+          "nombre": "TMT A",
+          "pd": 122.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Atención",
+          "llave": "7880122",
+          "metadata": {
+            "raw_value": 8,
+            "pd_original": 121.0,
+            "pd_ajustado": 122.0
+          }
+        },
+        {
+          "test_id": "ViTMTB",
+          "nombre": "TMT B",
+          "pd": 282.0,
+          "escalar": 9.0,
+          "interpretacion": "Promedio",
+          "dominio": "Funciones Ejecutivas",
+          "llave": "7880282",
+          "metadata": {
+            "raw_value": 9,
+            "pd_original": 281.0,
+            "pd_ajustado": 282.0
+          }
+        },
+        {
+          "test_id": "ViRDD",
+          "nombre": "Span Retención Dígitos Directo",
+          "pd": 4.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "78804",
+          "metadata": {
+            "raw_value": 10
+          }
+        },
+        {
+          "test_id": "ViRDInv",
+          "nombre": "Span Retención Dígitos Inverso",
+          "pd": 2.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "78802",
+          "metadata": {
+            "raw_value": 8
+          }
+        },
+        {
+          "test_id": "ViStP",
+          "nombre": "Test de Stroop Palabra",
+          "pd": 27.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "788027",
+          "metadata": {
+            "raw_value": 3,
+            "pd_original": 26.0,
+            "pd_ajustado": 27.0
+          }
+        },
+        {
+          "test_id": "ViStC",
+          "nombre": "Test de Stroop Color",
+          "pd": 17.0,
+          "escalar": 3.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "788017",
+          "metadata": {
+            "raw_value": 3,
+            "pd_original": 16.0,
+            "pd_ajustado": 17.0
+          }
+        },
+        {
+          "test_id": "ViAni",
+          "nombre": "Fluidez Verbal Animales",
+          "pd": 12.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Lenguaje - Fluidez",
+          "llave": "788012",
+          "metadata": {
+            "raw_value": 10,
+            "pd_original": 11.0,
+            "pd_ajustado": 12.0
+          }
+        },
+        {
+          "test_id": "ViSem",
+          "nombre": "ViSem",
+          "pd": 14.0,
+          "escalar": 14.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Lenguaje",
+          "llave": "78P",
+          "metadata": {
+            "pc50": 5.0,
+            "diferencia_vs_norma": 9.0
+          }
+        },
+        {
+          "test_id": "ViYesavage",
+          "nombre": "Escala de Depresión Geriátrica Yesavage",
+          "pd": 8.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Socioemocional - Depresión",
+          "llave": "clasificacion_fija",
+          "metadata": {
+            "clasificacion_beck": "Mínima"
+          }
+        }
+      ]
+    },
+    "AM 82a Analfabeta": {
+      "poblacion": "adulto_mayor",
+      "edad_display": "82 años, 3 meses",
+      "pruebas_realizadas": 9,
+      "advertencias": [],
+      "resultados": [
+        {
+          "test_id": "ViTMTA",
+          "nombre": "TMT A",
+          "pd": 152.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Atención",
+          "llave": "8190152",
+          "metadata": {
+            "raw_value": 8,
+            "pd_original": 150.0,
+            "pd_ajustado": 152.0
+          }
+        },
+        {
+          "test_id": "ViTMTB",
+          "nombre": "TMT B",
+          "pd": 302.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Funciones Ejecutivas",
+          "llave": "8190302",
+          "metadata": {
+            "raw_value": 8,
+            "pd_original": 300.0,
+            "pd_ajustado": 302.0
+          }
+        },
+        {
+          "test_id": "ViRDD",
+          "nombre": "Span Retención Dígitos Directo",
+          "pd": 4.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "81904",
+          "metadata": {
+            "raw_value": 10,
+            "pd_original": 3.0,
+            "pd_ajustado": 4.0
+          }
+        },
+        {
+          "test_id": "ViRDInv",
+          "nombre": "Span Retención Dígitos Inverso",
+          "pd": 2.0,
+          "escalar": 8.0,
+          "interpretacion": "Promedio",
+          "dominio": "Memoria de Trabajo",
+          "llave": "81902",
+          "metadata": {
+            "raw_value": 8,
+            "pd_original": 1.0,
+            "pd_ajustado": 2.0
+          }
+        },
+        {
+          "test_id": "ViStP",
+          "nombre": "Test de Stroop Palabra",
+          "pd": 22.0,
+          "escalar": 4.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "819022",
+          "metadata": {
+            "raw_value": 4,
+            "pd_original": 20.0,
+            "pd_ajustado": 22.0
+          }
+        },
+        {
+          "test_id": "ViStC",
+          "nombre": "Test de Stroop Color",
+          "pd": 12.0,
+          "escalar": 4.0,
+          "interpretacion": "Bajo",
+          "dominio": "Atención",
+          "llave": "819012",
+          "metadata": {
+            "raw_value": 4,
+            "pd_original": 10.0,
+            "pd_ajustado": 12.0
+          }
+        },
+        {
+          "test_id": "ViAni",
+          "nombre": "Fluidez Verbal Animales",
+          "pd": 12.0,
+          "escalar": 10.0,
+          "interpretacion": "Promedio",
+          "dominio": "Lenguaje - Fluidez",
+          "llave": "819012",
+          "metadata": {
+            "raw_value": 10,
+            "pd_original": 10.0,
+            "pd_ajustado": 12.0
+          }
+        },
+        {
+          "test_id": "ViSem",
+          "nombre": "ViSem",
+          "pd": 10.0,
+          "escalar": 10.0,
+          "interpretacion": "Bajo",
+          "dominio": "Lenguaje",
+          "llave": "82P",
+          "metadata": {
+            "pc50": 4.5,
+            "diferencia_vs_norma": 5.5
+          }
+        },
+        {
+          "test_id": "ViYesavage",
+          "nombre": "Escala de Depresión Geriátrica Yesavage",
+          "pd": 5.0,
+          "escalar": 5.0,
+          "interpretacion": "Limítrofe",
+          "dominio": "Socioemocional - Depresión",
+          "llave": "clasificacion_fija",
+          "metadata": {
+            "clasificacion_beck": "Mínima"
+          }
+        }
+      ]
+    }
+  }
+}

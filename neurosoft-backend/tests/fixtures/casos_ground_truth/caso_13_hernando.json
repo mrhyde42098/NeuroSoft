@@ -1,0 +1,27 @@
+{
+  "caso_id": 13,
+  "nombre_paciente": "Hernando Restrepo Villegas",
+  "perfil_clinico": "Deterioro Cognitivo Leve amnésico",
+  "fecha_nacimiento": "1953-01-08",
+  "fecha_evaluacion": "2025-05-15",
+  "sexo": "M",
+  "escolaridad": "Universitaria",
+  "puntajes_input": {
+    "ViRDD": 6,
+    "ViRDInv": 4,
+    "ViTMTA": 60,
+    "ViTMTB": 145,
+    "ViStP": 95,
+    "ViGroberRLT": 18,
+    "ViGroberML_Tot": 8,
+    "ViGroberMC_Tot": 14,
+    "ViAni": 16,
+    "ViYesavage": 2
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

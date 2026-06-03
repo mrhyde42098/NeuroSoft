@@ -1,0 +1,366 @@
+{
+  "AdBeck": {
+    "pob": "adulto_joven",
+    "nombre": "Inventario de Beck BDI-II",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 7
+  },
+  "AdBusSim + ViBusSim": {
+    "pob": "adulto_joven",
+    "nombre": "BUSQUEDA DE SIMBOLOS",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "escalar",
+    "n_claves": 366
+  },
+  "AdDPros": {
+    "pob": "adulto_joven",
+    "nombre": "Dígitos Progresión",
+    "tipo_calculo": "escolaridad_pc50",
+    "tipo_metrica": "percentil",
+    "n_claves": 161
+  },
+  "AdDReg": {
+    "pob": "adulto_joven",
+    "nombre": "Dígitos Regresión",
+    "tipo_calculo": "escolaridad_pc50",
+    "tipo_metrica": "percentil",
+    "n_claves": 92
+  },
+  "AdFCRO_Rey": {
+    "pob": "adulto_joven",
+    "nombre": "Figura de Rey",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 54
+  },
+  "AdStroop_Corr": {
+    "pob": "adulto_joven",
+    "nombre": "Stroop Corrección",
+    "tipo_calculo": "ajuste",
+    "tipo_metrica": "puntaje_t",
+    "n_claves": 81
+  },
+  "AdTL_Torre": {
+    "pob": "adulto_joven",
+    "nombre": "Torre de Londres",
+    "tipo_calculo": "baremo_pe",
+    "tipo_metrica": "escalar",
+    "n_claves": 13
+  },
+  "AdTMT_AB": {
+    "pob": "adulto_joven",
+    "nombre": "TMT A y B",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 86
+  },
+  "Denom48": {
+    "pob": "adulto_mayor",
+    "nombre": "Denominacion 48 items - Adulto Mayor",
+    "tipo_calculo": "desconocido",
+    "tipo_metrica": "ci",
+    "n_claves": 597
+  },
+  "EscKertesz": {
+    "pob": "adulto_mayor",
+    "nombre": "Inventario Conductual Frontal (FBI/Kertesz)",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 37
+  },
+  "EscLawton": {
+    "pob": "adulto_mayor",
+    "nombre": "Escala de Lawton y Brody (IADL)",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 9
+  },
+  "EscQueja": {
+    "pob": "adulto_mayor",
+    "nombre": "Escala de Queja Subjetiva de Memoria",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 21
+  },
+  "EscYesavage": {
+    "pob": "adulto_mayor",
+    "nombre": "Escala de Depresion Geriatrica Yesavage (GDS-15)",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 16
+  },
+  "FluidAnim": {
+    "pob": "adulto_mayor",
+    "nombre": "Fluidez Verbal Animales - Adulto Mayor",
+    "tipo_calculo": "desconocido",
+    "tipo_metrica": "ci",
+    "n_claves": 304
+  },
+  "FluidP": {
+    "pob": "adulto_mayor",
+    "nombre": "Fluidez Verbal Fonemica (P) - Adulto Mayor",
+    "tipo_calculo": "desconocido",
+    "tipo_metrica": "ci",
+    "n_claves": 288
+  },
+  "GBTotal": {
+    "pob": "adulto_mayor",
+    "nombre": "Grober & Buschke - Recuerdo Libre Total (E1+E2+E3)",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "ci",
+    "n_claves": 167
+  },
+  "GoNoGoICO": {
+    "pob": "adulto_mayor",
+    "nombre": "Go/No-Go - INECO Fronto-Subcortical",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 4
+  },
+  "InstrConfiICO": {
+    "pob": "adulto_mayor",
+    "nombre": "Instrucciones Conflictivas - INECO FS (alias)",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 4
+  },
+  "InstrConflICO": {
+    "pob": "adulto_mayor",
+    "nombre": "Instrucciones Conflictivas - INECO FS",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 4
+  },
+  "MMSE": {
+    "pob": "adulto_mayor",
+    "nombre": "Mini-Mental State Examination (MMSE)",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 31
+  },
+  "NiCDI": {
+    "pob": "infantil",
+    "nombre": "CDI Escala de depresión",
+    "tipo_calculo": "edad_sexo",
+    "tipo_metrica": "escalar",
+    "n_claves": 6
+  },
+  "NiEniE1 + NiEniE2 + NiEniE3 + NiEniE4 = NiEniLT": {
+    "pob": "infantil",
+    "nombre": "Lista de palabras",
+    "tipo_calculo": "rango_puntaje",
+    "tipo_metrica": "escalar",
+    "n_claves": 540
+  },
+  "NiFCROCop": {
+    "pob": "infantil",
+    "nombre": "FCRO Copia",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 12
+  },
+  "NiFCRORec": {
+    "pob": "infantil",
+    "nombre": "FCRO Memoria",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 12
+  },
+  "NiGADSCTAs": {
+    "pob": "infantil",
+    "nombre": "Coeficiente de Trastorno de Asperger",
+    "tipo_calculo": "puntaje_doble_resultado",
+    "tipo_metrica": "puntaje_t",
+    "n_claves": 56
+  },
+  "NiSt_Edades": {
+    "pob": "infantil",
+    "nombre": "Stroop Corrección Edad",
+    "tipo_calculo": "rango_puntaje",
+    "tipo_metrica": "puntaje_t",
+    "n_claves": 14
+  },
+  "NiSt_Puntajes": {
+    "pob": "infantil",
+    "nombre": "Stroop Puntajes T",
+    "tipo_calculo": "puntaje",
+    "tipo_metrica": "puntaje_t",
+    "n_claves": 31
+  },
+  "NiTMTB": {
+    "pob": "infantil",
+    "nombre": "TMT B",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 10
+  },
+  "NiTestPC_R": {
+    "pob": "infantil",
+    "nombre": "CARAS-R",
+    "tipo_calculo": "z_score_multiple",
+    "tipo_metrica": "z_score",
+    "n_claves": 13
+  },
+  "NiWISCIndCapGen": {
+    "pob": "infantil",
+    "nombre": "Índice de Capacidad General (ICG)",
+    "tipo_calculo": "suma_a_indice",
+    "tipo_metrica": "ci",
+    "n_claves": 109
+  },
+  "NiWISCIndCopCog": {
+    "pob": "infantil",
+    "nombre": "Índice de Competencia Cognitiva (ICC)",
+    "tipo_calculo": "suma_a_indice",
+    "tipo_metrica": "ci",
+    "n_claves": 73
+  },
+  "NiWisFigInc": {
+    "pob": "infantil",
+    "nombre": "Figuras incompletas",
+    "tipo_calculo": "rango_puntaje",
+    "tipo_metrica": "escalar",
+    "n_claves": 1299
+  },
+  "NiWisInf": {
+    "pob": "infantil",
+    "nombre": "Informacion",
+    "tipo_calculo": "rango_puntaje",
+    "tipo_metrica": "escalar",
+    "n_claves": 1134
+  },
+  "NiWisPalCon": {
+    "pob": "infantil",
+    "nombre": "Palabras Contexto",
+    "tipo_calculo": "rango_puntaje",
+    "tipo_metrica": "escalar",
+    "n_claves": 846
+  },
+  "NiWisReg": {
+    "pob": "infantil",
+    "nombre": "Registros",
+    "tipo_calculo": "rango_puntaje",
+    "tipo_metrica": "escalar",
+    "n_claves": 4521
+  },
+  "OrDNpsi": {
+    "pob": "adulto_mayor",
+    "nombre": "OrDNpsi",
+    "tipo_calculo": "puntaje",
+    "tipo_metrica": "escalar",
+    "n_claves": 11
+  },
+  "OrSD": {
+    "pob": "adulto_mayor",
+    "nombre": "OrSD",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 75
+  },
+  "OrTMTA": {
+    "pob": "adulto_mayor",
+    "nombre": "OrTMTA",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 75
+  },
+  "OrTMTB": {
+    "pob": "adulto_mayor",
+    "nombre": "OrTMTB",
+    "tipo_calculo": "z_score",
+    "tipo_metrica": "z_score",
+    "n_claves": 75
+  },
+  "RefranesICO": {
+    "pob": "adulto_mayor",
+    "nombre": "Refranes - INECO Fronto-Subcortical",
+    "tipo_calculo": "clasificacion_fija",
+    "tipo_metrica": "ci",
+    "n_claves": 7
+  },
+  "SDMT": {
+    "pob": "adulto_mayor",
+    "nombre": "SDMT - Simbolo-Digito (norma AM)",
+    "tipo_calculo": "desconocido",
+    "tipo_metrica": "ci",
+    "n_claves": 709
+  },
+  "StroopAM": {
+    "pob": "adulto_mayor",
+    "nombre": "Stroop Palabra/Color - Adulto Mayor",
+    "tipo_calculo": "desconocido",
+    "tipo_metrica": "ci",
+    "n_claves": 594
+  },
+  "ViDeno": {
+    "pob": "adulto_mayor",
+    "nombre": "ViDeno",
+    "tipo_calculo": "escolaridad_pc50",
+    "tipo_metrica": "percentil",
+    "n_claves": 184
+  },
+  "ViFCRO_Tiempo": {
+    "pob": "adulto_mayor",
+    "nombre": "FCRO Copia Tiempo",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "escalar",
+    "n_claves": 2757
+  },
+  "ViGroberMC_Dif": {
+    "pob": "adulto_mayor",
+    "nombre": "Grober MC - Retención Diferida Claves",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "ci",
+    "n_claves": 170
+  },
+  "ViGroberMC_Tot": {
+    "pob": "adulto_mayor",
+    "nombre": "Grober RT - Recuerdo Total Claves (E1+E2+E3)",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "ci",
+    "n_claves": 170
+  },
+  "ViGroberML_Tot": {
+    "pob": "adulto_mayor",
+    "nombre": "Grober RLT - Retención Libre Total (E1+E2+E3)",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "ci",
+    "n_claves": 167
+  },
+  "ViGroberRLT": {
+    "pob": "adulto_mayor",
+    "nombre": "Grober RL Ensayo 1 (libre)",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "ci",
+    "n_claves": 419
+  },
+  "ViGroberRT": {
+    "pob": "adulto_mayor",
+    "nombre": "Grober ML - Retención Diferida Libre",
+    "tipo_calculo": "wais_range",
+    "tipo_metrica": "ci",
+    "n_claves": 490
+  },
+  "ViMRemRec": {
+    "pob": "adulto_mayor",
+    "nombre": "ViMRemRec",
+    "tipo_calculo": "desconocido",
+    "tipo_metrica": "ci",
+    "n_claves": 9
+  },
+  "ViSem": {
+    "pob": "adulto_mayor",
+    "nombre": "ViSem",
+    "tipo_calculo": "escolaridad_pc50",
+    "tipo_metrica": "percentil",
+    "n_claves": 155
+  },
+  "_ajustes_escolaridad": {
+    "pob": "adulto_mayor",
+    "nombre": "_ajustes_escolaridad",
+    "tipo_calculo": "sin_tipo",
+    "tipo_metrica": "sin_metrica",
+    "n_claves": 0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "caso_id": 12,
+  "nombre_paciente": "Diana Camila Suárez Pérez",
+  "perfil_clinico": "Duelo complicado + depresión mayor",
+  "fecha_nacimiento": "1990-02-15",
+  "fecha_evaluacion": "2025-05-19",
+  "sexo": "F",
+  "escolaridad": "Universitaria",
+  "puntajes_input": {
+    "AdWAISV": 48,
+    "AdSemWais": 22,
+    "AdSDWais": 65,
+    "AdDDir": 9,
+    "AdMatr": 19,
+    "AdTMT_AB": 100,
+    "AdBeck": 28
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

@@ -1,0 +1,131 @@
+﻿{
+  "id": "protocolo_ninos_complementario_ins_2024",
+  "nombre": "Protocolo NiÃ±os Complementario 2024",
+  "poblacion": "infantil",
+  "edad_min": 5,
+  "edad_max": 16,
+  "institucion": "",
+  "version": "2024",
+  "nota_general": "Complementa el WISC-IV. Si ya se hizo aplicaciÃ³n por un tercero pero hay dudas sobre rendimiento, aplicar IMT (DÃ­gitos y AritmÃ©tica) e IVP (BÃºsqueda de SÃ­mbolos/Registros y Claves). Para sospechas especÃ­ficas (ej: TANV), comunicarse con direcciÃ³n clÃ­nica.",
+  "dominios_principales": {
+    "escalas": {
+      "nombre": "Escalas ClÃ­nicas",
+      "pruebas": [
+        {"id": "vineland", "nombre": "Vineland", "tipo": "escala", "descripcion": "Conducta Adaptativa"},
+        {"id": "scared", "nombre": "SCARED", "tipo": "escala", "descripcion": "Screen for Child Anxiety Related Disorders", "nota": "Acudiente + Paciente mayor de 9 aÃ±os"},
+        {"id": "snap", "nombre": "SNAP", "tipo": "escala", "descripcion": "Swanson, Nolan & Pelham â€” TDAH"},
+        {"id": "escalas_clinicas", "nombre": "Escalas clÃ­nicas segÃºn edad y motivo", "nota": "TEA, Spence preescolar, etc."}
+      ]
+    },
+    "memoria_verbal": {
+      "nombre": "Memoria Verbal",
+      "pruebas": [
+        {"id": "eni2_curva_verbal", "nombre": "Curva de Memoria Verbal ENI-2", "ref_json": "protocolos_memoria_verbal.json#eni2_curva_verbal", "estructura": "12 Ã­tems Ã— 4 ensayos + recobro espontÃ¡neo + recobro por claves + reconocimiento"}
+      ]
+    },
+    "praxias_gnosias": {
+      "nombre": "Praxias / Gnosias",
+      "pruebas": [
+        {"id": "fcro_copia", "nombre": "FCRO Copia"},
+        {"id": "integracion_objetos", "nombre": "IntegraciÃ³n de Objetos", "items": 8},
+        {"id": "expresiones_faciales", "nombre": "Reconocimiento de Expresiones Faciales", "items": 8},
+        {"id": "figura_humana", "nombre": "Figura Humana", "items": 20, "tipo": "dibujo"}
+      ]
+    },
+    "atencion": {
+      "nombre": "AtenciÃ³n",
+      "pruebas": [
+        {"id": "digitos_directos_eni", "nombre": "DÃ­gitos directos (ENI-2)"},
+        {"id": "tmt_a_infantil", "nombre": "TMT-A", "ref_backend": "NiTMTA", "nota": "Mayores de 9 aÃ±os"},
+        {"id": "tmt_b_infantil", "nombre": "TMT-B", "ref_backend": "NiTMTB", "nota": "Mayores de 9 aÃ±os"},
+        {"id": "caras_r", "nombre": "CARAS-R", "ref_backend": "NiTesCA", "tipo": "atencion_selectiva"},
+        {"id": "cancelacion_dibujos", "nombre": "CancelaciÃ³n de Dibujos", "tipo": "atencion_sostenida"}
+      ]
+    },
+    "memoria_visual": {
+      "nombre": "Memoria Visual",
+      "pruebas": [
+        {"id": "fcro_recobro", "nombre": "Recobro FCRO"}
+      ]
+    },
+    "lenguaje": {
+      "nombre": "Lenguaje",
+      "pruebas": [
+        {"id": "denominacion_imagenes", "nombre": "DenominaciÃ³n de ImÃ¡genes", "items": 15, "nota": "Si se tienen dudas sobre este aspecto"},
+        {"id": "seguimiento_instrucciones", "nombre": "Seguimiento de Instrucciones", "items": 10, "nota": "Si se tienen dudas"},
+        {"id": "deletreo", "nombre": "Deletreo", "items": 8, "nota": "Si se tienen dudas"},
+        {"id": "fluidez_animales", "nombre": "Fluidez SemÃ¡ntica Animales", "tiempo_seg": 60}
+      ]
+    },
+    "lectura": {
+      "nombre": "Lectura",
+      "pruebas": [
+        {"id": "lva_5_6", "nombre": "LVA 5-6 aÃ±os", "texto": "El campesino", "palabras": 35, "mide": ["PrecisiÃ³n", "Velocidad", "ComprensiÃ³n"], "edad": "5-6"},
+        {"id": "lva_7_16", "nombre": "LVA 7-16 aÃ±os", "texto": "Tontolobo", "palabras": 101, "mide": ["PrecisiÃ³n", "Velocidad", "ComprensiÃ³n"], "edad": "7-16"},
+        {"id": "lectura_silenciosa", "nombre": "Lectura Silenciosa", "texto": "La tienda", "palabras": 92, "mide": ["Velocidad", "ComprensiÃ³n"]},
+        {"id": "comprension_discurso", "nombre": "ComprensiÃ³n del Discurso", "texto": "La Ballena", "nota": "Adolescentes con buen rendimiento"}
+      ]
+    },
+    "escritura": {
+      "nombre": "Escritura",
+      "nota": "En hojas blancas, sin renglones o guÃ­a visual",
+      "pruebas": [
+        {"id": "dictado_oraciones", "nombre": "Dictado de oraciones", "items": 3, "nota": "Si se tienen dudas"},
+        {"id": "copia_texto", "nombre": "Copia de un texto", "texto": "El pastel asustado", "palabras": 85},
+        {"id": "recuperacion_escrita", "nombre": "RecuperaciÃ³n escrita", "texto": "Bolita de Nieve", "palabras": 263, "escala_coherencia": {"min": 0, "max": 7}}
+      ]
+    },
+    "matematicas": {
+      "nombre": "MatemÃ¡ticas",
+      "pruebas": [
+        {"id": "serie_directa", "nombre": "Serie Directa"},
+        {"id": "lectura_numeros", "nombre": "Lectura de NÃºmeros", "items": 8, "nota": "Si se tienen dudas"},
+        {"id": "dictado_numeros", "nombre": "Dictado de NÃºmeros", "items": 8, "nota": "Si se tienen dudas"},
+        {"id": "calculo_escrito", "nombre": "CÃ¡lculo Escrito", "items": 14},
+        {"id": "calculo_mental", "nombre": "CÃ¡lculo Mental", "items": 12, "nota": "Si ya se aplicÃ³ AritmÃ©tica WISC-IV, NO aplicar. Si buen rendimiento, se puede omitir el resto de tareas matemÃ¡ticas"}
+      ]
+    },
+    "funcion_ejecutiva": {
+      "nombre": "FunciÃ³n Ejecutiva",
+      "pruebas": [
+        {"id": "stroop", "nombre": "Stroop", "tipo": "inhibicion"},
+        {"id": "serie_inversa_digitos", "nombre": "Serie Inversa / DÃ­gitos Inversos"},
+        {"id": "fluidez_m", "nombre": "Fluidez FonolÃ³gica M", "tiempo_seg": 60}
+      ]
+    }
+  },
+  "dominios_opcionales": {
+    "atencion": [
+      {"id": "cancelacion_letras", "nombre": "CancelaciÃ³n de Letras"}
+    ],
+    "memoria_visual": [
+      {"id": "memoria_visual_eni", "nombre": "Memoria Visual ENI-2 (Lista de Figuras)", "nota": "Ante sospecha de TANV o dificultades auditivas", "estructura": "12 figuras Ã— 4 ensayos + reconocimiento visual 18/24"}
+    ],
+    "praxias_gnosias": [
+      {"id": "imagenes_superpuestas", "nombre": "ImÃ¡genes Superpuestas", "items": 16},
+      {"id": "imagenes_borrosas", "nombre": "ImÃ¡genes Borrosas", "items": 10},
+      {"id": "cierre_visual", "nombre": "Cierre Visual", "items": 8}
+    ],
+    "lenguaje": [
+      {"id": "fonemica", "nombre": "FonÃ©mica", "items": 20, "nota": "Ante sospecha de Tx de Lenguaje"},
+      {"id": "repeticion_silabas", "nombre": "RepeticiÃ³n de SÃ­labas"},
+      {"id": "repeticion_palabras_no_palabras", "nombre": "RepeticiÃ³n de Palabras y de No Palabras"},
+      {"id": "repeticion_oraciones", "nombre": "RepeticiÃ³n de Oraciones"}
+    ],
+    "lectura": [
+      {"id": "lectura_silabas", "nombre": "Lectura de SÃ­labas", "nota": "Si no consigue realizar LVA y LVS"},
+      {"id": "lectura_palabras_no_palabras", "nombre": "Lectura de Palabras y de No Palabras"}
+    ],
+    "escritura": [
+      {"id": "dictado_silabas", "nombre": "Dictado de SÃ­labas", "nota": "Si no consigue realizar Dictado de Oraciones"},
+      {"id": "dictado_palabras_no_palabras", "nombre": "Dictado de Palabras y de No Palabras"}
+    ],
+    "funcion_ejecutiva": [
+      {"id": "fluidez_no_semantica", "nombre": "Fluidez No SemÃ¡ntica"},
+      {"id": "torre_hanoi", "nombre": "Torre de Hanoi Ã— 5 anillos"}
+    ],
+    "signos_blandos": [
+      {"id": "signos_blandos_eni", "nombre": "Protocolo de Signos Blandos ENI-2"}
+    ]
+  }
+}

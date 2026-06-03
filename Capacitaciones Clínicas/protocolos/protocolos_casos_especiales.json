@@ -1,0 +1,113 @@
+{
+  "id": "protocolos_alternos_casos_especiales_ins",
+  "nombre": "Protocolos Alternos para Casos Especiales IN&S",
+  "institucion": "IN&S SAS",
+  "formas_cortas_wisc_iv": {
+    "referencia": "Sattler, 2010",
+    "forma_corta_1": {
+      "nombre": "Forma Corta 1 — No Verbal",
+      "subtests": ["DC", "CD", "MT", "FI"],
+      "subtests_ids": ["NiWiscDC", "NiWiscCD", "NiWiscMat", "NiWiscFI"],
+      "uso": "Discapacidad auditiva — NO pruebas verbales"
+    },
+    "forma_corta_2": {
+      "nombre": "Forma Corta 2 — Verbal",
+      "subtests": ["VB", "SE", "CM", "PC"],
+      "subtests_ids": ["NiWiscVoc", "NiWiscSem", "NiWiscCom", "NiWiscPC"],
+      "uso": "Discapacidad visual, afectación motora — NO pruebas visuales"
+    },
+    "tabla_cit_estimado": {
+      "descripcion": "CIT estimado a partir de la suma de puntuaciones escalares de los 4 subtests de cada forma corta",
+      "columnas": ["suma_pe", "cit_fc1", "cit_fc2"],
+      "datos": [
+        [4,42,47],[5,44,48],[6,45,50],[7,47,51],[8,48,53],[9,50,54],
+        [10,52,56],[11,53,57],[12,55,59],[13,57,60],[14,58,62],[15,60,63],
+        [16,61,64],[17,63,66],[18,65,67],[19,66,69],[20,68,70],
+        [21,69,72],[22,71,73],[23,73,75],[24,74,76],[25,76,78],[26,77,79],
+        [27,79,81],[28,81,82],[29,82,84],[30,84,85],
+        [31,86,87],[32,87,88],[33,89,90],[34,90,91],[35,92,93],[36,94,94],
+        [37,95,96],[38,97,97],[39,98,99],[40,100,100],
+        [41,102,101],[42,103,103],[43,105,104],[44,106,106],[45,108,107],[46,110,109],
+        [47,111,110],[48,113,112],[49,114,113],[50,116,114],
+        [51,118,116],[52,119,117],[53,121,119],[54,123,120],[55,124,121],[56,126,123],
+        [57,127,124],[58,129,126],[59,131,127],[60,132,129],
+        [61,134,130],[62,135,131],[63,137,133],[64,139,134],[65,140,136],[66,142,137],
+        [67,143,139],[68,145,140],[69,147,141],[70,148,143],
+        [71,150,144],[72,152,146],[73,153,147],[74,155,149],[75,156,150],[76,158,151]
+      ]
+    }
+  },
+  "adaptaciones_ninos": {
+    "discapacidad_auditiva": {
+      "condicion": "NO pruebas verbales",
+      "protocolo": {
+        "cit": "WISC-IV Forma Corta 1 (DC + CD + MT + FI)",
+        "adicionales": ["Claves", "Búsqueda de Símbolos (IVP)"]
+      }
+    },
+    "discapacidad_visual": {
+      "condicion": "NO pruebas visuales",
+      "protocolo": {
+        "cit": "WISC-IV Forma Corta 2 (VB + SE + CM + PC)",
+        "adicionales": ["Retención de Dígitos", "Aritmética (IMT)"]
+      }
+    },
+    "afectacion_visual_auditiva": {
+      "condicion": "Priorizar Escalas. Evaluación Cualitativa",
+      "protocolo": {
+        "nota": "Tratar de aplicar todo el protocolo adaptado"
+      }
+    },
+    "afectacion_motora": {
+      "condicion": "NO hacer FCRO ni praxias visoconstruccionales, ni test de trazo o velocidad motora",
+      "protocolo": {
+        "cit": "WISC-IV Forma Corta 2 (VB + SE + CM + PC)",
+        "adicionales": ["Conceptos con Dibujos", "Matrices", "Búsqueda de Símbolos (decir si o no)"]
+      }
+    }
+  },
+  "adaptaciones_adulto_joven": {
+    "alfabeta": {
+      "discapacidad_auditiva": {
+        "condicion": "Protocolo Hipoacusia — estímulos de lectura de las instrucciones",
+        "pruebas": ["CVLT (Presentación Visual)", "FCRO (Copia)", "TMT A y B (Según criterio)", "Retención de Dígitos WAIS", "FCRO (Recobro)", "INECO (Visuales)", "Recobro CVLT", "Semejanzas WAIS (Presentación Visual)", "Fluidez M y Animales", "Boston (Test de Denominación)"]
+      },
+      "discapacidad_visual": {
+        "condicion": "NO pruebas visuales",
+        "pruebas": ["CVLT", "TMT A y B Oral", "Retención de Dígitos WAIS", "Dígitos del Neuropsi", "INECO (Verbales)", "Recobro CVLT", "Semejanzas WAIS", "Fluidez M y Animales"]
+      },
+      "afectacion_visual_auditiva": {
+        "condicion": "Priorizar Escalas. Evaluación Cualitativa"
+      },
+      "afectacion_motora": {
+        "condicion": "NO hacer FCRO ni praxias visoconstruccionales, ni test de trazo o velocidad motora",
+        "pruebas": ["CVLT", "TMT A y B Oral", "Símbolo-Dígito Verbal (SDMT Oral)", "Retención de Dígitos WAIS", "Dígitos del Neuropsi", "INECO (Verbales)", "Recobro CVLT", "Semejanzas WAIS", "Fluidez M y Animales", "Boston (Test de Denominación)", "Stroop"]
+      }
+    },
+    "analfabeta": {
+      "pruebas": ["HVLT", "TMT A (Si se sabe los números)", "Retención de Dígitos WAIS", "Casa, Margarita, Reloj", "Gesto Simbólico (Orden — mano dominante)", "Mímica y uso de objetos (Orden — mano dominante)", "INECO", "Fluidez M y Animales", "Semejanzas WAIS", "Boston (Test de Denominación)"]
+    }
+  },
+  "adaptaciones_adulto_mayor": {
+    "alfabeta": {
+      "discapacidad_auditiva": {
+        "condicion": "Protocolo Hipoacusia — estímulos de lectura de las instrucciones",
+        "pruebas": ["Grober & Buschke / HVLT (Según considere — Visual)", "FCRO (Copia)", "TMT A", "Span directo (dígitos directos y regresión WAIS)", "Meses atrás (INECO)", "FCRO (Recobro)", "Refranes (INECO)", "Semejanzas", "Recobro Grober / HVLT", "Memoria Remota y Reciente", "Fluidez P y Animales", "Denominación"]
+      },
+      "discapacidad_visual": {
+        "condicion": "NO pruebas visuales",
+        "pruebas": ["HVLT", "TMT A y B Oral", "Span directo (dígitos directos y regresión WAIS)", "Dígitos del Neuropsi", "Meses atrás (INECO)", "Refranes (INECO)", "Recobro HVLT", "Semejanzas", "Memoria Remota y Reciente", "Fluidez P y Animales"]
+      },
+      "afectacion_visual_auditiva": {
+        "condicion": "Priorizar Escalas. Evaluación Cualitativa"
+      },
+      "afectacion_motora": {
+        "condicion": "NO hacer FCRO ni praxias visoconstruccionales, ni test de trazo o velocidad motora",
+        "pruebas": ["Grober & Buschke / HVLT (Según considere)", "TMT A y B Oral", "Símbolo-Dígito Verbal (SDMT Oral)", "Span directo (dígitos directos y regresión WAIS)", "Dígitos del Neuropsi", "Refranes (INECO)", "Semejanzas", "Recobro Grober / HVLT", "Memoria Remota y Reciente", "Fluidez P y Animales", "Denominación", "Stroop"]
+      }
+    },
+    "analfabeta": {
+      "pruebas": ["HVLT", "TMT A (Si se sabe los números)", "Span directo (dígitos directos y regresión WAIS)", "Casa, Margarita, Reloj", "Gesto Simbólico (Orden — mano dominante)", "Mímica y uso de objetos (Orden — mano dominante)", "Instrucciones Conflictivas (INECO)", "Go No Go (INECO)", "Fluidez P y Animales", "Denominación", "Semejanzas", "Refranes (INECO)"]
+    }
+  }
+}

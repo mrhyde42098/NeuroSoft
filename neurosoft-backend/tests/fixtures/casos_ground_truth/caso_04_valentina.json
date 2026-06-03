@@ -1,0 +1,27 @@
+{
+  "caso_id": 4,
+  "nombre_paciente": "Valentina Ospina Marín",
+  "perfil_clinico": "Dislexia evolutiva",
+  "fecha_nacimiento": "2014-10-22",
+  "fecha_evaluacion": "2025-05-19",
+  "sexo": "F",
+  "escolaridad": "Primaria",
+  "puntajes_input": {
+    "NiWiscDC": 32,
+    "NiWiscSem": 24,
+    "NiWiscVoc": 35,
+    "NiWiscConD": 17,
+    "NiWiscCl": 50,
+    "NiWiscMat": 21,
+    "NiWiscBusSim": 30,
+    "NiPrec": 8,
+    "NiLVS": 2,
+    "NiCopTxt": 14
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

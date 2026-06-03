@@ -1,0 +1,105 @@
+﻿{
+  "id": "protocolo_adulto_mayor_ins_2024",
+  "nombre": "Protocolo Adulto Mayor 2024",
+  "poblacion": "adulto_mayor",
+  "edad_min": 50,
+  "edad_max": 99,
+  "institucion": "",
+  "version": "2024",
+  "dominios_principales": {
+    "escalas": {
+      "nombre": "Escalas ClÃ­nicas",
+      "pruebas": [
+        {"id": "esc_kertesz_fbi", "nombre": "Kertesz / FBI", "tipo": "escala", "descripcion": "Inventario de Comportamiento Frontal"},
+        {"id": "esc_queja_subjetiva", "nombre": "Queja Subjetiva de Memoria", "tipo": "escala"},
+        {"id": "esc_yesavage", "nombre": "Yesavage", "tipo": "escala", "descripcion": "Escala de DepresiÃ³n GeriÃ¡trica"},
+        {"id": "esc_lawton", "nombre": "Lawton", "tipo": "escala", "descripcion": "Actividades Instrumentales de la Vida Diaria"}
+      ]
+    },
+    "orientacion": {
+      "nombre": "OrientaciÃ³n",
+      "pruebas": [
+        {"id": "mmse_orientacion", "nombre": "MMSE (preguntas orientaciÃ³n)", "tipo": "screening", "nota": "NO incluir puntaje en la base de datos general", "items": 10}
+      ]
+    },
+    "memoria_verbal": {
+      "nombre": "Memoria Verbal",
+      "pruebas": [
+        {"id": "grober_buschke", "nombre": "Grober & Buschke", "tipo": "curva_memoria", "ref_json": "protocolos_memoria_verbal.json#grober_buschke", "estructura": "16 Ã­tems Ã— 3 ensayos RL/RC + recobro diferido + reconocimiento"}
+      ]
+    },
+    "praxias": {
+      "nombre": "Praxias",
+      "pruebas": [
+        {"id": "fcro_copia", "nombre": "FCRO Copia", "tipo": "copia_figura", "descripcion": "Figura Compleja de Rey-Osterrieth â€” Copia"}
+      ]
+    },
+    "atencion": {
+      "nombre": "AtenciÃ³n",
+      "pruebas": [
+        {"id": "tmt_a", "nombre": "TMT Parte A", "tipo": "cronometrado", "ref_backend": "AdTMTA"},
+        {"id": "tmt_b", "nombre": "TMT Parte B", "tipo": "cronometrado", "ref_backend": "AdTMTB"},
+        {"id": "sdmt", "nombre": "SÃ­mbolo-DÃ­gito (SDMT)", "tipo": "cronometrado", "tiempo_seg": 90},
+        {"id": "span_digitos_wais", "nombre": "Span verbal (DÃ­gitos directos y regresiÃ³n WAIS-III)", "ref_backend": "AdDDir"},
+        {"id": "instrucciones_conflictivas", "nombre": "Instrucciones Conflictivas (INECO)", "tipo": "go_nogo"}
+      ]
+    },
+    "memoria_visual": {
+      "nombre": "Memoria Visual",
+      "pruebas": [
+        {"id": "fcro_recobro", "nombre": "FCRO Recobro", "tipo": "recobro_figura", "ref_backend": "AdFCRORec"}
+      ]
+    },
+    "lenguaje": {
+      "nombre": "Lenguaje",
+      "pruebas": [
+        {"id": "fluidez_p", "nombre": "Fluidez FonolÃ³gica P", "tipo": "fluidez", "tiempo_seg": 60},
+        {"id": "fluidez_animales", "nombre": "Fluidez SemÃ¡ntica Animales", "tipo": "fluidez", "tiempo_seg": 60},
+        {"id": "denominacion_48", "nombre": "DenominaciÃ³n (48 Ã­tems)", "tipo": "denominacion", "max_pd": 48}
+      ]
+    },
+    "funcion_ejecutiva": {
+      "nombre": "FunciÃ³n Ejecutiva",
+      "pruebas": [
+        {"id": "semejanzas_wais", "nombre": "Semejanzas", "ref_backend": "AdSemWais", "nota": "5 pares en adulto mayor"},
+        {"id": "refranes_ineco", "nombre": "Refranes (INECO)", "tipo": "abstraccion", "items": 3},
+        {"id": "stroop", "nombre": "Stroop", "tipo": "inhibicion", "fases": ["Palabra", "Color", "Palabra-Color"]},
+        {"id": "go_nogo", "nombre": "Go No Go (INECO)", "tipo": "inhibicion"}
+      ]
+    }
+  },
+  "dominios_opcionales": {
+    "escalas": [
+      {"id": "npi", "nombre": "NPI", "descripcion": "Inventario NeuropsiquiÃ¡trico â€” 12 sÃ­ntomas. Hacer en entrevista con familiar/cuidador"},
+      {"id": "hamilton_ansiedad", "nombre": "Ansiedad de Hamilton", "items": 14},
+      {"id": "banfe_cuestionario", "nombre": "Cuestionario neuropsicolÃ³gico de daÃ±o frontal (BANFE)"},
+      {"id": "epworth", "nombre": "Escala Epworth de alteraciÃ³n de sueÃ±o"}
+    ],
+    "atencion": [
+      {"id": "tmt_a_oral", "nombre": "TMT A Oral", "nota": "Para pacientes con limitaciones motoras"},
+      {"id": "tmt_b_oral", "nombre": "TMT B Oral"},
+      {"id": "digitos_neuropsi", "nombre": "DÃ­gitos del Neuropsi"},
+      {"id": "sdmt_oral", "nombre": "SDMT Oral o de mayor tamaÃ±o"}
+    ],
+    "memoria_verbal": [
+      {"id": "hvlt_r", "nombre": "HVLT-R", "ref_json": "protocolos_memoria_verbal.json#hvlt_r", "nota": "Para analfabetas, baja escolaridad o problemas visuales"},
+      {"id": "memoria_remota", "nombre": "Memoria Remota"},
+      {"id": "memoria_reciente", "nombre": "Memoria Reciente"}
+    ],
+    "praxias": [
+      {"id": "gesto_simbolico", "nombre": "Gesto SimbÃ³lico (Orden â€” mano dominante)"},
+      {"id": "mimica_uso_objetos", "nombre": "MÃ­mica y uso de objetos (Orden â€” mano dominante)"},
+      {"id": "casa_margarita_reloj", "nombre": "Casa, Margarita, Reloj", "nota": "Analfabetas o dudas por la ejecuciÃ³n de FCRO"}
+    ],
+    "lenguaje": [
+      {"id": "bnt_60", "nombre": "Test de DenominaciÃ³n de Boston (60 Ã­tems)"},
+      {"id": "bnt_15", "nombre": "Test de DenominaciÃ³n de Boston (VersiÃ³n abreviada 15 Ã­tems)"},
+      {"id": "preguntas_denominacion", "nombre": "Preguntas de DenominaciÃ³n"}
+    ],
+    "funcion_ejecutiva": [
+      {"id": "meses_atras", "nombre": "Meses AtrÃ¡s (Memoria Verbal INECO)"},
+      {"id": "wcst", "nombre": "Wisconsin Card Sorting Test (WCST)"},
+      {"id": "torre_londres", "nombre": "Torre de Londres", "items": 10}
+    ]
+  }
+}

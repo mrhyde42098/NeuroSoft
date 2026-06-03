@@ -1,0 +1,26 @@
+{
+  "caso_id": 7,
+  "nombre_paciente": "Daniel Jaramillo Vásquez",
+  "perfil_clinico": "TEPT infantil",
+  "fecha_nacimiento": "2015-12-05",
+  "fecha_evaluacion": "2025-05-15",
+  "sexo": "M",
+  "escolaridad": "Primaria",
+  "puntajes_input": {
+    "NiWiscDC": 24,
+    "NiWiscSem": 16,
+    "NiWiscRDD": 10,
+    "NiWiscCl": 35,
+    "NiWiscVoc": 23,
+    "NiWiscLN": 9,
+    "NiWiscMat": 15,
+    "NiWiscCom": 14,
+    "NiSt_Edades": 20
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

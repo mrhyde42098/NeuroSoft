@@ -1,0 +1,28 @@
+{
+  "caso_id": 16,
+  "nombre_paciente": "Magdalena Sánchez Tobón",
+  "perfil_clinico": "Parkinson con deterioro cognitivo",
+  "fecha_nacimiento": "1954-07-02",
+  "fecha_evaluacion": "2025-05-19",
+  "sexo": "F",
+  "escolaridad": "Primaria Incompleta",
+  "puntajes_input": {
+    "ViRDD": 4,
+    "ViRDInv": 2,
+    "ViTMTA": 260,
+    "ViTMTB": 600,
+    "ViStP": 50,
+    "ViGroberRLT": 15,
+    "ViGroberML_Tot": 5,
+    "ViGroberMC_Tot": 12,
+    "ViAni": 9,
+    "FluidP": 6,
+    "ViYesavage": 4
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "NeuroSoft — Sistema Neuropsicológico",
+  "short_name": "NeuroSoft",
+  "description": "Sistema integral de gestión clínica y evaluación neuropsicológica",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDFBF7",
+  "theme_color": "#0D9488",
+  "lang": "es",
+  "scope": "/",
+  "categories": ["medical", "productivity", "health"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230D9488'/%3E%3Cstop offset='100%25' stop-color='%2367E8F9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%231E293B'/%3E%3Cpath d='M32 12c-8 0-15 5.5-15 14 0 4 1.5 7 4 9.5 1.5 1.5 2 3.5 2 5.5v3c0 2 1.5 3 3 3h12c1.5 0 3-1 3-3v-3c0-2 .5-4 2-5.5 2.5-2.5 4-5.5 4-9.5 0-8.5-7-14-15-14z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='22' r='2' fill='%2367E8F9'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nueva Evaluación",
+      "short_name": "Evaluar",
+      "description": "Iniciar una nueva evaluación neuropsicológica",
+      "url": "/?page=evaluation"
+    },
+    {
+      "name": "Ver Pacientes",
+      "short_name": "Pacientes",
+      "url": "/?page=patients"
+    },
+    {
+      "name": "Agenda",
+      "short_name": "Agenda",
+      "url": "/?page=agenda"
+    }
+  ]
+}

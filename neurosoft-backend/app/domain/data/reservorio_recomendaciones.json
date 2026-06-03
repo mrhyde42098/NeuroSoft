@@ -1,0 +1,348 @@
+{
+ "version": "INS-2025-04",
+ "source": "Reservorio de recomendaciones de acuerdo a cuadro clínico ",
+ "notes": [
+ "Banco de recomendaciones agrupadas por grupo etario y cuadro clínico.",
+ "Cada lista se inserta en el informe NPS al finalizar el apartado 'Recomendaciones'.",
+ "El clínico selecciona las aplicables; no se deben incluir todas de forma automática."
+ ],
+ "grupos": {
+ "infantil": {
+ "label": "Infantil / Adolescente",
+ "cuadros": {
+ "tdah": {
+ "label": "TDAH (F900 / F901)",
+ "recomendaciones": [
+ "Valoración por neuropediatría o psiquiatría infantil para definir necesidad de manejo farmacológico.",
+ "Terapia conductual con entrenamiento a padres (técnicas de reforzamiento positivo, economía de fichas, tiempo fuera).",
+ "Entrenamiento en autorregulación y manejo de la impulsividad (técnica de la tortuga, semáforo emocional).",
+ "Rutinas estructuradas: horarios visibles, agenda diaria, tareas fraccionadas con descansos.",
+ "Ambiente de estudio libre de distractores (sin pantallas, ruido controlado).",
+ "Apoyo escolar: notificar al colegio, solicitar ubicación preferencial, tiempos extendidos en pruebas.",
+ "Actividad física regular (mínimo 60 min/día) priorizando deportes con reglas claras.",
+ "Higieneueño: rutina estable, 9–10 horas para niños, 8–10 para adolescentes.",
+ "Limitar exposición a pantallas (< 1 h/día escolar, < 2 h/día fin de semana).",
+ "Reevaluación neuropsicológica en 12 meses para seguimiento evolutivo."
+ ]
+ },
+ "discapacidad_cognitiva": {
+ "label": "Discapacidad intelectual / CI límite (F700–F730 / F799)",
+ "recomendaciones": [
+ "Valoración interdisciplinaria: pediatría, fisiatría, fonoaudiología, terapia ocupacional.",
+ "Programa de estimulación cognitiva individualizado centrado en funciones descendidas.",
+ "Adaptaciones curriculares significativas — PIAR (Plan Individual de Ajustes Razonables).",
+ "Entrenamiento en habilidades de la vida diaria (AVD) por terapia ocupacional.",
+ "Apoyo fonoaudiológico si hay compromisoenguaje expresivo/comprensivo.",
+ "Trabajo con la familia: psicoeducación sobre el diagnóstico y expectativas realistas.",
+ "Integración social en grupos estructurados (deporte adaptado, arte, música).",
+ "Seguimiento neuropsicológico cada 18–24 meses para monitorear progreso."
+ ]
+ },
+ "disfasia": {
+ "label": "Trastorno específicoenguaje / Disfasia (F800–F809)",
+ "recomendaciones": [
+ "Fonoaudiología intensiva 2–3 sesiones semanales enfocadas en fonología, morfosintaxis y pragmática.",
+ "Estimulaciónenguaje en casa: lectura compartida diaria, juegos de palabras, narración de cuentos.",
+ "Evitar corregir de forma directa — usar reformulación expandida como modelo.",
+ "Coordinación con el colegio: adaptaciones en tiempos de respuesta oral y escrita.",
+ "Valoración auditiva por otorrinolaringología para descartar hipoacusia.",
+ "Trabajo con padres: cartilla de estrategias comunicativas en el hogar.",
+ "Reevaluación de lenguaje cada 6 meses; neuropsicológica cada 12 meses."
+ ]
+ },
+ "dislexia": {
+ "label": "Trastornos específicosprendizaje — Dislexia/Disgrafia/Discalculia (F810–F812)",
+ "recomendaciones": [
+ "Refuerzo pedagógico especializado (maestro de apoyo) enfocado en el área de mayor dificultad.",
+ "Método multisensorial (Orton-Gillingham) para dislexia: integrar visual, auditivo y kinestésico.",
+ "Uso de tecnología asistiva: audiolibros, lector de pantalla, corrector ortográfico.",
+ "Adaptaciones académicas: tiempos extendidos, evaluación oral, reducción de carga escrita.",
+ "Fonoaudiología para conciencia fonológica (dislexia) y grafomotricidad (disgrafia).",
+ "Terapia ocupacional si hay compromiso grafomotor o visoespacial.",
+ "Psicoeducación al niño y la familia: el diagnóstico no implica menor inteligencia.",
+ "Acompañamiento emocional para prevenir baja autoestima académica."
+ ]
+ },
+ "trastornos_espaciales_motores": {
+ "label": "Trastornos visoespaciales / motores / Dispraxia (F820)",
+ "recomendaciones": [
+ "Terapia ocupacional con enfoque en integración sensorial y motricidad fina/gruesa.",
+ "Fisioterapia si hay torpeza motora gruesa marcada.",
+ "Actividades específicas: recortar, modelar plastilina, ensartar, dibujar trayectorias.",
+ "Adaptaciones escolares: uso de cuadrícula amplia, tijeras ergonómicas, lápiz con agarre.",
+ "Deportes recomendados: natación, artes marciales, baile (mejoran esquema corporal).",
+ "Evitar deportes de equipo competitivos hasta consolidar coordinación básica.",
+ "Reevaluación motora por fisiatría cada 12 meses."
+ ]
+ },
+ "ansiedad": {
+ "label": "Trastornos de ansiedad infantil (F930 / F931 / F932)",
+ "recomendaciones": [
+ "Psicoterapia cognitivo-conductual infantil — técnicas de exposición graduada y reestructuración.",
+ "Entrenamiento en relajación y respiración diafragmática adaptada a niños (burbuja, globo).",
+ "Rutinas predecibles y comunicación anticipada de cambios.",
+ "Psicoeducación a padres: evitar reforzar evitación, modelar afrontamiento calmado.",
+ "Higieneueño y reducción de exposición a pantallas / noticias ansiógenas.",
+ "Actividad física regular; artes expresivas como vía de regulación emocional.",
+ "Valoración psiquiátrica si hay compromiso funcional severo o sintomatología vegetativa."
+ ]
+ },
+ "conducta": {
+ "label": "Trastornos de conducta / Oposicional desafiante (F910 / F913)",
+ "recomendaciones": [
+ "Entrenamiento a padres en disciplina positiva (programa Triple P, Barkley).",
+ "Consistencia en normas y consecuencias entre ambos cuidadores.",
+ "Reforzamiento positivo sistemático de conductas prosociales.",
+ "Terapia familiar si hay disfunción sistémica identificada.",
+ "Psicoterapia individual con enfoque en autorregulación emocional y empatía.",
+ "Canalizar energía en actividades estructuradas (deporte con reglas, arte marcial).",
+ "Coordinación con el colegio: evitar expulsiones como sanción; usar reparación.",
+ "Valoración por psiquiatría infantil si hay agresividad severa o comorbilidad."
+ ]
+ },
+ "ci_alto": {
+ "label": "Capacidad intelectual superior / Altas capacidades",
+ "recomendaciones": [
+ "Evaluar flexibilización curricular o aceleración en el colegio.",
+ "Programas de enriquecimiento extracurricular (ciencia, matemáticas, arte, música).",
+ "Trabajar habilidades socioemocionales — son el foco clásico de vulnerabilidad.",
+ "Fomentar tolerancia a la frustración y aceptación del error.",
+ "Promover pares intelectualmente afines (grupos de talento, olimpiadas).",
+ "Vigilar perfeccionismo, ansiedad de desempeño y aislamiento social.",
+ "Psicoterapia individual si aparecen síntomas afectivos o ajuste social deficiente."
+ ]
+ },
+ "tab_infantil": {
+ "label": "Trastorno afectivo bipolar infantil / Desregulación emocional",
+ "recomendaciones": [
+ "Valoración psiquiátrica prioritaria para confirmación diagnóstica y manejo farmacológico.",
+ "Psicoterapia con enfoque en regulación emocional (DBT adaptado, terapia familiar).",
+ "Psicoeducación a la familia sobre curso cíclico y detección de señales tempranas.",
+ "Registro de ánimo diario (mood chart) con participacióniño y los padres.",
+ "Rutinas estables de sueño, alimentación y actividad — estabilizan el ritmo circadiano.",
+ "Evitar estimulantes no prescritos (cafeína, energizantes).",
+ "Plan de crisis: red de apoyo, señales de alarma, acceso a atención urgente."
+ ]
+ }
+ }
+ },
+ "adulto": {
+ "label": "Adulto (18–49 años)",
+ "cuadros": {
+ "depresion_ansiedad_tdah": {
+ "label": "Depresión / Ansiedad / TDAHdulto (F320–F329 / F410 / F900)",
+ "recomendaciones": [
+ "Valoración por psiquiatría para definir necesidad de manejo farmacológico.",
+ "Psicoterapia cognitivo-conductual o basada en mindfulness.",
+ "Higieneueño — regular horario, evitar pantallas 1 h antes de dormir.",
+ "Actividad física aeróbica regular 150 min/semana.",
+ "Técnicas de manejo de estrés: respiración, relajación muscular, meditación.",
+ "Reducciónonsumo de cafeína, alcohol y estimulantes.",
+ "Organizaciónrabajo: lista de pendientes, bloqueo de tiempo, pausas programadas.",
+ "Red de apoyo social activa — prevenir aislamiento.",
+ "Reevaluación neuropsicológica en 12 meses si el perfil cognitivo es secundario al afecto."
+ ]
+ },
+ "trastornos_motores_adulto": {
+ "label": "Trastornos motoresdulto — EP, ELA, EM",
+ "recomendaciones": [
+ "Seguimiento neurológico estrecho para manejo farmacológico y evolutivo.",
+ "Fisioterapia motora regular con enfoque en marcha, equilibrio y motricidad fina.",
+ "Terapia ocupacional para adaptaciones en AVD y lugar de trabajo.",
+ "Fonoaudiología si hay disartria / disfagia.",
+ "Actividad física adaptada: Tai Chi, yoga, natación (mejoran balance).",
+ "Programa de estimulación cognitiva preventiva — alta prevalencia de deterioro asociado.",
+ "Red de apoyo familiar: psicoeducación sobre curso de la enfermedad.",
+ "Valoración psicológica ante síntomas afectivos — depresión es comorbilidad frecuente.",
+ "Reevaluación neuropsicológica cada 12 meses (EP, EM) o cada 6 meses (ELA con rápida progresión)."
+ ]
+ },
+ "tce": {
+ "label": "Traumatismo craneoencefálico",
+ "recomendaciones": [
+ "Programa de rehabilitación cognitiva individualizado (atención, memoria, funciones ejecutivas).",
+ "Reincorporación laboral/académica gradual — evitar retorno abrupto.",
+ "Pausas frecuentes y evitación de sobrecarga sensorial las primeras semanas.",
+ "Fisioterapia si hay secuelas motoras; fonoaudiología si hay compromisoenguaje.",
+ "Valoración psiquiátrica — alta incidencia de depresión, ansiedad y cambios de personalidad post-TCE.",
+ "Psicoeducación familiar sobre el síndrome postconmocional y sus tiempos.",
+ "Evitar consumo de alcohol y sustancias durante la recuperación.",
+ "Control neurológico con neuroimagen según indicación.",
+ "Reevaluación neuropsicológica a los 3, 6 y 12 meses post-TCE."
+ ]
+ },
+ "riesgo_vascular": {
+ "label": "Factores de riesgo vascular / Deterioro cognitivo vascular incipiente",
+ "recomendaciones": [
+ "Control estricto de hipertensión arterial (meta TAS < 130 mmHg).",
+ "Control de diabetes mellitus (HbA1c < 7 %) y dislipidemia (LDL según riesgo).",
+ "Cese absolutoabaquismo y consumo moderado/nulo de alcohol.",
+ "Dieta mediterránea / DASH; restricción de sodio y azúcares refinados.",
+ "Actividad física aeróbica mínimo 150 min/semana.",
+ "Control de peso (IMC 20–25).",
+ "Manejo del estrés y apneaueño si aplica.",
+ "Activación cognitiva: lectura, juegos de lógica, nuevos aprendizajes.",
+ "Seguimiento con cardiología / medicina interna.",
+ "Reevaluación neuropsicológica en 12 meses."
+ ]
+ },
+ "discapacidad_intelectual_adulto": {
+ "label": "Discapacidad intelectualdulto (F70–F79)",
+ "recomendaciones": [
+ "Valoración para proceso de interdicción / apoyos legales según Ley 1996 de 2019.",
+ "Programa de inclusión laboral / ocupacional adaptado a su nivel.",
+ "Entrenamiento en AVD y autonomía: transporte, manejo de dinero, autocuidado.",
+ "Acompañamiento psicosocial para red de apoyo familiar.",
+ "Manejo de comorbilidades psiquiátricas (ansiedad, depresión) — frecuentes.",
+ "Control médico integral — mayor riesgo de enfermedades no detectadas por dificultad para comunicar síntomas.",
+ "Actividades de estimulación cognitiva adaptadas al nivel funcional.",
+ "Psicoeducación sexual y prevención de abuso."
+ ]
+ }
+ }
+ },
+ "adulto_mayor": {
+ "label": "Adulto Mayor (50+ años)",
+ "cuadros": {
+ "dcl_amnesico": {
+ "label": "Deterioro cognitivo leve amnésico (F067) — sospecha de EA prodrómica",
+ "recomendaciones": [
+ "Valoración por neurología para caracterización etiológica (biomarcadores si aplica).",
+ "Programa de estimulación cognitiva estructurado 2–3 veces por semana.",
+ "Terapia de reminiscencia y orientación a la realidad.",
+ "Ejercicio físico aeróbico regular (caminatas de 30 min/día).",
+ "Dieta MIND o mediterránea.",
+ "Control estricto de factores de riesgo vascular.",
+ "Higieneueño y tratamiento de apneaueño si aplica.",
+ "Actividades de socialización estructurada — prevenir aislamiento.",
+ "Psicoeducación familiar: signos de progresión a demencia.",
+ "Reevaluación neuropsicológica a los 12 meses (obligatoria)."
+ ]
+ },
+ "demencia_alzheimer": {
+ "label": "Demencia tipo Alzheimer (F000 / F001 / F002)",
+ "recomendaciones": [
+ "Seguimiento neurológico/geriátrico para manejo farmacológico (anticolinesterásicos, memantina).",
+ "Estimulación cognitiva adaptada al estadio — no sobrecargar.",
+ "Rutinas estables, ambiente predecible, etiquetado de espacios.",
+ "Cuidador entrenado: psicoeducación sobre progresión y técnicas de manejo conductual.",
+ "Control de comorbilidades médicas — especialmente delirium intercurrente.",
+ "Revisión de polifarmacia — evitar anticolinérgicos y benzodiacepinas.",
+ "Adaptación del hogar: seguridad, pasamanos, iluminación, retiro de alfombras.",
+ "Planeación anticipada: voluntad anticipada, apoyo legal, decisiones financieras.",
+ "Apoyo al cuidador: red familiar, grupos de apoyo, respiros.",
+ "Reevaluación clínica cada 6 meses."
+ ]
+ },
+ "demencia_vascular": {
+ "label": "Demencia vascular (F010–F019)",
+ "recomendaciones": [
+ "Control agresivo de factores de riesgo vascular (HTA, DM, dislipidemia, tabaquismo).",
+ "Antiagregación o anticoagulación según indicación neurológica.",
+ "Rehabilitación cognitiva focal según dominio afectado.",
+ "Fisioterapia si hay secuelas motoras de ACV previos.",
+ "Fonoaudiología si hay afasia/disartria residual.",
+ "Dieta mediterránea / DASH y actividad física aeróbica.",
+ "Seguimiento neurológico con neuroimagen según evolución.",
+ "Manejo de síntomas depresivos — alta comorbilidad post-ACV.",
+ "Psicoeducación familiar sobre perfil escalonado del deterioro."
+ ]
+ },
+ "ftd": {
+ "label": "Demencia frontotemporal (G311 / F021)",
+ "recomendaciones": [
+ "Valoración neurológica especializada — considerar estudios genéticos.",
+ "Manejo conductual con cuidador entrenado — priorizar adaptación del entorno.",
+ "Evitar confrontación con el paciente; redirigir en lugar de corregir.",
+ "Valoración psiquiátrica para manejo de síntomas conductuales (desinhibición, apatía).",
+ "Planeación anticipada temprana — capacidad puede deteriorarse rápido.",
+ "Protección legal y financiera (inhabilitación civil según corresponda).",
+ "Fonoaudiología si predomina variante lingüística (APP).",
+ "Apoyo al cuidador — el desgaste es superior al de EA.",
+ "Reevaluación cada 6 meses."
+ ]
+ },
+ "desgaste_cuidador": {
+ "label": "Desgasteuidador",
+ "recomendaciones": [
+ "Aplicar escala de Zarit para cuantificar la carga.",
+ "Psicoeducación sobre el curso de la enfermedad del paciente.",
+ "Psicoterapia de apoyo individual o grupos de cuidadores.",
+ "Red de apoyo: distribuir responsabilidades entre familiares.",
+ "Programa de respiros (cuidadores relevo, centros día).",
+ "Higieneueño, alimentación y autocuidadouidador.",
+ "Identificar y tratar síntomas depresivos o ansiosos en el cuidador.",
+ "Reconocer señales de alarma: maltrato, negligencia, ideación autolítica."
+ ]
+ },
+ "memoria_demencia": {
+ "label": "Recomendaciones de memoria en demencia",
+ "recomendaciones": [
+ "Usar ayudas externas: agendas, alarmas, etiquetas, lista de tareas a la vista.",
+ "Rutinas estables — mismas horas, mismas secuencias.",
+ "Un solo estímulo a la vez — evitar interferencia.",
+ "Repetición espaciada para aprender información nueva crítica.",
+ "Asociar información nueva con conocimiento previo significativo.",
+ "Reminiscencia: álbumes de fotos, música de la juventud.",
+ "Calendario y reloj visibles en el ambiente principal.",
+ "Etiquetado de cajones, puertas y objetos frecuentes."
+ ]
+ },
+ "orientacion": {
+ "label": "Recomendaciones de orientación témporoespacial",
+ "recomendaciones": [
+ "Calendario grande y visible en el principal espacio común.",
+ "Reloj análogo y digital en habitaciones principales.",
+ "Revisión diaria conjunta de fecha, día y lugar — primera actividad de la mañana.",
+ "Etiquetado de puertas y espacios (baño, cocina, cuarto).",
+ "Lectura diaria del periódico o noticias — anclaje temporal.",
+ "Rutina predecible con eventos marcadores (comidas, caminatas).",
+ "Iluminación natural diurna y oscuridad nocturna — regular ritmo circadiano."
+ ]
+ },
+ "ffee_adulto_mayor": {
+ "label": "Recomendaciones de funciones ejecutivas — adulto mayor",
+ "recomendaciones": [
+ "Planificación escrita de actividades diarias.",
+ "Juegos de estrategia (ajedrez, damas, dominó) en frecuencia semanal.",
+ "Sudoku, crucigramas, rompecabezas.",
+ "Actividades que requieran secuenciación: cocinar, jardinería, manualidades.",
+ "Establecer metas semanales concretas y medibles.",
+ "Técnica de resolución de problemas en 5 pasos — practicar con situaciones cotidianas.",
+ "Reducción de multitarea — una actividad a la vez.",
+ "Actividad social estructurada que requiera planificación (reuniones, clubes)."
+ ]
+ },
+ "generales": {
+ "label": "Recomendaciones generales — adulto mayor",
+ "recomendaciones": [
+ "Actividad física aeróbica mínimo 150 min/semana (ajustada a condición).",
+ "Dieta mediterránea / MIND: frutas, vegetales, granos enteros, pescado, aceite de oliva.",
+ "Hidratación adecuada (1.5–2 L/día).",
+ "Higieneueño: 7–8 h nocturnas, siesta < 30 min si la hay.",
+ "Actividad social regular — prevenir aislamiento.",
+ "Control médico integral al menos semestral.",
+ "Revisión visual y auditiva anual — corrección con lentes o audífonos si precisa.",
+ "Cese de tabaquismo; alcohol moderado o nulo.",
+ "Manejo del estrés: relajación, mindfulness, hobbies.",
+ "Activación cognitiva diaria: lectura, aprendizaje de algo nuevo."
+ ]
+ },
+ "perfil_normal": {
+ "label": "Perfil dentro de la normalidad — prevención",
+ "recomendaciones": [
+ "Mantener la actividad cognitiva (lectura, aprendizaje, juegos de estrategia).",
+ "Actividad física aeróbica regular.",
+ "Dieta equilibrada — priorizar mediterránea / MIND.",
+ "Controles médicos periódicos anuales.",
+ "Actividad social activa.",
+ "Higieneueño.",
+ "Control de factores de riesgo vascular — HTA, DM, colesterol.",
+ "Consulta si aparecen quejas subjetivas de memoria o funcionamiento.",
+ "Reevaluación neuropsicológica cada 24 meses como tamizaje preventivo."
+ ]
+ }
+ }
+ }
+ }
+}

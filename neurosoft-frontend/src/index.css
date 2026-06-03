@@ -1,0 +1,239 @@
+/* ═══════════════════════════════════════════════════════════════════════
+ * src/index.css — Estilos globales NeuroSoft
+ * ───────────────────────────────────────────────────────────────────────
+ * Reemplaza al <script src="cdn.tailwindcss.com"> + bloque <style> que
+ * vivían inline en index.html. Ahora todo se compila con Vite + PostCSS:
+ *   - @tailwind directives → Tailwind 3 con tree-shaking real (~12 KB
+ *     final vs los ~380 KB del CDN runtime).
+ *   - Variables CSS para tema claro/oscuro.
+ *   - Overrides explícitos para que clases tailwind genéricas
+ *     (bg-gray-50, text-gray-700) hereden el color del tema.
+ * ═══════════════════════════════════════════════════════════════════════ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Tokens de tema (claro / oscuro) ─────────────────────────────── */
+:root {
+  --ns-bg:      #FDFBF7;
+  --ns-card:    #ffffff;
+  --ns-card-b:  #e4e2de20;
+  --ns-input:   #e4e2de40;
+  --ns-text:    #1e293b;
+  --ns-muted:   #64748b;
+  --ns-sidebar: rgba(255, 255, 255, 0.85);
+  --ns-topbar:  #fdfbf7cc;
+  --ns-subtle:  #f5f3ef;
+  --ns-hover:   #f9f7f3;
+}
+
+.dark-mode {
+  --ns-bg:      #0f172a;
+  --ns-card:    #1e293b;
+  --ns-card-b:  #33415560;
+  --ns-input:   #334155;
+  --ns-text:    #e2e8f0;
+  --ns-muted:   #94a3b8;
+  --ns-sidebar: rgba(15, 23, 42, 0.95);
+  --ns-topbar:  #0f172acc;
+  --ns-subtle:  #1e293b;
+  --ns-hover:   #334155;
+}
+
+/* ─── Reset mínimo ────────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01", "ss03"; /* mejores number/letters de Manrope */
+  color: var(--ns-text);
+  /* Letter-spacing más tight para "feel" editorial */
+  letter-spacing: -0.005em;
+}
+
+/* §editorial: Lora (serif) cargada vía Google Fonts para títulos H1/H2 */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ─── Tipografía editorial — títulos en serif ──────────────────── */
+/* Aplicar selectivamente con clase .ns-serif. Hero/H1/H2 en informes
+ * y portadas adoptan Lora para un look más editorial. El cuerpo sigue
+ * siendo Manrope (sans) para legibilidad en pantalla. */
+.ns-serif {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.015em;
+}
+.ns-serif-italic {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+.ns-mono {
+  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  font-feature-settings: "zero", "ss01"; /* 0 con barra, alt-1 */
+}
+
+/* §editorial: scrollbar custom (más sutil, menos "default Windows") */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.20); border-radius: 5px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.35); }
+.dark-mode *::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); }
+.dark-mode *::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.45); }
+
+/* §editorial: focus visible más sobrio (no anillos teal saturados everywhere) */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgba(13, 148, 136, 0.4);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* §editorial: selección de texto con color de marca */
+::selection { background: rgba(13, 148, 136, 0.18); color: var(--ns-text); }
+
+/* §editorial: detalle decorativo — línea vertical de sección */
+.ns-section-rule {
+  position: relative;
+  padding-left: 16px;
+}
+.ns-section-rule::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--ns-teal, #0D9488), transparent);
+  border-radius: 1px;
+}
+
+/* §editorial: small caps tracking — para etiquetas (LABEL, MICRO) */
+.ns-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ns-muted);
+}
+
+/* §editorial: bordes más sutiles que el default Tailwind */
+:root {
+  --ns-teal:        #0D9488;
+  --ns-teal-dark:   #0F766E;
+  --ns-ink:         #0F172A;
+  --ns-stone:       #475569;
+  --ns-ash:         #94A3B8;
+  --ns-paper:       #FCFAF4;
+}
+.dark-mode {
+  --ns-ink:         #F1F5F9;
+  --ns-stone:       #94A3B8;
+  --ns-ash:         #64748B;
+  --ns-paper:       #1E293B;
+}
+
+/* ─── Dark-mode overrides para clases Tailwind genéricas ─────────── */
+.dark-mode .text-gray-700,
+.dark-mode .text-gray-600,
+.dark-mode .text-gray-800   { color: #cbd5e1 !important; }
+.dark-mode .text-gray-500,
+.dark-mode .text-gray-400,
+.dark-mode .text-gray-300   { color: #94a3b8 !important; }
+.dark-mode .bg-gray-50,
+.dark-mode .bg-gray-100,
+.dark-mode .bg-white         { background: var(--ns-card) !important; }
+.dark-mode .hover\:bg-gray-50:hover,
+.dark-mode .hover\:bg-gray-100:hover { background: #334155 !important; }
+.dark-mode .border-gray-50,
+.dark-mode .border-gray-100  { border-color: #33415540 !important; }
+.dark-mode table thead       { background: var(--ns-subtle) !important; }
+.dark-mode input:not([type=color]),
+.dark-mode select,
+.dark-mode textarea {
+  background:   var(--ns-input) !important;
+  color:        var(--ns-text)  !important;
+  border-color: #334155        !important;
+}
+.dark-mode .bg-teal-50,
+.dark-mode .bg-teal-100      { background: rgba(13, 148, 136, 0.15) !important; }
+.dark-mode .bg-red-50,
+.dark-mode .bg-orange-100    { background: rgba(239, 68, 68, 0.10)  !important; }
+
+/* ─── §12.8 Accesibilidad: alto contraste ─────────────────────────── */
+.high-contrast {
+  --ns-text:    #000000;
+  --ns-muted:   #1a1a1a;
+  --ns-bg:      #ffffff;
+  --ns-card:    #ffffff;
+  --ns-card-b:  #000000;
+  --ns-input:   #f0f0f0;
+  --ns-subtle:  #e0e0e0;
+  --ns-hover:   #c8c8c8;
+}
+.high-contrast.dark-mode {
+  --ns-text:    #ffffff;
+  --ns-muted:   #d0d0d0;
+  --ns-bg:      #000000;
+  --ns-card:    #0d0d0d;
+  --ns-card-b:  #ffffff;
+  --ns-input:   #1c1c1c;
+  --ns-subtle:  #111111;
+  --ns-hover:   #2a2a2a;
+}
+.high-contrast * { border-color: currentColor !important; }
+.high-contrast button:focus-visible,
+.high-contrast a:focus-visible,
+.high-contrast input:focus-visible,
+.high-contrast select:focus-visible,
+.high-contrast textarea:focus-visible {
+  outline: 3px solid #005fcc !important;
+  outline-offset: 2px;
+}
+
+/* ─── §12.8 Accesibilidad: escala de fuente ───────────────────────── */
+html.ns-font-md   { font-size: 16px; }
+html.ns-font-lg   { font-size: 18px; }
+html.ns-font-xl   { font-size: 20px; }
+
+/* ─── Animaciones legacy (referenciadas por animate-[fadeIn_…]) ──── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+/* ─── Cronómetro PRO: pulso rojo cuando se excede el tiempo ──── */
+@keyframes ns-pulse-red-kf {
+  0%, 100% { box-shadow: 0 0 30px -8px #ef4444, 0 0 0 0 rgba(239, 68, 68, 0.55); }
+  50%      { box-shadow: 0 0 50px -4px #ef4444, 0 0 0 10px rgba(239, 68, 68, 0); }
+}
+.ns-pulse-red { animation: ns-pulse-red-kf 1.4s ease-in-out infinite; }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1;   }
+}
+@keyframes neural-drift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(2px, -3px); }
+  50%  { transform: translate(-1px, 2px); }
+  75%  { transform: translate(3px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ─── Modo proyección (pantalla grande / presentación) ────────────── */
+/* Aumenta escala base, fuente y contraste para presentar en monitor externo */
+html.ns-projection {
+  font-size: 20px;
+}
+html.ns-projection body {
+  --ns-text:  #0f172a;
+  --ns-muted: #334155;
+}
+html.ns-projection.dark-mode body {
+  --ns-text:  #f1f5f9;
+  --ns-muted: #cbd5e1;
+}
+/* Sidebar más estrecho en proyección para dar más espacio al contenido */
+html.ns-projection aside { width: 260px !important; }
+html.ns-projection .ml-72 { margin-left: 260px !important; }

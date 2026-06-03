@@ -1,0 +1,52 @@
+# docker-compose.yml — NeuroSoft Backend
+# =======================================
+# Orquestación mínima para producción on-premise o staging.
+# La BD SQLite y los backups viven en el volumen `neurosoft_data`
+# para sobrevivir actualizaciones de imagen.
+#
+# Uso:
+#     cp .env.example .env     # editar con secretos reales
+#     docker compose up -d
+#     docker compose logs -f backend
+#
+# Backup rápido del volumen:
+#     docker run --rm -v neurosoft_data:/data -v $PWD:/out \
+#         alpine tar czf /out/neurosoft-$(date +%F).tgz -C /data .
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: neurosoft-backend:latest
+    container_name: neurosoft-backend
+    restart: unless-stopped
+    ports:
+      - "${NEUROSOFT_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      # Defaults que casi siempre son los correctos en compose.
+      NEUROSOFT_ENV: production
+      NEUROSOFT_DATA_DIR: /app/data
+    volumes:
+      - neurosoft_data:/app/data
+      # Baremo: montar read-only desde el host para poder
+      # actualizarlo sin rebuild. Ajustar el path si hace falta.
+      - ./data/BD_NEURO_MAESTRA.json:/app/data/BD_NEURO_MAESTRA.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Límites razonables para un clínico pequeño/mediano.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+volumes:
+  neurosoft_data:
+    driver: local

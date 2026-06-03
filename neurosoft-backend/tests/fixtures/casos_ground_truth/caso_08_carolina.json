@@ -1,0 +1,25 @@
+{
+  "caso_id": 8,
+  "nombre_paciente": "Carolina Pineda Restrepo",
+  "perfil_clinico": "Depresión mayor con queja cognitiva",
+  "fecha_nacimiento": "2001-05-12",
+  "fecha_evaluacion": "2025-05-15",
+  "sexo": "F",
+  "escolaridad": "Universitaria",
+  "puntajes_input": {
+    "AdWAISV": 48,
+    "AdSemWais": 21,
+    "AdSDWais": 70,
+    "AdDDir": 9,
+    "AdMatr": 21,
+    "AdWAISFI": 19,
+    "AdTMT_AB": 90,
+    "AdBeck": 32
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

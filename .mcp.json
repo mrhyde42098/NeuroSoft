@@ -1,0 +1,12 @@
+{
+  "$comment": "MCP servers del proyecto NeuroSoft. Claude Code los detecta automáticamente al abrir el directorio. Documentación: https://docs.claude.com/en/docs/claude-code/mcp",
+  "mcpServers": {
+    "neurosoft-baremos": {
+      "command": "D:\\NeuroSoftApp\\mcp-servers\\baremos\\venv\\Scripts\\python.exe",
+      "args": ["D:\\NeuroSoftApp\\mcp-servers\\baremos\\server.py"],
+      "env": {
+        "NEUROSOFT_BAREMO_PATH": "D:\\NeuroSoftApp\\neurosoft-backend\\data\\BD_NEURO_MAESTRA.json"
+      }
+    }
+  }
+}

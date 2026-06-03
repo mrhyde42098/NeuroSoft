@@ -1,0 +1,102 @@
+{
+  "id": "protocolo_adulto_joven_ins_2024",
+  "nombre": "Protocolo Adulto Joven IN&S 2024",
+  "poblacion": "adulto_joven",
+  "edad_min": 18,
+  "edad_max": 49,
+  "institucion": "IN&S SAS",
+  "version": "2024",
+  "dominios_principales": {
+    "escalas": {
+      "nombre": "Escalas Clínicas",
+      "pruebas": [
+        {"id": "stai", "nombre": "STAI", "tipo": "escala", "descripcion": "Inventario de Ansiedad Estado-Rasgo"},
+        {"id": "beck", "nombre": "Beck", "tipo": "escala", "descripcion": "Inventario de Depresión de Beck"},
+        {"id": "asrs", "nombre": "ASRS", "tipo": "escala", "descripcion": "Adult ADHD Self-Report Scale"}
+      ]
+    },
+    "orientacion": {
+      "nombre": "Orientación",
+      "pruebas": [
+        {"id": "mmse_orientacion", "nombre": "MMSE (preguntas orientación)", "nota": "NO incluir puntaje en la base"}
+      ]
+    },
+    "memoria_verbal": {
+      "nombre": "Memoria Verbal",
+      "pruebas": [
+        {"id": "cvlt", "nombre": "CVLT", "tipo": "curva_memoria", "ref_json": "protocolos_memoria_verbal.json#cvlt", "estructura": "Lista A 16 ítems × 5 ensayos + Lista B + recobro CP/LP libre/clave + reconocimiento"}
+      ]
+    },
+    "praxias": {
+      "nombre": "Praxias",
+      "pruebas": [
+        {"id": "fcro_copia", "nombre": "FCRO Copia", "tipo": "copia_figura"}
+      ]
+    },
+    "atencion": {
+      "nombre": "Atención",
+      "pruebas": [
+        {"id": "tmt_a", "nombre": "TMT Parte A", "ref_backend": "AdTMTA"},
+        {"id": "tmt_b", "nombre": "TMT Parte B", "ref_backend": "AdTMTB"},
+        {"id": "claves_wais", "nombre": "Claves (WAIS-III)", "ref_backend": "AdSDWais"},
+        {"id": "digitos_wais", "nombre": "Retención de Dígitos (WAIS-III)", "ref_backend": "AdDDir"}
+      ]
+    },
+    "memoria_visual": {
+      "nombre": "Memoria Visual",
+      "pruebas": [
+        {"id": "fcro_recobro", "nombre": "FCRO Recobro", "ref_backend": "AdFCRORec"}
+      ]
+    },
+    "lenguaje": {
+      "nombre": "Lenguaje",
+      "pruebas": [
+        {"id": "fluidez_m", "nombre": "Fluidez Fonológica M", "tipo": "fluidez", "tiempo_seg": 60},
+        {"id": "fluidez_animales", "nombre": "Fluidez Semántica Animales", "tipo": "fluidez", "tiempo_seg": 60},
+        {"id": "bnt", "nombre": "Test de Denominación de Boston (BNT)", "tipo": "denominacion"}
+      ]
+    },
+    "funcion_ejecutiva": {
+      "nombre": "Función Ejecutiva",
+      "pruebas": [
+        {"id": "semejanzas_wais", "nombre": "Semejanzas (WAIS-III)", "ref_backend": "AdSemWais", "ref_json": "wais_iii_protocolo.json#AdSemWais"},
+        {"id": "stroop", "nombre": "Stroop", "tipo": "inhibicion"},
+        {"id": "matrices_wais", "nombre": "Matrices", "ref_backend": "AdMatr"}
+      ]
+    }
+  },
+  "dominios_opcionales": {
+    "escalas": [
+      {"id": "banfe_cuestionario", "nombre": "Cuestionario neuropsicológico de daño frontal (BANFE)"},
+      {"id": "lawton_vineland", "nombre": "Lawton / Vineland"},
+      {"id": "epworth", "nombre": "Escala Epworth de alteración de sueño"},
+      {"id": "qsm", "nombre": "QSM P/F — Queja Subjetiva de Memoria"}
+    ],
+    "atencion": [
+      {"id": "bussim_wais", "nombre": "Búsqueda de Símbolos (WAIS-III)", "ref_backend": "AdBusSim"},
+      {"id": "pasat", "nombre": "PASAT", "tipo": "atencion_sostenida"}
+    ],
+    "funcion_ejecutiva": [
+      {"id": "wcst", "nombre": "Wisconsin Card Sorting Test (WCST)", "tarjetas": 48},
+      {"id": "letras_numeros", "nombre": "Letras y Números (WAIS-III)", "ref_backend": "AdWAISL"},
+      {"id": "aritmetica_wais", "nombre": "Aritmética (WAIS-III)", "ref_backend": "AdWAISA"},
+      {"id": "ineco_completo", "nombre": "INECO Completo", "subtareas": ["Instrucciones Conflictivas", "Go No Go", "Refranes", "Meses Atrás", "Dígitos Inversos Verbales", "Memoria de Trabajo Verbal", "Memoria de Trabajo Espacial", "Proverbios", "Hayling"]},
+      {"id": "torre_hanoi", "nombre": "Torre de Hanoi"}
+    ],
+    "praxias": [
+      {"id": "gesto_simbolico", "nombre": "Gesto Simbólico (Orden — mano dominante)"},
+      {"id": "mimica_uso_objetos", "nombre": "Mímica y uso de objetos (Orden — mano dominante)"}
+    ]
+  },
+  "sospechas_diagnosticas": {
+    "tdah": {
+      "pruebas_adicionales": ["Completar índices IMT e IVP del WAIS-III (Búsqueda de Símbolos + Letras y Números + Aritmética)"]
+    },
+    "tea_cognicion_social": {
+      "pruebas_adicionales": ["Comprensión (WAIS-III)", "Escala autónoma TEA", "Reconocimiento de expresiones faciales"]
+    },
+    "discapacidad_intelectual": {
+      "pruebas_adicionales": ["Vocabulario (WAIS-III)"]
+    }
+  }
+}

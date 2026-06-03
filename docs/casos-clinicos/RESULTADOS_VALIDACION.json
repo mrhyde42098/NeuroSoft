@@ -1,0 +1,2043 @@
+[
+  {
+    "caso_id": 3,
+    "nombre": "Sebastián Castillo Gómez",
+    "perfil_objetivo": "TDAH combinado infantil",
+    "edad_calculada": "8 años, 3 meses",
+    "poblacion": "infantil",
+    "puntajes_input": {
+      "NiWiscDC": 30,
+      "NiWiscSem": 18,
+      "NiWiscRDD": 11,
+      "NiWiscCl": 22,
+      "NiWiscVoc": 30,
+      "NiWiscLN": 11,
+      "NiWiscMat": 17,
+      "NiWiscCom": 18,
+      "NiWiscBusSim": 10,
+      "NiWiscAri": 14
+    },
+    "resultados": [
+      {
+        "test_id": "NiWiscDC",
+        "test_nombre": "Diseño con Cubos",
+        "pd": 30.0,
+        "escalar_real": 13.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.0,
+        "llave_usada": "80330",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscSem",
+        "test_nombre": "Semejanzas",
+        "pd": 18.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "80318",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscRDD",
+        "test_nombre": "Regresión Dígitos Directos",
+        "pd": 11.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "80311",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCl",
+        "test_nombre": "Claves",
+        "pd": 22.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "80322",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscVoc",
+        "test_nombre": "Vocabulario",
+        "pd": 30.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "80330",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscLN",
+        "test_nombre": "Números y Letras",
+        "pd": 11.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "80311",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscMat",
+        "test_nombre": "Matrices",
+        "pd": 17.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "80317",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCom",
+        "test_nombre": "Comprensión",
+        "pd": 18.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "80318",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscBusSim",
+        "test_nombre": "Búsqueda de simbolos",
+        "pd": 10.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "80310",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscAri",
+        "test_nombre": "Aritmética",
+        "pd": 14.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "80314",
+        "metadata": {}
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='NiWiscDC', test_nombre='Diseño con Cubos', puntaje_bruto=30.0, puntaje_escalar=13.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.0, dominio_cognitivo='Razonamiento Perceptual', llave_baremo_usada='80330', metadata={})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='NiWiscCl', test_nombre='Claves', puntaje_bruto=22.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Velocidad de Proceso', llave_baremo_usada='80322', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 4,
+    "nombre": "Valentina Ospina Marín",
+    "perfil_objetivo": "Dislexia evolutiva",
+    "edad_calculada": "10 años, 6 meses",
+    "poblacion": "infantil",
+    "puntajes_input": {
+      "NiWiscDC": 32,
+      "NiWiscSem": 24,
+      "NiWiscVoc": 35,
+      "NiWiscConD": 17,
+      "NiWiscCl": 50,
+      "NiWiscMat": 21,
+      "NiWiscBusSim": 30,
+      "NiPrec": 8,
+      "NiLVS": 2,
+      "NiCopTxt": 14
+    },
+    "resultados": [
+      {
+        "test_id": "NiWiscDC",
+        "test_nombre": "Diseño con Cubos",
+        "pd": 32.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "104732",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscSem",
+        "test_nombre": "Semejanzas",
+        "pd": 24.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "104724",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscVoc",
+        "test_nombre": "Vocabulario",
+        "pd": 35.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "104735",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscConD",
+        "test_nombre": "Conceptos con Dibujos",
+        "pd": 17.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "104717",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCl",
+        "test_nombre": "Claves",
+        "pd": 50.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "104750",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscMat",
+        "test_nombre": "Matrices",
+        "pd": 21.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "104721",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscBusSim",
+        "test_nombre": "Búsqueda de simbolos",
+        "pd": 30.0,
+        "escalar_real": 13.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.0,
+        "llave_usada": "104730",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiPrec",
+        "test_nombre": "Palabras con error en lectura en voz alta",
+        "pd": 8.0,
+        "escalar_real": 3.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.33,
+        "llave_usada": "108",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiLVS",
+        "test_nombre": "Comprensión lectora silenciosa",
+        "pd": 2.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "102",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiCopTxt",
+        "test_nombre": "% de palabras con error en la copia",
+        "pd": 14.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "1014",
+        "metadata": {}
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='NiWiscBusSim', test_nombre='Búsqueda de simbolos', puntaje_bruto=30.0, puntaje_escalar=13.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.0, dominio_cognitivo='Velocidad de Proceso', llave_baremo_usada='104730', metadata={})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='NiPrec', test_nombre='Palabras con error en lectura en voz alta', puntaje_bruto=8.0, puntaje_escalar=3.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.33, dominio_cognitivo='Lenguaje', llave_baremo_usada='108', metadata={})",
+      "ResultadoPrueba(test_id='NiLVS', test_nombre='Comprensión lectora silenciosa', puntaje_bruto=2.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Lenguaje', llave_baremo_usada='102', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 5,
+    "nombre": "Mateo Quintero Salazar",
+    "perfil_objetivo": "TEA nivel 1",
+    "edad_calculada": "6 años, 2 meses",
+    "poblacion": "infantil",
+    "puntajes_input": {
+      "NiWiscDC": 24,
+      "NiWiscVoc": 28,
+      "NiWiscSem": 16,
+      "NiWiscMat": 18,
+      "NiWiscCl": 22,
+      "NiRecEmo": 2
+    },
+    "resultados": [
+      {
+        "test_id": "NiWiscDC",
+        "test_nombre": "Diseño con Cubos",
+        "pd": 24.0,
+        "escalar_real": 14.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.33,
+        "llave_usada": "60324",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscVoc",
+        "test_nombre": "Vocabulario",
+        "pd": 28.0,
+        "escalar_real": 16.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 2.0,
+        "llave_usada": "60328",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscSem",
+        "test_nombre": "Semejanzas",
+        "pd": 16.0,
+        "escalar_real": 14.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.33,
+        "llave_usada": "60316",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscMat",
+        "test_nombre": "Matrices",
+        "pd": 18.0,
+        "escalar_real": 16.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 2.0,
+        "llave_usada": "60318",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCl",
+        "test_nombre": "Claves",
+        "pd": 22.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "60322",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiRecEmo",
+        "test_nombre": "Reconocimiento de expresiones",
+        "pd": 2.0,
+        "escalar_real": 1.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -3.0,
+        "llave_usada": "62",
+        "metadata": {}
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='NiWiscDC', test_nombre='Diseño con Cubos', puntaje_bruto=24.0, puntaje_escalar=14.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.33, dominio_cognitivo='Razonamiento Perceptual', llave_baremo_usada='60324', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscVoc', test_nombre='Vocabulario', puntaje_bruto=28.0, puntaje_escalar=16.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=2.0, dominio_cognitivo='Comprensión Verbal', llave_baremo_usada='60328', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscSem', test_nombre='Semejanzas', puntaje_bruto=16.0, puntaje_escalar=14.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.33, dominio_cognitivo='Comprensión Verbal', llave_baremo_usada='60316', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscMat', test_nombre='Matrices', puntaje_bruto=18.0, puntaje_escalar=16.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=2.0, dominio_cognitivo='Razonamiento Perceptual', llave_baremo_usada='60318', metadata={})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='NiRecEmo', test_nombre='Reconocimiento de expresiones', puntaje_bruto=2.0, puntaje_escalar=1.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-3.0, dominio_cognitivo='Habilidades Socioemocionales', llave_baremo_usada='62', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 6,
+    "nombre": "Isabella Mendoza Ariza",
+    "perfil_objetivo": "Discapacidad intelectual leve",
+    "edad_calculada": "13 años, 7 meses",
+    "poblacion": "infantil",
+    "puntajes_input": {
+      "NiWiscDC": 20,
+      "NiWiscSem": 11,
+      "NiWiscRDD": 9,
+      "NiWiscConD": 9,
+      "NiWiscCl": 35,
+      "NiWiscVoc": 18,
+      "NiWiscLN": 8,
+      "NiWiscMat": 11,
+      "NiWiscCom": 11,
+      "NiWiscBusSim": 12
+    },
+    "resultados": [
+      {
+        "test_id": "NiWiscDC",
+        "test_nombre": "Diseño con Cubos",
+        "pd": 20.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "134720",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscSem",
+        "test_nombre": "Semejanzas",
+        "pd": 11.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.0,
+        "llave_usada": "134711",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscRDD",
+        "test_nombre": "Regresión Dígitos Directos",
+        "pd": 9.0,
+        "escalar_real": 2.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.67,
+        "llave_usada": "13479",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscConD",
+        "test_nombre": "Conceptos con Dibujos",
+        "pd": 9.0,
+        "escalar_real": 1.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -3.0,
+        "llave_usada": "13479",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCl",
+        "test_nombre": "Claves",
+        "pd": 35.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.0,
+        "llave_usada": "134735",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscVoc",
+        "test_nombre": "Vocabulario",
+        "pd": 18.0,
+        "escalar_real": 2.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.67,
+        "llave_usada": "134718",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscLN",
+        "test_nombre": "Números y Letras",
+        "pd": 8.0,
+        "escalar_real": 1.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -3.0,
+        "llave_usada": "13478",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscMat",
+        "test_nombre": "Matrices",
+        "pd": 11.0,
+        "escalar_real": 3.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.33,
+        "llave_usada": "134711",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCom",
+        "test_nombre": "Comprensión",
+        "pd": 11.0,
+        "escalar_real": 1.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -3.0,
+        "llave_usada": "134711",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscBusSim",
+        "test_nombre": "Búsqueda de simbolos",
+        "pd": 12.0,
+        "escalar_real": 2.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.67,
+        "llave_usada": "134712",
+        "metadata": {}
+      }
+    ],
+    "puntos_fuertes": [],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='NiWiscDC', test_nombre='Diseño con Cubos', puntaje_bruto=20.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='Razonamiento Perceptual', llave_baremo_usada='134720', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscSem', test_nombre='Semejanzas', puntaje_bruto=11.0, puntaje_escalar=4.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.0, dominio_cognitivo='Comprensión Verbal', llave_baremo_usada='134711', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscRDD', test_nombre='Regresión Dígitos Directos', puntaje_bruto=9.0, puntaje_escalar=2.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.67, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='13479', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscConD', test_nombre='Conceptos con Dibujos', puntaje_bruto=9.0, puntaje_escalar=1.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-3.0, dominio_cognitivo='Razonamiento Perceptual', llave_baremo_usada='13479', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscCl', test_nombre='Claves', puntaje_bruto=35.0, puntaje_escalar=4.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.0, dominio_cognitivo='Velocidad de Proceso', llave_baremo_usada='134735', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscVoc', test_nombre='Vocabulario', puntaje_bruto=18.0, puntaje_escalar=2.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.67, dominio_cognitivo='Comprensión Verbal', llave_baremo_usada='134718', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscLN', test_nombre='Números y Letras', puntaje_bruto=8.0, puntaje_escalar=1.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-3.0, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='13478', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscMat', test_nombre='Matrices', puntaje_bruto=11.0, puntaje_escalar=3.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.33, dominio_cognitivo='Razonamiento Perceptual', llave_baremo_usada='134711', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscCom', test_nombre='Comprensión', puntaje_bruto=11.0, puntaje_escalar=1.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-3.0, dominio_cognitivo='Comprensión Verbal', llave_baremo_usada='134711', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscBusSim', test_nombre='Búsqueda de simbolos', puntaje_bruto=12.0, puntaje_escalar=2.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.67, dominio_cognitivo='Velocidad de Proceso', llave_baremo_usada='134712', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 7,
+    "nombre": "Daniel Jaramillo Vásquez",
+    "perfil_objetivo": "TEPT infantil",
+    "edad_calculada": "9 años, 5 meses",
+    "poblacion": "infantil",
+    "puntajes_input": {
+      "NiWiscDC": 24,
+      "NiWiscSem": 16,
+      "NiWiscRDD": 10,
+      "NiWiscCl": 35,
+      "NiWiscVoc": 23,
+      "NiWiscLN": 9,
+      "NiWiscMat": 15,
+      "NiWiscCom": 14,
+      "NiSt_Edades": 20
+    },
+    "resultados": [
+      {
+        "test_id": "NiWiscDC",
+        "test_nombre": "Diseño con Cubos",
+        "pd": 24.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "94724",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscSem",
+        "test_nombre": "Semejanzas",
+        "pd": 16.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "94716",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscRDD",
+        "test_nombre": "Regresión Dígitos Directos",
+        "pd": 10.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "94710",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCl",
+        "test_nombre": "Claves",
+        "pd": 35.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "94735",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscVoc",
+        "test_nombre": "Vocabulario",
+        "pd": 23.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "94723",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscLN",
+        "test_nombre": "Números y Letras",
+        "pd": 9.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "9479",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscMat",
+        "test_nombre": "Matrices",
+        "pd": 15.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "94715",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiWiscCom",
+        "test_nombre": "Comprensión",
+        "pd": 14.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "94714",
+        "metadata": {}
+      },
+      {
+        "test_id": "NiSt_Edades",
+        "test_nombre": "Stroop Corrección Edad",
+        "pd": 20.0,
+        "escalar_real": 0.0,
+        "tipo_metrica": "puntaje_t",
+        "interpretacion": "Bajo",
+        "z_equivalente": -5.0,
+        "llave_usada": "20",
+        "metadata": {}
+      }
+    ],
+    "puntos_fuertes": [],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='NiWiscRDD', test_nombre='Regresión Dígitos Directos', puntaje_bruto=10.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='94710', metadata={})",
+      "ResultadoPrueba(test_id='NiWiscLN', test_nombre='Números y Letras', puntaje_bruto=9.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='9479', metadata={})",
+      "ResultadoPrueba(test_id='NiSt_Edades', test_nombre='Stroop Corrección Edad', puntaje_bruto=20.0, puntaje_escalar=0.0, tipo_metrica='puntaje_t', interpretacion='Bajo', z_equivalente=-5.0, dominio_cognitivo='Atención', llave_baremo_usada='20', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 8,
+    "nombre": "Carolina Pineda Restrepo",
+    "perfil_objetivo": "Depresión mayor con queja cognitiva",
+    "edad_calculada": "24 años, 0 meses",
+    "poblacion": "adulto_joven",
+    "puntajes_input": {
+      "AdWAISV": 48,
+      "AdSemWais": 21,
+      "AdSDWais": 70,
+      "AdDDir": 9,
+      "AdMatr": 21,
+      "AdWAISFI": 19,
+      "AdTMT_AB": 90,
+      "AdBeck": 32
+    },
+    "resultados": [
+      {
+        "test_id": "AdWAISV",
+        "test_nombre": "VOCABULARIO",
+        "pd": 48.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "202448",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSemWais",
+        "test_nombre": "SEMEJANZAS",
+        "pd": 21.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "202421",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSDWais",
+        "test_nombre": "CLAVE DE NÚMEROS",
+        "pd": 70.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "202470",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdDDir",
+        "test_nombre": "DIGITOS",
+        "pd": 9.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.0,
+        "llave_usada": "20249",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdMatr",
+        "test_nombre": "MATRICES",
+        "pd": 21.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "202421",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdWAISFI",
+        "test_nombre": "FIG. INCOMPLETAS",
+        "pd": 19.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "202419",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdTMT_AB",
+        "test_nombre": "TMT A y B",
+        "pd": 90.0,
+        "escalar_real": 9.18,
+        "tipo_metrica": "z_score",
+        "interpretacion": "Superior",
+        "z_equivalente": 4,
+        "llave_usada": "24",
+        "metadata": {
+          "mu": 24.8,
+          "sigma": 7.1
+        }
+      },
+      {
+        "test_id": "AdBeck",
+        "test_nombre": "Inventario de Beck BDI-II",
+        "pd": 32.0,
+        "escalar_real": 32.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Severa",
+        "z_equivalente": -4.53,
+        "llave_usada": "rango_beck",
+        "metadata": {
+          "clasificacion_beck": "Severa",
+          "nivel_interpretacion": "Bajo"
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='AdTMT_AB', test_nombre='TMT A y B', puntaje_bruto=90.0, puntaje_escalar=9.18, tipo_metrica='z_score', interpretacion='Superior', z_equivalente=4, dominio_cognitivo='Atención / Funciones Ejecutivas', llave_baremo_usada='24', metadata={'mu': 24.8, 'sigma': 7.1})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='AdDDir', test_nombre='DIGITOS', puntaje_bruto=9.0, puntaje_escalar=4.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.0, dominio_cognitivo='Atención', llave_baremo_usada='20249', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 9,
+    "nombre": "Juan Pablo Velandia Rojas",
+    "perfil_objetivo": "Secuelas cognitivas TCE moderado",
+    "edad_calculada": "31 años, 5 meses",
+    "poblacion": "adulto_joven",
+    "puntajes_input": {
+      "AdWAISV": 42,
+      "AdSemWais": 19,
+      "AdSDWais": 50,
+      "AdDDir": 9,
+      "AdMatr": 17,
+      "AdWAISCC": 28,
+      "AdTMT_AB": 130,
+      "AdStroop_Corr": 28
+    },
+    "resultados": [
+      {
+        "test_id": "AdWAISV",
+        "test_nombre": "VOCABULARIO",
+        "pd": 42.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "253442",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSemWais",
+        "test_nombre": "SEMEJANZAS",
+        "pd": 19.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "253419",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSDWais",
+        "test_nombre": "CLAVE DE NÚMEROS",
+        "pd": 50.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "253450",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdDDir",
+        "test_nombre": "DIGITOS",
+        "pd": 9.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.0,
+        "llave_usada": "25349",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdMatr",
+        "test_nombre": "MATRICES",
+        "pd": 17.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "253417",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdWAISCC",
+        "test_nombre": "CONSTRUCCIÓN CUBOS",
+        "pd": 28.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "253428",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdTMT_AB",
+        "test_nombre": "TMT A y B",
+        "pd": 130.0,
+        "escalar_real": 14.82,
+        "tipo_metrica": "z_score",
+        "interpretacion": "Superior",
+        "z_equivalente": 4,
+        "llave_usada": "31",
+        "metadata": {
+          "mu": 24.8,
+          "sigma": 7.1
+        }
+      },
+      {
+        "test_id": "AdStroop_Corr",
+        "test_nombre": "Stroop Corrección",
+        "pd": 28.0,
+        "escalar_real": 0.0,
+        "tipo_metrica": "puntaje_t",
+        "interpretacion": "Bajo",
+        "z_equivalente": -5.0,
+        "llave_usada": "28",
+        "metadata": {
+          "stroop_P": 0.0,
+          "stroop_C": 0.0,
+          "stroop_PC": 0.0
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='AdTMT_AB', test_nombre='TMT A y B', puntaje_bruto=130.0, puntaje_escalar=14.82, tipo_metrica='z_score', interpretacion='Superior', z_equivalente=4, dominio_cognitivo='Atención / Funciones Ejecutivas', llave_baremo_usada='31', metadata={'mu': 24.8, 'sigma': 7.1})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='AdSDWais', test_nombre='CLAVE DE NÚMEROS', puntaje_bruto=50.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='Velocidad de Proceso', llave_baremo_usada='253450', metadata={})",
+      "ResultadoPrueba(test_id='AdDDir', test_nombre='DIGITOS', puntaje_bruto=9.0, puntaje_escalar=4.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.0, dominio_cognitivo='Atención', llave_baremo_usada='25349', metadata={})",
+      "ResultadoPrueba(test_id='AdWAISCC', test_nombre='CONSTRUCCIÓN CUBOS', puntaje_bruto=28.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='Organización Perceptual', llave_baremo_usada='253428', metadata={})",
+      "ResultadoPrueba(test_id='AdStroop_Corr', test_nombre='Stroop Corrección', puntaje_bruto=28.0, puntaje_escalar=0.0, tipo_metrica='puntaje_t', interpretacion='Bajo', z_equivalente=-5.0, dominio_cognitivo='Atención', llave_baremo_usada='28', metadata={'stroop_P': 0.0, 'stroop_C': 0.0, 'stroop_PC': 0.0})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 10,
+    "nombre": "Camila Herrera Gómez",
+    "perfil_objetivo": "Ansiedad generalizada",
+    "edad_calculada": "22 años, 11 meses",
+    "poblacion": "adulto_joven",
+    "puntajes_input": {
+      "AdWAISV": 48,
+      "AdSemWais": 24,
+      "AdSDWais": 75,
+      "AdDDir": 11,
+      "AdMatr": 21,
+      "AdTMT_AB": 75,
+      "AdStroop_Corr": 42,
+      "EscSTAI": 55
+    },
+    "resultados": [
+      {
+        "test_id": "AdWAISV",
+        "test_nombre": "VOCABULARIO",
+        "pd": 48.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "202448",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSemWais",
+        "test_nombre": "SEMEJANZAS",
+        "pd": 24.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "202424",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSDWais",
+        "test_nombre": "CLAVE DE NÚMEROS",
+        "pd": 75.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "202475",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdDDir",
+        "test_nombre": "DIGITOS",
+        "pd": 11.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "202411",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdMatr",
+        "test_nombre": "MATRICES",
+        "pd": 21.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "202421",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdTMT_AB",
+        "test_nombre": "TMT A y B",
+        "pd": 75.0,
+        "escalar_real": 7.07,
+        "tipo_metrica": "z_score",
+        "interpretacion": "Superior",
+        "z_equivalente": 4,
+        "llave_usada": "22",
+        "metadata": {
+          "mu": 24.8,
+          "sigma": 7.1
+        }
+      },
+      {
+        "test_id": "AdStroop_Corr",
+        "test_nombre": "Stroop Corrección",
+        "pd": 42.0,
+        "escalar_real": 0.0,
+        "tipo_metrica": "puntaje_t",
+        "interpretacion": "Bajo",
+        "z_equivalente": -5.0,
+        "llave_usada": "42",
+        "metadata": {
+          "stroop_P": 0.0,
+          "stroop_C": 0.0,
+          "stroop_PC": 0.0
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='AdTMT_AB', test_nombre='TMT A y B', puntaje_bruto=75.0, puntaje_escalar=7.07, tipo_metrica='z_score', interpretacion='Superior', z_equivalente=4, dominio_cognitivo='Atención / Funciones Ejecutivas', llave_baremo_usada='22', metadata={'mu': 24.8, 'sigma': 7.1})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='AdDDir', test_nombre='DIGITOS', puntaje_bruto=11.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Atención', llave_baremo_usada='202411', metadata={})",
+      "ResultadoPrueba(test_id='AdStroop_Corr', test_nombre='Stroop Corrección', puntaje_bruto=42.0, puntaje_escalar=0.0, tipo_metrica='puntaje_t', interpretacion='Bajo', z_equivalente=-5.0, dominio_cognitivo='Atención', llave_baremo_usada='42', metadata={'stroop_P': 0.0, 'stroop_C': 0.0, 'stroop_PC': 0.0})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 11,
+    "nombre": "Andrés Mauricio Torres",
+    "perfil_objetivo": "TDAH adulto",
+    "edad_calculada": "28 años, 6 meses",
+    "poblacion": "adulto_joven",
+    "puntajes_input": {
+      "AdWAISV": 50,
+      "AdSemWais": 25,
+      "AdSDWais": 65,
+      "AdDDir": 9,
+      "AdMatr": 21,
+      "AdTMT_AB": 110,
+      "AdStroop_Corr": 30,
+      "EscASRS": 42
+    },
+    "resultados": [
+      {
+        "test_id": "AdWAISV",
+        "test_nombre": "VOCABULARIO",
+        "pd": 50.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "253450",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSemWais",
+        "test_nombre": "SEMEJANZAS",
+        "pd": 25.0,
+        "escalar_real": 13.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.0,
+        "llave_usada": "253425",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSDWais",
+        "test_nombre": "CLAVE DE NÚMEROS",
+        "pd": 65.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "253465",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdDDir",
+        "test_nombre": "DIGITOS",
+        "pd": 9.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.0,
+        "llave_usada": "25349",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdMatr",
+        "test_nombre": "MATRICES",
+        "pd": 21.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "253421",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdTMT_AB",
+        "test_nombre": "TMT A y B",
+        "pd": 110.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "z_score",
+        "interpretacion": "Superior",
+        "z_equivalente": 4,
+        "llave_usada": "28",
+        "metadata": {
+          "mu": 24.8,
+          "sigma": 7.1
+        }
+      },
+      {
+        "test_id": "AdStroop_Corr",
+        "test_nombre": "Stroop Corrección",
+        "pd": 30.0,
+        "escalar_real": 0.0,
+        "tipo_metrica": "puntaje_t",
+        "interpretacion": "Bajo",
+        "z_equivalente": -5.0,
+        "llave_usada": "30",
+        "metadata": {
+          "stroop_P": 0.0,
+          "stroop_C": 0.0,
+          "stroop_PC": 0.0
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='AdSemWais', test_nombre='SEMEJANZAS', puntaje_bruto=25.0, puntaje_escalar=13.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.0, dominio_cognitivo='Comprensión Verbal', llave_baremo_usada='253425', metadata={})",
+      "ResultadoPrueba(test_id='AdTMT_AB', test_nombre='TMT A y B', puntaje_bruto=110.0, puntaje_escalar=12.0, tipo_metrica='z_score', interpretacion='Superior', z_equivalente=4, dominio_cognitivo='Atención / Funciones Ejecutivas', llave_baremo_usada='28', metadata={'mu': 24.8, 'sigma': 7.1})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='AdDDir', test_nombre='DIGITOS', puntaje_bruto=9.0, puntaje_escalar=4.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.0, dominio_cognitivo='Atención', llave_baremo_usada='25349', metadata={})",
+      "ResultadoPrueba(test_id='AdStroop_Corr', test_nombre='Stroop Corrección', puntaje_bruto=30.0, puntaje_escalar=0.0, tipo_metrica='puntaje_t', interpretacion='Bajo', z_equivalente=-5.0, dominio_cognitivo='Atención', llave_baremo_usada='30', metadata={'stroop_P': 0.0, 'stroop_C': 0.0, 'stroop_PC': 0.0})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 12,
+    "nombre": "Diana Camila Suárez Pérez",
+    "perfil_objetivo": "Duelo complicado + depresión mayor",
+    "edad_calculada": "35 años, 3 meses",
+    "poblacion": "adulto_joven",
+    "puntajes_input": {
+      "AdWAISV": 48,
+      "AdSemWais": 22,
+      "AdSDWais": 65,
+      "AdDDir": 9,
+      "AdMatr": 19,
+      "AdTMT_AB": 100,
+      "AdBeck": 28
+    },
+    "resultados": [
+      {
+        "test_id": "AdWAISV",
+        "test_nombre": "VOCABULARIO",
+        "pd": 48.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "355448",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSemWais",
+        "test_nombre": "SEMEJANZAS",
+        "pd": 22.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "355422",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdSDWais",
+        "test_nombre": "CLAVE DE NÚMEROS",
+        "pd": 65.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "355465",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdDDir",
+        "test_nombre": "DIGITOS",
+        "pd": 9.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "35549",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdMatr",
+        "test_nombre": "MATRICES",
+        "pd": 19.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "355419",
+        "metadata": {}
+      },
+      {
+        "test_id": "AdTMT_AB",
+        "test_nombre": "TMT A y B",
+        "pd": 100.0,
+        "escalar_real": 10.59,
+        "tipo_metrica": "z_score",
+        "interpretacion": "Superior",
+        "z_equivalente": 4,
+        "llave_usada": "35",
+        "metadata": {
+          "mu": 24.8,
+          "sigma": 7.1
+        }
+      },
+      {
+        "test_id": "AdBeck",
+        "test_nombre": "Inventario de Beck BDI-II",
+        "pd": 28.0,
+        "escalar_real": 28.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Moderada",
+        "z_equivalente": -4.8,
+        "llave_usada": "rango_beck",
+        "metadata": {
+          "clasificacion_beck": "Moderada",
+          "nivel_interpretacion": "Bajo"
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='AdTMT_AB', test_nombre='TMT A y B', puntaje_bruto=100.0, puntaje_escalar=10.59, tipo_metrica='z_score', interpretacion='Superior', z_equivalente=4, dominio_cognitivo='Atención / Funciones Ejecutivas', llave_baremo_usada='35', metadata={'mu': 24.8, 'sigma': 7.1})"
+    ],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='AdDDir', test_nombre='DIGITOS', puntaje_bruto=9.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Atención', llave_baremo_usada='35549', metadata={})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 13,
+    "nombre": "Hernando Restrepo Villegas",
+    "perfil_objetivo": "Deterioro Cognitivo Leve amnésico",
+    "edad_calculada": "72 años, 4 meses",
+    "poblacion": "adulto_mayor",
+    "puntajes_input": {
+      "ViRDD": 6,
+      "ViRDInv": 4,
+      "ViTMTA": 60,
+      "ViTMTB": 145,
+      "ViStP": 95,
+      "ViGroberRLT": 18,
+      "ViGroberML_Tot": 8,
+      "ViGroberMC_Tot": 14,
+      "ViAni": 16,
+      "ViYesavage": 2
+    },
+    "resultados": [
+      {
+        "test_id": "ViRDD",
+        "test_nombre": "Span Retención Dígitos Directo",
+        "pd": 6.0,
+        "escalar_real": 14.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.33,
+        "llave_usada": "72746",
+        "metadata": {
+          "raw_value": 14
+        }
+      },
+      {
+        "test_id": "ViRDInv",
+        "test_nombre": "Span Retención Dígitos Inverso",
+        "pd": 4.0,
+        "escalar_real": 13.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.0,
+        "llave_usada": "72744",
+        "metadata": {
+          "raw_value": 13
+        }
+      },
+      {
+        "test_id": "ViTMTA",
+        "test_nombre": "TMT A",
+        "pd": 60.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "727460",
+        "metadata": {
+          "raw_value": 10
+        }
+      },
+      {
+        "test_id": "ViTMTB",
+        "test_nombre": "TMT B",
+        "pd": 145.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "7274145",
+        "metadata": {
+          "raw_value": 10
+        }
+      },
+      {
+        "test_id": "ViStP",
+        "test_nombre": "Test de Stroop Palabra",
+        "pd": 95.0,
+        "escalar_real": 13.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.0,
+        "llave_usada": "727495",
+        "metadata": {
+          "raw_value": 13
+        }
+      },
+      {
+        "test_id": "ViGroberRLT",
+        "test_nombre": "Grober RL Ensayo 1 (libre)",
+        "pd": 18.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "727418",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberML_Tot",
+        "test_nombre": "Grober RLT - Retención Libre Total (E1+E2+E3)",
+        "pd": 8.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "72748",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberMC_Tot",
+        "test_nombre": "Grober RT - Recuerdo Total Claves (E1+E2+E3)",
+        "pd": 14.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "727414",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViAni",
+        "test_nombre": "Fluidez Verbal Animales",
+        "pd": 16.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "727416",
+        "metadata": {
+          "raw_value": 10
+        }
+      },
+      {
+        "test_id": "ViYesavage",
+        "test_nombre": "Escala de Depresión Geriátrica Yesavage",
+        "pd": 2.0,
+        "escalar_real": 2.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Normal",
+        "z_equivalente": -6.53,
+        "llave_usada": "2",
+        "metadata": {
+          "clasificacion_codigo": "N",
+          "clasificacion_clinica": "Normal",
+          "nivel_interpretacion": "Promedio"
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='ViRDD', test_nombre='Span Retención Dígitos Directo', puntaje_bruto=6.0, puntaje_escalar=14.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.33, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='72746', metadata={'raw_value': 14})",
+      "ResultadoPrueba(test_id='ViRDInv', test_nombre='Span Retención Dígitos Inverso', puntaje_bruto=4.0, puntaje_escalar=13.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.0, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='72744', metadata={'raw_value': 13})",
+      "ResultadoPrueba(test_id='ViStP', test_nombre='Test de Stroop Palabra', puntaje_bruto=95.0, puntaje_escalar=13.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.0, dominio_cognitivo='Atención', llave_baremo_usada='727495', metadata={'raw_value': 13})"
+    ],
+    "puntos_debiles": [],
+    "advertencias": []
+  },
+  {
+    "caso_id": 14,
+    "nombre": "Rosa Inés Cárdenas Mejía",
+    "perfil_objetivo": "Enfermedad de Alzheimer leve",
+    "edad_calculada": "76 años, 9 meses",
+    "poblacion": "adulto_mayor",
+    "puntajes_input": {
+      "ViRDD": 3,
+      "ViRDInv": 2,
+      "ViTMTA": 280,
+      "ViStP": 60,
+      "ViGroberRLT": 4,
+      "ViGroberML_Tot": 1,
+      "ViGroberMC_Tot": 8,
+      "ViAni": 8,
+      "FluidP": 4,
+      "Denom48": 28,
+      "ViYesavage": 4
+    },
+    "resultados": [
+      {
+        "test_id": "ViRDD",
+        "test_nombre": "Span Retención Dígitos Directo",
+        "pd": 3.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "75773",
+        "metadata": {
+          "raw_value": 6
+        }
+      },
+      {
+        "test_id": "ViRDInv",
+        "test_nombre": "Span Retención Dígitos Inverso",
+        "pd": 2.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "75772",
+        "metadata": {
+          "raw_value": 7
+        }
+      },
+      {
+        "test_id": "ViTMTA",
+        "test_nombre": "TMT A",
+        "pd": 280.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "7577280",
+        "metadata": {
+          "raw_value": 5
+        }
+      },
+      {
+        "test_id": "ViStP",
+        "test_nombre": "Test de Stroop Palabra",
+        "pd": 60.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "757760",
+        "metadata": {
+          "raw_value": 8
+        }
+      },
+      {
+        "test_id": "ViGroberRLT",
+        "test_nombre": "Grober RL Ensayo 1 (libre)",
+        "pd": 4.0,
+        "escalar_real": 2.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.67,
+        "llave_usada": "75774",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberML_Tot",
+        "test_nombre": "Grober RLT - Retención Libre Total (E1+E2+E3)",
+        "pd": 1.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "75771",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberMC_Tot",
+        "test_nombre": "Grober RT - Recuerdo Total Claves (E1+E2+E3)",
+        "pd": 8.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "75778",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViAni",
+        "test_nombre": "Fluidez Verbal Animales",
+        "pd": 8.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "75778",
+        "metadata": {
+          "raw_value": 5
+        }
+      },
+      {
+        "test_id": "FluidP",
+        "test_nombre": "Fluidez Verbal Fonemica (P) - Adulto Mayor",
+        "pd": 4.0,
+        "escalar_real": 5.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.67,
+        "llave_usada": "75774",
+        "metadata": {
+          "raw_value": 5
+        }
+      },
+      {
+        "test_id": "Denom48",
+        "test_nombre": "Denominacion 48 items - Adulto Mayor",
+        "pd": 28.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "757728",
+        "metadata": {
+          "raw_value": 7
+        }
+      },
+      {
+        "test_id": "ViYesavage",
+        "test_nombre": "Escala de Depresión Geriátrica Yesavage",
+        "pd": 4.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Normal",
+        "z_equivalente": -6.4,
+        "llave_usada": "4",
+        "metadata": {
+          "clasificacion_codigo": "N",
+          "clasificacion_clinica": "Normal",
+          "nivel_interpretacion": "Promedio"
+        }
+      }
+    ],
+    "puntos_fuertes": [],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='ViRDD', test_nombre='Span Retención Dígitos Directo', puntaje_bruto=3.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='75773', metadata={'raw_value': 6})",
+      "ResultadoPrueba(test_id='ViTMTA', test_nombre='TMT A', puntaje_bruto=280.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='Atención', llave_baremo_usada='7577280', metadata={'raw_value': 5})",
+      "ResultadoPrueba(test_id='ViGroberRLT', test_nombre='Grober RL Ensayo 1 (libre)', puntaje_bruto=4.0, puntaje_escalar=2.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.67, dominio_cognitivo='General', llave_baremo_usada='75774', metadata={})",
+      "ResultadoPrueba(test_id='ViGroberML_Tot', test_nombre='Grober RLT - Retención Libre Total (E1+E2+E3)', puntaje_bruto=1.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='General', llave_baremo_usada='75771', metadata={})",
+      "ResultadoPrueba(test_id='ViGroberMC_Tot', test_nombre='Grober RT - Recuerdo Total Claves (E1+E2+E3)', puntaje_bruto=8.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='General', llave_baremo_usada='75778', metadata={})",
+      "ResultadoPrueba(test_id='ViAni', test_nombre='Fluidez Verbal Animales', puntaje_bruto=8.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='Lenguaje - Fluidez', llave_baremo_usada='75778', metadata={'raw_value': 5})",
+      "ResultadoPrueba(test_id='FluidP', test_nombre='Fluidez Verbal Fonemica (P) - Adulto Mayor', puntaje_bruto=4.0, puntaje_escalar=5.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.67, dominio_cognitivo='General', llave_baremo_usada='75774', metadata={'raw_value': 5})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 15,
+    "nombre": "Luis Eduardo Pérez Quintero",
+    "perfil_objetivo": "Pseudodemencia depresiva",
+    "edad_calculada": "68 años, 1 meses",
+    "poblacion": "adulto_mayor",
+    "puntajes_input": {
+      "ViRDD": 5,
+      "ViRDInv": 3,
+      "ViTMTA": 110,
+      "ViStP": 75,
+      "ViGroberRLT": 22,
+      "ViGroberML_Tot": 9,
+      "ViGroberMC_Tot": 14,
+      "ViAni": 14,
+      "ViYesavage": 11
+    },
+    "resultados": [
+      {
+        "test_id": "ViRDD",
+        "test_nombre": "Span Retención Dígitos Directo",
+        "pd": 5.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "66685",
+        "metadata": {
+          "raw_value": 11
+        }
+      },
+      {
+        "test_id": "ViRDInv",
+        "test_nombre": "Span Retención Dígitos Inverso",
+        "pd": 3.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "66683",
+        "metadata": {
+          "raw_value": 9
+        }
+      },
+      {
+        "test_id": "ViTMTA",
+        "test_nombre": "TMT A",
+        "pd": 110.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "6668110",
+        "metadata": {
+          "raw_value": 6
+        }
+      },
+      {
+        "test_id": "ViStP",
+        "test_nombre": "Test de Stroop Palabra",
+        "pd": 75.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "666875",
+        "metadata": {
+          "raw_value": 8
+        }
+      },
+      {
+        "test_id": "ViGroberRLT",
+        "test_nombre": "Grober RL Ensayo 1 (libre)",
+        "pd": 22.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "666822",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberML_Tot",
+        "test_nombre": "Grober RLT - Retención Libre Total (E1+E2+E3)",
+        "pd": 9.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "66689",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberMC_Tot",
+        "test_nombre": "Grober RT - Recuerdo Total Claves (E1+E2+E3)",
+        "pd": 14.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "666814",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViAni",
+        "test_nombre": "Fluidez Verbal Animales",
+        "pd": 14.0,
+        "escalar_real": 8.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.67,
+        "llave_usada": "666814",
+        "metadata": {
+          "raw_value": 8
+        }
+      },
+      {
+        "test_id": "ViYesavage",
+        "test_nombre": "Escala de Depresión Geriátrica Yesavage",
+        "pd": 11.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Deficit Extremo",
+        "z_equivalente": -5.93,
+        "llave_usada": "11",
+        "metadata": {
+          "clasificacion_codigo": "DE",
+          "clasificacion_clinica": "Deficit Extremo",
+          "nivel_interpretacion": "Bajo"
+        }
+      }
+    ],
+    "puntos_fuertes": [],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='ViTMTA', test_nombre='TMT A', puntaje_bruto=110.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Atención', llave_baremo_usada='6668110', metadata={'raw_value': 6})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 16,
+    "nombre": "Magdalena Sánchez Tobón",
+    "perfil_objetivo": "Parkinson con deterioro cognitivo",
+    "edad_calculada": "70 años, 10 meses",
+    "poblacion": "adulto_mayor",
+    "puntajes_input": {
+      "ViRDD": 4,
+      "ViRDInv": 2,
+      "ViTMTA": 260,
+      "ViTMTB": 600,
+      "ViStP": 50,
+      "ViGroberRLT": 15,
+      "ViGroberML_Tot": 5,
+      "ViGroberMC_Tot": 12,
+      "ViAni": 9,
+      "FluidP": 6,
+      "ViYesavage": 4
+    },
+    "resultados": [
+      {
+        "test_id": "ViRDD",
+        "test_nombre": "Span Retención Dígitos Directo",
+        "pd": 5.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "69715",
+        "metadata": {
+          "raw_value": 11,
+          "pd_original": 4.0,
+          "pd_ajustado": 5.0
+        }
+      },
+      {
+        "test_id": "ViRDInv",
+        "test_nombre": "Span Retención Dígitos Inverso",
+        "pd": 3.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "69713",
+        "metadata": {
+          "raw_value": 10,
+          "pd_original": 2.0,
+          "pd_ajustado": 3.0
+        }
+      },
+      {
+        "test_id": "ViTMTA",
+        "test_nombre": "TMT A",
+        "pd": 262.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.0,
+        "llave_usada": "6971262",
+        "metadata": {
+          "raw_value": 4,
+          "pd_original": 260.0,
+          "pd_ajustado": 262.0
+        }
+      },
+      {
+        "test_id": "ViTMTB",
+        "test_nombre": "TMT B",
+        "pd": 602.0,
+        "escalar_real": 3.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Bajo",
+        "z_equivalente": -2.33,
+        "llave_usada": "6971602",
+        "metadata": {
+          "raw_value": 3,
+          "pd_original": 600.0,
+          "pd_ajustado": 602.0
+        }
+      },
+      {
+        "test_id": "ViStP",
+        "test_nombre": "Test de Stroop Palabra",
+        "pd": 52.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "697152",
+        "metadata": {
+          "raw_value": 6,
+          "pd_original": 50.0,
+          "pd_ajustado": 52.0
+        }
+      },
+      {
+        "test_id": "ViGroberRLT",
+        "test_nombre": "Grober RL Ensayo 1 (libre)",
+        "pd": 16.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "697116",
+        "metadata": {
+          "pd_original": 15.0,
+          "pd_ajustado": 16.0
+        }
+      },
+      {
+        "test_id": "ViGroberML_Tot",
+        "test_nombre": "Grober RLT - Retención Libre Total (E1+E2+E3)",
+        "pd": 6.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "69716",
+        "metadata": {
+          "pd_original": 5.0,
+          "pd_ajustado": 6.0
+        }
+      },
+      {
+        "test_id": "ViGroberMC_Tot",
+        "test_nombre": "Grober RT - Recuerdo Total Claves (E1+E2+E3)",
+        "pd": 13.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "697113",
+        "metadata": {
+          "pd_original": 12.0,
+          "pd_ajustado": 13.0
+        }
+      },
+      {
+        "test_id": "ViAni",
+        "test_nombre": "Fluidez Verbal Animales",
+        "pd": 10.0,
+        "escalar_real": 7.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -1.0,
+        "llave_usada": "697110",
+        "metadata": {
+          "raw_value": 7,
+          "pd_original": 9.0,
+          "pd_ajustado": 10.0
+        }
+      },
+      {
+        "test_id": "FluidP",
+        "test_nombre": "Fluidez Verbal Fonemica (P) - Adulto Mayor",
+        "pd": 6.0,
+        "escalar_real": 6.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Limítrofe",
+        "z_equivalente": -1.33,
+        "llave_usada": "69716",
+        "metadata": {
+          "raw_value": 6
+        }
+      },
+      {
+        "test_id": "ViYesavage",
+        "test_nombre": "Escala de Depresión Geriátrica Yesavage",
+        "pd": 4.0,
+        "escalar_real": 4.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Normal",
+        "z_equivalente": -6.4,
+        "llave_usada": "4",
+        "metadata": {
+          "clasificacion_codigo": "N",
+          "clasificacion_clinica": "Normal",
+          "nivel_interpretacion": "Promedio"
+        }
+      }
+    ],
+    "puntos_fuertes": [],
+    "puntos_debiles": [
+      "ResultadoPrueba(test_id='ViTMTA', test_nombre='TMT A', puntaje_bruto=262.0, puntaje_escalar=4.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.0, dominio_cognitivo='Atención', llave_baremo_usada='6971262', metadata={'raw_value': 4, 'pd_original': 260.0, 'pd_ajustado': 262.0})",
+      "ResultadoPrueba(test_id='ViTMTB', test_nombre='TMT B', puntaje_bruto=602.0, puntaje_escalar=3.0, tipo_metrica='escalar', interpretacion='Bajo', z_equivalente=-2.33, dominio_cognitivo='Funciones Ejecutivas', llave_baremo_usada='6971602', metadata={'raw_value': 3, 'pd_original': 600.0, 'pd_ajustado': 602.0})",
+      "ResultadoPrueba(test_id='ViStP', test_nombre='Test de Stroop Palabra', puntaje_bruto=52.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='Atención', llave_baremo_usada='697152', metadata={'raw_value': 6, 'pd_original': 50.0, 'pd_ajustado': 52.0})",
+      "ResultadoPrueba(test_id='ViGroberML_Tot', test_nombre='Grober RLT - Retención Libre Total (E1+E2+E3)', puntaje_bruto=6.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='General', llave_baremo_usada='69716', metadata={'pd_original': 5.0, 'pd_ajustado': 6.0})",
+      "ResultadoPrueba(test_id='FluidP', test_nombre='Fluidez Verbal Fonemica (P) - Adulto Mayor', puntaje_bruto=6.0, puntaje_escalar=6.0, tipo_metrica='escalar', interpretacion='Limítrofe', z_equivalente=-1.33, dominio_cognitivo='General', llave_baremo_usada='69716', metadata={'raw_value': 6})"
+    ],
+    "advertencias": []
+  },
+  {
+    "caso_id": 17,
+    "nombre": "José Antonio Bermúdez Caro",
+    "perfil_objetivo": "Control normal (envejecimiento típico)",
+    "edad_calculada": "65 años, 3 meses",
+    "poblacion": "adulto_mayor",
+    "puntajes_input": {
+      "ViRDD": 7,
+      "ViRDInv": 5,
+      "ViTMTA": 45,
+      "ViTMTB": 110,
+      "ViStP": 110,
+      "ViGroberRLT": 30,
+      "ViGroberML_Tot": 14,
+      "ViGroberMC_Tot": 16,
+      "ViAni": 22,
+      "FluidP": 18,
+      "ViYesavage": 1
+    },
+    "resultados": [
+      {
+        "test_id": "ViRDD",
+        "test_nombre": "Span Retención Dígitos Directo",
+        "pd": 7.0,
+        "escalar_real": 15.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.67,
+        "llave_usada": "63657",
+        "metadata": {
+          "raw_value": 15
+        }
+      },
+      {
+        "test_id": "ViRDInv",
+        "test_nombre": "Span Retención Dígitos Inverso",
+        "pd": 5.0,
+        "escalar_real": 15.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.67,
+        "llave_usada": "63655",
+        "metadata": {
+          "raw_value": 15
+        }
+      },
+      {
+        "test_id": "ViTMTA",
+        "test_nombre": "TMT A",
+        "pd": 45.0,
+        "escalar_real": 10.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.0,
+        "llave_usada": "636545",
+        "metadata": {
+          "raw_value": 10
+        }
+      },
+      {
+        "test_id": "ViTMTB",
+        "test_nombre": "TMT B",
+        "pd": 110.0,
+        "escalar_real": 9.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": -0.33,
+        "llave_usada": "6365110",
+        "metadata": {
+          "raw_value": 9
+        }
+      },
+      {
+        "test_id": "ViStP",
+        "test_nombre": "Test de Stroop Palabra",
+        "pd": 110.0,
+        "escalar_real": 14.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.33,
+        "llave_usada": "6365110",
+        "metadata": {
+          "raw_value": 14
+        }
+      },
+      {
+        "test_id": "ViGroberRLT",
+        "test_nombre": "Grober RL Ensayo 1 (libre)",
+        "pd": 30.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "636530",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberML_Tot",
+        "test_nombre": "Grober RLT - Retención Libre Total (E1+E2+E3)",
+        "pd": 14.0,
+        "escalar_real": 14.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 1.33,
+        "llave_usada": "636514",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViGroberMC_Tot",
+        "test_nombre": "Grober RT - Recuerdo Total Claves (E1+E2+E3)",
+        "pd": 16.0,
+        "escalar_real": 18.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Superior",
+        "z_equivalente": 2.67,
+        "llave_usada": "636516",
+        "metadata": {}
+      },
+      {
+        "test_id": "ViAni",
+        "test_nombre": "Fluidez Verbal Animales",
+        "pd": 22.0,
+        "escalar_real": 12.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.67,
+        "llave_usada": "636522",
+        "metadata": {
+          "raw_value": 12
+        }
+      },
+      {
+        "test_id": "FluidP",
+        "test_nombre": "Fluidez Verbal Fonemica (P) - Adulto Mayor",
+        "pd": 18.0,
+        "escalar_real": 11.0,
+        "tipo_metrica": "escalar",
+        "interpretacion": "Promedio",
+        "z_equivalente": 0.33,
+        "llave_usada": "636518",
+        "metadata": {
+          "raw_value": 11
+        }
+      },
+      {
+        "test_id": "ViYesavage",
+        "test_nombre": "Escala de Depresión Geriátrica Yesavage",
+        "pd": 1.0,
+        "escalar_real": 1.0,
+        "tipo_metrica": "ci",
+        "interpretacion": "Normal",
+        "z_equivalente": -6.6,
+        "llave_usada": "1",
+        "metadata": {
+          "clasificacion_codigo": "N",
+          "clasificacion_clinica": "Normal",
+          "nivel_interpretacion": "Promedio"
+        }
+      }
+    ],
+    "puntos_fuertes": [
+      "ResultadoPrueba(test_id='ViRDD', test_nombre='Span Retención Dígitos Directo', puntaje_bruto=7.0, puntaje_escalar=15.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.67, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='63657', metadata={'raw_value': 15})",
+      "ResultadoPrueba(test_id='ViRDInv', test_nombre='Span Retención Dígitos Inverso', puntaje_bruto=5.0, puntaje_escalar=15.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.67, dominio_cognitivo='Memoria de Trabajo', llave_baremo_usada='63655', metadata={'raw_value': 15})",
+      "ResultadoPrueba(test_id='ViStP', test_nombre='Test de Stroop Palabra', puntaje_bruto=110.0, puntaje_escalar=14.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.33, dominio_cognitivo='Atención', llave_baremo_usada='6365110', metadata={'raw_value': 14})",
+      "ResultadoPrueba(test_id='ViGroberML_Tot', test_nombre='Grober RLT - Retención Libre Total (E1+E2+E3)', puntaje_bruto=14.0, puntaje_escalar=14.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=1.33, dominio_cognitivo='General', llave_baremo_usada='636514', metadata={})",
+      "ResultadoPrueba(test_id='ViGroberMC_Tot', test_nombre='Grober RT - Recuerdo Total Claves (E1+E2+E3)', puntaje_bruto=16.0, puntaje_escalar=18.0, tipo_metrica='escalar', interpretacion='Superior', z_equivalente=2.67, dominio_cognitivo='General', llave_baremo_usada='636516', metadata={})"
+    ],
+    "puntos_debiles": [],
+    "advertencias": []
+  }
+]

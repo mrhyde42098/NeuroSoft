@@ -1,0 +1,25 @@
+{
+  "caso_id": 10,
+  "nombre_paciente": "Camila Herrera Gómez",
+  "perfil_clinico": "Ansiedad generalizada",
+  "fecha_nacimiento": "2002-06-18",
+  "fecha_evaluacion": "2025-05-18",
+  "sexo": "F",
+  "escolaridad": "Universitaria",
+  "puntajes_input": {
+    "AdWAISV": 48,
+    "AdSemWais": 24,
+    "AdSDWais": 75,
+    "AdDDir": 11,
+    "AdMatr": 21,
+    "AdTMT_AB": 75,
+    "AdStroop_Corr": 42,
+    "EscSTAI": 55
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

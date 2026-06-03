@@ -1,0 +1,25 @@
+{
+  "caso_id": 9,
+  "nombre_paciente": "Juan Pablo Velandia Rojas",
+  "perfil_clinico": "Secuelas cognitivas TCE moderado",
+  "fecha_nacimiento": "1993-12-10",
+  "fecha_evaluacion": "2025-05-18",
+  "sexo": "M",
+  "escolaridad": "Secundaria",
+  "puntajes_input": {
+    "AdWAISV": 42,
+    "AdSemWais": 19,
+    "AdSDWais": 50,
+    "AdDDir": 9,
+    "AdMatr": 17,
+    "AdWAISCC": 28,
+    "AdTMT_AB": 130,
+    "AdStroop_Corr": 28
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}

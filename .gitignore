@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+*.egg-info/
+
+# Build artefactos
+build/
+dist/
+*.spec.bak
+
+# Vendor — binarios descargados en build (Ollama installer ~700 MB)
+vendor/
+
+# Frontend
+neurosoft-frontend/node_modules/
+neurosoft-frontend/dist/
+
+# Datos locales
+*.db
+*.sqlite
+*.sqlite3
+.env
+startup.log
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Claude Code — local (skills compartidas SÍ se commitean, settings local NO)
+.claude/settings.local.json
+session_logs/
+license_history.json
+data/crash_reports.jsonl

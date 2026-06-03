@@ -1,0 +1,28 @@
+{
+  "caso_id": 14,
+  "nombre_paciente": "Rosa Inés Cárdenas Mejía",
+  "perfil_clinico": "Enfermedad de Alzheimer leve",
+  "fecha_nacimiento": "1948-08-05",
+  "fecha_evaluacion": "2025-05-12",
+  "sexo": "F",
+  "escolaridad": "Primaria",
+  "puntajes_input": {
+    "ViRDD": 3,
+    "ViRDInv": 2,
+    "ViTMTA": 280,
+    "ViStP": 60,
+    "ViGroberRLT": 4,
+    "ViGroberML_Tot": 1,
+    "ViGroberMC_Tot": 8,
+    "ViAni": 8,
+    "FluidP": 4,
+    "Denom48": 28,
+    "ViYesavage": 4
+  },
+  "escalares_esperados": {},
+  "metadata": {
+    "fuente": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+    "validado": "2026-05",
+    "tipo_fixture": "snapshot_regresion"
+  }
+}
