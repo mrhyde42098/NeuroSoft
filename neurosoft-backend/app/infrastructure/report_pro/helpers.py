@@ -128,6 +128,36 @@ def wrap_text(text: str, max_width: float, font_name: str, size: float) -> list[
     return lines
 
 
+def fit_text_to_width(
+    text: str,
+    max_width: float,
+    font_name: str,
+    size: float,
+    ellipsis: str = "\u2026",
+) -> str:
+    """Trunca ``text`` con elipsis para que quepa en ``max_width``.
+
+    Usa ``pdfmetrics.stringWidth`` real, glifo a glifo cuando es necesario.
+    Si el texto ya cabe, se devuelve intacto. No produce strings más anchos
+    que ``max_width`` (midiendo con la misma fuente/tamaño).
+    """
+    if not text:
+        return text or ""
+    if measure_text(text, font_name, size) <= max_width:
+        return text
+    ell_w = measure_text(ellipsis, font_name, size)
+    if ell_w >= max_width:
+        # No hay espacio ni para la elipsis — devolver string vacío.
+        return ""
+    out = ""
+    for ch in text:
+        candidate = out + ch
+        if measure_text(candidate, font_name, size) + ell_w > max_width:
+            return out + ellipsis
+        out = candidate
+    return out
+
+
 def draw_text(
     c,
     text: str,
@@ -484,6 +514,96 @@ def draw_table(
             cx += cw
         y -= row_h
     return y
+
+
+def two_column_blocks(
+    c,
+    *,
+    x: float,
+    y: float,
+    width: float,
+    gap: float = 12.0,
+    left_title: str,
+    left_color: tuple[float, float, float],
+    left_items: Sequence[str],
+    right_title: str,
+    right_color: tuple[float, float, float],
+    right_items: Sequence[str],
+    ensure_room_fn=None,
+    bullet_size: float = TYPE.body_sm,
+) -> float:
+    """Dibuja DOS bloques (fortalezas vs áreas) en paralelo.
+
+    Ambos bloques están a la misma altura y se extienden hacia abajo de
+    forma independiente. Retorna el ``y`` mínimo de los dos.
+
+    Args:
+        x, width: coordenadas y ancho total disponible.
+        gap: separación entre las dos columnas.
+        left_title, right_title: títulos de cada bloque.
+        left_color, right_color: color del acento de cada bloque.
+        left_items, right_items: bullets a dibujar.
+        ensure_room_fn: callable ``(c, y, need) -> y`` para paginar.
+        bullet_size: tamaño de fuente para los bullets.
+    """
+    col_w = (width - gap) / 2
+    x_left = x
+    x_right = x + col_w + gap
+    # Adaptar ensure_room_fn a interfaz (c, y, need) -> y.
+    # Si el caller pasa self._ensure_room (firma c, data, y, need=80),
+    # hay que reenvolver para que el orden coincida.
+    if ensure_room_fn is not None:
+        import inspect
+        try:
+            sig = inspect.signature(ensure_room_fn)
+            n_params = len([p for p in sig.parameters.values()
+                            if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)])
+        except (TypeError, ValueError):
+            n_params = 3
+        if n_params >= 4:
+            # Firma (c, data, y, need). Necesitamos pasar `data` extra.
+            # Lo capturamos vía __self__ del bound method, o lo pedimos al caller.
+            data_arg = getattr(ensure_room_fn, "__self__", None)
+            if data_arg is not None:
+                # Bound method: self ya está bound, así que pasamos
+                # (c, data, y, need) directamente.
+                ensure = lambda c, y, need, _f=ensure_room_fn, _d=data_arg: _f(c, _d, y, need)
+            else:
+                # Función suelta con (c, data, y, need) — el caller
+                # probablemente olvidó pasar self. Como fallback, usamos
+                # ensure_room_fn.__defaults__ si existe.
+                ensure = ensure_room_fn
+        else:
+            ensure = ensure_room_fn
+    else:
+        ensure = lambda c, y, need: y
+    y_left = y
+    y_right = y
+    y_left = ensure(c, y_left, 40)
+    y_left = block_header(c, left_title, y_left, color=left_color)
+    if not left_items:
+        y_left = draw_paragraph(
+            c, "—", x_left, y_left - 4, col_w,
+            font_name=FONT_SANS, size=TYPE.caption, color=SLATE_LIGHT,
+            leading=TYPE.caption * 1.4,
+        )
+    else:
+        for frase in left_items[:5]:
+            y_left = ensure(c, y_left, 32)
+            y_left = bullet(c, frase, x_left, y_left - 2, col_w) - 2
+    y_right = ensure(c, y_right, 40)
+    y_right = block_header(c, right_title, y_right, color=right_color)
+    if not right_items:
+        y_right = draw_paragraph(
+            c, "—", x_right, y_right - 4, col_w,
+            font_name=FONT_SANS, size=TYPE.caption, color=SLATE_LIGHT,
+            leading=TYPE.caption * 1.4,
+        )
+    else:
+        for frase in right_items[:5]:
+            y_right = ensure(c, y_right, 32)
+            y_right = bullet(c, frase, x_right, y_right - 2, col_w) - 2
+    return min(y_left, y_right)
 
 
 def two_column_layout(

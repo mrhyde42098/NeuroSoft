@@ -141,8 +141,10 @@ def test_eliminar_backups_viejos_elimina_excedente(tmp_path, monkeypatch):
         listar_backups,
     )
     # Crear 10 backups
+    import time
     for i in range(10):
         crear_backup(notas=f"backup {i}")
+        time.sleep(0.01)  # asegurar timestamps distintos
     assert len(listar_backups()) == 10
 
     eliminados = eliminar_backups_viejos(

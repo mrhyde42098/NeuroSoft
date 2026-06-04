@@ -23,7 +23,9 @@ from .charts import (
     draw_ci_kpi_row,
     draw_discrepancies,
     draw_domain_radar,
+    draw_domain_traffic_light,
     draw_normal_curve,
+    draw_bell_curve_with_ci,
     draw_z_profile,
 )
 from .helpers import (
@@ -37,6 +39,7 @@ from .helpers import (
     measure_paragraph_height,
     section_subtitle,
     section_title,
+    two_column_blocks,
     two_column_layout,
 )
 from .narrative import (
@@ -180,6 +183,7 @@ class NeuroPDFGeneratorPro:
         y = self._section_motivo_consulta(c, data, y)
         y = self._section_pruebas_aplicadas(c, data, y)
         y = self._section_antecedentes(c, data, y)
+        y = self._section_resumen_ejecutivo(c, data, y)
         y = self._section_observacion(c, data, y)
         y = self._section_resultados(c, data, y)
         y = self._section_sintesis(c, data, y)
@@ -540,10 +544,10 @@ class NeuroPDFGeneratorPro:
         rows = []
         for r in data.resultados:
             nombre = str(r.get("test_nombre", r.get("test_id", "")))
-            dominio = str(r.get("dominio_cognitivo", "—"))[:30]
+            dominio = str(r.get("dominio_cognitivo", "—"))
             dur = r.get("duracion_estimada", "—")
-            rows.append([nombre[:38], dominio, str(dur)])
-        col_widths = [L.content_w * 0.45, L.content_w * 0.35, L.content_w * 0.20]
+            rows.append([nombre, dominio, str(dur)])
+        col_widths = [L.content_w * 0.52, L.content_w * 0.33, L.content_w * 0.15]
         # Paginar manualmente la tabla
         row_h = 13
         while rows:
@@ -604,6 +608,51 @@ class NeuroPDFGeneratorPro:
             else:
                 col2_y = target_y
         return min(col1_y, col2_y) - 8
+
+    def _section_resumen_ejecutivo(self, c, data, y: float) -> float:
+        """Resumen ejecutivo en pirámide invertida: conclusión → hallazgos → implicación.
+
+        Va inmediatamente después de los antecedentes (visible en página 2)
+        y antes de los resultados crudos. Pensado para clínicos que solo
+        leen 30 segundos del informe.
+        """
+        from .narrative import build_executive_summary
+        L = LAYOUT
+        if not data.resultados:
+            return y
+        ej = build_executive_summary(
+            data.resultados,
+            paciente_nombre=(data.nombre_completo.split()[0] if data.nombre_completo else "El paciente"),
+        )
+        # El callout necesita ~80-120 pts según hallazgos.
+        y = self._ensure_room(c, data, y, need=140)
+        y = section_title(
+            c, "Resumen Ejecutivo",
+            y, subtitle="Pirámide invertida: conclusión, hallazgos, implicación",
+        )
+        # 1) Conclusión
+        y = callout(
+            c, ej["conclusion"], L.margin, y, L.content_w,
+            accent=NAVY, fill=SURFACE, title="Conclusión",
+            size=TYPE.body,
+        )
+        y -= 6
+        # 2) Hallazgos
+        if ej.get("hallazgos"):
+            y = self._ensure_room(c, data, y, need=60)
+            y = block_header(c, "Hallazgos clave", y, color=TEAL_DARK)
+            for h in ej["hallazgos"][:3]:
+                y = self._ensure_room(c, data, y, need=22)
+                y = bullet(c, h, L.margin, y - 2, L.content_w) - 1
+            y -= 2
+        # 3) Implicación
+        y = self._ensure_room(c, data, y, need=60)
+        y = callout(
+            c, ej["implicacion"], L.margin, y, L.content_w,
+            accent=SEMANTIC_LIMITE, fill=SURFACE, title="Implicación",
+            size=TYPE.body_sm,
+        )
+        return y - 6
 
     def _section_observacion(self, c, data, y: float) -> float:
         L = LAYOUT
@@ -676,7 +725,7 @@ class NeuroPDFGeneratorPro:
         )
         if n_z >= 5:
             y = self._ensure_room(c, data, y, need=160)
-            y = draw_normal_curve(c, data.resultados, y)
+            y = draw_bell_curve_with_ci(c, data.resultados, y)
             y -= 6
 
         # ─── Perfil Z horizontal ───
@@ -684,6 +733,15 @@ class NeuroPDFGeneratorPro:
             y = self._ensure_room(c, data, y, need=120)
             y = section_subtitle(c, "Perfil Z por prueba", y)
             y = draw_z_profile(c, data.resultados, y)
+            y -= 6
+
+        # ─── Semáforo de dominios (resumen visual rápido) ───
+        if n_z >= 2:
+            y = self._ensure_room(c, data, y, need=160)
+            y = section_subtitle(
+                c, "Semáforo de dominios cognitivos", y,
+            )
+            y = draw_domain_traffic_light(c, data.resultados, y)
             y -= 6
 
         # ─── Tabla detallada de puntajes ───
@@ -695,18 +753,18 @@ class NeuroPDFGeneratorPro:
     def _draw_score_table(self, c, data, resultados, y: float) -> float:
         L = LAYOUT
         col_widths = [
-            L.content_w * 0.30, L.content_w * 0.13, L.content_w * 0.13,
-            L.content_w * 0.13, L.content_w * 0.31,
+            L.content_w * 0.38, L.content_w * 0.10, L.content_w * 0.12,
+            L.content_w * 0.10, L.content_w * 0.30,
         ]
         headers = ["Prueba", "PD", "Escalar/CI", "Z", "Interpretación"]
         rows = []
         row_colors = []
         for r in resultados:
-            nombre = str(r.get("test_nombre", r.get("test_id", "")))[:34]
+            nombre = str(r.get("test_nombre", r.get("test_id", "")))
             pd = r.get("puntaje_bruto")
             esc = r.get("puntaje_escalar")
             z = r.get("z_equivalente")
-            interp = str(r.get("interpretacion", "—"))[:28]
+            interp = str(r.get("interpretacion", "—"))
             rows.append([
                 nombre,
                 str(int(pd)) if pd is not None else "—",
@@ -797,7 +855,7 @@ class NeuroPDFGeneratorPro:
         )
         if not resumen:
             return y
-        y = self._ensure_room(c, data, y, need=320)
+        y = self._ensure_room(c, data, y, need=380)
         y = section_title(
             c, "Resumen para la Familia",
             y, subtitle="Lenguaje sencillo para padres, cuidadores y paciente",
@@ -828,27 +886,61 @@ class NeuroPDFGeneratorPro:
                 font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
                 leading=TYPE.body_sm * 1.45,
             ) - 4
-        # ── Fortalezas + Áreas de apoyo en dos columnas ──
-        col_w = (L.content_w - 12) / 2
-        izq_y = y
-        der_y = y
-        if resumen.get("fortalezas"):
-            izq_y = self._ensure_room(c, data, izq_y, need=100)
-            izq_y = block_header(c, "Fortalezas (lo que se hace bien)", izq_y)
-            for frase in resumen["fortalezas"][:5]:
-                izq_y = self._ensure_room(c, data, izq_y, need=40)
-                izq_y = bullet(
-                    c, frase, L.margin, izq_y, col_w,
-                ) - 2
-        if resumen.get("areas_apoyo"):
-            der_y = self._ensure_room(c, data, der_y, need=100)
-            der_y = block_header(c, "Áreas para apoyar (en qué trabajar)", der_y)
-            for frase in resumen["areas_apoyo"][:5]:
-                der_y = self._ensure_room(c, data, der_y, need=40)
-                der_y = bullet(
-                    c, frase, L.margin + col_w + 12, der_y, col_w,
-                ) - 2
-        y = min(izq_y, der_y) - 8
+        # ── Implicaciones para la vida diaria (NUEVO) ──
+        from .implicaciones import dominios_con_implicaciones
+        implicaciones = dominios_con_implicaciones(data.resultados)
+        if implicaciones:
+            y = self._ensure_room(c, data, y, need=140)
+            y = block_header(
+                c, "Implicaciones para la vida diaria", y,
+                color=SEMANTIC_LIMITE,
+            )
+            y_intro = draw_paragraph(
+                c,
+                "Además de los puntajes, esto es lo que podría notarse en la "
+                "vida cotidiana:",
+                L.margin, y, L.content_w,
+                font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
+                leading=TYPE.body_sm * 1.4,
+            ) - 2
+            y = y_intro
+            for impl in implicaciones[:4]:
+                y = self._ensure_room(c, data, y, need=80)
+                dom = impl["dominio"]
+                nivel = impl["nivel"]
+                color = SEMANTIC_DEFICIT if nivel == "severo" else SEMANTIC_LIMITE
+                y = block_header(
+                    c, f"{dom}  ·  {nivel}", y, color=color,
+                )
+                for ej in impl["ejemplos"][:3]:
+                    y = self._ensure_room(c, data, y, need=28)
+                    y = bullet(c, ej, L.margin, y - 2, L.content_w) - 1
+                # Estrategias condensadas en una línea
+                if impl["estrategias"]:
+                    estr_txt = "Apoyos sugeridos: " + " · ".join(
+                        impl["estrategias"][:2]
+                    )
+                    y = self._ensure_room(c, data, y, need=24)
+                    y = draw_paragraph(
+                        c, estr_txt, L.margin + 8, y, L.content_w - 8,
+                        font_name=FONT_SANS, size=TYPE.caption, color=TEAL_DARK,
+                        leading=TYPE.caption * 1.35,
+                    ) - 4
+            y -= 4
+        # ── Fortalezas + Áreas de apoyo en dos columnas (helper corregido) ──
+        y = self._ensure_room(c, data, y, need=140)
+        y = two_column_blocks(
+            c,
+            x=L.margin, y=y, width=L.content_w, gap=14,
+            left_title="Fortalezas (lo que se hace bien)",
+            left_color=SEMANTIC_SUPERIOR,
+            left_items=resumen.get("fortalezas", []),
+            right_title="Áreas para apoyar (en qué trabajar)",
+            right_color=SEMANTIC_DEFICIT,
+            right_items=resumen.get("areas_apoyo", []),
+            ensure_room_fn=self._ensure_room,
+        )
+        y -= 8
         # ── Recomendaciones para la familia ──
         if resumen.get("que_recomendamos"):
             y = self._ensure_room(c, data, y, need=80)
@@ -862,7 +954,7 @@ class NeuroPDFGeneratorPro:
         if resumen.get("preguntas_frecuentes"):
             y = self._ensure_room(c, data, y, need=80)
             y = block_header(c, "Preguntas frecuentes", y)
-            for faq in resumen["preguntas_frecuentes"][:4]:
+            for faq in resumen["preguntas_frecuentes"][:5]:
                 y = self._ensure_room(c, data, y, need=50)
                 if isinstance(faq, dict):
                     pregunta = faq.get("pregunta", "")
@@ -872,7 +964,7 @@ class NeuroPDFGeneratorPro:
                     respuesta = str(faq[1]) if len(faq) > 1 else ""
                 if pregunta and respuesta:
                     y = draw_paragraph(
-                        c, f"• {pregunta}", L.margin, y, L.content_w,
+                        c, pregunta, L.margin, y, L.content_w,
                         font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=NAVY,
                         leading=TYPE.body_sm * 1.4,
                     ) - 2
@@ -911,48 +1003,87 @@ class NeuroPDFGeneratorPro:
         return y
 
     def _section_recomendaciones(self, c, data, y: float) -> float:
-        if not data.obs_recomendaciones or data.obs_recomendaciones in ("N/A", ""):
-            return y
         L = LAYOUT
+        tiene_obs = bool(
+            data.obs_recomendaciones and data.obs_recomendaciones not in ("N/A", "")
+        )
+        if not tiene_obs and not data.resultados:
+            return y
         y = self._ensure_room(c, data, y, need=160)
         y = section_title(
             c, "Recomendaciones",
             y, subtitle="Plan de manejo agrupado por área y prioridad",
         )
 
-        grouped = parse_recomendaciones(data.obs_recomendaciones)
-        # Sólo "General" → lista plana
-        if list(grouped.keys()) == ["General"]:
-            for it in grouped["General"]:
-                y = self._ensure_room(c, data, y, need=30)
-                y = bullet(c, it["texto"], L.margin, y, L.content_w) - 2
-            return y - 8
+        if tiene_obs:
+            grouped = parse_recomendaciones(data.obs_recomendaciones)
+            # Sólo "General" → lista plana
+            if list(grouped.keys()) == ["General"]:
+                for it in grouped["General"]:
+                    y = self._ensure_room(c, data, y, need=30)
+                    y = bullet(c, it["texto"], L.margin, y, L.content_w) - 2
+            else:
+                priority_color = {
+                    "alta": SEMANTIC_DEFICIT,
+                    "media": SEMANTIC_LIMITE,
+                    "baja": SEMANTIC_PROMEDIO,
+                }
+                for area in sorted(grouped.keys()):
+                    items = grouped[area]
+                    if not items:
+                        continue
+                    y = self._ensure_room(c, data, y, need=60)
+                    y = block_header(c, area, y)
+                    order = {"alta": 0, "media": 1, "baja": 2}
+                    items_sorted = sorted(items, key=lambda x: order.get(x["prioridad"], 1))
+                    for it in items_sorted:
+                        y = self._ensure_room(c, data, y, need=30)
+                        color = priority_color.get(it["prioridad"], SLATE)
+                        draw_text(
+                            c, "●", L.margin, y,
+                            font_name=FONT_SANS_BOLD, size=TYPE.body, color=color,
+                        )
+                        y = draw_paragraph(
+                            c, it["texto"], L.margin + 12, y, L.content_w - 12,
+                            font_name=FONT_SANS, size=TYPE.body_sm, color=NAVY,
+                        ) - 2
+                    y -= 6
 
-        priority_color = {
-            "alta": SEMANTIC_DEFICIT,
-            "media": SEMANTIC_LIMITE,
-            "baja": SEMANTIC_PROMEDIO,
-        }
-        for area in sorted(grouped.keys()):
-            items = grouped[area]
-            if not items:
-                continue
-            y = self._ensure_room(c, data, y, need=60)
-            y = block_header(c, area, y)
-            order = {"alta": 0, "media": 1, "baja": 2}
-            items_sorted = sorted(items, key=lambda x: order.get(x["prioridad"], 1))
-            for it in items_sorted:
-                y = self._ensure_room(c, data, y, need=30)
-                color = priority_color.get(it["prioridad"], SLATE)
-                draw_text(
-                    c, "●", L.margin, y,
-                    font_name=FONT_SANS_BOLD, size=TYPE.body, color=color,
-                )
-                y = draw_paragraph(
-                    c, it["texto"], L.margin + 12, y, L.content_w - 12,
-                    font_name=FONT_SANS, size=TYPE.body_sm, color=NAVY,
-                ) - 2
+        # ── Subsubsección: Recomendaciones del cuadro clínico (reservorio) ──
+        from .narrative import sugerir_cuadros_clinicos
+        cuadros = sugerir_cuadros_clinicos(
+            data.resultados or [],
+            poblacion=getattr(data, "poblacion", "") or "",
+            max_cuadros=2,
+        )
+        if cuadros:
+            y -= 4
+            y = self._ensure_room(c, data, y, need=160)
+            y = callout(
+                c,
+                "Banco de recomendaciones clínicas sugeridas para el "
+                "cuadro identificado. El clínico debe seleccionar las "
+                "aplicables antes de emitir el informe definitivo.",
+                L.margin, y, L.content_w,
+                accent=TEAL_DARK, fill=SURFACE,
+                title="Recomendaciones del cuadro clínico",
+                size=TYPE.body_sm,
+            )
             y -= 6
+            for cuadro in cuadros:
+                y = self._ensure_room(c, data, y, need=80)
+                y = block_header(
+                    c,
+                    f"{cuadro['label']}  ·  {cuadro['grupo_label']}",
+                    y, color=TEAL_DARK,
+                )
+                for rec in cuadro["recomendaciones"][:8]:
+                    y = self._ensure_room(c, data, y, need=22)
+                    y = bullet(
+                        c, rec, L.margin, y - 2, L.content_w,
+                        size=TYPE.caption,
+                    ) - 1
+                y -= 4
         return y - 6
 
     def _section_anexo(self, c, data, y: float) -> float:
@@ -993,6 +1124,67 @@ class NeuroPDFGeneratorPro:
                 c, body, L.margin + 6, y, L.content_w - 6,
                 font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
             ) - 6
+
+        # ─── Glosario de términos técnicos ───
+        y -= 4
+        y = self._ensure_room(c, data, y, need=80)
+        y = section_subtitle(
+            c, "Glosario de términos técnicos", y,
+        )
+        y = self._render_glosario_terminos(c, data, y)
+        return y
+
+    def _render_glosario_terminos(self, c, data, y: float) -> float:
+        """Glosario de términos técnicos estándar (estable, no depende de BD).
+
+        Solo incluye términos que aparecen en el informe del paciente
+        (filtrado por presencia en los resultados o en el texto del informe).
+        """
+        L = LAYOUT
+        from .narrative import GLOSARIO_TERMINOS
+        # Detectar qué términos aplica mencionar
+        # Construir string de búsqueda con todos los datos relevantes del informe
+        contenido = ""
+        if data.resultados:
+            for r in data.resultados:
+                contenido += " " + str(r.get("test_nombre", ""))
+                contenido += " " + str(r.get("dominio_cognitivo", ""))
+                contenido += " " + str(r.get("interpretacion", ""))
+        contenido = contenido.lower()
+        # Términos que siempre se incluyen (independiente de presencia)
+        obligatorios = {"z", "ci"}
+        # Términos condicionales
+        items: list[tuple[str, str]] = []
+        for term, desc in GLOSARIO_TERMINOS.items():
+            clave = term.lower().split()[0]  # primer token
+            if clave in obligatorios or any(
+                tok in contenido for tok in (term.lower(), clave)
+            ):
+                items.append((term, desc))
+            if len(items) >= 10:
+                break
+        if not items:
+            return y
+        y = draw_paragraph(
+            c,
+            "Definiciones operativas de los términos técnicos utilizados "
+            "en este informe.",
+            L.margin, y, L.content_w,
+            font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
+            leading=TYPE.caption * 1.4,
+        ) - 4
+        for term, desc in items:
+            y = self._ensure_room(c, data, y, need=32)
+            draw_text(
+                c, term, L.margin, y,
+                font_name=FONT_SANS_BOLD, size=TYPE.caption, color=TEAL_DARK,
+            )
+            y -= 11
+            y = draw_paragraph(
+                c, desc, L.margin + 6, y, L.content_w - 6,
+                font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
+                leading=TYPE.caption * 1.35,
+            ) - 4
         return y
 
     def _section_firma(self, c, data, y: float) -> None:

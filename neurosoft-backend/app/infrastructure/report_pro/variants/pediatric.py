@@ -64,17 +64,31 @@ class PediatricGenerator(NeuroPDFGeneratorPro):
     # ──────────────────────────────────────────────────────────
 
     def _section_antecedentes_pediatricos(self, c, data, y: float) -> float:
-        """Resalta antecedentes perinatales, del desarrollo y escolares.
+        """Resalta antecedentes del desarrollo, familiares y escolares.
 
-        Los datos vienen de los campos estándar de HC; si todos están vacíos,
-        omite la sección.
+        Los datos vienen de los campos estándar de HC. ``familiares`` se usa
+        correctamente como "antecedentes familiares" (NO como perinatales).
+        Perinatales se reconstruye desde ``patologicos_medicos`` si contiene
+        información gestacional.
         """
         L = LAYOUT
+        # Detectar si patologicos_medicos contiene info perinatal/prenatal.
+        perinatal_text = ""
+        pat = (data.patologicos_medicos or "").lower()
+        prenatal_keywords = (
+            "embarazo", "gestación", "gestacion", "prenatal", "perinatal",
+            "parto", "cesárea", "cesarea", "prematurez", "prematuro",
+            "bajo peso", "hipoxia", "sufrimiento fetal", "ictericia neonatal",
+        )
+        if any(kw in pat for kw in prenatal_keywords):
+            perinatal_text = data.patologicos_medicos
+
         bloques = [
-            ("Perinatales y prenatales", data.familiares),  # mejor que se llene aparte; placeholder
+            ("Perinatales y prenatales", perinatal_text),
             ("Desarrollo motor y del lenguaje", data.sensoriales_motores),
             ("Trayectoria escolar", data.escolar_laboral),
             ("Comportamiento y ánimo", data.comportamiento_animo),
+            ("Antecedentes familiares", data.familiares),
         ]
         bloques = [(lbl, val) for lbl, val in bloques
                    if val and val not in ("N/A", "", "(-)", "-")]

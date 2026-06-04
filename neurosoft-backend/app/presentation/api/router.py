@@ -49,6 +49,7 @@ from app.presentation.api.v1.clinical_history import (
     hc_router,
 )
 from app.presentation.api.v1.companions import companions_router  # §M-7
+from app.presentation.api.v1.reservorio import router as reservorio_router  # Sprint D
 from app.presentation.api.v1.consentimientos import consentimientos_router
 from app.presentation.api.v1.documents import (
     backup_router_new,
@@ -171,8 +172,8 @@ api_v1_router.include_router(email_logs_router)
 api_v1_router.include_router(smtp_config_router)   # §QW-2 config SMTP
 api_v1_router.include_router(email_tpl_router)     # §QW-3 plantillas email
 api_v1_router.include_router(companions_router)    # §M-7 acompañantes
+api_v1_router.include_router(reservorio_router)   # Banco recomendaciones (Sprint D)
 
-# 🛡️ Auditoría / Admin
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(admin_router)
 

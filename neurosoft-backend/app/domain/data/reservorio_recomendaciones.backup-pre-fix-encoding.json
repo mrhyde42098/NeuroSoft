@@ -20,7 +20,7 @@
             "Ambiente de estudio libre de distractores (sin pantallas, ruido controlado).",
             "Apoyo escolar: notificar al colegio, solicitar ubicación preferencial, tiempos extendidos en pruebas.",
             "Actividad física regular (mínimo 60 min/día) priorizando deportes con reglas claras.",
-            "Higiene del sueño: rutina estable, 9–10 horas para niños, 8–10 para adolescentes.",
+            "Higieneueño: rutina estable, 9–10 horas para niños, 8–10 para adolescentes.",
             "Limitar exposición a pantallas (< 1 h/día escolar, < 2 h/día fin de semana).",
             "Reevaluación neuropsicológica en 12 meses para seguimiento evolutivo."
           ]
@@ -32,17 +32,17 @@
             "Programa de estimulación cognitiva individualizado centrado en funciones descendidas.",
             "Adaptaciones curriculares significativas — PIAR (Plan Individual de Ajustes Razonables).",
             "Entrenamiento en habilidades de la vida diaria (AVD) por terapia ocupacional.",
-            "Apoyo fonoaudiológico si hay compromiso del lenguaje expresivo/comprensivo.",
+            "Apoyo fonoaudiológico si hay compromisoenguaje expresivo/comprensivo.",
             "Trabajo con la familia: psicoeducación sobre el diagnóstico y expectativas realistas.",
             "Integración social en grupos estructurados (deporte adaptado, arte, música).",
             "Seguimiento neuropsicológico cada 18–24 meses para monitorear progreso."
           ]
         },
         "disfasia": {
-          "label": "Trastorno específico del lenguaje / Disfasia (F800–F809)",
+          "label": "Trastorno específicoenguaje / Disfasia (F800–F809)",
           "recomendaciones": [
             "Fonoaudiología intensiva 2–3 sesiones semanales enfocadas en fonología, morfosintaxis y pragmática.",
-            "Estimulación del lenguaje en casa: lectura compartida diaria, juegos de palabras, narración de cuentos.",
+            "Estimulaciónenguaje en casa: lectura compartida diaria, juegos de palabras, narración de cuentos.",
             "Evitar corregir de forma directa — usar reformulación expandida como modelo.",
             "Coordinación con el colegio: adaptaciones en tiempos de respuesta oral y escrita.",
             "Valoración auditiva por otorrinolaringología para descartar hipoacusia.",
@@ -82,7 +82,7 @@
             "Entrenamiento en relajación y respiración diafragmática adaptada a niños (burbuja, globo).",
             "Rutinas predecibles y comunicación anticipada de cambios.",
             "Psicoeducación a padres: evitar reforzar evitación, modelar afrontamiento calmado.",
-            "Higiene del sueño y reducción de exposición a pantallas / noticias ansiógenas.",
+            "Higieneueño y reducción de exposición a pantallas / noticias ansiógenas.",
             "Actividad física regular; artes expresivas como vía de regulación emocional.",
             "Valoración psiquiátrica si hay compromiso funcional severo o sintomatología vegetativa."
           ]
@@ -118,7 +118,7 @@
             "Valoración psiquiátrica prioritaria para confirmación diagnóstica y manejo farmacológico.",
             "Psicoterapia con enfoque en regulación emocional (DBT adaptado, terapia familiar).",
             "Psicoeducación a la familia sobre curso cíclico y detección de señales tempranas.",
-            "Registro de ánimo diario (mood chart) con participación del niño y los padres.",
+            "Registro de ánimo diario (mood chart) con participacióniño y los padres.",
             "Rutinas estables de sueño, alimentación y actividad — estabilizan el ritmo circadiano.",
             "Evitar estimulantes no prescritos (cafeína, energizantes).",
             "Plan de crisis: red de apoyo, señales de alarma, acceso a atención urgente."
@@ -130,21 +130,21 @@
       "label": "Adulto (18–49 años)",
       "cuadros": {
         "depresion_ansiedad_tdah": {
-          "label": "Depresión / Ansiedad / TDAH adulto (F320–F329 / F410 / F900)",
+          "label": "Depresión / Ansiedad / TDAHdulto (F320–F329 / F410 / F900)",
           "recomendaciones": [
             "Valoración por psiquiatría para definir necesidad de manejo farmacológico.",
             "Psicoterapia cognitivo-conductual o basada en mindfulness.",
-            "Higiene del sueño — regular horario, evitar pantallas 1 h antes de dormir.",
+            "Higieneueño — regular horario, evitar pantallas 1 h antes de dormir.",
             "Actividad física aeróbica regular 150 min/semana.",
             "Técnicas de manejo de estrés: respiración, relajación muscular, meditación.",
-            "Reducción del consumo de cafeína, alcohol y estimulantes.",
-            "Organización del trabajo: lista de pendientes, bloqueo de tiempo, pausas programadas.",
+            "Reducciónonsumo de cafeína, alcohol y estimulantes.",
+            "Organizaciónrabajo: lista de pendientes, bloqueo de tiempo, pausas programadas.",
             "Red de apoyo social activa — prevenir aislamiento.",
             "Reevaluación neuropsicológica en 12 meses si el perfil cognitivo es secundario al afecto."
           ]
         },
         "trastornos_motores_adulto": {
-          "label": "Trastornos motores adulto — EP, ELA, EM",
+          "label": "Trastornos motoresdulto — EP, ELA, EM",
           "recomendaciones": [
             "Seguimiento neurológico estrecho para manejo farmacológico y evolutivo.",
             "Fisioterapia motora regular con enfoque en marcha, equilibrio y motricidad fina.",
@@ -163,7 +163,7 @@
             "Programa de rehabilitación cognitiva individualizado (atención, memoria, funciones ejecutivas).",
             "Reincorporación laboral/académica gradual — evitar retorno abrupto.",
             "Pausas frecuentes y evitación de sobrecarga sensorial las primeras semanas.",
-            "Fisioterapia si hay secuelas motoras; fonoaudiología si hay compromiso del lenguaje.",
+            "Fisioterapia si hay secuelas motoras; fonoaudiología si hay compromisoenguaje.",
             "Valoración psiquiátrica — alta incidencia de depresión, ansiedad y cambios de personalidad post-TCE.",
             "Psicoeducación familiar sobre el síndrome postconmocional y sus tiempos.",
             "Evitar consumo de alcohol y sustancias durante la recuperación.",
@@ -176,18 +176,18 @@
           "recomendaciones": [
             "Control estricto de hipertensión arterial (meta TAS < 130 mmHg).",
             "Control de diabetes mellitus (HbA1c < 7 %) y dislipidemia (LDL según riesgo).",
-            "Cese absoluto de tabaquismo y consumo moderado/nulo de alcohol.",
+            "Cese absolutoabaquismo y consumo moderado/nulo de alcohol.",
             "Dieta mediterránea / DASH; restricción de sodio y azúcares refinados.",
             "Actividad física aeróbica mínimo 150 min/semana.",
             "Control de peso (IMC 20–25).",
-            "Manejo del estrés y apnea del sueño si aplica.",
+            "Manejo del estrés y apneaueño si aplica.",
             "Activación cognitiva: lectura, juegos de lógica, nuevos aprendizajes.",
             "Seguimiento con cardiología / medicina interna.",
             "Reevaluación neuropsicológica en 12 meses."
           ]
         },
         "discapacidad_intelectual_adulto": {
-          "label": "Discapacidad intelectual adulto (F70–F79)",
+          "label": "Discapacidad intelectualdulto (F70–F79)",
           "recomendaciones": [
             "Valoración para proceso de interdicción / apoyos legales según Ley 1996 de 2019.",
             "Programa de inclusión laboral / ocupacional adaptado a su nivel.",
@@ -213,7 +213,7 @@
             "Ejercicio físico aeróbico regular (caminatas de 30 min/día).",
             "Dieta MIND o mediterránea.",
             "Control estricto de factores de riesgo vascular.",
-            "Higiene del sueño y tratamiento de apnea del sueño si aplica.",
+            "Higieneueño y tratamiento de apneaueño si aplica.",
             "Actividades de socialización estructurada — prevenir aislamiento.",
             "Psicoeducación familiar: signos de progresión a demencia.",
             "Reevaluación neuropsicológica a los 12 meses (obligatoria)."
@@ -263,14 +263,14 @@
           ]
         },
         "desgaste_cuidador": {
-          "label": "Desgaste del cuidador",
+          "label": "Desgasteuidador",
           "recomendaciones": [
             "Aplicar escala de Zarit para cuantificar la carga.",
             "Psicoeducación sobre el curso de la enfermedad del paciente.",
             "Psicoterapia de apoyo individual o grupos de cuidadores.",
             "Red de apoyo: distribuir responsabilidades entre familiares.",
             "Programa de respiros (cuidadores relevo, centros día).",
-            "Higiene del sueño, alimentación y autocuidado del cuidador.",
+            "Higieneueño, alimentación y autocuidadouidador.",
             "Identificar y tratar síntomas depresivos o ansiosos en el cuidador.",
             "Reconocer señales de alarma: maltrato, negligencia, ideación autolítica."
           ]
@@ -319,7 +319,7 @@
             "Actividad física aeróbica mínimo 150 min/semana (ajustada a condición).",
             "Dieta mediterránea / MIND: frutas, vegetales, granos enteros, pescado, aceite de oliva.",
             "Hidratación adecuada (1.5–2 L/día).",
-            "Higiene del sueño: 7–8 h nocturnas, siesta < 30 min si la hay.",
+            "Higieneueño: 7–8 h nocturnas, siesta < 30 min si la hay.",
             "Actividad social regular — prevenir aislamiento.",
             "Control médico integral al menos semestral.",
             "Revisión visual y auditiva anual — corrección con lentes o audífonos si precisa.",
@@ -336,7 +336,7 @@
             "Dieta equilibrada — priorizar mediterránea / MIND.",
             "Controles médicos periódicos anuales.",
             "Actividad social activa.",
-            "Higiene del sueño.",
+            "Higieneueño.",
             "Control de factores de riesgo vascular — HTA, DM, colesterol.",
             "Consulta si aparecen quejas subjetivas de memoria o funcionamiento.",
             "Reevaluación neuropsicológica cada 24 meses como tamizaje preventivo."

@@ -63,12 +63,13 @@ def draw_z_profile(
     Z_MIN, Z_MAX = -3.0, 3.0
     z_range = Z_MAX - Z_MIN
 
-    label_w = 165
-    val_w = 36
+    label_w = 175
+    val_w = 50
     track_w = L.content_w - label_w - val_w - 8
     track_x = L.margin + label_w + 4
-    row_h = 14
-    bar_h = 8
+    row_h = 16
+    bar_h = 9
+    label_size = TYPE.caption
 
     def _header(yy: float) -> float:
         # Banda semántica de fondo
@@ -133,7 +134,7 @@ def draw_z_profile(
             rows_drawn = 0
         rows_drawn += 1
 
-        nombre = str(r.get("test_nombre", r.get("test_id", "")))[:32]
+        nombre = str(r.get("test_nombre", r.get("test_id", "")))
         color = semantic_color_for_z(z)
 
         # Línea central Z=0 (sutil)
@@ -154,10 +155,17 @@ def draw_z_profile(
         c.setFillColorRGB(*color)
         c.circle(bar_px, y - bar_h / 2 + 1, 1.6, fill=1, stroke=0)
 
-        # Label
+        # Label — truncado inteligente con elipsis según ancho real
+        from .helpers import fit_text_to_width
+        nombre_visible = fit_text_to_width(
+            nombre,
+            max_width=label_w - 8,
+            font_name=FONT_SANS,
+            size=label_size,
+        )
         draw_text(
-            c, nombre, L.margin + 4, y - 9,
-            font_name=FONT_SANS, size=TYPE.caption, color=NAVY,
+            c, nombre_visible, L.margin + 4, y - 9,
+            font_name=FONT_SANS, size=label_size, color=NAVY,
         )
 
         # Valor Z numérico
@@ -378,6 +386,84 @@ def draw_domain_radar(
 # 3) CURVA GAUSSIANA CON PERFIL DEL PACIENTE
 # ──────────────────────────────────────────────────────────
 
+def draw_domain_traffic_light(
+    c,
+    resultados: Sequence[dict],
+    y: float,
+    *,
+    max_rows: int = 9,
+) -> float:
+    """Semáforo de dominios: una fila por dominio con indicador ● + Z̄ + banda.
+
+    Cada fila tiene:
+      ●  color de la banda del Z̄ del dominio (rojo/amarillo/verde/azul)
+      Nombre del dominio
+      Z̄ = X.XXσ
+      Banda (severo / moderado / promedio / superior)
+    """
+    L = LAYOUT
+    from .narrative import _domain_summary
+    domains = _domain_summary(resultados)
+    if not domains:
+        return y
+    # Ordenar por Z̄ ascendente (peor primero)
+    items = sorted(domains.items(), key=lambda kv: kv[1]["mean_z"])
+    items = items[:max_rows]
+
+    row_h = 14
+    dot_r = 3.5
+    # Cabecera
+    y = y - 4
+    c.setFillColorRGB(*SURFACE)
+    c.rect(L.margin, y - 14, L.content_w, 12, fill=1, stroke=0)
+    from .helpers import draw_text  # type: ignore
+    draw_text(c, "DOMINIO", L.margin + 4, y - 10, font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY)
+    draw_text(c, "Z̄", L.margin + L.content_w * 0.55, y - 10, font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY, align="left")
+    draw_text(c, "BANDA", L.margin + L.content_w * 0.70, y - 10, font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY, align="left")
+    y -= 16
+
+    def _banda(z: float) -> tuple[str, tuple[float, float, float]]:
+        if z <= -2:
+            return ("severo", SEMANTIC_DEFICIT)
+        if z <= -1:
+            return ("moderado", SEMANTIC_LIMITE)
+        if z <= 1:
+            return ("promedio", SEMANTIC_PROMEDIO)
+        return ("superior", SEMANTIC_SUPERIOR)
+
+    for dominio, info in items:
+        z = info["mean_z"]
+        banda, color = _banda(z)
+        # Fila zebra sutil
+        c.setFillColorRGB(*SURFACE)
+        c.rect(L.margin, y - row_h, L.content_w, row_h - 1, fill=1, stroke=0)
+        # Semáforo
+        c.setFillColorRGB(*color)
+        c.circle(L.margin + 7, y - row_h / 2, dot_r, fill=1, stroke=0)
+        # Nombre
+        from .helpers import fit_text_to_width  # type: ignore
+        nombre_v = fit_text_to_width(
+            dominio, max_width=L.content_w * 0.50,
+            font_name=FONT_SANS, size=TYPE.body_sm,
+        )
+        draw_text(
+            c, nombre_v, L.margin + 16, y - row_h + 3,
+            font_name=FONT_SANS, size=TYPE.body_sm, color=NAVY,
+        )
+        # Z̄
+        draw_text(
+            c, f"{z:+.2f}σ", L.margin + L.content_w * 0.55, y - row_h + 3,
+            font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=color,
+        )
+        # Banda
+        draw_text(
+            c, banda, L.margin + L.content_w * 0.70, y - row_h + 3,
+            font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
+        )
+        y -= row_h
+    return y - 4
+
+
 def draw_normal_curve(
     c,
     resultados: Sequence[dict],
@@ -483,6 +569,126 @@ def draw_normal_curve(
         font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE, align="right",
     )
     return bottom - 20
+
+
+def _extract_cit(resultados: Sequence[dict]) -> float | None:
+    """Extrae el CIT (Cociente Intelectual Total) si está presente."""
+    for r in resultados:
+        if r.get("tipo_metrica") != "ci":
+            continue
+        tid = str(r.get("test_id", "")).lower()
+        nombre = str(r.get("nombre", "")).lower()
+        if "tot" in tid or "cit" in nombre or "global" in nombre:
+            pe = r.get("puntaje_escalar")
+            if pe is not None:
+                try:
+                    return float(pe)
+                except (TypeError, ValueError):
+                    continue
+    return None
+
+
+def draw_bell_curve_with_ci(
+    c,
+    resultados: Sequence[dict],
+    y: float,
+    *,
+    height: float = 100.0,
+    se_cit: float = 4.0,
+) -> float:
+    """Curva normal + bandas de intervalo de confianza 90% y 95% para el CIT.
+
+    Si el CIT no está disponible, degrada a ``draw_normal_curve`` (sólo Z's).
+
+    Parámetros:
+        c: canvas ReportLab.
+        resultados: lista de dicts con ``puntaje_escalar``, ``tipo_metrica``.
+        y: posición vertical de inicio.
+        height: altura de la curva en pts.
+        se_cit: error estándar de medición del CIT. Por defecto 4.0 (Sattler
+            2010, WISC-IV full battery). Subir a 5-7 si es forma corta.
+    """
+    cit = _extract_cit(resultados)
+    if cit is None:
+        return draw_normal_curve(c, resultados, y, height=height)
+
+    # 1) Dibuja la curva normal estándar
+    y_after = draw_normal_curve(c, resultados, y, height=height)
+
+    # 2) Sobre la curva, dibuja la campana CIT (μ=cit, σ=15)
+    L = LAYOUT
+    width = L.content_w
+
+    # Eje X de la curva va de Z = -3.5 a 3.5
+    Z_MIN, Z_MAX = -3.5, 3.5
+    def x_of(z: float) -> float:
+        return L.margin + (z - Z_MIN) / (Z_MAX - Z_MIN) * width
+
+    # Transformar CIT a Z: Z_cit = (CIT - 100) / 15
+    z_cit = (cit - 100) / 15
+    z_cit_clipped = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_cit))
+
+    # Curva gaussiana centrada en z_cit
+    n = 100
+    sigma = 1.0
+    max_density = 1.0 / math.sqrt(2 * math.pi)
+    pts = []
+    for i in range(n + 1):
+        z = Z_MIN + (Z_MAX - Z_MIN) * i / n
+        density = math.exp(-((z - z_cit_clipped) ** 2) / (2 * sigma * sigma)) / (sigma * math.sqrt(2 * math.pi))
+        py = y_after + 22 + (density / max_density) * (height * 0.55)
+        pts.append((x_of(z), py))
+
+    # Dibujar la curva CIT (sin sombreado, sólo contorno)
+    c.setStrokeColorRGB(*TEAL)
+    c.setLineWidth(1.6)
+    path = c.beginPath()
+    path.moveTo(*pts[0])
+    for px, py in pts[1:]:
+        path.lineTo(px, py)
+    c.drawPath(path, stroke=1, fill=0)
+
+    # Banda IC 95% (línea más oscura, ancha)
+    ic_95_lo = cit - 1.96 * se_cit
+    ic_95_hi = cit + 1.96 * se_cit
+    z_95_lo = (ic_95_lo - 100) / 15
+    z_95_hi = (ic_95_hi - 100) / 15
+    z_95_lo = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_95_lo))
+    z_95_hi = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_95_hi))
+    x_95_lo = x_of(z_95_lo)
+    x_95_hi = x_of(z_95_hi)
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(3.5)
+    c.setFillColorRGB(*NAVY)
+    c.setFillAlpha(0.20)
+    c.rect(x_95_lo, y_after + 22, x_95_hi - x_95_lo, 6, fill=1, stroke=0)
+    c.setFillAlpha(1.0)
+
+    # Banda IC 90% (línea más fina encima)
+    ic_90_lo = cit - 1.645 * se_cit
+    ic_90_hi = cit + 1.645 * se_cit
+    z_90_lo = (ic_90_lo - 100) / 15
+    z_90_hi = (ic_90_hi - 100) / 15
+    z_90_lo = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_90_lo))
+    z_90_hi = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_90_hi))
+    x_90_lo = x_of(z_90_lo)
+    x_90_hi = x_of(z_90_hi)
+    c.setStrokeColorRGB(*TEAL_DARK)
+    c.setLineWidth(2.0)
+    c.setFillColorRGB(*TEAL_DARK)
+    c.setFillAlpha(0.35)
+    c.rect(x_90_lo, y_after + 30, x_90_hi - x_90_lo, 4, fill=1, stroke=0)
+    c.setFillAlpha(1.0)
+
+    # Etiqueta del CIT y bandas
+    label_y = y_after + 42
+    draw_text(
+        c, f"IC 95% [{ic_95_lo:.0f}–{ic_95_hi:.0f}]  ·  IC 90% [{ic_90_lo:.0f}–{ic_90_hi:.0f}]  ·  CIT observado: {cit:.0f}",
+        L.margin, label_y,
+        font_name=FONT_SANS, size=TYPE.micro + 0.5, color=NAVY,
+    )
+
+    return label_y - 8
 
 
 # ──────────────────────────────────────────────────────────

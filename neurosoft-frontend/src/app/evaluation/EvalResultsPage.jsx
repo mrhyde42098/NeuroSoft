@@ -23,6 +23,7 @@ import { ShareButton, SecondOpinionButton } from "../compartir/PanelCompartir.js
 import { OBS_TEMPLATES } from "../../data/clinical.js";
 import { DISCREPANCY_PAIRS } from "../../data/ui.js";
 import DomainAnalysis from "./DomainAnalysis.jsx";
+import { useReservorio } from "../../hooks/useReservorio.js";
 import ClinicalInterpretationPanel from "./ClinicalInterpretationPanel.jsx";
 import ClinicalDisclaimer from "./ClinicalDisclaimer.jsx";
 import { validatePediatricObservations, isChildAge } from "../../utils/pediatricValidator.js";
@@ -165,6 +166,21 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
   const isPed = isChildAge(res?.patient_info?.fecha_nacimiento) || isChildAge(res?.edad_display);
   const pedWarnings = isPed ? validatePediatricObservations(obsT) : {};
   const pedWarningCount = Object.values(pedWarnings).reduce((s,a)=>s+a.length,0);
+
+  /* Poblacion del paciente (infantil | adulto | adulto_mayor) — se usa
+   * para filtrar los cuadros del backend via /api/v1/reservorio/cuadros.
+   * Single source of truth = backend (app/domain/data/reservorio_recomendaciones.json). */
+  const _edadNum = res?.patient_info?.edad_anios ?? evalCtx?.edad ?? null;
+  const _poblacion = isPed
+    ? "infantil"
+    : (_edadNum != null && _edadNum >= 50 ? "adulto_mayor" : "adulto");
+  const { cuadros: cuadrosResv, loading: resvLoading, source: resvSource } = useReservorio(_poblacion);
+  /* Lookup rápido: id → cuadro (backend o local fallback) */
+  const cuadroById = React.useMemo(() => {
+    const m = {};
+    for (const c of cuadrosResv) m[c.id] = c;
+    return m;
+  }, [cuadrosResv]);
   const saveObs=async()=>{if(!evalCtx?.patientId)return;
     /* Si hay warnings pediátricos, pedir confirmación al clínico (modal editorial). */
     if(pedWarningCount>0){
@@ -376,11 +392,18 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
         {/* ─── RECOMENDACIONES POR CUADRO ─── */}
         <Card className="p-6"><div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-extrabold flex items-center gap-2"><I name="lightbulb" style={{color:TEAL}}/>Biblioteca de Recomendaciones</h3>
-          <Sel value={recCuadro} onChange={e=>setRecCuadro(e.target.value)} className="text-xs w-64"><option value="">— Elegir cuadro —</option>{Object.entries(RECOMMENDATIONS_LIB).map(([k,r])=><option key={k} value={k}>{r.nombre}</option>)}</Sel>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background: resvSource === "backend" ? TEAL : "var(--ns-subtle)", color: resvSource === "backend" ? "#fff" : "var(--ns-muted)"}} title={resvSource === "backend" ? "Sincronizado con backend" : "Usando copia local (offline)"}>
+              {resvLoading ? "Cargando..." : (resvSource === "backend" ? "v.backend" : "v.local")}
+            </span>
+            <Sel value={recCuadro} onChange={e=>setRecCuadro(e.target.value)} className="text-xs w-64" disabled={resvLoading}><option value="">— Elegir cuadro —</option>
+              {cuadrosResv.map(c=><option key={c.id} value={c.id}>{c.nombre}</option>)}
+            </Sel>
+          </div>
         </div>
-        {!recCuadro?<p className="text-xs" style={{color:"var(--ns-muted)"}}>Seleccione un cuadro para ver recomendaciones categorizadas listas para incorporar al informe.</p>
-        :(()=>{const cuadro=RECOMMENDATIONS_LIB[recCuadro];return<div className="space-y-3">
-          <p className="text-[10px]" style={{color:"var(--ns-muted)"}}>CIE-10: <strong>{cuadro.cie}</strong>{cuadro.nombre ? <span className="font-normal ml-1">— {cuadro.nombre}</span> : null}</p>
+        {!recCuadro?<p className="text-xs" style={{color:"var(--ns-muted)"}}>Seleccione un cuadro para ver recomendaciones listas para incorporar al informe.</p>
+        :(()=>{const cuadro=cuadroById[recCuadro] || RECOMMENDATIONS_LIB[recCuadro]; if(!cuadro) return null; return<div className="space-y-3">
+          <p className="text-[10px]" style={{color:"var(--ns-muted)"}}>{cuadro.cie ? <><span>CIE-10: <strong>{cuadro.cie}</strong></span></> : null}{cuadro.grupo_label ? <span className="ml-1">— {cuadro.grupo_label}</span> : null}</p>
           {Object.entries(cuadro.categorias).map(([cat,recs])=><div key={cat} className="rounded-xl p-3" style={{background:"var(--ns-subtle)"}}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{color:TEAL}}>{cat.replace(/_/g," ")}</p>

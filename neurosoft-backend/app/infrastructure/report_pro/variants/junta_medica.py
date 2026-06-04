@@ -51,6 +51,7 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         y = self._section_sello_junta(c, data, y)
         y = self._section_datos_resumen(c, data, y)
         y = self._section_motivo_interconsulta(c, data, y)
+        y = self._section_resumen_ejecutivo(c, data, y)
         y = self._section_resultados_condensados(c, data, y)
         y = self._section_hipotesis_y_preguntas(c, data, y)
         y = self._section_recomendaciones(c, data, y)
