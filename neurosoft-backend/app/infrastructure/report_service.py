@@ -647,8 +647,13 @@ class NeuroPDFGenerator:
             val_str = str(int(val)) if val else "—"
             c.drawCentredString(bx + box_w / 2, y - 28, val_str)
 
-            # Name (small)
-            nombre = r.get('test_nombre', r.get('test_id', ''))
+            # Name (small) — siempre vía human_test_name para que no se cuele
+            # un identificador técnico tipo "NiWiscDC" en la cajita del KPI.
+            from .report_pro.helpers import human_test_name
+            nombre = human_test_name(
+                r.get('test_id', '') or '',
+                r.get('test_nombre', '') or '',
+            )
             nombre = nombre.replace('Ind ', '').replace('NiWISC', '').strip()[:14]
             c.setFont("Helvetica", 6.5)
             c.setFillColorRGB(*GRIS_TEXTO)
@@ -703,7 +708,11 @@ class NeuroPDFGenerator:
                 y = self.PAGE_H - self.MARGIN
                 y = _draw_z_header(c, y)
 
-            nombre = r.get('test_nombre', r.get('test_id', ''))[:28]
+            from .report_pro.helpers import human_test_name
+            nombre = human_test_name(
+                r.get('test_id', '') or '',
+                r.get('test_nombre', '') or '',
+            )[:28]
             color = _nivel_color(z)
 
             # Fondo sutil de fila
@@ -789,7 +798,11 @@ class NeuroPDFGenerator:
 
             c.setFont("Helvetica", 6.5)
             c.setFillColorRGB(*GRIS_TEXTO)
-            nombre = str(r.get('test_nombre', r.get('test_id', '')))[:34]
+            from .report_pro.helpers import human_test_name
+            nombre = human_test_name(
+                r.get('test_id', '') or '',
+                r.get('test_nombre', '') or '',
+            )[:34]
             c.drawString(self.MARGIN + 3, y - 7, nombre)
 
             pd = r.get('puntaje_bruto')

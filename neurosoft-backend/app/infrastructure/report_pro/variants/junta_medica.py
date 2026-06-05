@@ -180,15 +180,19 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         if weak or strong:
             y = self._ensure_room(c, data, y, need=100)
             col_w = (L.content_w - 16) / 2
+            x_left = L.margin
+            x_right = L.margin + col_w + 16
             y_w = y_s = y
             if weak:
-                y_w = block_header(c, "Debilidades", y_w, color=SEMANTIC_DEFICIT)
+                y_w = block_header(c, "Debilidades", y_w,
+                                   color=SEMANTIC_DEFICIT, x=x_left)
                 for item in weak[:4]:
-                    y_w = bullet(c, item, L.margin, y_w, col_w) - 2
+                    y_w = bullet(c, item, x_left, y_w, col_w) - 2
             if strong:
-                y_s = block_header(c, "Fortalezas", y_s, color=SEMANTIC_SUPERIOR)
+                y_s = block_header(c, "Fortalezas", y_s,
+                                   color=SEMANTIC_SUPERIOR, x=x_right)
                 for item in strong[:3]:
-                    y_s = bullet(c, item, L.margin + col_w + 16, y_s, col_w) - 2
+                    y_s = bullet(c, item, x_right, y_s, col_w) - 2
             y = min(y_w, y_s)
         return y - 8
 

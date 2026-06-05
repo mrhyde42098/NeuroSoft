@@ -136,7 +136,7 @@ export default function PearsonConsentDialog({
                 id="pearson-consent-title"
                 className="text-lg font-extrabold"
               >
-                Material con copyright — Acuerdo de uso clínico
+                Material con copyright — Acuerdo para usarlo
               </h2>
               <p className="text-xs" style={{ color: "var(--ns-muted)" }}>
                 Versión del acuerdo: <span className="ns-mono">{VERSION_ACUERDO}</span>
@@ -155,101 +155,97 @@ export default function PearsonConsentDialog({
                 border: "1px solid var(--ns-warn-b, #FCD34D)",
               }}
             >
-              <strong>Cambio en el acuerdo:</strong> La versión del acuerdo de uso de
-              material con copyright se actualizó. Por favor revise y acepte para
-              continuar usando los ítems verbatim de WISC-IV y WAIS-III.
+              <strong>El acuerdo se actualizó.</strong> Léelo de nuevo y acéptalo
+              para seguir usando el texto original de las pruebas WISC-IV y WAIS-III
+              dentro de la aplicación.
             </div>
           )}
 
           <p>
-            NeuroSoft App incluye reactivos verbatim de las pruebas
-            <strong> WISC-IV </strong>y <strong>WAIS-III</strong>, cuyo copyright
-            pertenece a la <em>Editorial El Manual Moderno / Pearson</em>. Estos
-            reactivos son entregados <strong>bajo licencia</strong> al profesional
-            y NO se distribuyen libremente.
+            Para que tu trabajo clínico sea más ágil, NeuroSoft trae el texto
+            original — palabra por palabra — de los estímulos de las pruebas
+            <strong> WISC-IV </strong> y <strong> WAIS-III</strong>. Ese texto es
+            propiedad de la <em>Editorial El Manual Moderno / Pearson</em> y solo
+            se te muestra porque tú tienes tu propia licencia. <strong>No se
+            puede copiar ni compartir</strong>; es para tu consulta en consulta.
           </p>
 
           <section>
-            <h3 className="font-bold text-sm uppercase tracking-wide mb-2">
-              Cobertura legal
+            <h3 className="font-bold text-sm mb-2">
+              ¿Por qué te lo pedimos?
             </h3>
-            <ul className="text-xs space-y-1 ml-4 list-disc">
-              <li>
-                <strong>Ley 23 de 1982</strong> (Colombia) — Derechos de autor.
-              </li>
-              <li>
-                <strong>Ley 44 de 1993</strong> — Modificaciones a la Ley 23.
-              </li>
-              <li>
-                <strong>Decisión 486 de 2000</strong> (Comunidad Andina) — Régimen
-                Común sobre Propiedad Intelectual.
-              </li>
-              <li>
-                <strong>Tratados OMPI</strong> (WIPO) sobre derechos de autor y
-                obras intelectuales.
-              </li>
-              <li>
-                <strong>Contrato de licenciamiento</strong> con Editorial El Manual
-                Moderno / Pearson.
-              </li>
+            <p className="text-xs">
+              Las leyes colombianas y los tratados internacionales protegen los
+              derechos de autor de los manuales. Al usar el texto original dentro
+              de NeuroSoft te comprometes a respetar esas reglas — igual que
+              cuando hojeas tu manual físico. En concreto, esto se apoya en:
+            </p>
+            <ul className="text-xs space-y-1 ml-4 list-disc mt-2">
+              <li>Ley 23 de 1982 (Colombia) — Derechos de autor.</li>
+              <li>Ley 44 de 1993 — Modificaciones a la Ley 23.</li>
+              <li>Decisión 486 de 2000 (Comunidad Andina).</li>
+              <li>Tratados internacionales de la OMPI (WIPO).</li>
+              <li>Tu contrato de licenciamiento con el editor.</li>
             </ul>
           </section>
 
           <section>
-            <h3 className="font-bold text-sm uppercase tracking-wide mb-2">
-              Compromisos del clínico
+            <h3 className="font-bold text-sm mb-2">
+              Tu compromiso como profesional
             </h3>
+            <p className="text-xs mb-2">
+              Al aceptar, te comprometes a:
+            </p>
             <ol className="text-xs space-y-1 ml-4 list-decimal">
               <li>
-                Poseo licencia válida del material (WISC-IV, WAIS-III) emitida por
-                el editor o su distribuidor autorizado.
+                Tener tu licencia personal vigente del WISC-IV y/o WAIS-III.
               </li>
               <li>
-                Usaré los ítems verbatim <strong>exclusivamente con fines clínicos</strong>
-                {" "}(evaluación, diagnóstico, seguimiento) en el contexto de mis
-                pacientes.
+                Usar el texto original únicamente con tus pacientes (evaluar,
+                diagnosticar, hacer seguimiento).
               </li>
               <li>
-                No redistribuiré los ítems, ni los incluiré en informes, publicaciones
-                o medios que salgan del flujo clínico-paciente.
+                No copiar los estímulos a informes, publicaciones, redes sociales
+                ni a ningún medio fuera de la consulta.
               </li>
               <li>
-                Conservaré los manuales originales como fuente de referencia y los
-                consultaré ante cualquier duda sobre aplicación o baremación.
+                Conservar tus manuales físicos como referencia ante cualquier
+                duda sobre cómo aplicar o cómo puntuar.
               </li>
               <li>
-                Respetaré las condiciones de aplicación estandarizadas descritas en
-                el manual original.
+                Seguir las instrucciones de aplicación que trae cada manual
+                original.
               </li>
               <li>
-                Acepto que cada acceso a un ítem verbatim quede registrado en la
-                bitácora de auditoría clínica del sistema.
+                Aceptar que cada vez que abras un estímulo quede un registro
+                automático en la bitácora de la aplicación.
               </li>
             </ol>
           </section>
 
           <section>
-            <h3 className="font-bold text-sm uppercase tracking-wide mb-2">
-              Apoyo clínico incluido
+            <h3 className="font-bold text-sm mb-2">
+              ¿Qué te ofrece NeuroSoft a cambio?
             </h3>
             <p className="text-xs">
-              Al activar este acuerdo tendrás disponible en cada prueba con ítems
-              verbatim:
+              Una vez aceptado, en cada prueba con texto protegido encontrarás:
             </p>
-            <ul className="text-xs space-y-1 ml-4 list-disc">
+            <ul className="text-xs space-y-1 ml-4 list-disc mt-2">
               <li>
-                <strong>Marca visual discreta</strong> sobre cada ítem (no interrumpe
-                la aplicación).
+                Una <strong>marca visual discreta</strong> sobre el estímulo
+                (no interrumpe tu aplicación).
               </li>
               <li>
-                <strong>Referencia al manual original</strong> (página, ISBN, editorial).
+                La <strong>referencia exacta al manual</strong>: página, ISBN y
+                editorial para que lo consultes cuando quieras.
               </li>
               <li>
-                <strong>Errores frecuentes</strong> y alternativas baremos abiertos
-                cuando proceda.
+                <strong>Errores frecuentes</strong> y alternativas de puntuación
+                cuando aplique.
               </li>
               <li>
-                <strong>Audit log</strong> automático por cada acceso.
+                <strong>Registro automático</strong> de cada apertura para tu
+                tranquilidad y la del paciente.
               </li>
             </ul>
           </section>
@@ -324,7 +320,8 @@ export default function PearsonConsentDialog({
             />
             <span className="text-xs">
               Confirmo que he leído el acuerdo, cumplo los compromisos listados y
-              acepto el registro de auditoría de cada acceso a ítems verbatim.
+              acepto el registro de auditoría de cada vez que abra el texto original
+              de un estímulo.
             </span>
           </label>
         </div>

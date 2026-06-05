@@ -543,7 +543,11 @@ class NeuroPDFGeneratorPro:
         )
         rows = []
         for r in data.resultados:
-            nombre = str(r.get("test_nombre", r.get("test_id", "")))
+            from .helpers import human_test_name
+            nombre = human_test_name(
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
+            )
             dominio = str(r.get("dominio_cognitivo", "—"))
             dur = r.get("duracion_estimada", "—")
             rows.append([nombre, dominio, str(dur)])
@@ -598,7 +602,7 @@ class NeuroPDFGeneratorPro:
                 new_y = self._new_page(c, data)
                 col1_y = col2_y = new_y
                 target_y = new_y
-            target_y = block_header(c, lbl, target_y)
+            target_y = block_header(c, lbl, target_y, x=target_x)
             target_y = draw_paragraph(
                 c, val, target_x, target_y, col_w,
                 font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
@@ -695,7 +699,7 @@ class NeuroPDFGeneratorPro:
         y = self._ensure_room(c, data, y, need=240)
         y = section_title(
             c, "Resultados Cuantitativos",
-            y, subtitle="Puntajes estandarizados y perfil cognitivo",
+            y, subtitle="Puntajes por prueba y perfil cognitivo del paciente",
         )
 
         ci_y_before = y
@@ -760,7 +764,11 @@ class NeuroPDFGeneratorPro:
         rows = []
         row_colors = []
         for r in resultados:
-            nombre = str(r.get("test_nombre", r.get("test_id", "")))
+            from .helpers import human_test_name
+            nombre = human_test_name(
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
+            )
             pd = r.get("puntaje_bruto")
             esc = r.get("puntaje_escalar")
             z = r.get("z_equivalente")
@@ -819,16 +827,19 @@ class NeuroPDFGeneratorPro:
         if weak or strong:
             y = self._ensure_room(c, data, y, need=140)
             col_w = (L.content_w - 16) / 2
+            x_left = L.margin
+            x_right = L.margin + col_w + 16
             y_w = y_s = y
             if weak:
-                y_w = block_header(c, "Áreas con desempeño disminuido", y_w, color=SEMANTIC_DEFICIT)
+                y_w = block_header(c, "Áreas con desempeño disminuido", y_w,
+                                   color=SEMANTIC_DEFICIT, x=x_left)
                 for item in weak[:6]:
-                    y_w = bullet(c, item, L.margin, y_w, col_w) - 2
+                    y_w = bullet(c, item, x_left, y_w, col_w) - 2
             if strong:
                 y_s = block_header(c, "Áreas con desempeño preservado / superior",
-                                   y_s, color=SEMANTIC_SUPERIOR)
+                                   y_s, color=SEMANTIC_SUPERIOR, x=x_right)
                 for item in strong[:5]:
-                    y_s = bullet(c, item, L.margin + col_w + 16, y_s, col_w) - 2
+                    y_s = bullet(c, item, x_right, y_s, col_w) - 2
             y = min(y_w, y_s)
         return y - 10
 
@@ -1129,7 +1140,7 @@ class NeuroPDFGeneratorPro:
         y -= 4
         y = self._ensure_room(c, data, y, need=80)
         y = section_subtitle(
-            c, "Glosario de términos técnicos", y,
+            c, "Glosario: palabras técnicas que usamos", y,
         )
         y = self._render_glosario_terminos(c, data, y)
         return y

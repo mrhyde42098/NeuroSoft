@@ -116,6 +116,18 @@ def draw_z_profile(
         x2 = track_x + (3 - Z_MIN) / z_range * track_w
         c.rect(x1, bot, x2 - x1, top - bot, fill=1, stroke=0)
 
+    # Título descriptivo del gráfico
+    from .helpers import chart_title
+    y = chart_title(
+        c, "Perfil Z por prueba",
+        y, note=(
+            "Eje horizontal: puntaje Z (rango -3 a +3). Verde = zona normal; "
+            "rojo/naranja = debajo del promedio; azul = por encima."
+        ),
+    )
+
+    y = _header(y)
+
     rows_drawn = 0
     band_top = y + 2
     for r in resultados:
@@ -134,7 +146,11 @@ def draw_z_profile(
             rows_drawn = 0
         rows_drawn += 1
 
-        nombre = str(r.get("test_nombre", r.get("test_id", "")))
+        from .helpers import human_test_name
+        nombre = human_test_name(
+            r.get("test_id", "") or "",
+            r.get("test_nombre", "") or "",
+        )
         color = semantic_color_for_z(z)
 
         # Línea central Z=0 (sutil)
@@ -156,9 +172,13 @@ def draw_z_profile(
         c.circle(bar_px, y - bar_h / 2 + 1, 1.6, fill=1, stroke=0)
 
         # Label — truncado inteligente con elipsis según ancho real
-        from .helpers import fit_text_to_width
-        nombre_visible = fit_text_to_width(
+        from .helpers import fit_text_to_width, human_test_name
+        nombre_legible = human_test_name(
+            r.get("test_id", "") or "",
             nombre,
+        )
+        nombre_visible = fit_text_to_width(
+            nombre_legible,
             max_width=label_w - 8,
             font_name=FONT_SANS,
             size=label_size,
@@ -224,6 +244,17 @@ def draw_domain_radar(
     domain_z = _aggregate_by_domain(resultados)
     if len(domain_z) < 3:
         return y  # No tiene sentido un radar con 2 ejes
+
+    # Título descriptivo (visible antes del gráfico)
+    from .helpers import chart_title
+    y = chart_title(
+        c, "Perfil cognitivo por dominio",
+        y, note=(
+            "Cada eje representa un dominio cognitivo. El polígono teal "
+            "muestra el Z̄ del paciente; la franja verde central equivale "
+            "al rango normal (-1 a +1 σ)."
+        ),
+    )
 
     # Orden estable: dominios clínicos típicos primero
     preferred = [
@@ -304,6 +335,7 @@ def draw_domain_radar(
     c.drawPath(path, stroke=0, fill=1)
 
     # ── Líneas radiales + labels ──
+    from .helpers import fit_text_to_width
     for i, dom in enumerate(ordered):
         ang = math.pi / 2 - 2 * math.pi * i / n
         end_x = cx + radius * math.cos(ang)
@@ -312,12 +344,30 @@ def draw_domain_radar(
         c.setLineWidth(0.35)
         c.line(cx, cy, end_x, end_y)
 
-        # Label
+        # Label — versión corta con abreviatura + versión completa
+        # abreviada a 14 caracteres, con fit_to_width para no truncar bruscamente.
+        # Abreviaturas legibles para los nombres largos más comunes.
+        ABBREV = {
+            "Funciones Ejecutivas": "F. Ejecutivas",
+            "Razonamiento Perceptual": "Raz. Perceptual",
+            "Velocidad de Procesamiento": "Veloc. Procesam.",
+            "Comprensión Verbal": "Comprens. Verbal",
+            "Memoria de Trabajo": "Mem. de Trabajo",
+            "Habilidades Académicas": "Hab. Académicas",
+            "Visoconstrucción": "Visoconstrucción",
+            "Visoespacial": "Visoespacial",
+        }
         label_x = cx + (radius + 14) * math.cos(ang)
         label_y = cy + (radius + 14) * math.sin(ang)
         z_val = domain_z[dom]
-        label = dom[:18]
-        # Centrar
+        # Título con abreviatura si existe; si no, fit_to_width lo recorta
+        # elegantemente a un ancho máximo según el lado del radar.
+        max_label_w = 90 if math.cos(ang) > 0.7 or math.cos(ang) < -0.7 else 80
+        raw_label = ABBREV.get(dom, dom)
+        label = fit_text_to_width(
+            raw_label, max_width=max_label_w,
+            font_name=FONT_SANS_BOLD, size=TYPE.caption,
+        )
         align = "center"
         if math.cos(ang) > 0.3:
             align = "left"
@@ -374,10 +424,7 @@ def draw_domain_radar(
         c.circle(px, py, 2.4, fill=1, stroke=0)
 
     # Título del gráfico
-    draw_text(
-        c, "Perfil cognitivo por dominio", cx, y - 6,
-        font_name=FONT_SERIF, size=TYPE.title_h3, color=NAVY, align="center",
-    )
+    # (movido al inicio de la función para que el lector vea el nombre ANTES del polígono)
 
     return cy - radius - 28
 
@@ -482,6 +529,16 @@ def draw_normal_curve(
                 and r.get("tipo_metrica") != "ci"]
     if not z_values:
         return y
+
+    # Título descriptivo
+    from .helpers import chart_title
+    y = chart_title(
+        c, "Curva normal con puntajes Z del paciente",
+        y, note=(
+            "Eje horizontal: puntaje Z (unidades de desviación estándar). "
+            "Las marcas rojas son los puntajes del paciente sobre la curva."
+        ),
+    )
 
     Z_MIN, Z_MAX = -3.5, 3.5
 
@@ -750,6 +807,17 @@ def draw_discrepancies(
     if len(indices) < 2:
         return y  # No hay suficientes índices
 
+    # Título descriptivo
+    from .helpers import chart_title
+    y = chart_title(
+        c, "Discrepancias entre índices",
+        y, note=(
+            "Líneas punteadas: tendencia (p<.15). Líneas continuas: "
+            "diferencia confiable (p<.05). La barra central es la diferencia "
+            "observada entre los dos índices."
+        ),
+    )
+
     # Filtrar pares aplicables (con datos)
     rows = []
     max_diff = 0
@@ -885,13 +953,16 @@ def draw_ci_kpi_row(
     card_h = 64
 
     # Función local del helpers.kpi_card pero adaptada al contexto
-    from .helpers import kpi_card  # local import para evitar ciclos
+    from .helpers import kpi_card, human_test_name  # local import para evitar ciclos
     for i, r in enumerate(indices_ci):
         bx = start_x + i * (card_w + gap)
         val = r.get("puntaje_escalar")
         z = r.get("z_equivalente")
         color = semantic_color_for_z(z)
-        label = str(r.get("test_nombre", r.get("test_id", "")))
+        label = human_test_name(
+            r.get("test_id", "") or "",
+            r.get("test_nombre", "") or "",
+        )
         # Normalizar nombres comunes (WISC)
         label = (label.replace("Ind ", "").replace("NiWISC", "")
                        .replace("AdWAIS", "").replace("Índice ", "")

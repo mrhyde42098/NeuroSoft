@@ -278,11 +278,148 @@ def section_subtitle(c, title: str, y: float) -> float:
     return y - 8
 
 
-def block_header(c, title: str, y: float, *, color=TEAL_DARK) -> float:
-    """Encabezado H3 para bloques cortos (label de campo, dominio...)."""
+def chart_title(
+    c,
+    title: str,
+    y: float,
+    *,
+    note: str | None = None,
+) -> float:
+    """Título descriptivo para gráficos — combina nombre + nota opcional.
+
+    A diferencia de ``section_title``, este es más compacto: se usa encima
+    de cada gráfico (radar, gaussiana, perfil Z, discrepancias) para que
+    el lector entienda qué está viendo sin tener que descifrar el
+    contenido de la imagen.
+
+    Args:
+        title: nombre del gráfico (p.ej. "Perfil cognitivo por dominio").
+        note:  nota pequeña debajo, p.ej. "verde = rango normal (-1 a +1 σ)".
+
+    Returns:
+        ``y`` actualizado tras dibujar el título.
+    """
+    L = LAYOUT
+    # Bullet cuadrado TEAL como ancla visual
+    c.setFillColorRGB(*TEAL)
+    c.rect(L.margin, y - 9, 3, 9, fill=1, stroke=0)
+    draw_text(
+        c, title, L.margin + 8, y - 8,
+        font_name=FONT_SERIF_BOLD, size=TYPE.body, color=NAVY,
+    )
+    y -= 14
+    if note:
+        draw_text(
+            c, note, L.margin + 8, y - 7,
+            font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE,
+        )
+        y -= 10
+    return y - 2
+
+
+# ──────────────────────────────────────────────────────────
+# Nombres humanos para pruebas (fallback si test_nombre falta)
+# ──────────────────────────────────────────────────────────
+
+# Mapa test_id → nombre legible. Cobertura básica para los IDs más comunes.
+# Si el ID no está, el caller debe haber recibido el nombre desde el motor
+# (``prueba.nombre``). Este mapa es el ÚLTIMO recurso — si llega aquí, el
+# motor entregó algo inesperado y preferimos mostrar algo legible a un
+# identificador técnico tipo "NiWiscDC".
+TEST_ID_TO_HUMAN: dict[str, str] = {
+    "NiWiscDC": "Diseño con Cubos",
+    "NiWiscSem": "Semejanzas",
+    "NiWiscRDD": "Retención de Dígitos",
+    "NiWiscConD": "Conceptos con Dibujos",
+    "NiWiscCl": "Claves",
+    "NiWiscVoc": "Vocabulario",
+    "NiWiscLN": "Letras y Números",
+    "NiWiscMat": "Matrices",
+    "NiWiscCom": "Comprensión",
+    "NiWiscBusSim": "Búsqueda de Símbolos",
+    "NiWiscAri": "Aritmética",
+    "NiWISCIndComVer": "Índice Comprensión Verbal",
+    "NiWISCIndRazPer": "Índice Razonamiento Perceptual",
+    "NiWISCIndMemTra": "Índice Memoria de Trabajo",
+    "NiWISCIndVelPro": "Índice Velocidad de Procesamiento",
+    "NiWISCTot": "CI Total",
+    "NiWISCIndCapGen": "Índice Capacidad General",
+    "NiWISCIndCopCog": "Índice Competencia Cognitiva",
+    "AdWAISA": "Aritmética",
+    "AdWAISC": "Comprensión",
+    "AdWAISCC": "Claves de Símbolos",
+    "AdWAISFI": "Figuras Incompletas",
+    "AdWAISHI": "Historias",
+    "AdWAISI": "Información",
+    "AdWAISL": "Letras y Números",
+    "AdWAISRO": "Diseño con Cubos",
+    "AdWAISV": "Vocabulario",
+    "AdWAISICV": "Índice Comprensión Verbal",
+    "AdWAISICP": "Índice Razonamiento Perceptual",
+    "AdWAISIMT": "Índice Memoria de Trabajo",
+    "AdWAISIVP": "Índice Velocidad de Procesamiento",
+    "AdWAISEMan": "Índice Manipulación Mental",
+    "AdWAISTot": "CI Total",
+    "ViTMTA": "Trail Making Test A",
+    "ViTMTB": "Trail Making Test B",
+    "ViRDD": "Retención de Dígitos Directos",
+    "ViRDInv": "Retención de Dígitos Inversos",
+    "ViStP": "Stroop Palabra",
+    "ViStC": "Stroop Color",
+    "ViStPC": "Stroop Palabra-Color",
+    "ViGroberRLT": "Grober Recuerdo Libre Total",
+    "ViGroberRT": "Grober Recuerdo Total",
+    "ViGroberMC_Tot": "Grober Memoria con Claves",
+    "ViGroberML_Tot": "Grober Memoria Libre",
+    "ViAni": "Fluidez Animales",
+    "ViYesavage": "Yesavage (Depresión Geriátrica)",
+    "NiSpaDC": "Span Dígitos Directo",
+    "NiSpaDI": "Span Dígitos Inverso",
+    "NiTMTA": "Trail Making Test A",
+    "NiTMTB": "Trail Making Test B",
+}
+
+
+def human_test_name(test_id: str, test_nombre: str | None = None) -> str:
+    """Resuelve el nombre legible de una prueba.
+
+    Prioridad:
+        1. ``test_nombre`` (lo que devuelve el motor de scoring).
+        2. Mapa ``TEST_ID_TO_HUMAN`` (fallback de seguridad).
+        3. ``test_id`` con la primera letra en mayúscula (último recurso,
+           evita el aspecto robótico tipo "NiWiscDC" si falla todo).
+
+    Esta función es la ÚNICA vía autorizada para resolver el nombre de
+    una prueba antes de imprimirla. Nunca uses ``r["test_id"]`` directo
+    en el PDF — siempre pasa por acá.
+    """
+    if test_nombre and test_nombre.strip() and test_nombre != test_id:
+        return test_nombre.strip()
+    if test_id in TEST_ID_TO_HUMAN:
+        return TEST_ID_TO_HUMAN[test_id]
+    if test_id:
+        # Último recurso: humanizar el ID
+        # "NiWiscDC" -> "Ni Wisc DC" -> "Prueba Wisc DC"
+        pretty = test_id.replace("Ni", "Niño ").replace("Ad", "Adulto ").replace("Vi", "AM ")
+        return pretty.strip() or "Prueba aplicada"
+    return "Prueba aplicada"
+
+
+def block_header(
+    c, title: str, y: float, *, color=TEAL_DARK, x: float | None = None,
+) -> float:
+    """Encabezado H3 para bloques cortos (label de campo, dominio...).
+
+    Args:
+        x: posición horizontal opcional. Si es ``None`` (default), usa
+           ``LAYOUT.margin`` — útil para layouts de una sola columna.
+           En layouts de dos columnas, pasar ``L.margin`` para la columna
+           izquierda y ``L.margin + col_w + gap`` para la derecha, para
+           evitar que ambas cabeceras se solapen en el mismo ``x``.
+    """
     L = LAYOUT
     draw_text(
-        c, title, L.margin, y,
+        c, title, x if x is not None else L.margin, y,
         font_name=FONT_SANS_BOLD, size=TYPE.title_h3, color=color,
     )
     return y - TYPE.title_h3 - 2

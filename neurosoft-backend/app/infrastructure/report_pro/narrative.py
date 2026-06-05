@@ -19,6 +19,8 @@ from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
 
+from .helpers import human_test_name
+
 # Umbrales clínicos estándar (Wechsler / DSM-5)
 DEBIL_Z = -1.0
 DEBIL_SEVERO_Z = -2.0
@@ -64,7 +66,10 @@ def _domain_summary(resultados: Sequence[dict]) -> dict[str, dict]:
             continue
         bucket[dom]["zs"].append(float(z))
         bucket[dom]["tests"].append({
-            "nombre": r.get("test_nombre", r.get("test_id", "")),
+            "nombre": human_test_name(
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
+            ),
             "z": z,
             "pd": r.get("puntaje_bruto"),
             "pe": r.get("puntaje_escalar"),
@@ -209,7 +214,10 @@ def build_synthesis_paragraphs(
         for r in critical:
             if r.get("z_equivalente") > DEBIL_Z:
                 break
-            nombre = r.get("test_nombre", r.get("test_id", ""))
+            nombre = human_test_name(
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
+            )
             z = r["z_equivalente"]
             interp = r.get("interpretacion", "")
             items.append(f"{nombre} (Z={z:+.2f}, {interp.lower()})")
@@ -757,7 +765,10 @@ def build_strengths_weaknesses(resultados: Sequence[dict]) -> tuple[list[str], l
         z = r.get("z_equivalente")
         if z is None or r.get("tipo_metrica") == "ci":
             continue
-        nombre = r.get("test_nombre", r.get("test_id", ""))
+        nombre = human_test_name(
+            r.get("test_id", "") or "",
+            r.get("test_nombre", "") or "",
+        )
         if z <= DEBIL_Z:
             weak.append((z, nombre, r.get("interpretacion", "")))
         elif z >= FUERTE_Z:

@@ -162,17 +162,21 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         )
 
         col_w = (L.content_w - 16) / 2
+        x_left = L.margin
+        x_right = L.margin + col_w + 16
         y_f = y_d = y
 
         if resumen["fortalezas"]:
-            y_f = block_header(c, "Fortalezas", y_f, color=SEMANTIC_SUPERIOR)
+            y_f = block_header(c, "Fortalezas", y_f,
+                               color=SEMANTIC_SUPERIOR, x=x_left)
             for item in resumen["fortalezas"][:5]:
-                y_f = bullet(c, item, L.margin, y_f, col_w) - 2
+                y_f = bullet(c, item, x_left, y_f, col_w) - 2
 
         if resumen["areas_apoyo"]:
-            y_d = block_header(c, "Áreas de apoyo", y_d, color=SEMANTIC_DEFICIT)
+            y_d = block_header(c, "Áreas de apoyo", y_d,
+                               color=SEMANTIC_DEFICIT, x=x_right)
             for item in resumen["areas_apoyo"][:5]:
-                y_d = bullet(c, item, L.margin + col_w + 16, y_d, col_w) - 2
+                y_d = bullet(c, item, x_right, y_d, col_w) - 2
 
         y = min(y_f, y_d) - 6
         return y
