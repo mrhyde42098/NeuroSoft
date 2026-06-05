@@ -1,21 +1,79 @@
 {
   "id": "wisc_iv_colombia",
-  "nombre": "WISC-IV Colombia — Protocolo Cognitivo CI",
+  "nombre": "WISC-IV — Protocolo de aplicación (Wechsler · Manual Moderno)",
   "poblacion": "infantil",
   "edad_min": 6,
   "edad_max": 16,
-  "institucion": "IN&S SAS",
+  "institucion": "",
   "indices": [
-    {"id": "ICV", "nombre": "Índice Comprensión Verbal", "subtests": ["NiWiscSem","NiWiscVoc","NiWiscCom"]},
-    {"id": "IRP", "nombre": "Índice Razonamiento Perceptual", "subtests": ["NiWiscDC","NiWiscConD","NiWiscMat"]},
-    {"id": "IMT", "nombre": "Índice Memoria de Trabajo", "subtests": ["NiWiscRDD","NiWiscLN","NiWiscAri"]},
-    {"id": "IVP", "nombre": "Índice Velocidad de Procesamiento", "subtests": ["NiWiscCl","NiWiscBusSim"]},
-    {"id": "CIT", "nombre": "Cociente Intelectual Total", "subtests": ["NiWiscDC","NiWiscSem","NiWiscRDD","NiWiscConD","NiWiscCl","NiWiscVoc","NiWiscLN","NiWiscMat","NiWiscCom","NiWiscBusSim"]}
+    {
+      "id": "ICV",
+      "nombre": "Índice Comprensión Verbal",
+      "subtests": [
+        "NiWiscSem",
+        "NiWiscVoc",
+        "NiWiscCom"
+      ]
+    },
+    {
+      "id": "IRP",
+      "nombre": "Índice Razonamiento Perceptual",
+      "subtests": [
+        "NiWiscDC",
+        "NiWiscConD",
+        "NiWiscMat"
+      ]
+    },
+    {
+      "id": "IMT",
+      "nombre": "Índice Memoria de Trabajo",
+      "subtests": [
+        "NiWiscRDD",
+        "NiWiscLN",
+        "NiWiscAri"
+      ]
+    },
+    {
+      "id": "IVP",
+      "nombre": "Índice Velocidad de Procesamiento",
+      "subtests": [
+        "NiWiscCl",
+        "NiWiscBusSim"
+      ]
+    },
+    {
+      "id": "CIT",
+      "nombre": "Cociente Intelectual Total",
+      "subtests": [
+        "NiWiscDC",
+        "NiWiscSem",
+        "NiWiscRDD",
+        "NiWiscConD",
+        "NiWiscCl",
+        "NiWiscVoc",
+        "NiWiscLN",
+        "NiWiscMat",
+        "NiWiscCom",
+        "NiWiscBusSim"
+      ]
+    }
   ],
   "orden_administracion": [
-    "NiWiscDC","NiWiscSem","NiWiscRDD","NiWiscConD","NiWiscCl",
-    "NiWiscVoc","NiWiscLN","NiWiscMat","NiWiscCom","NiWiscBusSim",
-    "NiWisFigInc","NiWisReg","NiWisInf","NiWiscAri","NiWisPalCon"
+    "NiWiscDC",
+    "NiWiscSem",
+    "NiWiscRDD",
+    "NiWiscConD",
+    "NiWiscCl",
+    "NiWiscVoc",
+    "NiWiscLN",
+    "NiWiscMat",
+    "NiWiscCom",
+    "NiWiscBusSim",
+    "NiWisFigInc",
+    "NiWisReg",
+    "NiWisInf",
+    "NiWiscAri",
+    "NiWisPalCon"
   ],
   "subtests": {
     "NiWiscDC": {
@@ -28,25 +86,174 @@
       "instruccion_general": "El niño reproduce diseños con cubos bicolores según un modelo o dibujo, dentro de un tiempo límite.",
       "materiales": "Manual, protocolo, libreta de estímulos, 9 cubos bicolores, cronómetro",
       "reglas": {
-        "inicio": {"6-7": 1, "8-16": 3},
+        "inicio": {
+          "6-7": 1,
+          "8-16": 3
+        },
         "inversion": "Si obtiene 0 o 1 en cualquiera de los dos primeros reactivos dados, aplicar anteriores en orden inverso hasta obtener dos consecutivas perfectas",
         "discontinuacion": "Después de 3 puntuaciones consecutivas de 0"
       },
       "items": [
-        {"num":1,"cubos":2,"metodo":"modelo_examinador","tiempo_seg":30,"ensayos":2,"punt_max":2,"bonificacion":false,"instruccion":"Muestre 2 cubos. Construya el modelo frente al niño. «Haz uno igual al mío.»"},
-        {"num":2,"cubos":4,"metodo":"modelo_examinador","tiempo_seg":45,"ensayos":2,"punt_max":2,"bonificacion":false,"instruccion":"Construya el modelo con 4 cubos. «Ahora haz uno igual. Trabaja lo más rápido que puedas.»"},
-        {"num":3,"cubos":4,"metodo":"modelo_y_dibujo","tiempo_seg":45,"ensayos":2,"punt_max":2,"bonificacion":false,"instruccion":"Construya según el dibujo de la libreta. Luego desarme y el niño reproduce según la imagen."},
-        {"num":4,"cubos":4,"metodo":"dibujo","tiempo_seg":45,"ensayos":1,"punt_max":4,"bonificacion":false,"instruccion":"«Haz uno igual a este dibujo. Trabaja rápido y avísame cuando termines.»"},
-        {"num":5,"cubos":4,"metodo":"dibujo","tiempo_seg":45,"ensayos":1,"punt_max":4,"bonificacion":false},
-        {"num":6,"cubos":4,"metodo":"dibujo","tiempo_seg":75,"ensayos":1,"punt_max":4,"bonificacion":false},
-        {"num":7,"cubos":4,"metodo":"dibujo","tiempo_seg":75,"ensayos":1,"punt_max":4,"bonificacion":false},
-        {"num":8,"cubos":4,"metodo":"dibujo","tiempo_seg":75,"ensayos":1,"punt_max":4,"bonificacion":false},
-        {"num":9,"cubos":4,"metodo":"dibujo","tiempo_seg":75,"ensayos":1,"punt_max":4,"bonificacion":false},
-        {"num":10,"cubos":4,"metodo":"dibujo","tiempo_seg":75,"ensayos":1,"punt_max":4,"bonificacion":false},
-        {"num":11,"cubos":9,"metodo":"dibujo","tiempo_seg":120,"ensayos":1,"punt_max":7,"bonificacion":true,"bonificacion_tabla":{"121":0,"46-120":4,"41-45":5,"36-40":6,"1-35":7}},
-        {"num":12,"cubos":9,"metodo":"dibujo","tiempo_seg":120,"ensayos":1,"punt_max":7,"bonificacion":true,"bonificacion_tabla":{"121":0,"46-120":4,"41-45":5,"36-40":6,"1-35":7}},
-        {"num":13,"cubos":9,"metodo":"dibujo","tiempo_seg":120,"ensayos":1,"punt_max":7,"bonificacion":true,"bonificacion_tabla":{"121":0,"46-120":4,"41-45":5,"36-40":6,"1-35":7},"nota":"No permita que gire la libreta"},
-        {"num":14,"cubos":9,"metodo":"dibujo","tiempo_seg":120,"ensayos":1,"punt_max":7,"bonificacion":true,"bonificacion_tabla":{"121":0,"46-120":4,"41-45":5,"36-40":6,"1-35":7},"nota":"No permita que gire la libreta"}
+        {
+          "num": 1,
+          "cubos": 2,
+          "metodo": "modelo_examinador",
+          "tiempo_seg": 30,
+          "ensayos": 2,
+          "punt_max": 2,
+          "bonificacion": false,
+          "instruccion": "Muestre 2 cubos. Construya el modelo frente al niño. «Haz uno igual al mío.»"
+        },
+        {
+          "num": 2,
+          "cubos": 4,
+          "metodo": "modelo_examinador",
+          "tiempo_seg": 45,
+          "ensayos": 2,
+          "punt_max": 2,
+          "bonificacion": false,
+          "instruccion": "Construya el modelo con 4 cubos. «Ahora haz uno igual. Trabaja lo más rápido que puedas.»"
+        },
+        {
+          "num": 3,
+          "cubos": 4,
+          "metodo": "modelo_y_dibujo",
+          "tiempo_seg": 45,
+          "ensayos": 2,
+          "punt_max": 2,
+          "bonificacion": false,
+          "instruccion": "Construya según el dibujo de la libreta. Luego desarme y el niño reproduce según la imagen."
+        },
+        {
+          "num": 4,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 45,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false,
+          "instruccion": "«Haz uno igual a este dibujo. Trabaja rápido y avísame cuando termines.»"
+        },
+        {
+          "num": 5,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 45,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false
+        },
+        {
+          "num": 6,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 75,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false
+        },
+        {
+          "num": 7,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 75,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false
+        },
+        {
+          "num": 8,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 75,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false
+        },
+        {
+          "num": 9,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 75,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false
+        },
+        {
+          "num": 10,
+          "cubos": 4,
+          "metodo": "dibujo",
+          "tiempo_seg": 75,
+          "ensayos": 1,
+          "punt_max": 4,
+          "bonificacion": false
+        },
+        {
+          "num": 11,
+          "cubos": 9,
+          "metodo": "dibujo",
+          "tiempo_seg": 120,
+          "ensayos": 1,
+          "punt_max": 7,
+          "bonificacion": true,
+          "bonificacion_tabla": {
+            "121": 0,
+            "46-120": 4,
+            "41-45": 5,
+            "36-40": 6,
+            "1-35": 7
+          }
+        },
+        {
+          "num": 12,
+          "cubos": 9,
+          "metodo": "dibujo",
+          "tiempo_seg": 120,
+          "ensayos": 1,
+          "punt_max": 7,
+          "bonificacion": true,
+          "bonificacion_tabla": {
+            "121": 0,
+            "46-120": 4,
+            "41-45": 5,
+            "36-40": 6,
+            "1-35": 7
+          }
+        },
+        {
+          "num": 13,
+          "cubos": 9,
+          "metodo": "dibujo",
+          "tiempo_seg": 120,
+          "ensayos": 1,
+          "punt_max": 7,
+          "bonificacion": true,
+          "bonificacion_tabla": {
+            "121": 0,
+            "46-120": 4,
+            "41-45": 5,
+            "36-40": 6,
+            "1-35": 7
+          },
+          "nota": "No permita que gire la libreta"
+        },
+        {
+          "num": 14,
+          "cubos": 9,
+          "metodo": "dibujo",
+          "tiempo_seg": 120,
+          "ensayos": 1,
+          "punt_max": 7,
+          "bonificacion": true,
+          "bonificacion_tabla": {
+            "121": 0,
+            "46-120": 4,
+            "41-45": 5,
+            "36-40": 6,
+            "1-35": 7
+          },
+          "nota": "No permita que gire la libreta"
+        }
       ]
     },
     "NiWiscSem": {
@@ -59,104 +266,277 @@
       "instruccion_general": "El profesional dice dos palabras y pregunta en qué se parecen. El niño debe encontrar la semejanza conceptual.",
       "materiales": "Manual, protocolo de registro",
       "reglas": {
-        "inicio": {"6-8": 1, "9-11": 3, "12-16": 5},
+        "inicio": {
+          "6-8": 1,
+          "9-11": 3,
+          "12-16": 5
+        },
         "inversion": "Edades 9-16: si obtiene 0 o 1 en cualquiera de los dos primeros reactivos dados, aplicar anteriores en orden inverso hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 3 puntuaciones consecutivas de 0",
         "puntuacion": "Reactivos 1-2: 0 o 1 punto. Reactivos 3-23: 0, 1 o 2 puntos"
       },
       "items": [
-        {"num":"M","par":["Rojo","Azul"],"punt_max":1,"respuesta_guia":"Cualquiera que incluya color o colores"},
-        {"num":1,"par":["Leche","Agua"],"punt_max":1,
+        {
+          "num": "M",
+          "par": [
+            "Rojo",
+            "Azul"
+          ],
+          "punt_max": 1,
+          "respuesta_guia": "Cualquiera que incluya color o colores"
+        },
+        {
+          "num": 1,
+          "par": [
+            "Leche",
+            "Agua"
+          ],
+          "punt_max": 1,
           "resp_2pt": null,
           "resp_1pt": "Líquidos; Fluidos; Bebidas; Cosas que bebes; Los dos se toman",
-          "resp_0pt": "Húmedos; Tienen agua; Son blancos; Fríos"},
-        {"num":2,"par":["Esfero","Lápiz"],"punt_max":1,
+          "resp_0pt": "Húmedos; Tienen agua; Son blancos; Fríos"
+        },
+        {
+          "num": 2,
+          "par": [
+            "Esfero",
+            "Lápiz"
+          ],
+          "punt_max": 1,
           "resp_1pt": "Cosas con las que escribes/dibujas; Instrumentos para escribir; Artículos escolares/de oficina",
-          "resp_0pt": "Tienen punta afilada; Son de la misma forma/color; Rectos"},
-        {"num":3,"par":["Gato","Ratón"],"punt_max":2,
+          "resp_0pt": "Tienen punta afilada; Son de la misma forma/color; Rectos"
+        },
+        {
+          "num": 3,
+          "par": [
+            "Gato",
+            "Ratón"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Mamíferos; Vertebrados; Animales; Criaturas; Seres vivientes; Ambos están vivos",
           "resp_1pt": "Mascotas; Tienen bigotes/colas/pelo; Los dos comen; Nocturnos; Ambos son pequeños",
-          "resp_0pt": "Viven en casas; Comen queso; Son del mismo color; Enemigos; Se persiguen"},
-        {"num":4,"par":["Manzana","Banano"],"punt_max":2,
+          "resp_0pt": "Viven en casas; Comen queso; Son del mismo color; Enemigos; Se persiguen"
+        },
+        {
+          "num": 4,
+          "par": [
+            "Manzana",
+            "Banano"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Frutas",
           "resp_1pt": "Alimento; Cosas que comes; Crecen en árboles; Dulces; Saludables; Nutritivos; Tienen semillas/cáscara",
-          "resp_0pt": "Son buenos para ti; Son del mismo color; Amarillos; Redondos; Verduras"},
-        {"num":5,"par":["Camisa","Zapato"],"punt_max":2,
+          "resp_0pt": "Son buenos para ti; Son del mismo color; Amarillos; Redondos; Verduras"
+        },
+        {
+          "num": 5,
+          "par": [
+            "Camisa",
+            "Zapato"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Prendas de vestir; Ropas; Vestimentas; Te vistes con ellas; Artículos de vestir",
           "resp_1pt": "Te las pones; Cubren el cuerpo; Protegen el cuerpo; Te mantienen caliente",
-          "resp_0pt": "Se atan; Son de piel; Están cosidos; Cuestan dinero"},
-        {"num":6,"par":["Invierno","Verano"],"punt_max":2,
+          "resp_0pt": "Se atan; Son de piel; Están cosidos; Cuestan dinero"
+        },
+        {
+          "num": 6,
+          "par": [
+            "Invierno",
+            "Verano"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Estaciones; Estaciones del año",
           "resp_1pt": "Épocas/partes del año; Clima; Cambio en el clima; Debe nombrar las cuatro estaciones",
-          "resp_0pt": "Vacaciones; Meses; Días; Divertidos; Fríos"},
-        {"num":7,"par":["Mariposa","Abeja"],"punt_max":2,
+          "resp_0pt": "Vacaciones; Meses; Días; Divertidos; Fríos"
+        },
+        {
+          "num": 7,
+          "par": [
+            "Mariposa",
+            "Abeja"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Insectos; Bichos que vuelan",
           "resp_1pt": "Animales; Criaturas; Tienen alas; Vienen de capullos; Recogen polen; Tienen antenas",
-          "resp_0pt": "Están en las flores; Hacen miel; Pican"},
-        {"num":8,"par":["Madera","Ladrillos"],"punt_max":2,
+          "resp_0pt": "Están en las flores; Hacen miel; Pican"
+        },
+        {
+          "num": 8,
+          "par": [
+            "Madera",
+            "Ladrillos"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Materiales/Productos para la construcción; Materiales para hacer un edificio/pared",
           "resp_1pt": "Materiales; Haces/construyes cosas con ellos; Se usan en construcción; Parte de los cimientos",
-          "resp_0pt": "Son duros; Pesados; Sólidos; Hechos por el hombre"},
-        {"num":9,"par":["Enojo","Alegría"],"punt_max":2,
+          "resp_0pt": "Son duros; Pesados; Sólidos; Hechos por el hombre"
+        },
+        {
+          "num": 9,
+          "par": [
+            "Enojo",
+            "Alegría"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Emociones; Sentimientos; Estados de ánimo; Cómo te sientes mentalmente",
           "resp_1pt": "Expresiones; La manera como te sientes; Reacciones; Expresiones faciales; Pensamientos",
-          "resp_0pt": "Acciones; Comportamientos; Cosas que haces; Parte de la vida"},
-        {"num":10,"par":["Poeta","Pintor"],"punt_max":2,
+          "resp_0pt": "Acciones; Comportamientos; Cosas que haces; Parte de la vida"
+        },
+        {
+          "num": 10,
+          "par": [
+            "Poeta",
+            "Pintor"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Artistas; Crean arte; Trabajos; Profesiones; Hacen cosas que las personas disfrutan",
           "resp_1pt": "Artísticos; Talentosos; Creativos; Expresan sentimientos; Venden arte",
-          "resp_0pt": "Trabajan con sus manos; Colocan cosas sobre papel; Son famosos"},
-        {"num":11,"par":["Pintura","Estatua"],"punt_max":2,
+          "resp_0pt": "Trabajan con sus manos; Colocan cosas sobre papel; Son famosos"
+        },
+        {
+          "num": 11,
+          "par": [
+            "Pintura",
+            "Estatua"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Formas de arte; Obras artísticas; Creaciones artísticas; Arte",
           "resp_1pt": "Artísticas; Creaciones; Hechas por hombre; Expresan ideas; Son símbolos; Están en un Museo",
-          "resp_0pt": "Sentimientos; Imágenes; Muestran historias; Se coleccionan; Antigüedades"},
-        {"num":12,"par":["Montaña","Lago"],"punt_max":2,
+          "resp_0pt": "Sentimientos; Imágenes; Muestran historias; Se coleccionan; Antigüedades"
+        },
+        {
+          "num": 12,
+          "par": [
+            "Montaña",
+            "Lago"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Aspectos geográficos/topográficos; Características físicas de la tierra; Formaciones geográficas",
           "resp_1pt": "Partes de la tierra/planeta; Recursos naturales; Sirven para recreación; Están en el mapa",
-          "resp_0pt": "Están en el bosque; Tienen agua/piedras; Grandes; Altos"},
-        {"num":13,"par":["Hielo","Vapor"],"punt_max":2,
+          "resp_0pt": "Están en el bosque; Tienen agua/piedras; Grandes; Altos"
+        },
+        {
+          "num": 13,
+          "par": [
+            "Hielo",
+            "Vapor"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Formas/estados del agua; Agua en diferente forma/estado; Cambios físicos en el agua",
           "resp_1pt": "Agua; Hecho de agua; Partes del ciclo del agua; Formas de la materia",
-          "resp_0pt": "Mojados; Líquidos; Tienen temperatura; Hacen humo/niebla"},
-        {"num":14,"par":["Codo","Rodilla"],"punt_max":2,
+          "resp_0pt": "Mojados; Líquidos; Tienen temperatura; Hacen humo/niebla"
+        },
+        {
+          "num": 14,
+          "par": [
+            "Codo",
+            "Rodilla"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Articulaciones; Partes del cuerpo que se doblan/flexionan; Funcionan como bisagras",
           "resp_1pt": "Se doblan; Partes del cuerpo que conectan huesos; Te ayudan a moverte",
-          "resp_0pt": "Huesos; Redondos; Puntiagudos; Se rompen"},
-        {"num":15,"par":["Mueca","Sonrisa"],"punt_max":2,
+          "resp_0pt": "Huesos; Redondos; Puntiagudos; Se rompen"
+        },
+        {
+          "num": 15,
+          "par": [
+            "Mueca",
+            "Sonrisa"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Expresiones faciales; Maneras de mostrar emociones; Gestos de sentimientos",
           "resp_1pt": "Expresiones; Emociones; Sentimientos; Algo que haces con tu cara; Movimientos faciales",
-          "resp_0pt": "Movimientos; Acciones; Cosas que haces con tu boca; Tristeza y Felicidad"},
-        {"num":16,"par":["Inundación","Sequía"],"punt_max":2,
+          "resp_0pt": "Movimientos; Acciones; Cosas que haces con tu boca; Tristeza y Felicidad"
+        },
+        {
+          "num": 16,
+          "par": [
+            "Inundación",
+            "Sequía"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Desastres naturales; Clima extremo; Formas extremas de agua",
           "resp_1pt": "Tienen que ver con lluvia; Condiciones del clima; Causan devastación; Extremos",
-          "resp_0pt": "Relacionadas con agua; Tragedias; Dañinas; Peligrosas"},
-        {"num":17,"par":["Primero","Último"],"punt_max":2,
+          "resp_0pt": "Relacionadas con agua; Tragedias; Dañinas; Peligrosas"
+        },
+        {
+          "num": 17,
+          "par": [
+            "Primero",
+            "Último"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Extremos; Posiciones extremas; Finales de un orden/serie; Posiciones opuestas",
           "resp_1pt": "Lugares; Posiciones; Orden; En una secuencia; Puntos en el tiempo",
-          "resp_0pt": "En una línea; Números; Competencia; Muestran dónde estás"},
-        {"num":18,"par":["Hule (Caucho)","Papel"],"punt_max":2,
+          "resp_0pt": "En una línea; Números; Competencia; Muestran dónde estás"
+        },
+        {
+          "num": 18,
+          "par": [
+            "Hule (Caucho)",
+            "Papel"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Productos/Provienen de los árboles; Se elaboran de recursos naturales",
           "resp_1pt": "Materiales; Hechos por el hombre; Manufacturados; Se usan para hacer cosas",
-          "resp_0pt": "Se usan en la escuela; Se pueden reciclar; Flexibles; Delgados"},
-        {"num":19,"par":["Permiso","Prohibición"],"punt_max":2,
+          "resp_0pt": "Se usan en la escuela; Se pueden reciclar; Flexibles; Delgados"
+        },
+        {
+          "num": 19,
+          "par": [
+            "Permiso",
+            "Prohibición"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Métodos de control; Maneras de controlar la conducta; Reglas; Leyes; Niveles de libertad",
           "resp_1pt": "Tienen que ver con autoridad; Órdenes; Normas; Restricciones; Establecen límites",
-          "resp_0pt": "Los padres/maestros te los dan; Algo que puedes/no puedes hacer"},
-        {"num":20,"par":["Sal","Agua"],"punt_max":2,
+          "resp_0pt": "Los padres/maestros te los dan; Algo que puedes/no puedes hacer"
+        },
+        {
+          "num": 20,
+          "par": [
+            "Sal",
+            "Agua"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Los necesitas para vivir; Compuestos químicos; El cuerpo las necesita; Esenciales para el cuerpo",
           "resp_1pt": "Tienen elementos/moléculas; Son comestibles; Tienen minerales; Se encuentran en el océano",
-          "resp_0pt": "Elementos; Sustancias; Se disuelven; Se usan en la mesa"},
-        {"num":21,"par":["Venganza","Perdón"],"punt_max":2,
+          "resp_0pt": "Elementos; Sustancias; Se disuelven; Se usan en la mesa"
+        },
+        {
+          "num": 21,
+          "par": [
+            "Venganza",
+            "Perdón"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Decisiones ante alguien que te hace algo malo; Maneras de afrontar los problemas; Reacciones ante el enojo",
           "resp_1pt": "Consecuencias de haber sido lastimado; Decisiones; Opciones; Reacciones; Acciones",
-          "resp_0pt": "Sentimientos; Emociones; Pensamientos; Actitudes"},
-        {"num":22,"par":["Realidad","Fantasía"],"punt_max":2,
+          "resp_0pt": "Sentimientos; Emociones; Pensamientos; Actitudes"
+        },
+        {
+          "num": 22,
+          "par": [
+            "Realidad",
+            "Fantasía"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Estados de consciencia; Estados de la mente; Maneras de percibir el mundo; Modos de pensamiento",
           "resp_1pt": "Están en tu cerebro/mente; Formas de pensamiento; Ideas; Sentimientos; Puedes vivir en los dos",
-          "resp_0pt": "Parecen reales/falsos; Afectan tu vida; Aburridos; Emocionantes"},
-        {"num":23,"par":["Espacio","Tiempo"],"punt_max":2,
+          "resp_0pt": "Parecen reales/falsos; Afectan tu vida; Aburridos; Emocionantes"
+        },
+        {
+          "num": 23,
+          "par": [
+            "Espacio",
+            "Tiempo"
+          ],
+          "punt_max": 2,
           "resp_2pt": "Dimensiones; Partes de un continuo; Son abstractos; No se les puede ver/tocar; No son físicos",
           "resp_1pt": "Los dos se miden; Infinito; Limitados; No se pueden ver ni tocar; Escenarios",
-          "resp_0pt": "Inevitables; Se mueven; Están en el universo; Desconocidos; Son grandes"}
+          "resp_0pt": "Inevitables; Se mueven; Están en el universo; Desconocidos; Son grandes"
+        }
       ]
     },
     "NiWiscRDD": {
@@ -169,7 +549,9 @@
       "instruccion_general": "El profesional lee secuencias de números y el niño las repite. Orden directo: en el mismo orden. Orden inverso: al revés.",
       "materiales": "Manual, protocolo de registro",
       "reglas": {
-        "inicio": {"6-16": 1},
+        "inicio": {
+          "6-16": 1
+        },
         "discontinuacion_directa": "Después de puntuaciones de 0 en ambos ensayos de un reactivo",
         "discontinuacion_inversa": "Después de puntuaciones de 0 en ambos ensayos de un reactivo",
         "puntuacion": "0 o 1 para cada ensayo. Punto elemento = 0, 1 o 2."
@@ -178,29 +560,112 @@
         "max_pd": 16,
         "span_max": 9,
         "items": [
-          {"num":1,"ensayo_a":"2-9","ensayo_b":"4-6","digitos":2},
-          {"num":2,"ensayo_a":"3-8-6","ensayo_b":"6-1-2","digitos":3},
-          {"num":3,"ensayo_a":"3-4-1-7","ensayo_b":"6-1-5-8","digitos":4},
-          {"num":4,"ensayo_a":"5-2-1-8-6","ensayo_b":"8-4-2-3-9","digitos":5},
-          {"num":5,"ensayo_a":"3-8-9-1-7-4","ensayo_b":"7-9-6-4-8-3","digitos":6},
-          {"num":6,"ensayo_a":"5-1-7-4-2-3-8","ensayo_b":"9-8-5-2-1-6-3","digitos":7},
-          {"num":7,"ensayo_a":"1-8-4-5-9-7-6-3","ensayo_b":"2-9-7-6-3-1-5-4","digitos":8},
-          {"num":8,"ensayo_a":"5-3-8-7-1-2-4-6-9","ensayo_b":"4-2-6-9-1-7-8-3-5","digitos":9}
+          {
+            "num": 1,
+            "ensayo_a": "2-9",
+            "ensayo_b": "4-6",
+            "digitos": 2
+          },
+          {
+            "num": 2,
+            "ensayo_a": "3-8-6",
+            "ensayo_b": "6-1-2",
+            "digitos": 3
+          },
+          {
+            "num": 3,
+            "ensayo_a": "3-4-1-7",
+            "ensayo_b": "6-1-5-8",
+            "digitos": 4
+          },
+          {
+            "num": 4,
+            "ensayo_a": "5-2-1-8-6",
+            "ensayo_b": "8-4-2-3-9",
+            "digitos": 5
+          },
+          {
+            "num": 5,
+            "ensayo_a": "3-8-9-1-7-4",
+            "ensayo_b": "7-9-6-4-8-3",
+            "digitos": 6
+          },
+          {
+            "num": 6,
+            "ensayo_a": "5-1-7-4-2-3-8",
+            "ensayo_b": "9-8-5-2-1-6-3",
+            "digitos": 7
+          },
+          {
+            "num": 7,
+            "ensayo_a": "1-8-4-5-9-7-6-3",
+            "ensayo_b": "2-9-7-6-3-1-5-4",
+            "digitos": 8
+          },
+          {
+            "num": 8,
+            "ensayo_a": "5-3-8-7-1-2-4-6-9",
+            "ensayo_b": "4-2-6-9-1-7-8-3-5",
+            "digitos": 9
+          }
         ]
       },
       "orden_inverso": {
         "max_pd": 16,
         "span_max": 8,
-        "muestra": {"ensayo_a":"8-2","ensayo_b":"5-6"},
+        "muestra": {
+          "ensayo_a": "8-2",
+          "ensayo_b": "5-6"
+        },
         "items": [
-          {"num":1,"ensayo_a":"2-1","ensayo_b":"1-3","digitos":2},
-          {"num":2,"ensayo_a":"3-5","ensayo_b":"6-4","digitos":2},
-          {"num":3,"ensayo_a":"2-5-9","ensayo_b":"5-7-4","digitos":3},
-          {"num":4,"ensayo_a":"8-4-9-3","ensayo_b":"7-2-9-6","digitos":4},
-          {"num":5,"ensayo_a":"4-1-3-5-7","ensayo_b":"9-7-8-5-2","digitos":5},
-          {"num":6,"ensayo_a":"1-6-5-2-9-8","ensayo_b":"3-6-7-1-9-4","digitos":6},
-          {"num":7,"ensayo_a":"8-5-9-2-3-4-6","ensayo_b":"4-5-7-9-2-8-1","digitos":7},
-          {"num":8,"ensayo_a":"6-9-1-7-3-2-5-8","ensayo_b":"3-1-7-9-5-4-8-2","digitos":8}
+          {
+            "num": 1,
+            "ensayo_a": "2-1",
+            "ensayo_b": "1-3",
+            "digitos": 2
+          },
+          {
+            "num": 2,
+            "ensayo_a": "3-5",
+            "ensayo_b": "6-4",
+            "digitos": 2
+          },
+          {
+            "num": 3,
+            "ensayo_a": "2-5-9",
+            "ensayo_b": "5-7-4",
+            "digitos": 3
+          },
+          {
+            "num": 4,
+            "ensayo_a": "8-4-9-3",
+            "ensayo_b": "7-2-9-6",
+            "digitos": 4
+          },
+          {
+            "num": 5,
+            "ensayo_a": "4-1-3-5-7",
+            "ensayo_b": "9-7-8-5-2",
+            "digitos": 5
+          },
+          {
+            "num": 6,
+            "ensayo_a": "1-6-5-2-9-8",
+            "ensayo_b": "3-6-7-1-9-4",
+            "digitos": 6
+          },
+          {
+            "num": 7,
+            "ensayo_a": "8-5-9-2-3-4-6",
+            "ensayo_b": "4-5-7-9-2-8-1",
+            "digitos": 7
+          },
+          {
+            "num": 8,
+            "ensayo_a": "6-9-1-7-3-2-5-8",
+            "ensayo_b": "3-1-7-9-5-4-8-2",
+            "digitos": 8
+          }
         ]
       }
     },
@@ -214,144 +679,336 @@
       "instruccion_general": "Reactivos 1-4: El niño nombra objetos mostrados en dibujos. Reactivos 5-36: El profesional lee palabras y el niño las define.",
       "materiales": "Manual, protocolo, libreta de estímulos (reactivos con dibujos)",
       "reglas": {
-        "inicio": {"6-8": 5, "9-11": 7, "12-16": 9},
+        "inicio": {
+          "6-8": 5,
+          "9-11": 7,
+          "12-16": 9
+        },
         "inversion": "Edades 6-16: si obtiene 0 o 1 en cualquiera de los dos primeros reactivos dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 3 puntuaciones consecutivas de 0",
         "puntuacion": "Reactivos 1-4: 0 o 1 punto. Reactivos 5-36: 0, 1 o 2 puntos"
       },
       "items": [
-        {"num":1,"palabra":"Coche (Auto)","tipo":"dibujo","punt_max":1,"resp_1pt":"Coche, auto, automóvil","resp_0pt":"Camión"},
-        {"num":2,"palabra":"Flor","tipo":"dibujo","punt_max":1,"resp_1pt":"Flor o nombra una flor","resp_0pt":"Planta"},
-        {"num":3,"palabra":"Tren","tipo":"dibujo","punt_max":1,"resp_1pt":"Tren, locomotora, ferrocarril","resp_0pt":"Máquina"},
-        {"num":4,"palabra":"Cubeta (Balde)","tipo":"dibujo","punt_max":1,"resp_1pt":"Cubeta, balde","resp_0pt":"Máquina"},
-        {"num":5,"palabra":"Reloj","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Te dice la hora; mide el tiempo; tiene manecillas y números [dos rasgos]",
-          "resp_1pt":"Hace tic tac; tiene manecillas [un rasgo]; es para el tiempo; un despertador",
-          "resp_0pt":"Hace un sonido; te despierta; da vueltas; es redondo"},
-        {"num":6,"palabra":"Sombrilla","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Algo para no mojarte en la lluvia; te protege de la lluvia/sol",
-          "resp_1pt":"Te mantiene seco; para la lluvia; la colocas en la playa",
-          "resp_0pt":"Tiene un mango y es circular; la sostienes; de plástico"},
-        {"num":7,"palabra":"Ladrón","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Un ratero; alguien que roba; un criminal; un forajido",
-          "resp_1pt":"Roba; toma las cosas; viola la ley",
-          "resp_0pt":"Un tipo malo; un villano; van a la cárcel"},
-        {"num":8,"palabra":"Vaca","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Un animal; un mamífero; te da leche y carne; animal de granja",
-          "resp_1pt":"Hace leche; produce carne; algo que hace mú; nombra razas",
-          "resp_0pt":"Tiene cuernos; come pasto; vive en una granja"},
-        {"num":9,"palabra":"Sombrero","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Algo que cubre la cabeza; lo usas para protegerte",
-          "resp_1pt":"Lo usas; te pones; va en tu cabeza; te cubre el pelo",
-          "resp_0pt":"Para los vaqueros"},
-        {"num":10,"palabra":"Valiente","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Valeroso; audaz; no tener miedo; dispuesto a arriesgar tu vida",
-          "resp_1pt":"Salvar a alguien; proteger a las personas; arriesgarse; un héroe",
-          "resp_0pt":"Fuerte; bueno; listo; confiado"},
-        {"num":11,"palabra":"Obedecer","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Cumplir; hacer caso; seguir instrucciones/órdenes/reglas",
-          "resp_1pt":"Portarse bien; cooperar; escuchar; hacer lo que te dicen",
-          "resp_0pt":"Hacer algo; hacer un buen trabajo"},
-        {"num":12,"palabra":"Bicicleta","tipo":"verbal","punt_max":2,
-          "resp_2pt":"La usas para transportarte; un vehículo de dos ruedas con pedales",
-          "resp_1pt":"Tiene ruedas, pedales, manubrio; la pedaleas; montas en ella",
-          "resp_0pt":"Un juguete; para jugar; se maneja"},
-        {"num":13,"palabra":"Antiguo","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Muy viejo; arcaico; existió hace miles de años; opuesto de moderno",
-          "resp_1pt":"Histórico; prehistórico; de hace mucho tiempo; pasado de moda",
-          "resp_0pt":"Historia; valioso; una persona vieja; misterioso"},
-        {"num":14,"palabra":"Abecedario","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Símbolos para hacer las palabras; letras en cierto orden; letras de la A a la Z",
-          "resp_1pt":"ABC; de la A a la Z; tienes que saberlo para leer/escribir; letras",
-          "resp_0pt":"Palabras para hacer palabras; algo que está en tu nombre"},
-        {"num":15,"palabra":"Remedar","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Copiar; imitar; personificar; repetir lo que alguien dice",
-          "resp_1pt":"Actuar como alguien; hacer mímica; repetir; fingir",
-          "resp_0pt":"Molestar a alguien; alguien que habla mucho"},
-        {"num":16,"palabra":"Fábula","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Una historia que enseña una lección/tiene moraleja; cuento con animales; mito; leyenda",
-          "resp_1pt":"Ficción; no es real; algo inventado; algo que leíste",
-          "resp_0pt":"Una historia verdadera; una película"},
-        {"num":17,"palabra":"Emigrar","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Ir de un lado a otro; movimiento de personas/animales por condiciones; dejar tu país; mudarse",
-          "resp_1pt":"Mudarse; ir a algún lado por el clima; volar al sur; dejar tu país",
-          "resp_0pt":"Estacional; algunos animales lo hacen; marcharse"},
-        {"num":18,"palabra":"Isla","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Tierra rodeada de agua; un lugar en el océano; porción de tierra separada del resto",
-          "resp_1pt":"Está rodeada de agua; lugar en el océano; como Hawái, Cuba",
-          "resp_0pt":"Está en el agua; un lugar; una playa; un océano"},
-        {"num":19,"palabra":"Absorber","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Empapar; aspirar; succionar; atraer humedad; una esponja absorbe agua",
-          "resp_1pt":"Recoger; secar; se lleva el agua; consumir; volverse parte de",
-          "resp_0pt":"Empapar; aprender; observar; desaparece"},
-        {"num":20,"palabra":"Salir","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Partir; abandonar; marcharse; evacuaR. Lo opuesto de quedarse; irse y no volver",
-          "resp_1pt":"Marcharte; irte, huir; dejar el lugar donde estás; mudarse",
-          "resp_0pt":"Decir adiós; ir a la tienda; perder"},
-        {"num":21,"palabra":"Transparente","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Que puedes ver a través de él; obvio; claro; cristalino; que permite que pase la luz",
-          "resp_1pt":"Como cristal/vidrio; ves hacia fuera; como una ventana; visible",
-          "resp_0pt":"Invisible; que lo puedes ver; como un espejo"},
-        {"num":22,"palabra":"Molestia","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Algo que es engorroso; alguien que te irrita; un fastidio; una incomodidad",
-          "resp_1pt":"Latoso; desesperante; distractor; un buscapleitos; mosquitos",
-          "resp_0pt":"Alguien que es malo contigo; una mascota"},
-        {"num":23,"palabra":"Raramente","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Que no ocurre a menudo; que difícilmente pasa; casi nunca; extraño; desacostumbrado",
-          "resp_1pt":"Escaso; poco común; a veces; en ocasiones",
-          "resp_0pt":"No mucho; difícilmente; de vez en cuando; que no es probable"},
-        {"num":24,"palabra":"Preciso","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Exacto; apropiado; medida exacta; justo en el clavo; absolutamente correcto",
-          "resp_1pt":"Exactamente; al grano; bien detallado; perfecto; acertado; específico",
-          "resp_0pt":"Breve; casi exacto; seguro de algo"},
-        {"num":25,"palabra":"Obligar","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Forzar; coaccionar; presionar a alguien a hacer algo; impulsar",
-          "resp_1pt":"Mandar a alguien; forzar; actuar sobre una persona para comprometerla",
-          "resp_0pt":"Amenazar; obligación; impedir"},
-        {"num":26,"palabra":"Rivalidad","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Competencia; concurso; dos personas que compiten; disputa frecuente",
-          "resp_1pt":"Pelea; conflicto; competir; opositor; enemistad",
-          "resp_0pt":"Tensión entre dos personas; enemigo; celoso"},
-        {"num":27,"palabra":"Disparate","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Tontería; algo que no tiene sentido/no es razonable/lógico; simpleza",
-          "resp_1pt":"Tonto; bobo; ridículo; no es verdadero; hacer tonterías",
-          "resp_0pt":"Algo que no se debe hacer; incorrecto; ser malo"},
-        {"num":28,"palabra":"Previsión","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Predecir; pronosticar; anticiparse; premonición; planear de antemano; ver al futuro",
-          "resp_1pt":"Ver en el tiempo; anticipar; anunciar",
-          "resp_0pt":"Futuro; considerar; relacionado con los ojos"},
-        {"num":29,"palabra":"Aflicción","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Una carga que debes soportar; perturbación; malestar; enfermedad; sufrimiento; pena",
-          "resp_1pt":"Algo que está mal contigo; una herida; desgracia; algo terrible",
-          "resp_0pt":"Un problema; algo que te está molestando; conflicto"},
-        {"num":30,"palabra":"Arduo","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Que necesita gran esfuerzo; agotador; algo difícil de hacer; físicamente demandante",
-          "resp_1pt":"Duro; complicado; difícil; dura mucho tiempo; mucha presión; cansado",
-          "resp_0pt":"Recio; pesado; constante; tedioso; doloroso"},
-        {"num":31,"palabra":"Unánime","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Todos de acuerdo; todos a favor; sin oposición; todos votan en el mismo sentido",
-          "resp_1pt":"Todo el grupo tiene una idea; sin objeción; todos; estar de acuerdo",
-          "resp_0pt":"Completo; claramente decidido; una mayoría; enorme"},
-        {"num":32,"palabra":"Dilatorio","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Lento; persona pausada; tardado; que causa demoras; persona tediosa",
-          "resp_1pt":"Que no puedes decidir; no puedes empezar",
-          "resp_0pt":"Flojo; obligatorio; diligente; tiene que ver con los ojos"},
-        {"num":33,"palabra":"Enmienda","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Modificación; alteración; revisión; corrección; cambio para mejorar; cambio a un documento/ley",
-          "resp_1pt":"Revisar; cambiar; adaptar; una adición; arreglar algo",
-          "resp_0pt":"Regla escrita; derechos; libertad; una ley"},
-        {"num":34,"palabra":"Inminente","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Amenazante; a punto de suceder; que se aproxima; algo próximo; algo malo a punto de suceder",
-          "resp_1pt":"Inevitable; que va a suceder; pronto; apremiante; definitivo; peligroso",
-          "resp_0pt":"Cercano; puede suceder; obvio; famoso; importante"},
-        {"num":35,"palabra":"Aberración","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Una desviación de lo normal; algo que se aleja de lo típico; alteración anormal; deterioro mental",
-          "resp_1pt":"Un alejamiento; anormal; algo diferente/inusual; algo inesperado; cambio",
-          "resp_0pt":"Extraño; raro; algo tonto; un fantasma"},
-        {"num":36,"palabra":"Locuaz","tipo":"verbal","punt_max":2,
-          "resp_2pt":"Parlanchín e irritante; habla tanto que molesta; hablador y que divaga",
-          "resp_1pt":"Hablador; parlanchín; molesto; irritante; que habla/dice demasiado",
-          "resp_0pt":"Que discute demasiado; que habla demasiado rápido"}
+        {
+          "num": 1,
+          "palabra": "Coche (Auto)",
+          "tipo": "dibujo",
+          "punt_max": 1,
+          "resp_1pt": "Coche, auto, automóvil",
+          "resp_0pt": "Camión"
+        },
+        {
+          "num": 2,
+          "palabra": "Flor",
+          "tipo": "dibujo",
+          "punt_max": 1,
+          "resp_1pt": "Flor o nombra una flor",
+          "resp_0pt": "Planta"
+        },
+        {
+          "num": 3,
+          "palabra": "Tren",
+          "tipo": "dibujo",
+          "punt_max": 1,
+          "resp_1pt": "Tren, locomotora, ferrocarril",
+          "resp_0pt": "Máquina"
+        },
+        {
+          "num": 4,
+          "palabra": "Cubeta (Balde)",
+          "tipo": "dibujo",
+          "punt_max": 1,
+          "resp_1pt": "Cubeta, balde",
+          "resp_0pt": "Máquina"
+        },
+        {
+          "num": 5,
+          "palabra": "Reloj",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Te dice la hora; mide el tiempo; tiene manecillas y números [dos rasgos]",
+          "resp_1pt": "Hace tic tac; tiene manecillas [un rasgo]; es para el tiempo; un despertador",
+          "resp_0pt": "Hace un sonido; te despierta; da vueltas; es redondo"
+        },
+        {
+          "num": 6,
+          "palabra": "Sombrilla",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Algo para no mojarte en la lluvia; te protege de la lluvia/sol",
+          "resp_1pt": "Te mantiene seco; para la lluvia; la colocas en la playa",
+          "resp_0pt": "Tiene un mango y es circular; la sostienes; de plástico"
+        },
+        {
+          "num": 7,
+          "palabra": "Ladrón",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Un ratero; alguien que roba; un criminal; un forajido",
+          "resp_1pt": "Roba; toma las cosas; viola la ley",
+          "resp_0pt": "Un tipo malo; un villano; van a la cárcel"
+        },
+        {
+          "num": 8,
+          "palabra": "Vaca",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Un animal; un mamífero; te da leche y carne; animal de granja",
+          "resp_1pt": "Hace leche; produce carne; algo que hace mú; nombra razas",
+          "resp_0pt": "Tiene cuernos; come pasto; vive en una granja"
+        },
+        {
+          "num": 9,
+          "palabra": "Sombrero",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Algo que cubre la cabeza; lo usas para protegerte",
+          "resp_1pt": "Lo usas; te pones; va en tu cabeza; te cubre el pelo",
+          "resp_0pt": "Para los vaqueros"
+        },
+        {
+          "num": 10,
+          "palabra": "Valiente",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Valeroso; audaz; no tener miedo; dispuesto a arriesgar tu vida",
+          "resp_1pt": "Salvar a alguien; proteger a las personas; arriesgarse; un héroe",
+          "resp_0pt": "Fuerte; bueno; listo; confiado"
+        },
+        {
+          "num": 11,
+          "palabra": "Obedecer",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Cumplir; hacer caso; seguir instrucciones/órdenes/reglas",
+          "resp_1pt": "Portarse bien; cooperar; escuchar; hacer lo que te dicen",
+          "resp_0pt": "Hacer algo; hacer un buen trabajo"
+        },
+        {
+          "num": 12,
+          "palabra": "Bicicleta",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "La usas para transportarte; un vehículo de dos ruedas con pedales",
+          "resp_1pt": "Tiene ruedas, pedales, manubrio; la pedaleas; montas en ella",
+          "resp_0pt": "Un juguete; para jugar; se maneja"
+        },
+        {
+          "num": 13,
+          "palabra": "Antiguo",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Muy viejo; arcaico; existió hace miles de años; opuesto de moderno",
+          "resp_1pt": "Histórico; prehistórico; de hace mucho tiempo; pasado de moda",
+          "resp_0pt": "Historia; valioso; una persona vieja; misterioso"
+        },
+        {
+          "num": 14,
+          "palabra": "Abecedario",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Símbolos para hacer las palabras; letras en cierto orden; letras de la A a la Z",
+          "resp_1pt": "ABC; de la A a la Z; tienes que saberlo para leer/escribir; letras",
+          "resp_0pt": "Palabras para hacer palabras; algo que está en tu nombre"
+        },
+        {
+          "num": 15,
+          "palabra": "Remedar",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Copiar; imitar; personificar; repetir lo que alguien dice",
+          "resp_1pt": "Actuar como alguien; hacer mímica; repetir; fingir",
+          "resp_0pt": "Molestar a alguien; alguien que habla mucho"
+        },
+        {
+          "num": 16,
+          "palabra": "Fábula",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Una historia que enseña una lección/tiene moraleja; cuento con animales; mito; leyenda",
+          "resp_1pt": "Ficción; no es real; algo inventado; algo que leíste",
+          "resp_0pt": "Una historia verdadera; una película"
+        },
+        {
+          "num": 17,
+          "palabra": "Emigrar",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Ir de un lado a otro; movimiento de personas/animales por condiciones; dejar tu país; mudarse",
+          "resp_1pt": "Mudarse; ir a algún lado por el clima; volar al sur; dejar tu país",
+          "resp_0pt": "Estacional; algunos animales lo hacen; marcharse"
+        },
+        {
+          "num": 18,
+          "palabra": "Isla",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Tierra rodeada de agua; un lugar en el océano; porción de tierra separada del resto",
+          "resp_1pt": "Está rodeada de agua; lugar en el océano; como Hawái, Cuba",
+          "resp_0pt": "Está en el agua; un lugar; una playa; un océano"
+        },
+        {
+          "num": 19,
+          "palabra": "Absorber",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Empapar; aspirar; succionar; atraer humedad; una esponja absorbe agua",
+          "resp_1pt": "Recoger; secar; se lleva el agua; consumir; volverse parte de",
+          "resp_0pt": "Empapar; aprender; observar; desaparece"
+        },
+        {
+          "num": 20,
+          "palabra": "Salir",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Partir; abandonar; marcharse; evacuaR. Lo opuesto de quedarse; irse y no volver",
+          "resp_1pt": "Marcharte; irte, huir; dejar el lugar donde estás; mudarse",
+          "resp_0pt": "Decir adiós; ir a la tienda; perder"
+        },
+        {
+          "num": 21,
+          "palabra": "Transparente",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Que puedes ver a través de él; obvio; claro; cristalino; que permite que pase la luz",
+          "resp_1pt": "Como cristal/vidrio; ves hacia fuera; como una ventana; visible",
+          "resp_0pt": "Invisible; que lo puedes ver; como un espejo"
+        },
+        {
+          "num": 22,
+          "palabra": "Molestia",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Algo que es engorroso; alguien que te irrita; un fastidio; una incomodidad",
+          "resp_1pt": "Latoso; desesperante; distractor; un buscapleitos; mosquitos",
+          "resp_0pt": "Alguien que es malo contigo; una mascota"
+        },
+        {
+          "num": 23,
+          "palabra": "Raramente",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Que no ocurre a menudo; que difícilmente pasa; casi nunca; extraño; desacostumbrado",
+          "resp_1pt": "Escaso; poco común; a veces; en ocasiones",
+          "resp_0pt": "No mucho; difícilmente; de vez en cuando; que no es probable"
+        },
+        {
+          "num": 24,
+          "palabra": "Preciso",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Exacto; apropiado; medida exacta; justo en el clavo; absolutamente correcto",
+          "resp_1pt": "Exactamente; al grano; bien detallado; perfecto; acertado; específico",
+          "resp_0pt": "Breve; casi exacto; seguro de algo"
+        },
+        {
+          "num": 25,
+          "palabra": "Obligar",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Forzar; coaccionar; presionar a alguien a hacer algo; impulsar",
+          "resp_1pt": "Mandar a alguien; forzar; actuar sobre una persona para comprometerla",
+          "resp_0pt": "Amenazar; obligación; impedir"
+        },
+        {
+          "num": 26,
+          "palabra": "Rivalidad",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Competencia; concurso; dos personas que compiten; disputa frecuente",
+          "resp_1pt": "Pelea; conflicto; competir; opositor; enemistad",
+          "resp_0pt": "Tensión entre dos personas; enemigo; celoso"
+        },
+        {
+          "num": 27,
+          "palabra": "Disparate",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Tontería; algo que no tiene sentido/no es razonable/lógico; simpleza",
+          "resp_1pt": "Tonto; bobo; ridículo; no es verdadero; hacer tonterías",
+          "resp_0pt": "Algo que no se debe hacer; incorrecto; ser malo"
+        },
+        {
+          "num": 28,
+          "palabra": "Previsión",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Predecir; pronosticar; anticiparse; premonición; planear de antemano; ver al futuro",
+          "resp_1pt": "Ver en el tiempo; anticipar; anunciar",
+          "resp_0pt": "Futuro; considerar; relacionado con los ojos"
+        },
+        {
+          "num": 29,
+          "palabra": "Aflicción",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Una carga que debes soportar; perturbación; malestar; enfermedad; sufrimiento; pena",
+          "resp_1pt": "Algo que está mal contigo; una herida; desgracia; algo terrible",
+          "resp_0pt": "Un problema; algo que te está molestando; conflicto"
+        },
+        {
+          "num": 30,
+          "palabra": "Arduo",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Que necesita gran esfuerzo; agotador; algo difícil de hacer; físicamente demandante",
+          "resp_1pt": "Duro; complicado; difícil; dura mucho tiempo; mucha presión; cansado",
+          "resp_0pt": "Recio; pesado; constante; tedioso; doloroso"
+        },
+        {
+          "num": 31,
+          "palabra": "Unánime",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Todos de acuerdo; todos a favor; sin oposición; todos votan en el mismo sentido",
+          "resp_1pt": "Todo el grupo tiene una idea; sin objeción; todos; estar de acuerdo",
+          "resp_0pt": "Completo; claramente decidido; una mayoría; enorme"
+        },
+        {
+          "num": 32,
+          "palabra": "Dilatorio",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Lento; persona pausada; tardado; que causa demoras; persona tediosa",
+          "resp_1pt": "Que no puedes decidir; no puedes empezar",
+          "resp_0pt": "Flojo; obligatorio; diligente; tiene que ver con los ojos"
+        },
+        {
+          "num": 33,
+          "palabra": "Enmienda",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Modificación; alteración; revisión; corrección; cambio para mejorar; cambio a un documento/ley",
+          "resp_1pt": "Revisar; cambiar; adaptar; una adición; arreglar algo",
+          "resp_0pt": "Regla escrita; derechos; libertad; una ley"
+        },
+        {
+          "num": 34,
+          "palabra": "Inminente",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Amenazante; a punto de suceder; que se aproxima; algo próximo; algo malo a punto de suceder",
+          "resp_1pt": "Inevitable; que va a suceder; pronto; apremiante; definitivo; peligroso",
+          "resp_0pt": "Cercano; puede suceder; obvio; famoso; importante"
+        },
+        {
+          "num": 35,
+          "palabra": "Aberración",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Una desviación de lo normal; algo que se aleja de lo típico; alteración anormal; deterioro mental",
+          "resp_1pt": "Un alejamiento; anormal; algo diferente/inusual; algo inesperado; cambio",
+          "resp_0pt": "Extraño; raro; algo tonto; un fantasma"
+        },
+        {
+          "num": 36,
+          "palabra": "Locuaz",
+          "tipo": "verbal",
+          "punt_max": 2,
+          "resp_2pt": "Parlanchín e irritante; habla tanto que molesta; hablador y que divaga",
+          "resp_1pt": "Hablador; parlanchín; molesto; irritante; que habla/dice demasiado",
+          "resp_0pt": "Que discute demasiado; que habla demasiado rápido"
+        }
       ]
     },
     "NiWiscMat": {
@@ -364,13 +1021,53 @@
       "instruccion_general": "El niño observa una matriz incompleta y selecciona la opción que la completa entre 5 alternativas.",
       "materiales": "Libreta de estímulos",
       "reglas": {
-        "inicio": {"6-8": 4, "9-11": 7, "12-16": 11},
+        "inicio": {
+          "6-8": 4,
+          "9-11": 7,
+          "12-16": 11
+        },
         "inversion": "Si obtiene 0 en cualquiera de los dos primeros reactivos dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 4 puntuaciones consecutivas de 0 o 4 de 0 en 5 reactivos consecutivos",
         "puntuacion": "0 o 1 punto. Respuestas correctas en tipo de letra distinto"
       },
       "items_count": 35,
-      "respuestas_correctas": [1,5,4,5,4,3,4,5,4,3,4,1,2,3,4,1,2,3,1,2,3,1,2,3,4,1,1,3,1,2,3,1,2,4,5]
+      "respuestas_correctas": [
+        1,
+        5,
+        4,
+        5,
+        4,
+        3,
+        4,
+        5,
+        4,
+        3,
+        4,
+        1,
+        2,
+        3,
+        4,
+        1,
+        2,
+        3,
+        1,
+        2,
+        3,
+        1,
+        2,
+        3,
+        4,
+        1,
+        1,
+        3,
+        1,
+        2,
+        3,
+        1,
+        2,
+        4,
+        5
+      ]
     },
     "NiWiscCom": {
       "nombre": "Comprensión",
@@ -382,96 +1079,184 @@
       "instruccion_general": "El profesional lee preguntas sobre situaciones cotidianas y normas sociales. El niño explica su razonamiento.",
       "materiales": "Manual, protocolo de registro",
       "reglas": {
-        "inicio": {"6-8": 1, "9-11": 3, "12-16": 5},
+        "inicio": {
+          "6-8": 1,
+          "9-11": 3,
+          "12-16": 5
+        },
         "inversion": "Edades 9-16: si obtiene 0 o 1, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 3 puntuaciones consecutivas de 0",
         "puntuacion": "0, 1 o 2 puntos"
       },
       "items": [
-        {"num":1,"pregunta":"¿Por qué la gente se cepilla los dientes?","punt_max":2,
-          "resp_2pt":"Higiene; eliminar microbios; mantenerlos limpios; impedir caries; que sean sanos/fuertes/blancos",
-          "resp_1pt":"Para no ir al dentista; es bueno para ellos; para que no se dañen",
-          "resp_0pt":"Es bueno; para ir al dentista"},
-        {"num":2,"pregunta":"¿Por qué las personas deben comer verduras?","punt_max":2,
-          "resp_2pt":"Dieta balanceada; contienen vitaminas/minerales; te mantiene sano; previenen enfermedades; para crecer",
-          "resp_1pt":"Son buenas para ti; ayudan a tu cuerpo; para perder peso",
-          "resp_0pt":"Previene la muerte; para que no te de hambre; porque saben bien"},
-        {"num":3,"pregunta":"¿Por qué los carros tienen cinturones en los asientos?","punt_max":2,
-          "resp_2pt":"Para impedir lesiones en accidente; para que no salgas volando; protección; para mantenerte seguro",
-          "resp_1pt":"Para salvar la vida (sin mención de accidente); es la ley; para que no te multen",
-          "resp_0pt":"Para amarrarte; para que no tengas un accidente"},
-        {"num":4,"pregunta":"¿Por qué es importante que los policías usen uniforme?","punt_max":2,
-          "resp_2pt":"Para que sepas quiénes son; para identificarlos; demostrar autoridad; que son reales",
-          "resp_1pt":"Para que sepan que están de guardia; para que la gente coopere; para sentirte seguro",
-          "resp_0pt":"Porque es parte de su trabajo; para que puedan ayudar; para que nos portemos bien"},
-        {"num":5,"pregunta":"¿Qué se supone que deberías hacer si te encuentras la cartera de una persona en una tienda?","punt_max":2,
-          "resp_2pt":"Verificar identificación y regresarla; encontrar al dueño; llevarla a la policía; devolverla",
-          "resp_1pt":"Verificar identificación; buscar al dueño; tratar de regresarla; preguntar alrededor",
-          "resp_0pt":"No quedarte con ella; recogerla; dársela a mi mamá; dejarla ahí"},
-        {"num":6,"pregunta":"¿Qué deberías hacer si ves que está saliendo mucho humo por la ventana de la casa de tu vecino?","punt_max":2,
-          "resp_2pt":"Dos ideas: Llamar bomberos/policía + Ejecutar acción (advertir vecinos, verificar, ayudar, evacuar)",
-          "resp_1pt":"Una idea general: Llamar bomberos O advertir vecinos",
-          "resp_0pt":"Llamar a la operadora; alejarse del fuego; gritar fuego; apagar el fuego"},
-        {"num":7,"pregunta":"¿Qué hacer si un niño más pequeño empieza a pelear contigo?","punt_max":2,
-          "resp_2pt":"No pelear; la violencia no resuelve nada; hablar de manera sensata; ignorarlo; dejarlo en paz",
-          "resp_1pt":"Decirle que no lo quieres lastimar; tranquilizarme; decirle que se vaya; pedirle a un adulto",
-          "resp_0pt":"No hacer nada; decir que lo sientes; pelear; empujar"},
-        {"num":8,"pregunta":"¿Cuáles son algunas ventajas de tener bibliotecas públicas?","punt_max":2,
-          "resp_2pt":"Dos ideas: consultar información + pedir libros / congregarse / computadoras / actividades",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Obtienes libros; lugar tranquilo; diversión"},
-        {"num":9,"pregunta":"¿Por qué es importante que el gobierno inspeccione la carne antes de venderla?","punt_max":2,
-          "resp_2pt":"Asegurar la calidad; prevenir epidemia; que la gente no sufra enfermedades/envenenamientos",
-          "resp_1pt":"Para que no se enferme/muera; por seguridad; podría tener microbios; estar echada a perder",
-          "resp_0pt":"Para inspeccionar la carne; porque podría estar cruda"},
-        {"num":10,"pregunta":"¿Cuáles son las ventajas de hacer ejercicio y mantenerse activo?","punt_max":2,
-          "resp_2pt":"Te mantiene sano; capacidad cardiovascular; reduce riesgo cardíaco; bueno para corazón/pulmones",
-          "resp_1pt":"Te mantiene en forma; es bueno para ti; para perder peso; más fuerte; evita enfermedad",
-          "resp_0pt":"Para tener una vida más feliz; para crecer; es divertido"},
-        {"num":11,"pregunta":"¿Por qué es importante disculparse cuando sabes que heriste a alguien?","punt_max":2,
-          "resp_2pt":"Para hacerle sentir mejor; para hacer las paces; para no perder un amigo; para que te perdone",
-          "resp_1pt":"Para que no se enojen contigo; para arreglar la situación; porque fue tu culpa; respeto",
-          "resp_0pt":"Porque es bueno; es lo correcto; tú querrías que se disculparan"},
-        {"num":12,"pregunta":"Dime algunas razones por las que debes apagar las luces cuando nadie las está usando","punt_max":2,
-          "resp_2pt":"Dos: conservación energética (no desperdiciar electricidad, ahorrar energía) + económica (cuenta de luz, ahorrar dinero, focos se funden)",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Para que no comiences un incendio; porque tus padres se enojan"},
-        {"num":13,"pregunta":"¿Por qué es importante dar derechos de autor a escritores y patentes a inventores?","punt_max":2,
-          "resp_2pt":"Proteger creatividad/propiedad intelectual; que reciban crédito; que nadie robe sus ideas",
-          "resp_1pt":"Para que puedan probar que fue su idea; para que puedan ganar dinero; llevar registro",
-          "resp_0pt":"Es justo; ellos hicieron el trabajo"},
-        {"num":14,"pregunta":"¿Por qué se debe cumplir una promesa?","punt_max":2,
-          "resp_2pt":"Es tu palabra de honor; las personas deben confiar unas en otras; un contrato social",
-          "resp_1pt":"Para que la gente confíe en ti; diste tu palabra; demuestra integridad; para conservar amigos",
-          "resp_0pt":"Es tu palabra; es moral; no es justo; las promesas no deben romperse"},
-        {"num":15,"pregunta":"¿Por qué los médicos deben tomar clases adicionales después de haber practicado?","punt_max":2,
-          "resp_2pt":"Dos: mantenerse al tanto de nuevos tratamientos + dar mejor atención / aprender más / conservar licencia",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Para saber qué deben hacer; para no cometer errores"},
-        {"num":16,"pregunta":"Dime ventajas de leer noticias en un periódico en lugar de verlas en TV","punt_max":2,
-          "resp_2pt":"Dos de: mayor profundidad + mayor cobertura + conveniencia de material impreso",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Tiene mejor cobertura; puedes obtener cupones; mejora tu vocabulario"},
-        {"num":17,"pregunta":"¿Por qué es importante tener libertad de expresión en una democracia?","punt_max":2,
-          "resp_2pt":"Dos: derecho a libre expresión + derecho a participar en proceso político",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Está en la constitución; puedes hacer lo que se te antoje"},
-        {"num":18,"pregunta":"¿Por qué es importante impedir que solo una compañía sea propietaria de todos los periódicos y estaciones?","punt_max":2,
-          "resp_2pt":"Dos: disminución fuentes/calidad información + disminuye competencia económica / previene monopolios",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"La gente se aburriría; no sería justo; los costos serían altos"},
-        {"num":19,"pregunta":"¿Por qué ponemos estampillas en las cartas?","punt_max":2,
-          "resp_2pt":"Para pagar el envío; es una cuota/cargo de envío; cubre costos de manejo; indica pago al gobierno",
-          "resp_1pt":"Cuesta dinero; para pagarle al gobierno; sin estampilla no la enviarían",
-          "resp_0pt":"Para enviar por correo; para que llegue a la dirección correcta"},
-        {"num":20,"pregunta":"¿Por qué los medios de comunicación pueden ser una amenaza para las dictaduras?","punt_max":2,
-          "resp_2pt":"Dos: impiden censurar información + promueven la expresión libre de ideas",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Es más difícil censurar; les dan más libertad; hace que pierdan poder"},
-        {"num":21,"pregunta":"¿Cuáles son algunos problemas asociados con los cambios rápidos en ciencia y tecnología?","punt_max":2,
-          "resp_2pt":"Dos: consecuencias imprevistas/errores + dificultades para conservar conocimientos/gastos",
-          "resp_1pt":"Una idea general",
-          "resp_0pt":"Evoluciona demasiado rápido; causa pérdida de empleos; el cambio es malo"}
+        {
+          "num": 1,
+          "pregunta": "¿Por qué la gente se cepilla los dientes?",
+          "punt_max": 2,
+          "resp_2pt": "Higiene; eliminar microbios; mantenerlos limpios; impedir caries; que sean sanos/fuertes/blancos",
+          "resp_1pt": "Para no ir al dentista; es bueno para ellos; para que no se dañen",
+          "resp_0pt": "Es bueno; para ir al dentista"
+        },
+        {
+          "num": 2,
+          "pregunta": "¿Por qué las personas deben comer verduras?",
+          "punt_max": 2,
+          "resp_2pt": "Dieta balanceada; contienen vitaminas/minerales; te mantiene sano; previenen enfermedades; para crecer",
+          "resp_1pt": "Son buenas para ti; ayudan a tu cuerpo; para perder peso",
+          "resp_0pt": "Previene la muerte; para que no te de hambre; porque saben bien"
+        },
+        {
+          "num": 3,
+          "pregunta": "¿Por qué los carros tienen cinturones en los asientos?",
+          "punt_max": 2,
+          "resp_2pt": "Para impedir lesiones en accidente; para que no salgas volando; protección; para mantenerte seguro",
+          "resp_1pt": "Para salvar la vida (sin mención de accidente); es la ley; para que no te multen",
+          "resp_0pt": "Para amarrarte; para que no tengas un accidente"
+        },
+        {
+          "num": 4,
+          "pregunta": "¿Por qué es importante que los policías usen uniforme?",
+          "punt_max": 2,
+          "resp_2pt": "Para que sepas quiénes son; para identificarlos; demostrar autoridad; que son reales",
+          "resp_1pt": "Para que sepan que están de guardia; para que la gente coopere; para sentirte seguro",
+          "resp_0pt": "Porque es parte de su trabajo; para que puedan ayudar; para que nos portemos bien"
+        },
+        {
+          "num": 5,
+          "pregunta": "¿Qué se supone que deberías hacer si te encuentras la cartera de una persona en una tienda?",
+          "punt_max": 2,
+          "resp_2pt": "Verificar identificación y regresarla; encontrar al dueño; llevarla a la policía; devolverla",
+          "resp_1pt": "Verificar identificación; buscar al dueño; tratar de regresarla; preguntar alrededor",
+          "resp_0pt": "No quedarte con ella; recogerla; dársela a mi mamá; dejarla ahí"
+        },
+        {
+          "num": 6,
+          "pregunta": "¿Qué deberías hacer si ves que está saliendo mucho humo por la ventana de la casa de tu vecino?",
+          "punt_max": 2,
+          "resp_2pt": "Dos ideas: Llamar bomberos/policía + Ejecutar acción (advertir vecinos, verificar, ayudar, evacuar)",
+          "resp_1pt": "Una idea general: Llamar bomberos O advertir vecinos",
+          "resp_0pt": "Llamar a la operadora; alejarse del fuego; gritar fuego; apagar el fuego"
+        },
+        {
+          "num": 7,
+          "pregunta": "¿Qué hacer si un niño más pequeño empieza a pelear contigo?",
+          "punt_max": 2,
+          "resp_2pt": "No pelear; la violencia no resuelve nada; hablar de manera sensata; ignorarlo; dejarlo en paz",
+          "resp_1pt": "Decirle que no lo quieres lastimar; tranquilizarme; decirle que se vaya; pedirle a un adulto",
+          "resp_0pt": "No hacer nada; decir que lo sientes; pelear; empujar"
+        },
+        {
+          "num": 8,
+          "pregunta": "¿Cuáles son algunas ventajas de tener bibliotecas públicas?",
+          "punt_max": 2,
+          "resp_2pt": "Dos ideas: consultar información + pedir libros / congregarse / computadoras / actividades",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Obtienes libros; lugar tranquilo; diversión"
+        },
+        {
+          "num": 9,
+          "pregunta": "¿Por qué es importante que el gobierno inspeccione la carne antes de venderla?",
+          "punt_max": 2,
+          "resp_2pt": "Asegurar la calidad; prevenir epidemia; que la gente no sufra enfermedades/envenenamientos",
+          "resp_1pt": "Para que no se enferme/muera; por seguridad; podría tener microbios; estar echada a perder",
+          "resp_0pt": "Para inspeccionar la carne; porque podría estar cruda"
+        },
+        {
+          "num": 10,
+          "pregunta": "¿Cuáles son las ventajas de hacer ejercicio y mantenerse activo?",
+          "punt_max": 2,
+          "resp_2pt": "Te mantiene sano; capacidad cardiovascular; reduce riesgo cardíaco; bueno para corazón/pulmones",
+          "resp_1pt": "Te mantiene en forma; es bueno para ti; para perder peso; más fuerte; evita enfermedad",
+          "resp_0pt": "Para tener una vida más feliz; para crecer; es divertido"
+        },
+        {
+          "num": 11,
+          "pregunta": "¿Por qué es importante disculparse cuando sabes que heriste a alguien?",
+          "punt_max": 2,
+          "resp_2pt": "Para hacerle sentir mejor; para hacer las paces; para no perder un amigo; para que te perdone",
+          "resp_1pt": "Para que no se enojen contigo; para arreglar la situación; porque fue tu culpa; respeto",
+          "resp_0pt": "Porque es bueno; es lo correcto; tú querrías que se disculparan"
+        },
+        {
+          "num": 12,
+          "pregunta": "Dime algunas razones por las que debes apagar las luces cuando nadie las está usando",
+          "punt_max": 2,
+          "resp_2pt": "Dos: conservación energética (no desperdiciar electricidad, ahorrar energía) + económica (cuenta de luz, ahorrar dinero, focos se funden)",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Para que no comiences un incendio; porque tus padres se enojan"
+        },
+        {
+          "num": 13,
+          "pregunta": "¿Por qué es importante dar derechos de autor a escritores y patentes a inventores?",
+          "punt_max": 2,
+          "resp_2pt": "Proteger creatividad/propiedad intelectual; que reciban crédito; que nadie robe sus ideas",
+          "resp_1pt": "Para que puedan probar que fue su idea; para que puedan ganar dinero; llevar registro",
+          "resp_0pt": "Es justo; ellos hicieron el trabajo"
+        },
+        {
+          "num": 14,
+          "pregunta": "¿Por qué se debe cumplir una promesa?",
+          "punt_max": 2,
+          "resp_2pt": "Es tu palabra de honor; las personas deben confiar unas en otras; un contrato social",
+          "resp_1pt": "Para que la gente confíe en ti; diste tu palabra; demuestra integridad; para conservar amigos",
+          "resp_0pt": "Es tu palabra; es moral; no es justo; las promesas no deben romperse"
+        },
+        {
+          "num": 15,
+          "pregunta": "¿Por qué los médicos deben tomar clases adicionales después de haber practicado?",
+          "punt_max": 2,
+          "resp_2pt": "Dos: mantenerse al tanto de nuevos tratamientos + dar mejor atención / aprender más / conservar licencia",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Para saber qué deben hacer; para no cometer errores"
+        },
+        {
+          "num": 16,
+          "pregunta": "Dime ventajas de leer noticias en un periódico en lugar de verlas en TV",
+          "punt_max": 2,
+          "resp_2pt": "Dos de: mayor profundidad + mayor cobertura + conveniencia de material impreso",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Tiene mejor cobertura; puedes obtener cupones; mejora tu vocabulario"
+        },
+        {
+          "num": 17,
+          "pregunta": "¿Por qué es importante tener libertad de expresión en una democracia?",
+          "punt_max": 2,
+          "resp_2pt": "Dos: derecho a libre expresión + derecho a participar en proceso político",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Está en la constitución; puedes hacer lo que se te antoje"
+        },
+        {
+          "num": 18,
+          "pregunta": "¿Por qué es importante impedir que solo una compañía sea propietaria de todos los periódicos y estaciones?",
+          "punt_max": 2,
+          "resp_2pt": "Dos: disminución fuentes/calidad información + disminuye competencia económica / previene monopolios",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "La gente se aburriría; no sería justo; los costos serían altos"
+        },
+        {
+          "num": 19,
+          "pregunta": "¿Por qué ponemos estampillas en las cartas?",
+          "punt_max": 2,
+          "resp_2pt": "Para pagar el envío; es una cuota/cargo de envío; cubre costos de manejo; indica pago al gobierno",
+          "resp_1pt": "Cuesta dinero; para pagarle al gobierno; sin estampilla no la enviarían",
+          "resp_0pt": "Para enviar por correo; para que llegue a la dirección correcta"
+        },
+        {
+          "num": 20,
+          "pregunta": "¿Por qué los medios de comunicación pueden ser una amenaza para las dictaduras?",
+          "punt_max": 2,
+          "resp_2pt": "Dos: impiden censurar información + promueven la expresión libre de ideas",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Es más difícil censurar; les dan más libertad; hace que pierdan poder"
+        },
+        {
+          "num": 21,
+          "pregunta": "¿Cuáles son algunos problemas asociados con los cambios rápidos en ciencia y tecnología?",
+          "punt_max": 2,
+          "resp_2pt": "Dos: consecuencias imprevistas/errores + dificultades para conservar conocimientos/gastos",
+          "resp_1pt": "Una idea general",
+          "resp_0pt": "Evoluciona demasiado rápido; causa pérdida de empleos; el cambio es malo"
+        }
       ]
     },
     "NiWiscCl": {
@@ -484,7 +1269,10 @@
       "instruccion_general": "El niño copia símbolos que están asociados a formas geométricas (Claves A, 6-7 años) o a números (Claves B, 8-16 años) en un tiempo límite de 120 segundos.",
       "materiales": "Manual, protocolo de registro (con cuadernillo de respuestas), lápiz sin goma, cronómetro",
       "reglas": {
-        "inicio": {"6-7": "Claves A", "8-16": "Claves B"},
+        "inicio": {
+          "6-7": "Claves A",
+          "8-16": "Claves B"
+        },
         "tiempo_limite_seg": 120,
         "discontinuacion": "Después de 120 segundos",
         "puntuacion": "Número de símbolos correctos completados en 120 segundos"
@@ -500,7 +1288,10 @@
       "instruccion_general": "El niño observa símbolos estímulo y busca si alguno está en un grupo de búsqueda, marcando Sí o No. Tiempo límite: 120 segundos.",
       "materiales": "Manual, protocolo, cuadernillo de respuestas, lápiz, cronómetro",
       "reglas": {
-        "inicio": {"6-7": "Búsqueda A (1 estímulo, 3 búsqueda)", "8-16": "Búsqueda B (2 estímulos, 5 búsqueda)"},
+        "inicio": {
+          "6-7": "Búsqueda A (1 estímulo, 3 búsqueda)",
+          "8-16": "Búsqueda B (2 estímulos, 5 búsqueda)"
+        },
         "tiempo_limite_seg": 120,
         "discontinuacion": "Después de 120 segundos",
         "puntuacion": "Número de respuestas correctas menos incorrectas. Si es <0, registrar 0"
@@ -516,7 +1307,11 @@
       "instruccion_general": "Se muestran 2-3 filas de dibujos. El niño escoge un dibujo de cada fila para formar un grupo con una característica en común.",
       "materiales": "Libreta de estímulos",
       "reglas": {
-        "inicio": {"6-8": 1, "9-11": 5, "12-16": 7},
+        "inicio": {
+          "6-8": 1,
+          "9-11": 5,
+          "12-16": 7
+        },
         "inversion": "Si obtiene 0 en cualquiera de los dos primeros dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 5 puntuaciones consecutivas de 0",
         "puntuacion": "0 o 1 punto"
@@ -533,12 +1328,186 @@
       "instruccion_general": "El profesional lee una combinación de letras y números. El niño debe repetirlos diciendo primero los números en orden ascendente y luego las letras en orden alfabético.",
       "materiales": "Manual, protocolo de registro",
       "reglas": {
-        "inicio": {"6-16": 1},
+        "inicio": {
+          "6-16": 1
+        },
         "discontinuacion": "Después de que obtiene puntuación de 0 en los 3 ensayos de un reactivo",
         "puntuacion": "Cada ensayo: 0 o 1 punto. Punto reactivo: 0, 1, 2 o 3"
       },
       "items_count": 10,
-      "max_ensayos": 3
+      "max_ensayos": 3,
+      "items": [
+        {
+          "num": 1,
+          "intentos": [
+            {
+              "est": "L-1",
+              "cor": "1-L"
+            },
+            {
+              "est": "L-1",
+              "cor": "1-L"
+            },
+            {
+              "est": "L-1",
+              "cor": "1-L"
+            }
+          ]
+        },
+        {
+          "num": 2,
+          "intentos": [
+            {
+              "est": "N-2",
+              "cor": "2-N"
+            },
+            {
+              "est": "N-2",
+              "cor": "2-N"
+            },
+            {
+              "est": "N-2",
+              "cor": "2-N"
+            }
+          ]
+        },
+        {
+          "num": 3,
+          "intentos": [
+            {
+              "est": "B-5",
+              "cor": "5-B"
+            },
+            {
+              "est": "B-5",
+              "cor": "5-B"
+            },
+            {
+              "est": "B-5",
+              "cor": "5-B"
+            }
+          ]
+        },
+        {
+          "num": 4,
+          "intentos": [
+            {
+              "est": "L-N-1",
+              "cor": "1-L-N"
+            },
+            {
+              "est": "L-N-1",
+              "cor": "1-L-N"
+            },
+            {
+              "est": "L-N-1",
+              "cor": "1-L-N"
+            }
+          ]
+        },
+        {
+          "num": 5,
+          "intentos": [
+            {
+              "est": "L-N-2",
+              "cor": "2-L-N"
+            },
+            {
+              "est": "L-N-2",
+              "cor": "2-L-N"
+            },
+            {
+              "est": "L-N-2",
+              "cor": "2-L-N"
+            }
+          ]
+        },
+        {
+          "num": 6,
+          "intentos": [
+            {
+              "est": "L-N-3",
+              "cor": "3-L-N"
+            },
+            {
+              "est": "L-N-3",
+              "cor": "3-L-N"
+            },
+            {
+              "est": "L-N-3",
+              "cor": "3-L-N"
+            }
+          ]
+        },
+        {
+          "num": 7,
+          "intentos": [
+            {
+              "est": "F-R-3",
+              "cor": "3-F-R"
+            },
+            {
+              "est": "F-R-3",
+              "cor": "3-F-R"
+            },
+            {
+              "est": "F-R-3",
+              "cor": "3-F-R"
+            }
+          ]
+        },
+        {
+          "num": 8,
+          "intentos": [
+            {
+              "est": "A-4-7",
+              "cor": "4-7-A"
+            },
+            {
+              "est": "A-4-7",
+              "cor": "4-7-A"
+            },
+            {
+              "est": "A-4-7",
+              "cor": "4-7-A"
+            }
+          ]
+        },
+        {
+          "num": 9,
+          "intentos": [
+            {
+              "est": "M-S-3-4",
+              "cor": "3-4-M-S"
+            },
+            {
+              "est": "M-S-3-4",
+              "cor": "3-4-M-S"
+            },
+            {
+              "est": "M-S-3-4",
+              "cor": "3-4-M-S"
+            }
+          ]
+        },
+        {
+          "num": 10,
+          "intentos": [
+            {
+              "est": "F-O-6-3",
+              "cor": "3-6-F-O"
+            },
+            {
+              "est": "F-O-6-3",
+              "cor": "3-6-F-O"
+            },
+            {
+              "est": "F-O-6-3",
+              "cor": "3-6-F-O"
+            }
+          ]
+        }
+      ]
     },
     "NiWiscAri": {
       "nombre": "Aritmética",
@@ -551,47 +1520,187 @@
       "instruccion_general": "El profesional lee problemas aritméticos que el niño resuelve mentalmente en un tiempo límite de 30 segundos.",
       "materiales": "Manual, protocolo, libreta de estímulos (reactivos con dibujos 1-5), cronómetro",
       "reglas": {
-        "inicio": {"6-7": 3, "8-9": 9, "10-16": 12},
+        "inicio": {
+          "6-7": 3,
+          "8-9": 9,
+          "10-16": 12
+        },
         "inversion": "Si obtiene 0 en cualquiera de los dos primeros dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 4 puntuaciones consecutivas de 0",
         "tiempo_limite_seg": 30,
         "puntuacion": "0 o 1 punto"
       },
       "items": [
-        {"num":1,"pregunta":"Cuenta estos pájaros con tu dedo","respuesta":"1, 2, 3"},
-        {"num":2,"pregunta":"Cuenta estos pollitos con tu dedo","respuesta":"1, 2, 3, 4, 5"},
-        {"num":3,"pregunta":"Cuenta estos árboles con tu dedo","respuesta":"1, 2, ... 10"},
-        {"num":4,"pregunta":"¿Cuántas mariposas y grillos hay en total?","respuesta":"9"},
-        {"num":5,"pregunta":"¿Cuántas nueces quedarían si cada ardilla se come una?","respuesta":"2"},
-        {"num":6,"pregunta":"Roberto tiene 5 libros. Pierde 1. ¿Cuántos le quedan?","respuesta":"4"},
-        {"num":7,"pregunta":"¿Cuánto son 2 crayolas más 3 crayolas?","respuesta":"5"},
-        {"num":8,"pregunta":"José tiene 5 galletas. Le da una a Samuel y otra a Jimena. ¿Cuántas le quedan?","respuesta":"3"},
-        {"num":9,"pregunta":"Juan tenía 4 monedas y su mamá le dio 2 más. ¿Cuántas tiene en total?","respuesta":"6"},
-        {"num":10,"pregunta":"Si corto una manzana por la mitad ¿Cuántos pedazos tendré?","respuesta":"2"},
-        {"num":11,"pregunta":"Si tienes 10 caramelos y te comes 3, ¿cuántos te quedan?","respuesta":"7"},
-        {"num":12,"pregunta":"Si tienes 3 lápices en cada mano ¿Cuántos lápices tienes en total?","respuesta":"6"},
-        {"num":13,"pregunta":"Tres bicicletas llegan a un parque donde ya hay 12. ¿Cuántas hay ahora?","respuesta":"15"},
-        {"num":14,"pregunta":"Marcos tenía 8 pelotas y compró 6 más. ¿Cuántas tiene en total?","respuesta":"14"},
-        {"num":15,"pregunta":"Francisco ganó 10 calcomanías el lunes y 15 el martes. ¿Cuántas ganó en total?","respuesta":"25"},
-        {"num":16,"pregunta":"En un campo hay 3 vacas. Llegan 4 más y se van 2. ¿Cuántas quedan?","respuesta":"5"},
-        {"num":17,"pregunta":"Catalina tenía 12 globos y vendió 5. ¿Cuántos le quedaron?","respuesta":"7"},
-        {"num":18,"pregunta":"Juana compró 4 manzanas en una tienda y 2 en otra. Su mamá le dio 3 más. ¿Cuántas tiene?","respuesta":"9"},
-        {"num":19,"pregunta":"Si compras 2 plumas a 40 pesos cada una, ¿cuánto cambio te dan si pagas con 100?","respuesta":"20"},
-        {"num":20,"pregunta":"Tomás anotó 17 puntos en un juego y 15 en otro. ¿Cuántos anotó en total?","respuesta":"32"},
-        {"num":21,"pregunta":"Una feria tiene 8 concursos. Cada uno da 3 premios. ¿Cuántos premios en total?","respuesta":"24"},
-        {"num":22,"pregunta":"En una clase de karate se inscribieron 30 estudiantes. Se van 11. ¿Cuántos quedan?","respuesta":"19"},
-        {"num":23,"pregunta":"Rosa compró 3 libros a 2 pesos cada uno y un juguete de 7. ¿Cambio de 20 pesos?","respuesta":"7"},
-        {"num":24,"pregunta":"Laura mira 8 pájaros, 4 vuelan y llegan 2. ¿Cuántos observa ahora?","respuesta":"6"},
-        {"num":25,"pregunta":"Juan tiene el doble de dinero que Sergio. Juan tiene 17 pesos. ¿Cuánto tiene Sergio?","respuesta":"8.50"},
-        {"num":26,"pregunta":"Una escuela tiene 25 alumnos por salón y 500 en total. ¿Cuántos salones?","respuesta":"20"},
-        {"num":27,"pregunta":"Susana tenía 30 pesos y se gastó la mitad. Revistas cuestan 5 cada una. ¿Cuántas puede comprar?","respuesta":"3"},
-        {"num":28,"pregunta":"Una familia manejó 3 horas, descansó, y manejó 2 más. Total 300 km. ¿Velocidad promedio?","respuesta":"60"},
-        {"num":29,"pregunta":"Beatriz compró una carpeta usada por 2/3 del precio nuevo. Pagó 20. ¿Cuánto costaba nueva?","respuesta":"30"},
-        {"num":30,"pregunta":"La temperatura subió 12° entre las 4 y 8am, y 9° más entre 8 y 11am. ¿Promedio por hora?","respuesta":"3"},
-        {"num":31,"pregunta":"Un juego de 40 pesos se rebaja 15%. ¿Cuál es el precio en oferta?","respuesta":"34"},
-        {"num":32,"pregunta":"6 personas lavan 40 autos en 4 días. ¿Cuántas necesitan para lavar 40 en medio día?","respuesta":"48"},
-        {"num":33,"pregunta":"Vuelo de Carlos dura 2h, sale a las 3pm. Jaime vive a 150km, maneja a 60km/h. ¿A qué hora sale Jaime para llegar 30min antes?","respuesta":"2:00 pm"},
-        {"num":34,"pregunta":"Diego sale 1h antes que Victoria. Diego a 40km/h, Victoria a 60km/h. ¿Qué tan adelantada estará Victoria 5h después de que Diego sale?","respuesta":"40 km"}
+        {
+          "num": 1,
+          "pregunta": "Cuenta estos pájaros con tu dedo",
+          "respuesta": "1, 2, 3"
+        },
+        {
+          "num": 2,
+          "pregunta": "Cuenta estos pollitos con tu dedo",
+          "respuesta": "1, 2, 3, 4, 5"
+        },
+        {
+          "num": 3,
+          "pregunta": "Cuenta estos árboles con tu dedo",
+          "respuesta": "1, 2, ... 10"
+        },
+        {
+          "num": 4,
+          "pregunta": "¿Cuántas mariposas y grillos hay en total?",
+          "respuesta": "9"
+        },
+        {
+          "num": 5,
+          "pregunta": "¿Cuántas nueces quedarían si cada ardilla se come una?",
+          "respuesta": "2"
+        },
+        {
+          "num": 6,
+          "pregunta": "Roberto tiene 5 libros. Pierde 1. ¿Cuántos le quedan?",
+          "respuesta": "4"
+        },
+        {
+          "num": 7,
+          "pregunta": "¿Cuánto son 2 crayolas más 3 crayolas?",
+          "respuesta": "5"
+        },
+        {
+          "num": 8,
+          "pregunta": "José tiene 5 galletas. Le da una a Samuel y otra a Jimena. ¿Cuántas le quedan?",
+          "respuesta": "3"
+        },
+        {
+          "num": 9,
+          "pregunta": "Juan tenía 4 monedas y su mamá le dio 2 más. ¿Cuántas tiene en total?",
+          "respuesta": "6"
+        },
+        {
+          "num": 10,
+          "pregunta": "Si corto una manzana por la mitad ¿Cuántos pedazos tendré?",
+          "respuesta": "2"
+        },
+        {
+          "num": 11,
+          "pregunta": "Si tienes 10 caramelos y te comes 3, ¿cuántos te quedan?",
+          "respuesta": "7"
+        },
+        {
+          "num": 12,
+          "pregunta": "Si tienes 3 lápices en cada mano ¿Cuántos lápices tienes en total?",
+          "respuesta": "6"
+        },
+        {
+          "num": 13,
+          "pregunta": "Tres bicicletas llegan a un parque donde ya hay 12. ¿Cuántas hay ahora?",
+          "respuesta": "15"
+        },
+        {
+          "num": 14,
+          "pregunta": "Marcos tenía 8 pelotas y compró 6 más. ¿Cuántas tiene en total?",
+          "respuesta": "14"
+        },
+        {
+          "num": 15,
+          "pregunta": "Francisco ganó 10 calcomanías el lunes y 15 el martes. ¿Cuántas ganó en total?",
+          "respuesta": "25"
+        },
+        {
+          "num": 16,
+          "pregunta": "En un campo hay 3 vacas. Llegan 4 más y se van 2. ¿Cuántas quedan?",
+          "respuesta": "5"
+        },
+        {
+          "num": 17,
+          "pregunta": "Catalina tenía 12 globos y vendió 5. ¿Cuántos le quedaron?",
+          "respuesta": "7"
+        },
+        {
+          "num": 18,
+          "pregunta": "Juana compró 4 manzanas en una tienda y 2 en otra. Su mamá le dio 3 más. ¿Cuántas tiene?",
+          "respuesta": "9"
+        },
+        {
+          "num": 19,
+          "pregunta": "Si compras 2 plumas a 40 pesos cada una, ¿cuánto cambio te dan si pagas con 100?",
+          "respuesta": "20"
+        },
+        {
+          "num": 20,
+          "pregunta": "Tomás anotó 17 puntos en un juego y 15 en otro. ¿Cuántos anotó en total?",
+          "respuesta": "32"
+        },
+        {
+          "num": 21,
+          "pregunta": "Una feria tiene 8 concursos. Cada uno da 3 premios. ¿Cuántos premios en total?",
+          "respuesta": "24"
+        },
+        {
+          "num": 22,
+          "pregunta": "En una clase de karate se inscribieron 30 estudiantes. Se van 11. ¿Cuántos quedan?",
+          "respuesta": "19"
+        },
+        {
+          "num": 23,
+          "pregunta": "Rosa compró 3 libros a 2 pesos cada uno y un juguete de 7. ¿Cambio de 20 pesos?",
+          "respuesta": "7"
+        },
+        {
+          "num": 24,
+          "pregunta": "Laura mira 8 pájaros, 4 vuelan y llegan 2. ¿Cuántos observa ahora?",
+          "respuesta": "6"
+        },
+        {
+          "num": 25,
+          "pregunta": "Juan tiene el doble de dinero que Sergio. Juan tiene 17 pesos. ¿Cuánto tiene Sergio?",
+          "respuesta": "8.50"
+        },
+        {
+          "num": 26,
+          "pregunta": "Una escuela tiene 25 alumnos por salón y 500 en total. ¿Cuántos salones?",
+          "respuesta": "20"
+        },
+        {
+          "num": 27,
+          "pregunta": "Susana tenía 30 pesos y se gastó la mitad. Revistas cuestan 5 cada una. ¿Cuántas puede comprar?",
+          "respuesta": "3"
+        },
+        {
+          "num": 28,
+          "pregunta": "Una familia manejó 3 horas, descansó, y manejó 2 más. Total 300 km. ¿Velocidad promedio?",
+          "respuesta": "60"
+        },
+        {
+          "num": 29,
+          "pregunta": "Beatriz compró una carpeta usada por 2/3 del precio nuevo. Pagó 20. ¿Cuánto costaba nueva?",
+          "respuesta": "30"
+        },
+        {
+          "num": 30,
+          "pregunta": "La temperatura subió 12° entre las 4 y 8am, y 9° más entre 8 y 11am. ¿Promedio por hora?",
+          "respuesta": "3"
+        },
+        {
+          "num": 31,
+          "pregunta": "Un juego de 40 pesos se rebaja 15%. ¿Cuál es el precio en oferta?",
+          "respuesta": "34"
+        },
+        {
+          "num": 32,
+          "pregunta": "6 personas lavan 40 autos en 4 días. ¿Cuántas necesitan para lavar 40 en medio día?",
+          "respuesta": "48"
+        },
+        {
+          "num": 33,
+          "pregunta": "Vuelo de Carlos dura 2h, sale a las 3pm. Jaime vive a 150km, maneja a 60km/h. ¿A qué hora sale Jaime para llegar 30min antes?",
+          "respuesta": "2:00 pm"
+        },
+        {
+          "num": 34,
+          "pregunta": "Diego sale 1h antes que Victoria. Diego a 40km/h, Victoria a 60km/h. ¿Qué tan adelantada estará Victoria 5h después de que Diego sale?",
+          "respuesta": "40 km"
+        }
       ]
     },
     "NiWisFigInc": {
@@ -605,51 +1714,207 @@
       "instruccion_general": "Se muestra un dibujo al que le falta una parte importante. El niño debe identificar qué falta en un tiempo límite de 20 segundos.",
       "materiales": "Libreta de estímulos, cronómetro",
       "reglas": {
-        "inicio": {"6-8": 1, "9-11": 5, "12-16": 10},
+        "inicio": {
+          "6-8": 1,
+          "9-11": 5,
+          "12-16": 10
+        },
         "inversion": "Si obtiene 0 en cualquiera de los dos primeros dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 6 puntuaciones consecutivas de 0",
         "tiempo_limite_seg": 20,
         "puntuacion": "0 o 1 punto"
       },
       "items": [
-        {"num":1,"imagen":"Zorro","respuesta":"Oreja"},
-        {"num":2,"imagen":"Chaqueta","respuesta":"Manga, Brazo"},
-        {"num":3,"imagen":"Gato","respuesta":"Bigotes"},
-        {"num":4,"imagen":"Espejo","respuesta":"Reflejo de la muñeca"},
-        {"num":5,"imagen":"Hoja","respuesta":"Venas"},
-        {"num":6,"imagen":"Campana","respuesta":"Badajo, lengua interior"},
-        {"num":7,"imagen":"Mano","respuesta":"Uña del dedo"},
-        {"num":8,"imagen":"Salto","respuesta":"Moño, cinta, lazo"},
-        {"num":9,"imagen":"Escalera","respuesta":"Escalón, peldaño"},
-        {"num":10,"imagen":"Cara de Mujer","respuesta":"Pestañas"},
-        {"num":11,"imagen":"Cinturón","respuesta":"Orificios, muescas"},
-        {"num":12,"imagen":"Hombre","respuesta":"Correa del reloj"},
-        {"num":13,"imagen":"Mueble","respuesta":"Manija, perilla"},
-        {"num":14,"imagen":"Puerta","respuesta":"Bisagra"},
-        {"num":15,"imagen":"Tijeras","respuesta":"Tornillo, eje, sujetador"},
-        {"num":16,"imagen":"Reloj","respuesta":"1 en el 11 (falta un 1)"},
-        {"num":17,"imagen":"Foco","respuesta":"Filamento interior"},
-        {"num":18,"imagen":"Silbato","respuesta":"Ranura, orificio para aire"},
-        {"num":19,"imagen":"Bicicletas","respuesta":"Rastro, huella de agua"},
-        {"num":20,"imagen":"Cerdo","respuesta":"Fosa nasal, orificios"},
-        {"num":21,"imagen":"Dado","respuesta":"Sexto punto (falta punto del 6)"},
-        {"num":22,"imagen":"Pelota","respuesta":"Logotipo/símbolo en camiseta"},
-        {"num":23,"imagen":"Banda","respuesta":"Cuerdas de la guitarra"},
-        {"num":24,"imagen":"Bicicleta","respuesta":"Cadena, engranaje"},
-        {"num":25,"imagen":"Naranja","respuesta":"Línea de segmento/divisor"},
-        {"num":26,"imagen":"Perfil","respuesta":"Ceja"},
-        {"num":27,"imagen":"Árbol","respuesta":"Anillos de la edad"},
-        {"num":28,"imagen":"Puente","respuesta":"Olas, ondas del agua"},
-        {"num":29,"imagen":"Sombrilla","respuesta":"Varilla, costilla de soporte"},
-        {"num":30,"imagen":"Supermercado","respuesta":"Etiquetas en las latas"},
-        {"num":31,"imagen":"Tina","respuesta":"Drenaje, orificio"},
-        {"num":32,"imagen":"Enrejado","respuesta":"Tabla diagonal celosía"},
-        {"num":33,"imagen":"Termómetro","respuesta":"Líquido/mercurio en el bulbo"},
-        {"num":34,"imagen":"Pez","respuesta":"Agallas, branquias"},
-        {"num":35,"imagen":"Casa","respuesta":"Sombra del árbol"},
-        {"num":36,"imagen":"Agua","respuesta":"Estela, olas del bote"},
-        {"num":37,"imagen":"Familia","respuesta":"Broche del tirante"},
-        {"num":38,"imagen":"Zapato","respuesta":"Ojal de la agujeta"}
+        {
+          "num": 1,
+          "imagen": "Zorro",
+          "respuesta": "Oreja"
+        },
+        {
+          "num": 2,
+          "imagen": "Chaqueta",
+          "respuesta": "Manga, Brazo"
+        },
+        {
+          "num": 3,
+          "imagen": "Gato",
+          "respuesta": "Bigotes"
+        },
+        {
+          "num": 4,
+          "imagen": "Espejo",
+          "respuesta": "Reflejo de la muñeca"
+        },
+        {
+          "num": 5,
+          "imagen": "Hoja",
+          "respuesta": "Venas"
+        },
+        {
+          "num": 6,
+          "imagen": "Campana",
+          "respuesta": "Badajo, lengua interior"
+        },
+        {
+          "num": 7,
+          "imagen": "Mano",
+          "respuesta": "Uña del dedo"
+        },
+        {
+          "num": 8,
+          "imagen": "Salto",
+          "respuesta": "Moño, cinta, lazo"
+        },
+        {
+          "num": 9,
+          "imagen": "Escalera",
+          "respuesta": "Escalón, peldaño"
+        },
+        {
+          "num": 10,
+          "imagen": "Cara de Mujer",
+          "respuesta": "Pestañas"
+        },
+        {
+          "num": 11,
+          "imagen": "Cinturón",
+          "respuesta": "Orificios, muescas"
+        },
+        {
+          "num": 12,
+          "imagen": "Hombre",
+          "respuesta": "Correa del reloj"
+        },
+        {
+          "num": 13,
+          "imagen": "Mueble",
+          "respuesta": "Manija, perilla"
+        },
+        {
+          "num": 14,
+          "imagen": "Puerta",
+          "respuesta": "Bisagra"
+        },
+        {
+          "num": 15,
+          "imagen": "Tijeras",
+          "respuesta": "Tornillo, eje, sujetador"
+        },
+        {
+          "num": 16,
+          "imagen": "Reloj",
+          "respuesta": "1 en el 11 (falta un 1)"
+        },
+        {
+          "num": 17,
+          "imagen": "Foco",
+          "respuesta": "Filamento interior"
+        },
+        {
+          "num": 18,
+          "imagen": "Silbato",
+          "respuesta": "Ranura, orificio para aire"
+        },
+        {
+          "num": 19,
+          "imagen": "Bicicletas",
+          "respuesta": "Rastro, huella de agua"
+        },
+        {
+          "num": 20,
+          "imagen": "Cerdo",
+          "respuesta": "Fosa nasal, orificios"
+        },
+        {
+          "num": 21,
+          "imagen": "Dado",
+          "respuesta": "Sexto punto (falta punto del 6)"
+        },
+        {
+          "num": 22,
+          "imagen": "Pelota",
+          "respuesta": "Logotipo/símbolo en camiseta"
+        },
+        {
+          "num": 23,
+          "imagen": "Banda",
+          "respuesta": "Cuerdas de la guitarra"
+        },
+        {
+          "num": 24,
+          "imagen": "Bicicleta",
+          "respuesta": "Cadena, engranaje"
+        },
+        {
+          "num": 25,
+          "imagen": "Naranja",
+          "respuesta": "Línea de segmento/divisor"
+        },
+        {
+          "num": 26,
+          "imagen": "Perfil",
+          "respuesta": "Ceja"
+        },
+        {
+          "num": 27,
+          "imagen": "Árbol",
+          "respuesta": "Anillos de la edad"
+        },
+        {
+          "num": 28,
+          "imagen": "Puente",
+          "respuesta": "Olas, ondas del agua"
+        },
+        {
+          "num": 29,
+          "imagen": "Sombrilla",
+          "respuesta": "Varilla, costilla de soporte"
+        },
+        {
+          "num": 30,
+          "imagen": "Supermercado",
+          "respuesta": "Etiquetas en las latas"
+        },
+        {
+          "num": 31,
+          "imagen": "Tina",
+          "respuesta": "Drenaje, orificio"
+        },
+        {
+          "num": 32,
+          "imagen": "Enrejado",
+          "respuesta": "Tabla diagonal celosía"
+        },
+        {
+          "num": 33,
+          "imagen": "Termómetro",
+          "respuesta": "Líquido/mercurio en el bulbo"
+        },
+        {
+          "num": 34,
+          "imagen": "Pez",
+          "respuesta": "Agallas, branquias"
+        },
+        {
+          "num": 35,
+          "imagen": "Casa",
+          "respuesta": "Sombra del árbol"
+        },
+        {
+          "num": 36,
+          "imagen": "Agua",
+          "respuesta": "Estela, olas del bote"
+        },
+        {
+          "num": 37,
+          "imagen": "Familia",
+          "respuesta": "Broche del tirante"
+        },
+        {
+          "num": 38,
+          "imagen": "Zapato",
+          "respuesta": "Ojal de la agujeta"
+        }
       ]
     },
     "NiWisReg": {
@@ -663,10 +1928,12 @@
       "instruccion_general": "El niño tacha figuras objetivo entre muchas figuras en un tiempo límite de 45 segundos por reactivo. Hay 2 reactivos: Aleatorio y Estructurado.",
       "materiales": "Protocolo de registro (cuadernillo), lápiz, cronómetro",
       "reglas": {
-        "inicio": {"6-16": 1},
+        "inicio": {
+          "6-16": 1
+        },
         "tiempo_limite_seg": 45,
         "puntuacion": "Correctas - incorrectas. Si <0, registrar 0. RA + RE = PD total",
-        "bonificacion": "Si termina antes de 45s y diferencia ≥60: +0 a +4 pts según tiempo"
+        "bonificacion": "Si termina antes de 45s y diferencia â‰¥60: +0 a +4 pts según tiempo"
       }
     },
     "NiWisInf": {
@@ -680,45 +1947,181 @@
       "instruccion_general": "El profesional hace preguntas de conocimiento general que el niño responde verbalmente.",
       "materiales": "Manual, protocolo de registro",
       "reglas": {
-        "inicio": {"6-8": 5, "9-11": 10, "12-16": 12},
+        "inicio": {
+          "6-8": 5,
+          "9-11": 10,
+          "12-16": 12
+        },
         "inversion": "Si obtiene 0 en cualquiera de los dos primeros dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 5 puntuaciones consecutivas de 0",
         "puntuacion": "0 o 1 punto"
       },
       "items": [
-        {"num":1,"pregunta":"Enséñame tu pie","respuesta":"Toca, señala o indica su propio pie"},
-        {"num":2,"pregunta":"[Señalando nariz] ¿Cómo se llama esto?","respuesta":"Nariz"},
-        {"num":3,"pregunta":"Nombra algo que comas","respuesta":"Cualquier alimento común"},
-        {"num":4,"pregunta":"¿Cuántas orejas tienes?","respuesta":"2"},
-        {"num":5,"pregunta":"¿Cuántos años tienes?","respuesta":"Edad correcta"},
-        {"num":6,"pregunta":"¿Cuántas patas tiene un perro?","respuesta":"4"},
-        {"num":7,"pregunta":"¿Qué día le sigue al jueves?","respuesta":"Viernes"},
-        {"num":8,"pregunta":"Nombra dos tipos de monedas","respuesta":"Dos denominaciones ($100, $200, $500, etc.)"},
-        {"num":9,"pregunta":"¿Qué mes sigue después de marzo?","respuesta":"Abril"},
-        {"num":10,"pregunta":"¿Qué se debe hacer para que el agua hierva?","respuesta":"Calentarla, exponerla al calor"},
-        {"num":11,"pregunta":"¿Cuántos días hay en una semana?","respuesta":"7"},
-        {"num":12,"pregunta":"¿Cuántos días hay en un año?","respuesta":"365"},
-        {"num":13,"pregunta":"¿Quién fue Cristóbal Colón?","respuesta":"Descubridor de América; un explorador"},
-        {"num":14,"pregunta":"¿Cuáles son las cuatro estaciones del año?","respuesta":"Verano, Otoño, Invierno, Primavera"},
-        {"num":15,"pregunta":"¿Cuántas cosas forman una docena?","respuesta":"12"},
-        {"num":16,"pregunta":"¿Qué hace el estómago?","respuesta":"Digiere alimentos; descompone la comida"},
-        {"num":17,"pregunta":"¿Cuál mes tiene un día adicional cada cuatro años?","respuesta":"Febrero"},
-        {"num":18,"pregunta":"¿Qué es un fósil?","respuesta":"Algo orgánico convertido en piedra; impresión en roca de algo antiguo"},
-        {"num":19,"pregunta":"¿Qué es la capa de ozono?","respuesta":"Parte de la atmósfera que bloquea radiación/rayos UV; protege la tierra"},
-        {"num":20,"pregunta":"¿Cómo regresa el oxígeno al aire?","respuesta":"Fotosíntesis; plantas; árboles"},
-        {"num":21,"pregunta":"¿Qué son los jeroglíficos?","respuesta":"Forma antigua de escritura con figuras/símbolos"},
-        {"num":22,"pregunta":"¿Cuál país tiene la población más grande?","respuesta":"China"},
-        {"num":23,"pregunta":"¿Cuál es la capital de Grecia?","respuesta":"Atenas"},
-        {"num":24,"pregunta":"¿Por qué se oxida el hierro?","respuesta":"Oxidación, oxígeno, reacción química, humedad"},
-        {"num":25,"pregunta":"¿Qué hace que las hojas sean verdes?","respuesta":"Clorofila; cloroplasto"},
-        {"num":26,"pregunta":"¿Quién fue Charles Darwin?","respuesta":"Teoría de la evolución; selección natural"},
-        {"num":27,"pregunta":"¿De qué están hechos los diamantes?","respuesta":"Carbón; carbón bajo presión; grafito"},
-        {"num":28,"pregunta":"¿Quién fue Confucio?","respuesta":"Filósofo/pensador/educador chino"},
-        {"num":29,"pregunta":"¿Qué es el solsticio de invierno?","respuesta":"Día más corto del invierno; noche más larga"},
-        {"num":30,"pregunta":"¿Qué es un barómetro?","respuesta":"Mide la presión atmosférica; predice cambios del clima"},
-        {"num":31,"pregunta":"¿Qué es la fisión nuclear?","respuesta":"Átomos que se dividen y crean energía; fuente de energía radioactiva"},
-        {"num":32,"pregunta":"¿Qué distancia hay entre Cd. de México y Nueva York?","respuesta":"4,800 a 6,400 km (3,000-4,000 millas)"},
-        {"num":33,"pregunta":"¿De dónde se obtiene la resina natural?","respuesta":"De las plantas; de los árboles; del pino"}
+        {
+          "num": 1,
+          "pregunta": "Enséñame tu pie",
+          "respuesta": "Toca, señala o indica su propio pie"
+        },
+        {
+          "num": 2,
+          "pregunta": "[Señalando nariz] ¿Cómo se llama esto?",
+          "respuesta": "Nariz"
+        },
+        {
+          "num": 3,
+          "pregunta": "Nombra algo que comas",
+          "respuesta": "Cualquier alimento común"
+        },
+        {
+          "num": 4,
+          "pregunta": "¿Cuántas orejas tienes?",
+          "respuesta": "2"
+        },
+        {
+          "num": 5,
+          "pregunta": "¿Cuántos años tienes?",
+          "respuesta": "Edad correcta"
+        },
+        {
+          "num": 6,
+          "pregunta": "¿Cuántas patas tiene un perro?",
+          "respuesta": "4"
+        },
+        {
+          "num": 7,
+          "pregunta": "¿Qué día le sigue al jueves?",
+          "respuesta": "Viernes"
+        },
+        {
+          "num": 8,
+          "pregunta": "Nombra dos tipos de monedas",
+          "respuesta": "Dos denominaciones ($100, $200, $500, etc.)"
+        },
+        {
+          "num": 9,
+          "pregunta": "¿Qué mes sigue después de marzo?",
+          "respuesta": "Abril"
+        },
+        {
+          "num": 10,
+          "pregunta": "¿Qué se debe hacer para que el agua hierva?",
+          "respuesta": "Calentarla, exponerla al calor"
+        },
+        {
+          "num": 11,
+          "pregunta": "¿Cuántos días hay en una semana?",
+          "respuesta": "7"
+        },
+        {
+          "num": 12,
+          "pregunta": "¿Cuántos días hay en un año?",
+          "respuesta": "365"
+        },
+        {
+          "num": 13,
+          "pregunta": "¿Quién fue Cristóbal Colón?",
+          "respuesta": "Descubridor de América; un explorador"
+        },
+        {
+          "num": 14,
+          "pregunta": "¿Cuáles son las cuatro estaciones del año?",
+          "respuesta": "Verano, Otoño, Invierno, Primavera"
+        },
+        {
+          "num": 15,
+          "pregunta": "¿Cuántas cosas forman una docena?",
+          "respuesta": "12"
+        },
+        {
+          "num": 16,
+          "pregunta": "¿Qué hace el estómago?",
+          "respuesta": "Digiere alimentos; descompone la comida"
+        },
+        {
+          "num": 17,
+          "pregunta": "¿Cuál mes tiene un día adicional cada cuatro años?",
+          "respuesta": "Febrero"
+        },
+        {
+          "num": 18,
+          "pregunta": "¿Qué es un fósil?",
+          "respuesta": "Algo orgánico convertido en piedra; impresión en roca de algo antiguo"
+        },
+        {
+          "num": 19,
+          "pregunta": "¿Qué es la capa de ozono?",
+          "respuesta": "Parte de la atmósfera que bloquea radiación/rayos UV; protege la tierra"
+        },
+        {
+          "num": 20,
+          "pregunta": "¿Cómo regresa el oxígeno al aire?",
+          "respuesta": "Fotosíntesis; plantas; árboles"
+        },
+        {
+          "num": 21,
+          "pregunta": "¿Qué son los jeroglíficos?",
+          "respuesta": "Forma antigua de escritura con figuras/símbolos"
+        },
+        {
+          "num": 22,
+          "pregunta": "¿Cuál país tiene la población más grande?",
+          "respuesta": "China"
+        },
+        {
+          "num": 23,
+          "pregunta": "¿Cuál es la capital de Grecia?",
+          "respuesta": "Atenas"
+        },
+        {
+          "num": 24,
+          "pregunta": "¿Por qué se oxida el hierro?",
+          "respuesta": "Oxidación, oxígeno, reacción química, humedad"
+        },
+        {
+          "num": 25,
+          "pregunta": "¿Qué hace que las hojas sean verdes?",
+          "respuesta": "Clorofila; cloroplasto"
+        },
+        {
+          "num": 26,
+          "pregunta": "¿Quién fue Charles Darwin?",
+          "respuesta": "Teoría de la evolución; selección natural"
+        },
+        {
+          "num": 27,
+          "pregunta": "¿De qué están hechos los diamantes?",
+          "respuesta": "Carbón; carbón bajo presión; grafito"
+        },
+        {
+          "num": 28,
+          "pregunta": "¿Quién fue Confucio?",
+          "respuesta": "Filósofo/pensador/educador chino"
+        },
+        {
+          "num": 29,
+          "pregunta": "¿Qué es el solsticio de invierno?",
+          "respuesta": "Día más corto del invierno; noche más larga"
+        },
+        {
+          "num": 30,
+          "pregunta": "¿Qué es un barómetro?",
+          "respuesta": "Mide la presión atmosférica; predice cambios del clima"
+        },
+        {
+          "num": 31,
+          "pregunta": "¿Qué es la fisión nuclear?",
+          "respuesta": "Átomos que se dividen y crean energía; fuente de energía radioactiva"
+        },
+        {
+          "num": 32,
+          "pregunta": "¿Qué distancia hay entre Cd. de México y Nueva York?",
+          "respuesta": "4,800 a 6,400 km (3,000-4,000 millas)"
+        },
+        {
+          "num": 33,
+          "pregunta": "¿De dónde se obtiene la resina natural?",
+          "respuesta": "De las plantas; de los árboles; del pino"
+        }
       ]
     },
     "NiWisPalCon": {
@@ -732,36 +2135,210 @@
       "instruccion_general": "El profesional lee pistas progresivas sobre un concepto. El niño debe adivinar la palabra con la menor cantidad de pistas posible.",
       "materiales": "Manual, protocolo de registro",
       "reglas": {
-        "inicio": {"6-9": 1, "10-16": 5},
+        "inicio": {
+          "6-9": 1,
+          "10-16": 5
+        },
         "inversion": "Edades 10-16: si obtiene 0 en cualquiera de los dos primeros dados, aplicar anteriores hasta dos consecutivas perfectas",
         "discontinuacion": "Después de 5 puntuaciones consecutivas de 0",
         "puntuacion": "0 o 1 punto"
       },
       "items": [
-        {"num":1,"pistas":["Sirve para secarte después de que te bañas"],"respuesta":"Toalla"},
-        {"num":2,"pistas":["Sirve para oler cosas"],"respuesta":"Nariz"},
-        {"num":3,"pistas":["Es un satélite natural","y solo lo puedes ver de noche"],"respuesta":"Luna"},
-        {"num":4,"pistas":["Este es un animal con trompa y grandes orejas"],"respuesta":"Elefante"},
-        {"num":5,"pistas":["Se pone en la cabeza para protegerse del frío o del sol"],"respuesta":"Sombrero"},
-        {"num":6,"pistas":["Tiene una perilla o picaporte y la gente puede abrirla para pasar"],"respuesta":"Puerta"},
-        {"num":7,"pistas":["Mezcla de tierra con la lluvia","y puedes manchar con esto tu ropa o el piso"],"respuesta":"Lodo"},
-        {"num":8,"pistas":["Tiene cosas del pasado o antiguas","y en este lugar se exhiben cosas interesantes"],"respuesta":"Museo"},
-        {"num":9,"pistas":["Líquido de colores","y se usa para poner en las paredes"],"respuesta":"Pintura"},
-        {"num":10,"pistas":["Esta es una habitación donde la gente duerme"],"respuesta":"Recámara"},
-        {"num":11,"pistas":["Proviene de los charcos/estanques en la costa del mar","y es útil para condimentar los alimentos"],"respuesta":"Sal"},
-        {"num":12,"pistas":["Nacen al pie de las montañas","y por lo general desembocan en el océano"],"respuesta":"Río"},
-        {"num":13,"pistas":["Son los responsables de que tu cuerpo funcione","y algunos de ellos se pueden trasplantar"],"respuesta":"Órgano"},
-        {"num":14,"pistas":["Conduce a nuevos descubrimientos","y comprende un proceso con una serie de pasos","y puede incluir experimentos"],"respuesta":"Ciencia"},
-        {"num":15,"pistas":["Facilita la convivencia de personas diferentes","Se rompe cuando hay conflictos sociales","y es algo que la ONU trata de mantener"],"respuesta":"Paz"},
-        {"num":16,"pistas":["Son normas que debe respetar el ciudadano","y están escritas para proteger a la sociedad"],"respuesta":"Ley"},
-        {"num":17,"pistas":["La gente lo hace para arreglar edificios viejos","y se hace para devolver el aspecto original"],"respuesta":"Restaurar"},
-        {"num":18,"pistas":["No se detiene","No se toca","y se puede medir"],"respuesta":"Tiempo"},
-        {"num":19,"pistas":["Es un permiso oficial","por lo general lo otorga una autoridad","y puede ser que hagas un examen para obtenerlo"],"respuesta":"Licencia"},
-        {"num":20,"pistas":["Lo festejas","aumenta cada año","y te hace más grande"],"respuesta":"Edad/Cumpleaños"},
-        {"num":21,"pistas":["Nunca se ha visto","mejora nuestras vidas","y puede provocar que la gente gane premios"],"respuesta":"Descubrimiento/Invención"},
-        {"num":22,"pistas":["Este es un lugar","y te protege de los cambios de clima","y se halla dentro de otra cosa"],"respuesta":"Habitación interior"},
-        {"num":23,"pistas":["Puede ser un río","y las guerras pueden cambiarlo","y dos países pueden compartirlo"],"respuesta":"Frontera"},
-        {"num":24,"pistas":["Ha pasado","y se puede contar","y otorga lecciones a la gente"],"respuesta":"Historia"}
+        {
+          "num": 1,
+          "pistas": [
+            "Sirve para secarte después de que te bañas"
+          ],
+          "respuesta": "Toalla"
+        },
+        {
+          "num": 2,
+          "pistas": [
+            "Sirve para oler cosas"
+          ],
+          "respuesta": "Nariz"
+        },
+        {
+          "num": 3,
+          "pistas": [
+            "Es un satélite natural",
+            "y solo lo puedes ver de noche"
+          ],
+          "respuesta": "Luna"
+        },
+        {
+          "num": 4,
+          "pistas": [
+            "Este es un animal con trompa y grandes orejas"
+          ],
+          "respuesta": "Elefante"
+        },
+        {
+          "num": 5,
+          "pistas": [
+            "Se pone en la cabeza para protegerse del frío o del sol"
+          ],
+          "respuesta": "Sombrero"
+        },
+        {
+          "num": 6,
+          "pistas": [
+            "Tiene una perilla o picaporte y la gente puede abrirla para pasar"
+          ],
+          "respuesta": "Puerta"
+        },
+        {
+          "num": 7,
+          "pistas": [
+            "Mezcla de tierra con la lluvia",
+            "y puedes manchar con esto tu ropa o el piso"
+          ],
+          "respuesta": "Lodo"
+        },
+        {
+          "num": 8,
+          "pistas": [
+            "Tiene cosas del pasado o antiguas",
+            "y en este lugar se exhiben cosas interesantes"
+          ],
+          "respuesta": "Museo"
+        },
+        {
+          "num": 9,
+          "pistas": [
+            "Líquido de colores",
+            "y se usa para poner en las paredes"
+          ],
+          "respuesta": "Pintura"
+        },
+        {
+          "num": 10,
+          "pistas": [
+            "Esta es una habitación donde la gente duerme"
+          ],
+          "respuesta": "Recámara"
+        },
+        {
+          "num": 11,
+          "pistas": [
+            "Proviene de los charcos/estanques en la costa del mar",
+            "y es útil para condimentar los alimentos"
+          ],
+          "respuesta": "Sal"
+        },
+        {
+          "num": 12,
+          "pistas": [
+            "Nacen al pie de las montañas",
+            "y por lo general desembocan en el océano"
+          ],
+          "respuesta": "Río"
+        },
+        {
+          "num": 13,
+          "pistas": [
+            "Son los responsables de que tu cuerpo funcione",
+            "y algunos de ellos se pueden trasplantar"
+          ],
+          "respuesta": "Órgano"
+        },
+        {
+          "num": 14,
+          "pistas": [
+            "Conduce a nuevos descubrimientos",
+            "y comprende un proceso con una serie de pasos",
+            "y puede incluir experimentos"
+          ],
+          "respuesta": "Ciencia"
+        },
+        {
+          "num": 15,
+          "pistas": [
+            "Facilita la convivencia de personas diferentes",
+            "Se rompe cuando hay conflictos sociales",
+            "y es algo que la ONU trata de mantener"
+          ],
+          "respuesta": "Paz"
+        },
+        {
+          "num": 16,
+          "pistas": [
+            "Son normas que debe respetar el ciudadano",
+            "y están escritas para proteger a la sociedad"
+          ],
+          "respuesta": "Ley"
+        },
+        {
+          "num": 17,
+          "pistas": [
+            "La gente lo hace para arreglar edificios viejos",
+            "y se hace para devolver el aspecto original"
+          ],
+          "respuesta": "Restaurar"
+        },
+        {
+          "num": 18,
+          "pistas": [
+            "No se detiene",
+            "No se toca",
+            "y se puede medir"
+          ],
+          "respuesta": "Tiempo"
+        },
+        {
+          "num": 19,
+          "pistas": [
+            "Es un permiso oficial",
+            "por lo general lo otorga una autoridad",
+            "y puede ser que hagas un examen para obtenerlo"
+          ],
+          "respuesta": "Licencia"
+        },
+        {
+          "num": 20,
+          "pistas": [
+            "Lo festejas",
+            "aumenta cada año",
+            "y te hace más grande"
+          ],
+          "respuesta": "Edad/Cumpleaños"
+        },
+        {
+          "num": 21,
+          "pistas": [
+            "Nunca se ha visto",
+            "mejora nuestras vidas",
+            "y puede provocar que la gente gane premios"
+          ],
+          "respuesta": "Descubrimiento/Invención"
+        },
+        {
+          "num": 22,
+          "pistas": [
+            "Este es un lugar",
+            "y te protege de los cambios de clima",
+            "y se halla dentro de otra cosa"
+          ],
+          "respuesta": "Habitación interior"
+        },
+        {
+          "num": 23,
+          "pistas": [
+            "Puede ser un río",
+            "y las guerras pueden cambiarlo",
+            "y dos países pueden compartirlo"
+          ],
+          "respuesta": "Frontera"
+        },
+        {
+          "num": 24,
+          "pistas": [
+            "Ha pasado",
+            "y se puede contar",
+            "y otorga lecciones a la gente"
+          ],
+          "respuesta": "Historia"
+        }
       ]
     }
   }
