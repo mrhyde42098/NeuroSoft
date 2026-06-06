@@ -32,7 +32,7 @@ test.describe("Accesibilidad básica (S3.3)", () => {
   });
 
   test('Cambiar a "Pacientes" actualiza aria-current', async ({ page }) => {
-    await page.getByTestId("nav-pacientes").click();
+    await page.getByTestId("nav-patients").click();
     await expect(page.locator('[aria-current="page"]').first()).toHaveText(/pacientes/i, {
       timeout: 8_000,
     });
