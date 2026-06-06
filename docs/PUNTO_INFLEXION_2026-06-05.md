@@ -418,4 +418,14 @@ Ubicación: `D:\NeuroSoftApp\.claude\skills\`
 
 ---
 
+## Actualizaciones
+
+### 6 jun 2026 — Cierre beta + OSS
+- HC 4 pasos; screening/MMSE fuera del wizard. Repo GitHub público; Codex OSS enviado.
+- Fix PDF Pro: `Resumen para la Familia` en `base._build_pages`. **1016 tests** OK.
+- Build: `dist/NeuroSoft.exe` 47.3 MB · `NeuroSoft-Setup.exe` 1.34 GB.
+- Informes: `docs/INFORME_CIERRE_2026-06-06.md`, `ESTADO_VIVO.md` actualizado.
+
+---
+
 *Fin del informe de traspaso. NeuroSoft App — software propietario. Sin atribución a terceros.*
