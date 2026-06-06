@@ -304,17 +304,10 @@ class UserRepository:
         if admin is not None:
             admin.role = "admin"
             admin.is_active = True
-            # §S0.5 — ELIMINADO el kill-switch NEUROSOFT_RESET_ADMIN_PASSWORD.
-            # Era un riesgo crítico: con esa flag en 1, cualquier proceso
-            # podia sobrescribir la contraseña del admin sin auth. Ahora
-            # el admin debe usar POST /auth/change-password (con auth) para
-            # rotar su contraseña.
-            _reset_admin_pwd = os.getenv("NEUROSOFT_RESET_ADMIN_PASSWORD", "0")
-            if _reset_admin_pwd == "1":
-                logger.warning(
-                    "NEUROSOFT_RESET_ADMIN_PASSWORD está activa pero es IGNORADA "
-                    "(eliminado en Sprint 0, S0.5). Use /auth/change-password."
-                )
+            # En testing/CI, sincronizar contraseña con NEUROSOFT_ADMIN_PASSWORD
+            # para que fixtures de login coincidan tras re-runs locales o GHA.
+            if settings.env == "testing" and password:
+                admin.hashed_password = hash_password(password)
             self._db.commit()
             return
         if settings.env == "production":
