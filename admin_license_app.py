@@ -20,6 +20,9 @@ from tools.license_core import (  # noqa: E402
     DEFAULT_EMAIL_TEMPLATE,
     TYPE_META,
     append_history,
+    backup_inventory,
+    check_quota,
+    decode_key,
     email_template,
     export_inventory_csv,
     generate_key,
@@ -28,6 +31,7 @@ from tools.license_core import (  # noqa: E402
     inventory_filter,
     inventory_mark,
     inventory_register,
+    inventory_revoke,
     inventory_stats,
     load_history,
     load_settings,
@@ -80,6 +84,7 @@ class LicenseAdminApp:
         self._tab_single(nb)
         self._tab_batch(nb)
         self._tab_inventory(nb)
+        self._tab_validate(nb)
         self._tab_customize(nb)
         self._tab_history(nb)
         self._tab_email(nb)
@@ -112,10 +117,12 @@ class LicenseAdminApp:
         self._stat_total = tk.StringVar(value=str(st["total"]))
         self._stat_avail = tk.StringVar(value=str(st["available"]))
         self._stat_assigned = tk.StringVar(value=str(st["assigned"]))
+        self._stat_revoked = tk.StringVar(value=str(st["revoked"]))
         self._stat_batches = tk.StringVar(value=str(st["batches"]))
         self._stat_chip(self.stats_frame, "Total", self._stat_total, C["accent"])
         self._stat_chip(self.stats_frame, "Disponibles", self._stat_avail, C["ok"])
         self._stat_chip(self.stats_frame, "Asignadas", self._stat_assigned, C["warn"])
+        self._stat_chip(self.stats_frame, "Revocadas", self._stat_revoked, C["danger"])
         self._stat_chip(self.stats_frame, "Lotes", self._stat_batches, C["muted"])
 
     def _card(self, parent: tk.Widget) -> tk.Frame:
@@ -159,6 +166,7 @@ class LicenseAdminApp:
         bf = tk.Frame(card, bg=C["card"])
         bf.pack(fill="x", pady=12)
         self._btn(bf, "Actualizar contadores", self._refresh_dashboard, primary=True)
+        self._btn(bf, "Backup inventario", self._backup_inv)
         self._btn(bf, "Exportar inventario CSV", self._export_all_inv)
         self._btn(bf, "Importar CSV existente", self._import_csv)
 
@@ -174,11 +182,13 @@ class LicenseAdminApp:
             f"  Revocadas:           {st['revoked']}",
             f"  Lotes distintos:     {st['batches']}",
             "",
-            "Por tipo:",
+            "Por tipo (disponibles / total):",
         ]
         for t, n in sorted(st.get("by_type", {}).items()):
             meta = TYPE_META.get(t, {})
-            lines.append(f"  • {meta.get('label', t):16s}  {n}")
+            det = st.get("by_type_detail", {}).get(t, {})
+            avail = det.get("available", 0)
+            lines.append(f"  • {meta.get('label', t):16s}  {avail:4d} disp / {n:4d} total")
         batches = inventory_batches()
         if batches:
             lines += ["", "Lotes:", *[f"  • {b}" for b in batches[:12]]]
@@ -300,6 +310,7 @@ class LicenseAdminApp:
         bf.pack(fill="x", pady=4)
         self._btn(bf, "Marcar asignada", self._inv_mark_assigned)
         self._btn(bf, "Marcar disponible", self._inv_mark_available)
+        self._btn(bf, "Revocar", self._inv_revoke)
         self._btn(bf, "Exportar filtro CSV", self._export_filtered_inv)
         self._btn(bf, "Importar CSV", self._import_csv)
 
@@ -311,6 +322,21 @@ class LicenseAdminApp:
         self.inv_tree.pack(fill="both", expand=True)
         self._refresh_inventory_tree()
 
+    def _tab_validate(self, nb: ttk.Notebook) -> None:
+        tab = tk.Frame(nb, bg=C["bg"])
+        nb.add(tab, text="  Validar  ")
+        card = self._card(tab)
+        tk.Label(card, text="Pega una clave NSFT para inspeccionar su payload (offline).",
+                 font=("Segoe UI", 10), fg=C["muted"], bg=C["card"]).pack(anchor="w", pady=(0, 6))
+        self.v_key = tk.Entry(card, bg=C["bg"], fg=C["text"], font=("Consolas", 11), relief="flat")
+        self.v_key.pack(fill="x", ipady=6)
+        bf = tk.Frame(card, bg=C["card"])
+        bf.pack(fill="x", pady=8)
+        self._btn(bf, "Decodificar", self._decode_key_ui, primary=True)
+        self._btn(bf, "Desde selección inventario", self._decode_from_selection)
+        self.v_result = tk.Label(card, text="", font=("Segoe UI", 10), fg=C["text"], bg=C["card"], justify="left")
+        self.v_result.pack(anchor="w", fill="x")
+
     def _tab_customize(self, nb: ttk.Notebook) -> None:
         tab = tk.Frame(nb, bg=C["bg"])
         nb.add(tab, text="  Personalizar  ")
@@ -320,6 +346,21 @@ class LicenseAdminApp:
         self.c_prefix = self._field(card, "Prefijo lote default", self.settings.get("default_prefix", "BETA2026"))
         self.c_sender = self._field(card, "Firma email", self.settings.get("default_sender", "Equipo NeuroSoft"))
         self.c_batch_sz = self._field(card, "Tamaño lote default", str(self.settings.get("default_batch_size", 50)))
+
+        qf = tk.LabelFrame(card, text="Cuotas (máx. disponibles por tipo · 0 = sin límite)",
+                           font=("Segoe UI", 9, "bold"), fg=C["muted"], bg=C["card"])
+        qf.pack(fill="x", pady=(8, 4))
+        quotas = self.settings.get("quotas") or {}
+        self.c_quota = {}
+        for t in TYPE_META:
+            row = tk.Frame(qf, bg=C["card"])
+            row.pack(fill="x", pady=2)
+            tk.Label(row, text=TYPE_META[t]["label"], width=14, anchor="w",
+                     font=("Segoe UI", 9), fg=C["muted"], bg=C["card"]).pack(side="left")
+            e = tk.Entry(row, width=8, bg=C["bg"], fg=C["text"], relief="flat", font=("Segoe UI", 10))
+            e.insert(0, str(quotas.get(t, 0)))
+            e.pack(side="left", padx=4)
+            self.c_quota[t] = e
 
         tk.Label(card, text="Plantilla email (placeholders: {name} {email} {key} {type_label} {institution} {days_line} {notes_line} {sender})",
                  font=("Segoe UI", 9), fg=C["muted"], bg=C["card"], wraplength=700, justify="left").pack(anchor="w", pady=(10, 4))
@@ -424,6 +465,10 @@ DATOS LOCALES (no subir a GitHub)
             messagebox.showwarning("Datos incompletos", "Nombre y email son obligatorios.")
             return
         ltype = self.s_type.get()
+        ok, msg = check_quota(ltype, count=1, settings=self.settings)
+        if not ok:
+            messagebox.showwarning("Cuota alcanzada", msg)
+            return
         days = int(self.s_days.get()) if ltype == "trial" else 0
         inst = self.s_inst.get().strip() or self.settings.get("default_institution", "")
         key = generate_key(ltype, name, email, self.s_doc.get().strip(), days, inst)
@@ -451,6 +496,10 @@ DATOS LOCALES (no subir a GitHub)
     def _gen_batch(self) -> None:
         n = int(self.b_count.get())
         ltype = self.b_type.get()
+        ok, msg = check_quota(ltype, count=n, settings=self.settings)
+        if not ok:
+            messagebox.showwarning("Cuota alcanzada", msg)
+            return
         days = int(self.b_days.get()) if ltype == "trial" else 0
         prefix = self.b_prefix.get().strip() or self.settings.get("default_prefix", "LOTE")
         inst = self.b_inst.get().strip() or self.settings.get("default_institution", "")
@@ -527,6 +576,49 @@ DATOS LOCALES (no subir a GitHub)
         self._refresh_stats()
         self._refresh_inventory_tree()
 
+    def _inv_revoke(self) -> None:
+        key = self._inv_selected_key()
+        if not key:
+            messagebox.showinfo("Selección", "Selecciona una fila del inventario.")
+            return
+        if not messagebox.askyesno("Revocar", f"¿Marcar como revocada?\n{key[:40]}…"):
+            return
+        inventory_revoke(key)
+        self._refresh_stats()
+        self._refresh_inventory_tree()
+        self._refresh_dashboard()
+
+    def _backup_inv(self) -> None:
+        path = backup_inventory()
+        messagebox.showinfo("Backup", f"Inventario respaldado en:\n{path}")
+
+    def _decode_key_ui(self) -> None:
+        key = self.v_key.get().strip()
+        if not key:
+            messagebox.showinfo("Clave", "Pega una clave NSFT.")
+            return
+        try:
+            info = decode_key(key)
+            self.v_result.config(text=(
+                f"Tipo: {info['type_label']} ({info['type']})\n"
+                f"Emitida: {info['issued_at']}\n"
+                f"Marca de agua PDF: {'Sí' if info['watermark'] else 'No'}\n"
+                f"Días trial: {info['trial_days'] or '—'}\n"
+                f"Expira: {info['expires_at'] or 'Sin vencimiento en clave'}\n"
+                f"Firma RSA: {'Sí' if info['signed'] else 'No (dev)'}"
+            ), fg=C["text"])
+        except ValueError as exc:
+            self.v_result.config(text=f"Error: {exc}", fg=C["danger"])
+
+    def _decode_from_selection(self) -> None:
+        key = self._inv_selected_key()
+        if not key:
+            messagebox.showinfo("Selección", "Selecciona una fila del inventario.")
+            return
+        self.v_key.delete(0, "end")
+        self.v_key.insert(0, key)
+        self._decode_key_ui()
+
     def _import_csv(self) -> None:
         path = filedialog.askopenfilename(filetypes=[("CSV", "*.csv")])
         if not path:
@@ -558,6 +650,7 @@ DATOS LOCALES (no subir a GitHub)
             "default_sender": self.c_sender.get().strip(),
             "default_batch_size": int(self.c_batch_sz.get() or 50),
             "email_template": self.c_template.get("1.0", "end").strip(),
+            "quotas": {t: int(self.c_quota[t].get() or 0) for t in self.c_quota},
         }
         save_settings(self.settings)
         messagebox.showinfo("Guardado", "Preferencias guardadas.")

@@ -1,18 +1,7 @@
 """
-generate_license.py
-===================
-§BLINDAJE-N1 — GUI para generar licencias de NeuroSoft.
+generate_license.py — DEPRECADO: usar admin_license_app.py o dist/NeuroSoft-LicenseAdmin.exe
 
-Solo la usa Johan. Sin dependencias externas (solo tkinter, built-in).
-Genera claves NSFT-XXXX-XXXX-XXXX-XXXX válidas.
-
-Tipos de licencia soportados:
-  - Perpetua: pago único, sin expiración
-  - Trial: N días, expira automáticamente
-  - Beta tester: sin expiración, con marca de agua
-  - Master Admin: solo Johan, acceso total
-
-Ejecutar: python generate_license.py
+Mantiene CLI batch mínima; la GUI legacy redirige al panel completo.
 """
 
 from __future__ import annotations

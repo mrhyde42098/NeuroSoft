@@ -67,7 +67,11 @@ DEFAULT_SETTINGS = {
     "default_sender": "Equipo NeuroSoft",
     "default_batch_size": 50,
     "email_template": DEFAULT_EMAIL_TEMPLATE,
+    # Cuotas: máximo de claves *disponibles* por tipo (0 = sin límite)
+    "quotas": {"beta": 0, "trial": 0, "perpetual": 0, "master": 0},
 }
+
+TYPE_REVERSE = {0: "perpetual", 1: "trial", 2: "beta", 3: "master"}
 
 
 def _admin_dir() -> Path:
@@ -107,6 +111,7 @@ def load_settings() -> dict:
     data = _load_json(settings_path(), DEFAULT_SETTINGS.copy())
     if isinstance(data, dict):
         merged = {**DEFAULT_SETTINGS, **data}
+        merged["quotas"] = {**DEFAULT_SETTINGS["quotas"], **(data.get("quotas") or {})}
         return merged
     return DEFAULT_SETTINGS.copy()
 
@@ -203,12 +208,16 @@ def inventory_stats() -> dict:
     keys = inv.get("keys", [])
     by_type: dict[str, int] = {}
     by_status: dict[str, int] = {"available": 0, "assigned": 0, "revoked": 0}
+    by_type_detail: dict[str, dict[str, int]] = {}
     batches: set[str] = set()
     for k in keys:
         t = k.get("type", "beta")
         by_type[t] = by_type.get(t, 0) + 1
         st = k.get("status", "available")
         by_status[st] = by_status.get(st, 0) + 1
+        detail = by_type_detail.setdefault(t, {"total": 0, "available": 0, "assigned": 0, "revoked": 0})
+        detail["total"] += 1
+        detail[st] = detail.get(st, 0) + 1
         if k.get("batch"):
             batches.add(k["batch"])
     total = len(keys)
@@ -220,6 +229,7 @@ def inventory_stats() -> dict:
         "revoked": by_status.get("revoked", 0),
         "batches": len(batches),
         "by_type": by_type,
+        "by_type_detail": by_type_detail,
         "by_status": by_status,
     }
 
@@ -286,6 +296,68 @@ def export_inventory_csv(path: str | Path, *, status: str | None = None) -> int:
     return len(rows)
 
 
+def inventory_revoke(key: str) -> bool:
+    return inventory_mark(key, "revoked")
+
+
+def check_quota(license_type: str, *, count: int = 1, settings: dict | None = None) -> tuple[bool, str]:
+    """Verifica cuota de disponibles antes de generar. Retorna (ok, mensaje)."""
+    settings = settings or load_settings()
+    quotas = settings.get("quotas") or {}
+    limit = int(quotas.get(license_type) or 0)
+    if limit <= 0:
+        return True, ""
+    detail = inventory_stats().get("by_type_detail", {}).get(license_type, {})
+    available = detail.get("available", 0)
+    if available + count > limit:
+        return False, (
+            f"Cuota {TYPE_META.get(license_type, {}).get('label', license_type)}: "
+            f"{available} disponibles + {count} nuevas > límite {limit}"
+        )
+    return True, ""
+
+
+def backup_inventory() -> Path:
+    """Copia de seguridad timestamped del inventario."""
+    inv = load_inventory()
+    dest = _admin_dir() / f"license_inventory_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    _save_json(dest, inv)
+    return dest
+
+
+def decode_key(key: str) -> dict:
+    """Decodifica payload NSFT (sin verificar firma RSA)."""
+    raw = key.strip().upper()
+    if not raw.startswith("NSFT-"):
+        raise ValueError("Formato inválido: debe empezar con NSFT-")
+    blocks = raw.replace("NSFT-", "").split("-")
+    if len(blocks) < 4:
+        raise ValueError("Formato inválido: faltan bloques hex")
+    payload_hex = "".join(blocks[:4])
+    payload = bytes.fromhex(payload_hex)
+    if len(payload) < 8:
+        raise ValueError("Payload insuficiente (mínimo 8 bytes)")
+    ltype = TYPE_REVERSE.get(payload[1], "perpetual")
+    issued_ts = int.from_bytes(payload[2:6], "big")
+    trial_days = int.from_bytes(payload[6:8], "big")
+    issued_at = datetime.fromtimestamp(issued_ts, tz=timezone.utc)
+    expires_at = None
+    if ltype == "trial" and trial_days > 0:
+        from datetime import timedelta
+        expires_at = issued_at + timedelta(days=trial_days)
+    meta = TYPE_META.get(ltype, {})
+    return {
+        "type": ltype,
+        "type_label": meta.get("label", ltype),
+        "watermark": meta.get("watermark", False),
+        "issued_at": issued_at.strftime("%Y-%m-%d %H:%M UTC"),
+        "trial_days": trial_days if ltype == "trial" else None,
+        "expires_at": expires_at.strftime("%Y-%m-%d") if expires_at else None,
+        "signed": len(blocks) > 4,
+        "blocks": len(blocks),
+    }
+
+
 def generate_key(
     license_type: str,
     licensee: str,
@@ -306,7 +378,7 @@ def generate_key(
     payload[8:16] = id_hash
     payload[16:] = secrets.token_bytes(16)
     hex_str = payload.hex().upper()
-    blocks = [hex_str[i : i + 4] for i in range(0, 32, 4)]
+    blocks = [hex_str[i : i + 4] for i in range(0, len(hex_str), 4)]
     return f"{PRODUCT_ID}-{'-'.join(blocks[:8])}"
 
 

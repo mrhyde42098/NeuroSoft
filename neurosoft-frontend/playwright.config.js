@@ -14,6 +14,8 @@ const BACKEND_DIR = path.resolve(__dirname, "../neurosoft-backend");
 const E2E_DB = "data/e2e_test.db";
 
 function resolvePython() {
+  if (process.env.PYTHON) return process.env.PYTHON;
+  if (process.env.CI) return "python";
   const candidates =
     process.platform === "win32"
       ? [path.join(BACKEND_DIR, "venv/Scripts/python.exe")]
@@ -61,15 +63,20 @@ export default defineConfig({
     command: `${PY} -m uvicorn app.main:app --host 127.0.0.1 --port ${PORT}`,
     cwd: BACKEND_DIR,
     port: PORT,
-    timeout: 120_000,
+    timeout: 180_000,
     reuseExistingServer: !process.env.CI,
+    stdout: process.env.CI ? "pipe" : "ignore",
+    stderr: process.env.CI ? "pipe" : "ignore",
     env: {
+      ...process.env,
       NEUROSOFT_DB_PATH: E2E_DB,
-      NEUROSOFT_ADMIN_PASSWORD: "neurosoft2025",
-      NEUROSOFT_RESET_ADMIN_PASSWORD: "1",
+      NEUROSOFT_ADMIN_PASSWORD: process.env.NS_PASS || "neurosoft2025",
       NEUROSOFT_RESET_BETA_PASSWORD: "1",
       NEUROSOFT_E2E: "1",
       NEUROSOFT_ENV: "development",
+      NEUROSOFT_SECRET_KEY: "e2e-test-secret-key-minimum-32-characters-long",
+      NEUROSOFT_RATE_LIMIT_PER_MIN: "0",
+      NEUROSOFT_LOGIN_MAX_ATTEMPTS: "0",
     },
   },
 });
