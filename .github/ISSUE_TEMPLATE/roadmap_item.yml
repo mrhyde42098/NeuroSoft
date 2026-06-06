@@ -1,0 +1,26 @@
+name: Roadmap item
+description: Ítem del roadmap público (mantenimiento OSS)
+title: "[roadmap]: "
+labels: ["roadmap"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues de roadmap ayudan a priorizar trabajo del maintainer.
+        Estado vivo: `docs/ESTADO_VIVO.md`
+  - type: textarea
+    id: scope
+    attributes:
+      label: Alcance
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad sugerida
+      options:
+        - P0 — bloquea clínica
+        - P1 — importante
+        - P2 — nice to have
+    validations:
+      required: true

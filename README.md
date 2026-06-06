@@ -1,27 +1,34 @@
 # NeuroSoft
 
-Plataforma de evaluación neuropsicológica para uso clínico.
+[![Backend CI](https://github.com/mrhyde42098/NeuroSoft/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/mrhyde42098/NeuroSoft/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/mrhyde42098/NeuroSoft/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mrhyde42098/NeuroSoft/actions/workflows/frontend-ci.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-NeuroSoft automatiza la calificación de baterías neuropsicológicas usando
-baremos normativos colombianos, genera informes PDF/Word listos para la
-historia clínica, y administra el ciclo completo del paciente: recepción,
-anamnesis, calificación, evolución terapéutica y reportes RIPS
-(Resolución 2275/2023).
+Plataforma **open source** (Apache 2.0) de evaluación neuropsicológica para
+profesionales en Colombia y LATAM. Offline-first, datos locales, baremos
+normativos colombianos.
+
+NeuroSoft automatiza la calificación de baterías neuropsicológicas,
+genera informes PDF listos para historia clínica y administra el ciclo del
+paciente: recepción, anamnesis, screening, evaluación (WISC/WAIS y batería
+ampliada), evolución terapéutica y reportes RIPS (Resolución 2275/2023).
 
 | Módulo | Stack |
 |---|---|
 | Backend | FastAPI · SQLAlchemy · SQLite (WAL) · Python 3.11+ |
-| Frontend | React · Vite · TypeScript |
-| Motor | 15 strategies de calificación · 152 pruebas normadas |
-| Empaquetado | Docker · PyInstaller (desktop) |
+| Frontend | React 18 · Vite 5 · JSX · Tailwind |
+| Motor clínico | Strategy pattern · 173 pruebas normadas · ~1016 tests pytest |
+| Desktop | PyInstaller + Inno Setup (Windows) · Docker opcional |
+
+**Maintainer:** [@mrhyde42098](https://github.com/mrhyde42098) · Ver [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
 ## Inicio rápido (Docker)
 
 ```bash
-git clone <repo>
-cd NeuroSoftApp/neurosoft-backend
+git clone https://github.com/mrhyde42098/NeuroSoft.git
+cd NeuroSoft/neurosoft-backend
 cp .env.example .env           # editar secretos
 docker compose up -d --build
 curl http://localhost:8000/api/v1/health

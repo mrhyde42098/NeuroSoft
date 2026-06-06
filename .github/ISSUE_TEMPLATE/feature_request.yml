@@ -1,0 +1,17 @@
+name: Feature request
+description: Proponer una mejora
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema o necesidad clínica
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución propuesta
+    validations:
+      required: false

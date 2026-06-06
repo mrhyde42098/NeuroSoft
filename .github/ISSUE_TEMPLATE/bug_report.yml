@@ -1,0 +1,35 @@
+name: Bug report
+description: Reportar un error en NeuroSoft
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        No incluyas datos de pacientes reales. Usa casos sintéticos o IDs de prueba.
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción
+      description: Qué pasó y qué esperabas
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - Motor clínico / baremos
+        - Informes PDF
+        - Frontend / UI
+        - Backend / API
+        - Desktop / instalador
+        - Otro
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+    validations:
+      required: false
