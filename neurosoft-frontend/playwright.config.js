@@ -30,7 +30,7 @@ const PY = resolvePython();
 const SKIP_WEBSERVER = process.env.PLAYWRIGHT_SKIP_WEBSERVER === "1";
 
 export default defineConfig({
-  globalSetup: "./e2e/global-setup.js",
+  globalSetup: SKIP_WEBSERVER ? undefined : "./e2e/global-setup.js",
   testDir: "./e2e",
   testMatch: /.*\.spec\.js$/,
   fullyParallel: false,
