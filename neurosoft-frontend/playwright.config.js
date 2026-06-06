@@ -27,6 +27,7 @@ function resolvePython() {
 }
 
 const PY = resolvePython();
+const SKIP_WEBSERVER = process.env.PLAYWRIGHT_SKIP_WEBSERVER === "1";
 
 export default defineConfig({
   globalSetup: "./e2e/global-setup.js",
@@ -59,7 +60,9 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
+  webServer: SKIP_WEBSERVER
+    ? undefined
+    : {
     command: `${PY} -m uvicorn app.main:app --host 127.0.0.1 --port ${PORT}`,
     cwd: BACKEND_DIR,
     port: PORT,

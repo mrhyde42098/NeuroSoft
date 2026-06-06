@@ -195,8 +195,9 @@ export default function Sidebar({
                   /* §editorial: botones más sobrios — rounded-md (6px) en lugar
                    * de rounded-2xl (16px), barra indicadora vertical en activo,
                    * sin sombra dramática. Look "menú editorial", no "app móvil". */
-                  <button
+                    <button
                     key={l.id}
+                    data-testid={`nav-${l.id}`}
                     onClick={() => setPage(l.id)}
                     aria-current={active ? "page" : undefined}
                     aria-label={active ? `${l.lb} (página actual)` : l.lb}

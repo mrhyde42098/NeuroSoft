@@ -100,15 +100,62 @@ jobs:
       - name: Build dist (necesario para preview)
         run: npm run build
 
+      - name: Prepare E2E database
+        run: node e2e/prepare-e2e.mjs
+        env:
+          NEUROSOFT_DB_PATH: data/e2e_test.db
+
+      - name: Verify backend imports
+        working-directory: neurosoft-backend
+        run: python -c "from app.main import app; print('import ok')"
+        env:
+          NEUROSOFT_ENV: development
+          NEUROSOFT_SECRET_KEY: e2e-test-secret-key-minimum-32-characters-long
+
+      - name: Start backend for E2E
+        working-directory: neurosoft-backend
+        run: |
+          set -euo pipefail
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8765 > /tmp/uvicorn-e2e.log 2>&1 &
+          echo $! > /tmp/uvicorn-e2e.pid
+          for i in $(seq 1 90); do
+            if curl -sf http://127.0.0.1:8765/health >/dev/null; then
+              echo "Backend ready (${i}s)"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend failed to start:"
+          cat /tmp/uvicorn-e2e.log || true
+          exit 1
+        env:
+          NEUROSOFT_DB_PATH: data/e2e_test.db
+          NEUROSOFT_ADMIN_PASSWORD: neurosoft2025
+          NEUROSOFT_RESET_BETA_PASSWORD: "1"
+          NEUROSOFT_E2E: "1"
+          NEUROSOFT_ENV: development
+          NEUROSOFT_SECRET_KEY: e2e-test-secret-key-minimum-32-characters-long
+          NEUROSOFT_RATE_LIMIT_PER_MIN: "0"
+          NEUROSOFT_LOGIN_MAX_ATTEMPTS: "0"
+
       - name: Run E2E smoke tests
         run: npx playwright test --project=smoke --project=a11y --reporter=line
         env:
           CI: "true"
-          PYTHON: python
-          NEUROSOFT_E2E: "1"
+          PLAYWRIGHT_SKIP_WEBSERVER: "1"
           NS_USER: admin
           NS_PASS: neurosoft2025
-          NEUROSOFT_RESET_BETA_PASSWORD: "1"
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f /tmp/uvicorn-e2e.pid ]; then
+            kill "$(cat /tmp/uvicorn-e2e.pid)" 2>/dev/null || true
+          fi
+          if [ -f /tmp/uvicorn-e2e.log ]; then
+            echo "--- uvicorn log (tail) ---"
+            tail -n 40 /tmp/uvicorn-e2e.log || true
+          fi
 
       - name: Upload Playwright report on failure
         if: failure()
