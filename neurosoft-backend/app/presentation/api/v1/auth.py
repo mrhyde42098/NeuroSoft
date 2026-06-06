@@ -22,8 +22,6 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.infrastructure.database.orm_models import UserORM
-
 from app.infrastructure.audit import record_event
 from app.infrastructure.auth.auth_service import (
     UserRepository,
@@ -32,6 +30,7 @@ from app.infrastructure.auth.auth_service import (
     decode_access_token,
     decode_refresh_token,
 )
+from app.infrastructure.database.orm_models import UserORM
 from app.presentation.dependencies import DbSession, db_session
 
 logger = logging.getLogger(__name__)
@@ -44,20 +43,21 @@ bearer_scheme = HTTPBearer(auto_error=False)
 # DTOs
 # ─────────────────────────────────────────────────────────────
 
+
 class LoginRequest(BaseModel):
     username: str = Field(..., min_length=2, max_length=50)
     password: str = Field(..., min_length=6)
 
 
 class TokenResponse(BaseModel):
-    access_token:  str
+    access_token: str
     refresh_token: str
-    token_type:    str = "bearer"
-    expires_in:    int          # segundos
-    user_id:       str
-    username:      str
+    token_type: str = "bearer"
+    expires_in: int  # segundos
+    user_id: str
+    username: str
     nombre_completo: str
-    role:          str
+    role: str
 
 
 class RefreshRequest(BaseModel):
@@ -66,43 +66,44 @@ class RefreshRequest(BaseModel):
 
 class AccessTokenResponse(BaseModel):
     access_token: str
-    token_type:   str = "bearer"
-    expires_in:   int
+    token_type: str = "bearer"
+    expires_in: int
 
 
 class UserMeResponse(BaseModel):
-    id:              str
-    username:        str
+    id: str
+    username: str
     nombre_completo: str
-    role:            str
-    profesional_id:  str | None
+    role: str
+    profesional_id: str | None
 
 
 class CreateUserRequest(BaseModel):
-    username:        str = Field(..., min_length=3, max_length=50)
-    password:        str = Field(..., min_length=6)
+    username: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=6)
     nombre_completo: str = Field(..., min_length=2)
-    role:            str = Field(default="profesional")
-    profesional_id:  str | None = None
+    role: str = Field(default="profesional")
+    profesional_id: str | None = None
 
 
 class ChangePasswordRequest(BaseModel):
     password_actual: str
-    password_nuevo:  str = Field(..., min_length=6)
+    password_nuevo: str = Field(..., min_length=6)
 
 
 class UserListItem(BaseModel):
-    id:              str
-    username:        str
+    id: str
+    username: str
     nombre_completo: str
-    role:            str
-    is_active:       bool
-    profesional_id:  str | None
+    role: str
+    is_active: bool
+    profesional_id: str | None
 
 
 # ─────────────────────────────────────────────────────────────
 # Dependencia: usuario autenticado
 # ─────────────────────────────────────────────────────────────
+
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
@@ -134,6 +135,7 @@ def get_current_user(
         is_token_revoked,
         is_user_session_revoked,
     )
+
     if is_token_revoked(db, payload.get("jti", "")):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -181,6 +183,7 @@ AdminUser = Annotated[UserORM, Depends(require_admin)]
 # profesional_id, salvo admin que ve todo.
 # ─────────────────────────────────────────────────────────────
 
+
 def get_patient_for_user(
     patient_id: str,
     db: Session,
@@ -204,11 +207,7 @@ def get_patient_for_user(
     """
     from app.infrastructure.database.orm_models import PatientORM
 
-    patient = (
-        db.query(PatientORM)
-        .filter_by(id=patient_id, is_active=True)
-        .first()
-    )
+    patient = db.query(PatientORM).filter_by(id=patient_id, is_active=True).first()
     if patient is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -225,15 +224,14 @@ def get_patient_for_user(
             return patient
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tiene permiso para acceder a este paciente "
-                   "(usuario sin profesional vinculado).",
+            detail="No tiene permiso para acceder a este paciente (usuario sin profesional vinculado).",
         )
 
     if patient.profesional_id != user.profesional_id:
         # Logueamos en audit: intento de acceso cross-tenant
         try:
             from app.infrastructure.audit import record_event
-            from fastapi import Request
+
             # `request` puede no estar disponible si se llama desde
             # un use case; lo manejamos de forma defensiva.
             record_event(
@@ -253,7 +251,8 @@ def get_patient_for_user(
         except Exception as audit_exc:
             db.rollback()
             logger.warning(
-                "No se pudo registrar audit cross-tenant: %s", audit_exc,
+                "No se pudo registrar audit cross-tenant: %s",
+                audit_exc,
             )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -294,7 +293,7 @@ _LOGIN_ATTEMPTS: dict[str, list[float]] = {}
 import os as _os
 from datetime import UTC
 
-_MAX_ATTEMPTS   = int(_os.getenv("NEUROSOFT_LOGIN_MAX_ATTEMPTS", "5"))
+_MAX_ATTEMPTS = int(_os.getenv("NEUROSOFT_LOGIN_MAX_ATTEMPTS", "5"))
 _WINDOW_SECONDS = int(_os.getenv("NEUROSOFT_LOGIN_WINDOW_SECONDS", "60"))
 
 
@@ -311,8 +310,7 @@ def _check_rate_limit(client_ip: str) -> None:
         raise HTTPException(
             status_code=429,
             detail=(
-                f"Demasiados intentos de login. "
-                f"Máximo {_MAX_ATTEMPTS} por minuto. Intenta de nuevo en un momento."
+                f"Demasiados intentos de login. Máximo {_MAX_ATTEMPTS} por minuto. Intenta de nuevo en un momento."
             ),
         )
 
@@ -325,6 +323,7 @@ def _record_attempt(client_ip: str) -> None:
 # ─────────────────────────────────────────────────────────────
 # ENDPOINTS
 # ─────────────────────────────────────────────────────────────
+
 
 @auth_router.post(
     "/login",
@@ -354,7 +353,8 @@ def login(body: LoginRequest, request: Request, db: DbSession):
             detail="Credenciales incorrectas.",
         )
     from app.infrastructure.auth.auth_service import ACCESS_TOKEN_EXPIRE_HOURS
-    access  = create_access_token(user.id, user.role, username=user.username)
+
+    access = create_access_token(user.id, user.role, username=user.username)
     refresh = create_refresh_token(user.id)
     # Audit: login exitoso
     record_event(
@@ -396,6 +396,7 @@ def refresh_token(body: RefreshRequest, db: DbSession):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no encontrado.")
 
     from app.infrastructure.auth.auth_service import ACCESS_TOKEN_EXPIRE_HOURS
+
     access = create_access_token(user.id, user.role, username=user.username)
     return AccessTokenResponse(
         access_token=access,
@@ -492,6 +493,7 @@ def change_password(
         revoke_all_user_tokens,
         verify_password,
     )
+
     if not verify_password(body.password_actual, current_user.hashed_password):
         record_event(
             db,
@@ -526,6 +528,7 @@ def change_password(
 
 # ── Admin only ───────────────────────────────────────────────
 
+
 @auth_router.get(
     "/users",
     response_model=list[UserListItem],
@@ -536,9 +539,11 @@ def list_users(db: DbSession, admin=Depends(require_admin)):
     users = repo.list_users()
     return [
         UserListItem(
-            id=u.id, username=u.username,
+            id=u.id,
+            username=u.username,
             nombre_completo=u.nombre_completo,
-            role=u.role, is_active=u.is_active,
+            role=u.role,
+            is_active=u.is_active,
             profesional_id=u.profesional_id,
         )
         for u in users
@@ -564,9 +569,11 @@ def create_user(body: CreateUserRequest, db: DbSession, admin=Depends(require_ad
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
     return UserListItem(
-        id=user.id, username=user.username,
+        id=user.id,
+        username=user.username,
         nombre_completo=user.nombre_completo,
-        role=user.role, is_active=user.is_active,
+        role=user.role,
+        is_active=user.is_active,
         profesional_id=user.profesional_id,
     )
 

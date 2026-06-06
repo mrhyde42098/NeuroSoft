@@ -41,23 +41,71 @@ from app.domain.entities.models import ResultadoPrueba
 # Helper: ORM → ResponseDTO
 # ─────────────────────────────────────────────────────────────────
 
+
 def _hc_to_response(orm) -> ClinicalHistoryResponseDTO:
     fields = [
-        "id", "patient_id", "numero_documento", "fecha_atencion", "codigo_cie10",
+        "id",
+        "patient_id",
+        "numero_documento",
+        "fecha_atencion",
+        "codigo_cie10",
         "codigo_cie11",
-        "motivo_consulta", "edad_materna", "no_gestacion", "riesgos", "cual_riesgo",
-        "estres_prenatal", "gestacion", "semanas", "tipo_parto", "peso_gr", "talla_cm",
-        "condiciones_neonatales", "incubadora", "sosten_cefalico", "sedestacion",
-        "gateo", "marcha", "balbuceo", "primeras_palabras", "habla_claro",
-        "control_anual", "control_vesical", "tipo_estres_prenatal", "ucin",
-        "patologicos_medicos", "sensoriales_motores", "psiquiatricos", "farmacologicos",
-        "traumaticos", "quirurgicos", "toxicos", "alergicos", "terapeuticos",
-        "paraclinicos", "familiares", "vive_con", "abc", "escolar_laboral",
-        "cognitivo", "comportamiento_animo", "patron_sueno", "patron_alimentacion",
-        "plan_atencion", "impresion_diagnostica_hc", "hipotesis_pre_eval",
-        "obs_clinica_general", "obs_atencion", "obs_memoria", "obs_praxias_gnosias",
-        "obs_lenguaje", "obs_funciones_ejecutivas", "obs_emociones", "obs_ci",
-        "obs_impresion_dx", "obs_funcionalidad", "obs_recomendaciones",
+        "motivo_consulta",
+        "edad_materna",
+        "no_gestacion",
+        "riesgos",
+        "cual_riesgo",
+        "estres_prenatal",
+        "gestacion",
+        "semanas",
+        "tipo_parto",
+        "peso_gr",
+        "talla_cm",
+        "condiciones_neonatales",
+        "incubadora",
+        "sosten_cefalico",
+        "sedestacion",
+        "gateo",
+        "marcha",
+        "balbuceo",
+        "primeras_palabras",
+        "habla_claro",
+        "control_anual",
+        "control_vesical",
+        "tipo_estres_prenatal",
+        "ucin",
+        "patologicos_medicos",
+        "sensoriales_motores",
+        "psiquiatricos",
+        "farmacologicos",
+        "traumaticos",
+        "quirurgicos",
+        "toxicos",
+        "alergicos",
+        "terapeuticos",
+        "paraclinicos",
+        "familiares",
+        "vive_con",
+        "abc",
+        "escolar_laboral",
+        "cognitivo",
+        "comportamiento_animo",
+        "patron_sueno",
+        "patron_alimentacion",
+        "plan_atencion",
+        "impresion_diagnostica_hc",
+        "hipotesis_pre_eval",
+        "obs_clinica_general",
+        "obs_atencion",
+        "obs_memoria",
+        "obs_praxias_gnosias",
+        "obs_lenguaje",
+        "obs_funciones_ejecutivas",
+        "obs_emociones",
+        "obs_ci",
+        "obs_impresion_dx",
+        "obs_funcionalidad",
+        "obs_recomendaciones",
     ]
     return ClinicalHistoryResponseDTO(
         **{f: getattr(orm, f) for f in fields},
@@ -68,6 +116,7 @@ def _hc_to_response(orm) -> ClinicalHistoryResponseDTO:
 # ─────────────────────────────────────────────────────────────────
 # 1. HISTORIA CLÍNICA
 # ─────────────────────────────────────────────────────────────────
+
 
 class UpsertClinicalHistoryUseCase:
     """Crea o actualiza la Historia Clínica de un paciente."""
@@ -82,9 +131,11 @@ class UpsertClinicalHistoryUseCase:
         if not patient:
             raise PatientNotFoundError(dto.patient_id)
 
-        existing = self._db.query(ClinicalHistoryORM).filter_by(
-            patient_id=dto.patient_id, fecha_atencion=dto.fecha_atencion
-        ).first()
+        existing = (
+            self._db.query(ClinicalHistoryORM)
+            .filter_by(patient_id=dto.patient_id, fecha_atencion=dto.fecha_atencion)
+            .first()
+        )
 
         d = dto.desarrollo
         a = dto.antecedentes
@@ -103,35 +154,65 @@ class UpsertClinicalHistoryUseCase:
             codigo_cie10=dto.codigo_cie10,
             codigo_cie11=cie11,
             # Desarrollo
-            motivo_consulta=d.motivo_consulta, edad_materna=d.edad_materna,
-            no_gestacion=d.no_gestacion, riesgos=d.riesgos, cual_riesgo=d.cual_riesgo,
-            estres_prenatal=d.estres_prenatal, gestacion=d.gestacion, semanas=d.semanas,
-            tipo_parto=d.tipo_parto, peso_gr=d.peso_gr, talla_cm=d.talla_cm,
-            condiciones_neonatales=d.condiciones_neonatales, incubadora=d.incubadora,
-            sosten_cefalico=d.sosten_cefalico, sedestacion=d.sedestacion,
-            gateo=d.gateo, marcha=d.marcha, balbuceo=d.balbuceo,
-            primeras_palabras=d.primeras_palabras, habla_claro=d.habla_claro,
-            control_anual=d.control_anual, control_vesical=d.control_vesical,
-            tipo_estres_prenatal=d.tipo_estres_prenatal, ucin=d.ucin,
+            motivo_consulta=d.motivo_consulta,
+            edad_materna=d.edad_materna,
+            no_gestacion=d.no_gestacion,
+            riesgos=d.riesgos,
+            cual_riesgo=d.cual_riesgo,
+            estres_prenatal=d.estres_prenatal,
+            gestacion=d.gestacion,
+            semanas=d.semanas,
+            tipo_parto=d.tipo_parto,
+            peso_gr=d.peso_gr,
+            talla_cm=d.talla_cm,
+            condiciones_neonatales=d.condiciones_neonatales,
+            incubadora=d.incubadora,
+            sosten_cefalico=d.sosten_cefalico,
+            sedestacion=d.sedestacion,
+            gateo=d.gateo,
+            marcha=d.marcha,
+            balbuceo=d.balbuceo,
+            primeras_palabras=d.primeras_palabras,
+            habla_claro=d.habla_claro,
+            control_anual=d.control_anual,
+            control_vesical=d.control_vesical,
+            tipo_estres_prenatal=d.tipo_estres_prenatal,
+            ucin=d.ucin,
             # Antecedentes
-            patologicos_medicos=a.patologicos_medicos, sensoriales_motores=a.sensoriales_motores,
-            psiquiatricos=a.psiquiatricos, farmacologicos=a.farmacologicos,
-            traumaticos=a.traumaticos, quirurgicos=a.quirurgicos, toxicos=a.toxicos,
-            alergicos=a.alergicos, terapeuticos=a.terapeuticos,
-            paraclinicos=a.paraclinicos, familiares=a.familiares,
+            patologicos_medicos=a.patologicos_medicos,
+            sensoriales_motores=a.sensoriales_motores,
+            psiquiatricos=a.psiquiatricos,
+            farmacologicos=a.farmacologicos,
+            traumaticos=a.traumaticos,
+            quirurgicos=a.quirurgicos,
+            toxicos=a.toxicos,
+            alergicos=a.alergicos,
+            terapeuticos=a.terapeuticos,
+            paraclinicos=a.paraclinicos,
+            familiares=a.familiares,
             # Familiar
-            vive_con=f.vive_con, abc=f.abc, escolar_laboral=f.escolar_laboral,
-            cognitivo=f.cognitivo, comportamiento_animo=f.comportamiento_animo,
-            patron_sueno=f.patron_sueno, patron_alimentacion=f.patron_alimentacion,
+            vive_con=f.vive_con,
+            abc=f.abc,
+            escolar_laboral=f.escolar_laboral,
+            cognitivo=f.cognitivo,
+            comportamiento_animo=f.comportamiento_animo,
+            patron_sueno=f.patron_sueno,
+            patron_alimentacion=f.patron_alimentacion,
             # Plan
-            plan_atencion=p.plan_atencion, impresion_diagnostica_hc=p.impresion_diagnostica_hc,
+            plan_atencion=p.plan_atencion,
+            impresion_diagnostica_hc=p.impresion_diagnostica_hc,
             hipotesis_pre_eval=p.hipotesis_pre_eval,
             # Observaciones
-            obs_clinica_general=o.obs_clinica_general, obs_atencion=o.obs_atencion,
-            obs_memoria=o.obs_memoria, obs_praxias_gnosias=o.obs_praxias_gnosias,
-            obs_lenguaje=o.obs_lenguaje, obs_funciones_ejecutivas=o.obs_funciones_ejecutivas,
-            obs_emociones=o.obs_emociones, obs_ci=o.obs_ci,
-            obs_impresion_dx=o.obs_impresion_dx, obs_funcionalidad=o.obs_funcionalidad,
+            obs_clinica_general=o.obs_clinica_general,
+            obs_atencion=o.obs_atencion,
+            obs_memoria=o.obs_memoria,
+            obs_praxias_gnosias=o.obs_praxias_gnosias,
+            obs_lenguaje=o.obs_lenguaje,
+            obs_funciones_ejecutivas=o.obs_funciones_ejecutivas,
+            obs_emociones=o.obs_emociones,
+            obs_ci=o.obs_ci,
+            obs_impresion_dx=o.obs_impresion_dx,
+            obs_funcionalidad=o.obs_funcionalidad,
             obs_recomendaciones=o.obs_recomendaciones,
         )
 
@@ -142,6 +223,7 @@ class UpsertClinicalHistoryUseCase:
                 current_version = getattr(existing, "row_version", 1) or 1
                 if dto.row_version != current_version:
                     from app.core.exceptions import ConcurrencyError
+
                     raise ConcurrencyError(
                         resource="Historia Clínica",
                         client_version=dto.row_version,
@@ -152,6 +234,7 @@ class UpsertClinicalHistoryUseCase:
                 import json
 
                 from app.infrastructure.database.orm_models import ClinicalHistoryVersionORM
+
                 snapshot = {f: str(getattr(existing, f, "")) for f in fields}
                 ver_snapshot = ClinicalHistoryVersionORM(
                     id=str(uuid.uuid4()),
@@ -164,9 +247,11 @@ class UpsertClinicalHistoryUseCase:
                 self._db.add(ver_snapshot)
             except Exception as snap_err:
                 import logging
+
                 logging.getLogger(__name__).warning(
                     "Error guardando snapshot de HC versión %s: %s",
-                    getattr(existing, "row_version", "?"), snap_err,
+                    getattr(existing, "row_version", "?"),
+                    snap_err,
                 )
             # ── ACTUALIZAR ──────────────────────────────────────
             for k, v in fields.items():
@@ -186,11 +271,13 @@ class GetClinicalHistoryUseCase:
 
     def by_patient(self, patient_id: str) -> ClinicalHistoryResponseDTO | None:
         from app.infrastructure.database.orm_models import ClinicalHistoryORM
+
         hc = self._db.query(ClinicalHistoryORM).filter_by(patient_id=patient_id).first()
         return _hc_to_response(hc) if hc else None
 
     def by_id(self, hc_id: str) -> ClinicalHistoryResponseDTO | None:
         from app.infrastructure.database.orm_models import ClinicalHistoryORM
+
         hc = self._db.query(ClinicalHistoryORM).filter_by(id=hc_id).first()
         return _hc_to_response(hc) if hc else None
 
@@ -198,6 +285,7 @@ class GetClinicalHistoryUseCase:
 # ─────────────────────────────────────────────────────────────────
 # 2. INTERPRETACIÓN ASISTIDA
 # ─────────────────────────────────────────────────────────────────
+
 
 class GetInterpretationSuggestionsUseCase:
     """
@@ -249,12 +337,14 @@ class GetInterpretationSuggestionsUseCase:
 # 3. EVOLUCIÓN TERAPIA
 # ─────────────────────────────────────────────────────────────────
 
+
 class CreateEvolTerapiaUseCase:
     def __init__(self, session: Session):
         self._db = session
 
     def execute(self, dto: EvolTerapiaCreateDTO) -> EvolTerapiaResponseDTO:
         from app.infrastructure.database.orm_models import EvolTerapiaORM, PatientORM
+
         patient = self._db.query(PatientORM).filter_by(id=dto.patient_id, is_active=True).first()
         if not patient:
             raise PatientNotFoundError(dto.patient_id)
@@ -273,11 +363,16 @@ class CreateEvolTerapiaUseCase:
         )
         self._db.add(evol)
         return EvolTerapiaResponseDTO(
-            id=evol.id, patient_id=evol.patient_id,
-            sesiones_orden=evol.sesiones_orden, numero_orden=evol.numero_orden,
-            fecha_inicio=evol.fecha_inicio, fecha_sesion=evol.fecha_sesion,
-            numero_sesion=evol.numero_sesion, objetivos=evol.objetivos,
-            actividades=evol.actividades, plan_trabajo=evol.plan_trabajo,
+            id=evol.id,
+            patient_id=evol.patient_id,
+            sesiones_orden=evol.sesiones_orden,
+            numero_orden=evol.numero_orden,
+            fecha_inicio=evol.fecha_inicio,
+            fecha_sesion=evol.fecha_sesion,
+            numero_sesion=evol.numero_sesion,
+            objetivos=evol.objetivos,
+            actividades=evol.actividades,
+            plan_trabajo=evol.plan_trabajo,
         )
 
 
@@ -287,24 +382,37 @@ class GetEvolTerapiaUseCase:
 
     def by_patient(self, patient_id: str) -> list[EvolTerapiaResponseDTO]:
         from app.infrastructure.database.orm_models import EvolTerapiaORM
+
         # Sólo sesiones activas (las archivadas se preservan para auditoría
         # pero no aparecen en el listado por defecto).
-        evols = (self._db.query(EvolTerapiaORM)
-                 .filter_by(patient_id=patient_id)
-                 .filter(EvolTerapiaORM.archived_at.is_(None))
-                 .order_by(EvolTerapiaORM.fecha_sesion.desc())
-                 .all())
-        return [EvolTerapiaResponseDTO(
-            id=e.id, patient_id=e.patient_id, sesiones_orden=e.sesiones_orden,
-            numero_orden=e.numero_orden, fecha_inicio=e.fecha_inicio,
-            fecha_sesion=e.fecha_sesion, numero_sesion=e.numero_sesion,
-            objetivos=e.objetivos, actividades=e.actividades, plan_trabajo=e.plan_trabajo,
-        ) for e in evols]
+        evols = (
+            self._db.query(EvolTerapiaORM)
+            .filter_by(patient_id=patient_id)
+            .filter(EvolTerapiaORM.archived_at.is_(None))
+            .order_by(EvolTerapiaORM.fecha_sesion.desc())
+            .all()
+        )
+        return [
+            EvolTerapiaResponseDTO(
+                id=e.id,
+                patient_id=e.patient_id,
+                sesiones_orden=e.sesiones_orden,
+                numero_orden=e.numero_orden,
+                fecha_inicio=e.fecha_inicio,
+                fecha_sesion=e.fecha_sesion,
+                numero_sesion=e.numero_sesion,
+                objetivos=e.objetivos,
+                actividades=e.actividades,
+                plan_trabajo=e.plan_trabajo,
+            )
+            for e in evols
+        ]
 
 
 # ─────────────────────────────────────────────────────────────────
 # 4. CONFIGURACIÓN
 # ─────────────────────────────────────────────────────────────────
+
 
 class GetConfigUseCase:
     def __init__(self, session: Session):
@@ -312,6 +420,7 @@ class GetConfigUseCase:
 
     def execute(self) -> ConfigCompleteResponseDTO:
         from app.infrastructure.database.orm_models import ConfigInstitucionORM, ConfigPrefsInformeORM, ProfessionalORM
+
         inst = self._db.query(ConfigInstitucionORM).filter_by(id="1").first()
         prefs = self._db.query(ConfigPrefsInformeORM).filter_by(id="1").first()
         profs = self._db.query(ProfessionalORM).filter_by(activo=True).all()
@@ -340,18 +449,20 @@ class GetConfigUseCase:
         )
         profs_dto = [
             ProfessionalResponseDTO(
-                id=p.id, nombre_completo=p.nombre_completo,
-                titulo=p.titulo, especialidad=p.especialidad,
+                id=p.id,
+                nombre_completo=p.nombre_completo,
+                titulo=p.titulo,
+                especialidad=p.especialidad,
                 registro_profesional=p.registro_profesional,
                 tiene_firma=bool(p.firma_base64),
                 tiene_foto=bool(getattr(p, "foto_base64", None)),
                 foto_base64=getattr(p, "foto_base64", None),
-                email=p.email, activo=p.activo,
-            ) for p in profs
+                email=p.email,
+                activo=p.activo,
+            )
+            for p in profs
         ]
-        return ConfigCompleteResponseDTO(
-            institucion=inst_dto, prefs_informe=prefs_dto, profesionales=profs_dto
-        )
+        return ConfigCompleteResponseDTO(institucion=inst_dto, prefs_informe=prefs_dto, profesionales=profs_dto)
 
 
 class UpdateConfigInstitucionUseCase:
@@ -360,6 +471,7 @@ class UpdateConfigInstitucionUseCase:
 
     def execute(self, dto: ConfigInstitucionDTO) -> ConfigInstitucionDTO:
         from app.infrastructure.database.orm_models import ConfigInstitucionORM
+
         inst = self._db.query(ConfigInstitucionORM).filter_by(id="1").first()
         if not inst:
             inst = ConfigInstitucionORM(id="1")
@@ -382,6 +494,7 @@ class UpdateConfigPrefsUseCase:
 
     def execute(self, dto: ConfigPrefsInformeDTO) -> ConfigPrefsInformeDTO:
         from app.infrastructure.database.orm_models import ConfigPrefsInformeORM
+
         prefs = self._db.query(ConfigPrefsInformeORM).filter_by(id="1").first()
         if not prefs:
             prefs = ConfigPrefsInformeORM(id="1")
@@ -400,31 +513,39 @@ class ManageProfessionalUseCase:
         """Helper único para serializar profesional a DTO incluyendo foto."""
         foto = getattr(prof, "foto_base64", None)
         return ProfessionalResponseDTO(
-            id=prof.id, nombre_completo=prof.nombre_completo,
-            titulo=prof.titulo, especialidad=prof.especialidad,
+            id=prof.id,
+            nombre_completo=prof.nombre_completo,
+            titulo=prof.titulo,
+            especialidad=prof.especialidad,
             registro_profesional=prof.registro_profesional,
             tiene_firma=bool(prof.firma_base64),
             tiene_foto=bool(foto),
             foto_base64=foto,
-            email=prof.email, activo=prof.activo,
+            email=prof.email,
+            activo=prof.activo,
         )
 
     def create(self, dto: ProfessionalCreateDTO) -> ProfessionalResponseDTO:
         from app.infrastructure.database.orm_models import ProfessionalORM
+
         prof = ProfessionalORM(
             id=str(uuid.uuid4()),
             nombre_completo=dto.nombre_completo,
-            titulo=dto.titulo, especialidad=dto.especialidad,
+            titulo=dto.titulo,
+            especialidad=dto.especialidad,
             registro_profesional=dto.registro_profesional,
-            firma_base64=dto.firma_base64, sello_base64=dto.sello_base64,
+            firma_base64=dto.firma_base64,
+            sello_base64=dto.sello_base64,
             foto_base64=dto.foto_base64,
-            email=dto.email, activo=dto.activo,
+            email=dto.email,
+            activo=dto.activo,
         )
         self._db.add(prof)
         return self._to_resp(prof)
 
     def update(self, prof_id: str, dto: ProfessionalCreateDTO) -> ProfessionalResponseDTO:
         from app.infrastructure.database.orm_models import ProfessionalORM
+
         prof = self._db.query(ProfessionalORM).filter_by(id=prof_id).first()
         if not prof:
             raise ApplicationError(f"Profesional {prof_id} no encontrado.", code="PROF_NOT_FOUND")
@@ -434,6 +555,7 @@ class ManageProfessionalUseCase:
 
     def deactivate(self, prof_id: str) -> bool:
         from app.infrastructure.database.orm_models import ProfessionalORM
+
         prof = self._db.query(ProfessionalORM).filter_by(id=prof_id, activo=True).first()
         if not prof:
             return False
@@ -442,6 +564,7 @@ class ManageProfessionalUseCase:
 
     def list_all(self, include_inactive: bool = False) -> list[ProfessionalResponseDTO]:
         from app.infrastructure.database.orm_models import ProfessionalORM
+
         q = self._db.query(ProfessionalORM)
         if not include_inactive:
             q = q.filter_by(activo=True)
@@ -452,6 +575,7 @@ class ManageProfessionalUseCase:
 # ─────────────────────────────────────────────────────────────────
 # 5. BACKUP
 # ─────────────────────────────────────────────────────────────────
+
 
 class BackupUseCase:
     def __init__(self, session: Session):
@@ -533,10 +657,7 @@ class BackupUseCase:
             total_pacientes=total_pac,
             total_evaluaciones=total_ev,
             exitoso=integrity_ok,
-            notas=(dto.notas or "") + (
-                "" if integrity_ok else
-                f" | BACKUP DESCARTADO: integrity_check={integrity}"
-            ),
+            notas=(dto.notas or "") + ("" if integrity_ok else f" | BACKUP DESCARTADO: integrity_check={integrity}"),
             tipo="manual",
         )
         self._db.add(registro)
@@ -555,21 +676,27 @@ class BackupUseCase:
 
     def list_backups(self) -> list[BackupResponseDTO]:
         from app.infrastructure.database.orm_models import BackupRegistroORM
-        registros = self._db.query(BackupRegistroORM).order_by(
-            BackupRegistroORM.fecha.desc()
-        ).limit(20).all()
-        return [BackupResponseDTO(
-            id=r.id, fecha=r.fecha.isoformat(), ruta_destino=r.ruta_destino,
-            tamano_kb=round((r.tamano_bytes or 0) / 1024, 1),
-            total_pacientes=r.total_pacientes or 0,
-            total_evaluaciones=r.total_evaluaciones or 0,
-            exitoso=r.exitoso, notas=r.notas,
-        ) for r in registros]
+
+        registros = self._db.query(BackupRegistroORM).order_by(BackupRegistroORM.fecha.desc()).limit(20).all()
+        return [
+            BackupResponseDTO(
+                id=r.id,
+                fecha=r.fecha.isoformat(),
+                ruta_destino=r.ruta_destino,
+                tamano_kb=round((r.tamano_bytes or 0) / 1024, 1),
+                total_pacientes=r.total_pacientes or 0,
+                total_evaluaciones=r.total_evaluaciones or 0,
+                exitoso=r.exitoso,
+                notas=r.notas,
+            )
+            for r in registros
+        ]
 
 
 # ─────────────────────────────────────────────────────────────────
 # 6. DOCUMENTOS (comprobantes, remisiones, RIPS)
 # ─────────────────────────────────────────────────────────────────
+
 
 class GenerateDocumentUseCase:
     """
@@ -581,42 +708,48 @@ class GenerateDocumentUseCase:
     def __init__(self, session: Session):
         self._db = session
 
-    def comprobante_asistencia(
-        self, dto: ComprobanteAsistenciaDTO
-    ) -> DocumentoResponseDTO:
+    def comprobante_asistencia(self, dto: ComprobanteAsistenciaDTO) -> DocumentoResponseDTO:
         from app.infrastructure.database.orm_models import DocumentoEmitidoORM, PatientORM
+
         patient = self._db.query(PatientORM).filter_by(id=dto.patient_id, is_active=True).first()
         if not patient:
             raise PatientNotFoundError(dto.patient_id)
 
         doc_id = str(uuid.uuid4())
-        titulo = (f"Comprobante Asistencia — "
-                  f"{patient.primer_nombre} {patient.primer_apellido} "
-                  f"{dto.fecha_atencion}")
+        titulo = f"Comprobante Asistencia — {patient.primer_nombre} {patient.primer_apellido} {dto.fecha_atencion}"
         doc = DocumentoEmitidoORM(
-            id=doc_id, patient_id=dto.patient_id,
+            id=doc_id,
+            patient_id=dto.patient_id,
             tipo_documento="comprobante_asistencia",
-            titulo=titulo, formato=dto.formato,
+            titulo=titulo,
+            formato=dto.formato,
             profesional_id=dto.profesional_id,
-            contenido_json=json.dumps({
-                "tipo_servicio": dto.tipo_servicio,
-                "codigo_cups": dto.codigo_cups,
-                "hora_inicio": dto.hora_inicio,
-                "hora_fin": dto.hora_fin,
-                "duracion_minutos": dto.duracion_minutos,
-                "observaciones": dto.observaciones,
-            }, ensure_ascii=False),
+            contenido_json=json.dumps(
+                {
+                    "tipo_servicio": dto.tipo_servicio,
+                    "codigo_cups": dto.codigo_cups,
+                    "hora_inicio": dto.hora_inicio,
+                    "hora_fin": dto.hora_fin,
+                    "duracion_minutos": dto.duracion_minutos,
+                    "observaciones": dto.observaciones,
+                },
+                ensure_ascii=False,
+            ),
         )
         self._db.add(doc)
         return DocumentoResponseDTO(
-            id=doc_id, tipo="comprobante_asistencia", titulo=titulo,
-            formato=dto.formato, ruta_archivo=None,
+            id=doc_id,
+            tipo="comprobante_asistencia",
+            titulo=titulo,
+            formato=dto.formato,
+            ruta_archivo=None,
             fecha_emision=datetime.now(UTC).isoformat(),
             descarga_url=f"/api/v1/documents/{doc_id}/download",
         )
 
     def remision(self, dto: RemisionDTO) -> DocumentoResponseDTO:
         from app.infrastructure.database.orm_models import DocumentoEmitidoORM, PatientORM
+
         patient = self._db.query(PatientORM).filter_by(id=dto.patient_id, is_active=True).first()
         if not patient:
             raise PatientNotFoundError(dto.patient_id)
@@ -624,20 +757,30 @@ class GenerateDocumentUseCase:
         doc_id = str(uuid.uuid4())
         titulo = f"Remisión a {dto.remite_a} — {patient.primer_apellido} {dto.fecha}"
         doc = DocumentoEmitidoORM(
-            id=doc_id, patient_id=dto.patient_id,
-            tipo_documento="remision", titulo=titulo, formato=dto.formato,
+            id=doc_id,
+            patient_id=dto.patient_id,
+            tipo_documento="remision",
+            titulo=titulo,
+            formato=dto.formato,
             profesional_id=dto.profesional_id,
-            contenido_json=json.dumps({
-                "remite_a": dto.remite_a,
-                "motivo": dto.motivo_remision,
-                "diagnostico": dto.diagnostico_presuntivo,
-                "cie10": dto.codigo_cie10,
-                "observaciones": dto.observaciones,
-            }, ensure_ascii=False),
+            contenido_json=json.dumps(
+                {
+                    "remite_a": dto.remite_a,
+                    "motivo": dto.motivo_remision,
+                    "diagnostico": dto.diagnostico_presuntivo,
+                    "cie10": dto.codigo_cie10,
+                    "observaciones": dto.observaciones,
+                },
+                ensure_ascii=False,
+            ),
         )
         self._db.add(doc)
         return DocumentoResponseDTO(
-            id=doc_id, tipo="remision", titulo=titulo, formato=dto.formato,
-            ruta_archivo=None, fecha_emision=datetime.now(UTC).isoformat(),
+            id=doc_id,
+            tipo="remision",
+            titulo=titulo,
+            formato=dto.formato,
+            ruta_archivo=None,
+            fecha_emision=datetime.now(UTC).isoformat(),
             descarga_url=f"/api/v1/documents/{doc_id}/download",
         )

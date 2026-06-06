@@ -20,6 +20,7 @@ Estos tests garantizan que:
   4. Si hay varios PD fuera de rango + uno válido, las advertencias no
      se pisan entre sí: se acumulan.
 """
+
 from __future__ import annotations
 
 import sys
@@ -34,7 +35,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 # Buscamos el baremo en varios lugares: repo/data, tests/data, /mnt uploads.
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _CANDIDATE_PATHS = [
-    REPO_ROOT / "data" / "BD_NEURO_MAESTRA.json",                     # real location
+    REPO_ROOT / "data" / "BD_NEURO_MAESTRA.json",  # real location
     Path(__file__).parent.parent.parent / "data" / "BD_NEURO_MAESTRA.json",
     Path("/mnt/user-data/uploads/BD_NEURO_MAESTRA.json"),
 ]
@@ -44,9 +45,11 @@ _CANDIDATE_PATHS = [
 # FIXTURES (reusables, scope=module para no recargar BD)
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.fixture(scope="module")
 def loader():
     from app.domain.clinical_engine.baremos_loader import BaremosLoader
+
     BaremosLoader.reset()
     path = next((p for p in _CANDIDATE_PATHS if p.exists()), None)
     if path is None:
@@ -57,12 +60,14 @@ def loader():
 @pytest.fixture(scope="module")
 def engine(loader):
     from app.domain.clinical_engine.engine import ClinicalEngine
+
     return ClinicalEngine(loader=loader)
 
 
 @pytest.fixture
 def ctx_infantil_10():
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(2016, 3, 20),
         evaluation_date=date(2026, 3, 20),
@@ -74,6 +79,7 @@ def ctx_infantil_10():
 # ═══════════════════════════════════════════════════════════════
 # TESTS UNITARIOS DEL HELPER _not_found
 # ═══════════════════════════════════════════════════════════════
+
 
 @pytest.mark.unit
 class TestNotFoundHelper:
@@ -104,9 +110,9 @@ class TestNotFoundHelper:
 # TESTS DE PROPAGACIÓN: strategy → EngineResult.advertencias
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.unit
 class TestOutOfBaremoPropagation:
-
     def test_pd_exagerado_dispara_advertencia(self, engine, ctx_infantil_10):
         """PD=9998 (muy alto, 9999 es el centinela de 'sin dato')."""
         result = engine.score(
@@ -115,8 +121,7 @@ class TestOutOfBaremoPropagation:
             patient_context=ctx_infantil_10,
         )
         # Debe haber al menos una advertencia que mencione el test
-        assert any("NiWiscDC" in a or "Diseño" in a or "DC" in a
-                   for a in result.advertencias), result.advertencias
+        assert any("NiWiscDC" in a or "Diseño" in a or "DC" in a for a in result.advertencias), result.advertencias
 
     def test_advertencia_contiene_pd_ofrecido(self, engine, ctx_infantil_10):
         """El mensaje debe incluir el PD para que el clínico vea el dato."""
@@ -154,10 +159,10 @@ class TestOutOfBaremoPropagation:
         result = engine.score(
             paciente_id="test",
             puntajes={
-                "NiWiscDC": 9998,   # fuera
+                "NiWiscDC": 9998,  # fuera
                 "NiWiscSem": 9998,  # fuera
                 "NiWiscVoc": 9998,  # fuera
-                "NiSpenceOCD": 3,   # válido
+                "NiSpenceOCD": 3,  # válido
             },
             patient_context=ctx_infantil_10,
         )
@@ -166,8 +171,7 @@ class TestOutOfBaremoPropagation:
         mensajes = set(result.advertencias)
         if len(result.advertencias) > 1:
             # No deben ser duplicados exactos
-            assert len(mensajes) == len(result.advertencias), \
-                f"Advertencias duplicadas: {result.advertencias}"
+            assert len(mensajes) == len(result.advertencias), f"Advertencias duplicadas: {result.advertencias}"
 
     def test_pd_valido_no_genera_advertencia_de_rango(self, engine, ctx_infantil_10):
         """Un PD razonable NO debe generar advertencia de out_of_baremo."""
@@ -184,6 +188,7 @@ class TestOutOfBaremoPropagation:
 # ═══════════════════════════════════════════════════════════════
 # TESTS: DTO advertencias se construye desde EngineResult.advertencias
 # ═══════════════════════════════════════════════════════════════
+
 
 @pytest.mark.unit
 class TestScoringResponseAdvertencias:
@@ -239,5 +244,6 @@ class TestScoringResponseAdvertencias:
         # La lista es una copia: mutarla no afecta al engine_result
         copia = list(engine_result.advertencias)
         copia.append("mutación de prueba")
-        assert "mutación de prueba" not in engine_result.advertencias or \
-               copia is engine_result.advertencias  # invariante de semántica
+        assert (
+            "mutación de prueba" not in engine_result.advertencias or copia is engine_result.advertencias
+        )  # invariante de semántica

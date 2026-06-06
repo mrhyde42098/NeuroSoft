@@ -24,8 +24,8 @@ from app.core.logging_redactor import (
 # Tests de la función pura `redact()`
 # ─────────────────────────────────────────────────────────────
 
-class TestRedactFunction:
 
+class TestRedactFunction:
     def test_redact_email(self):
         out = redact("User mail: jssalgadosa@unal.edu.co sent at 10:00")
         assert "jssalgadosa@unal.edu.co" not in out
@@ -101,12 +101,17 @@ class TestRedactFunction:
 # Tests del filtro sobre LogRecord
 # ─────────────────────────────────────────────────────────────
 
-class TestPIIRedactorFilter:
 
+class TestPIIRedactorFilter:
     def _make_record(self, msg: str, *args) -> logging.LogRecord:
         return logging.LogRecord(
-            name="test", level=logging.INFO, pathname="", lineno=0,
-            msg=msg, args=args, exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg=msg,
+            args=args,
+            exc_info=None,
         )
 
     def test_filter_redacts_email_in_message(self):
@@ -147,8 +152,8 @@ class TestPIIRedactorFilter:
 # Tests de instalación
 # ─────────────────────────────────────────────────────────────
 
-class TestInstallRedactor:
 
+class TestInstallRedactor:
     def test_install_idempotent(self):
         log = logging.getLogger("neurosoft.test.idempotent")
         log.filters.clear()
@@ -175,11 +180,6 @@ class TestInstallRedactor:
         # sanitizado en el propio record si el filtro se ejecutó.
         # (En este harness sólo validamos que la instalación no
         # levante excepciones — ver tests de filtro para semántica.)
-        assert any(
-            isinstance(f, PIIRedactor)
-            for f in logging.getLogger().filters
-        ) or any(
-            isinstance(f, PIIRedactor)
-            for h in logging.getLogger().handlers
-            for f in h.filters
+        assert any(isinstance(f, PIIRedactor) for f in logging.getLogger().filters) or any(
+            isinstance(f, PIIRedactor) for h in logging.getLogger().handlers for f in h.filters
         )

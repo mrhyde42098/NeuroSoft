@@ -36,11 +36,10 @@ GARANTÍAS
 - Informes generados previamente siguen siendo reproducibles porque el
   override sólo afecta pruebas llamadas AHORA.
 """
+
 from __future__ import annotations
 
-from typing import Any, Callable, Dict
-
-from .adbeck import get_adbeck_override
+from typing import Any, Callable
 
 # Registro: test_id -> callable que retorna el dict baremos corregido.
 # Añadir nuevas entradas a medida que se incorporen más overrides.
@@ -50,12 +49,12 @@ from .adbeck import get_adbeck_override
 # El override Python ya NO se aplica por defecto. Se conserva el módulo
 # `adbeck.py` como LEGACY por si en el futuro se necesita re-aplicar
 # (p.ej. si la corrección del BD se revierte).
-_OVERRIDES: Dict[str, Callable[[], Dict[str, Any]]] = {
+_OVERRIDES: dict[str, Callable[[], dict[str, Any]]] = {
     # "AdBeck": get_adbeck_override,  # LEGACY — BD corregido directamente
 }
 
 
-def get_override(test_id: str) -> Dict[str, Any] | None:
+def get_override(test_id: str) -> dict[str, Any] | None:
     """
     Retorna el baremo override para `test_id`, o None si no hay override.
 

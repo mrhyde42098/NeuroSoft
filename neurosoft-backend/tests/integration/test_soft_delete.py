@@ -15,6 +15,7 @@ También valida el soft-delete de sesiones de evolución terapéutica:
   - `archived_at` se puebla, la sesión desaparece del listado por paciente,
     pero la fila sigue en la BD para la auditoría.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -25,6 +26,7 @@ import pytest
 
 def _make_patient_orm(db, doc="SD001"):
     from app.infrastructure.database.orm_models import PatientORM
+
     orm = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -46,6 +48,7 @@ def _make_patient_orm(db, doc="SD001"):
 
 def _make_hc(db, patient_id):
     from app.infrastructure.database.orm_models import ClinicalHistoryORM
+
     hc = ClinicalHistoryORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
@@ -60,6 +63,7 @@ def _make_hc(db, patient_id):
 
 def _make_evaluation(db, patient_id):
     from app.infrastructure.database.orm_models import EvaluationORM
+
     ev = EvaluationORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
@@ -77,6 +81,7 @@ def _make_evaluation(db, patient_id):
 
 def _make_evolucion(db, patient_id, numero="1"):
     from app.infrastructure.database.orm_models import EvolTerapiaORM
+
     ev = EvolTerapiaORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
@@ -96,9 +101,9 @@ def _make_evolucion(db, patient_id, numero="1"):
 # SOFT-DELETE DE PACIENTE (Res. 1995)
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSoftDeletePaciente:
-
     def test_archive_no_borra_evaluaciones(self, in_memory_db):
         """Res. 1995: al archivar un paciente, sus evaluaciones se preservan."""
         from app.infrastructure.database.orm_models import EvaluationORM
@@ -185,9 +190,9 @@ class TestSoftDeletePaciente:
 # SOFT-DELETE DE SESIÓN DE EVOLUCIÓN
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSoftDeleteEvolucion:
-
     def test_sesion_archivada_persiste_en_bd(self, in_memory_db):
         """Al archivar una sesión, la fila NO se borra de la BD."""
         from app.infrastructure.database.orm_models import EvolTerapiaORM

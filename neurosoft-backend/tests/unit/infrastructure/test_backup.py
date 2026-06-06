@@ -1,9 +1,9 @@
 """
 S4.3: Tests del módulo de backups cifrados AES-256.
 """
+
 import gzip
 import json
-import shutil
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -16,6 +16,7 @@ def tmp_db(tmp_path: Path, monkeypatch):
     db = tmp_path / "neurosoft.db"
     db.write_bytes(b"FAKE_SQLITE_V1")
     from app.core import config
+
     monkeypatch.setattr(config.settings, "db_path", db)
     monkeypatch.setattr(config.settings, "backup_dir", tmp_path / "backups")
     return db
@@ -23,6 +24,7 @@ def tmp_db(tmp_path: Path, monkeypatch):
 
 def test_crear_backup_crea_archivo_cifrado(tmp_db):
     from app.infrastructure.backup import crear_backup
+
     ruta = crear_backup(notas="backup test")
     assert ruta.exists()
     assert ruta.suffix == ".gz"
@@ -38,6 +40,7 @@ def test_crear_backup_crea_archivo_cifrado(tmp_db):
 
 def test_listar_backups_detecta_archivos(tmp_db):
     from app.infrastructure.backup import crear_backup, listar_backups
+
     crear_backup(notas="A")
     crear_backup(notas="B")
     backups = listar_backups()
@@ -50,6 +53,7 @@ def test_listar_backups_detecta_archivos(tmp_db):
 
 def test_restaurar_backup_a_target_custom(tmp_db, tmp_path):
     from app.infrastructure.backup import crear_backup, restaurar_backup
+
     ruta = crear_backup(notas="X")
     target = tmp_path / "restored.db"
     restaurar_backup(ruta, target_path=target)
@@ -59,6 +63,7 @@ def test_restaurar_backup_a_target_custom(tmp_db, tmp_path):
 
 def test_restaurar_backup_a_bd_activa(tmp_db):
     from app.infrastructure.backup import crear_backup, restaurar_backup
+
     ruta = crear_backup(notas="principal")
     # Modificar BD
     tmp_db.write_bytes(b"BD_CORROMPIDA")
@@ -73,6 +78,7 @@ def test_restaurar_backup_a_bd_activa(tmp_db):
 
 def test_restaurar_backup_con_sha_incorrecto_falla(tmp_db, tmp_path):
     from app.infrastructure.backup import crear_backup
+
     ruta = crear_backup(notas="X")
 
     # Manipular el ciphertext para que el sha256 no coincida al restaurar
@@ -85,6 +91,7 @@ def test_restaurar_backup_con_sha_incorrecto_falla(tmp_db, tmp_path):
         f.write(nuevo)
 
     from app.infrastructure.backup import restaurar_backup
+
     target = tmp_path / "restored.db"
     with pytest.raises(ValueError, match=r"SHA-256"):
         restaurar_backup(ruta, target_path=target)
@@ -92,6 +99,7 @@ def test_restaurar_backup_con_sha_incorrecto_falla(tmp_db, tmp_path):
 
 def test_restaurar_backup_con_ciphertext_invalido_falla(tmp_db, tmp_path):
     from app.infrastructure.backup import crear_backup
+
     ruta = crear_backup(notas="X")
 
     with gzip.open(ruta, "rb") as f:
@@ -103,6 +111,7 @@ def test_restaurar_backup_con_ciphertext_invalido_falla(tmp_db, tmp_path):
         f.write(nuevo)
 
     from app.infrastructure.backup import restaurar_backup
+
     target = tmp_path / "restored.db"
     with pytest.raises(ValueError, match=r"(?i)descifrar|JWT"):
         restaurar_backup(ruta, target_path=target)
@@ -114,6 +123,7 @@ def test_eliminar_backups_viejos_conserva_recientes(tmp_db):
         eliminar_backups_viejos,
         listar_backups,
     )
+
     crear_backup(notas="hoy")
     backups_iniciales = listar_backups()
     assert len(backups_iniciales) >= 1
@@ -125,6 +135,7 @@ def test_eliminar_backups_viejos_conserva_recientes(tmp_db):
 def test_eliminar_backups_viejos_elimina_excedente(tmp_path, monkeypatch):
     """Crea 10 backups, conserva 3 diarios y elimina el resto."""
     from app.core import config
+
     db = tmp_path / "neurosoft.db"
     db.write_bytes(b"X")
     backup_dir = tmp_path / "backups"
@@ -135,20 +146,23 @@ def test_eliminar_backups_viejos_elimina_excedente(tmp_path, monkeypatch):
     monkeypatch.setattr(config.settings, "db_path", db)
     monkeypatch.setattr(config.settings, "backup_dir", backup_dir)
 
+    # Crear 10 backups
+    import time
+
     from app.infrastructure.backup import (
         crear_backup,
         eliminar_backups_viejos,
         listar_backups,
     )
-    # Crear 10 backups
-    import time
+
     for i in range(10):
         crear_backup(notas=f"backup {i}")
         time.sleep(0.01)  # asegurar timestamps distintos
     assert len(listar_backups()) == 10
 
     eliminados = eliminar_backups_viejos(
-        mantener_diarios=3, mantener_semanales=0,
+        mantener_diarios=3,
+        mantener_semanales=0,
         ahora=datetime.now(UTC) + timedelta(minutes=1),
     )
     # 10 - 3 = 7
@@ -158,7 +172,9 @@ def test_eliminar_backups_viejos_elimina_excedente(tmp_path, monkeypatch):
 
 def test_backup_con_bd_inexistente_falla(tmp_db, monkeypatch):
     from app.core import config
+
     monkeypatch.setattr(config.settings, "db_path", tmp_db.parent / "no_existe.db")
     from app.infrastructure.backup import crear_backup
+
     with pytest.raises(FileNotFoundError):
         crear_backup()

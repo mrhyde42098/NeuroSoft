@@ -63,9 +63,7 @@ from re import Pattern
 # ─────────────────────────────────────────────────────────────
 
 # Email RFC-5322 simplificado, suficiente para logs.
-_EMAIL_RE: Pattern[str] = re.compile(
-    r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
-)
+_EMAIL_RE: Pattern[str] = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
 
 # Teléfono colombiano:
 #   • +57 seguido de 10 dígitos
@@ -84,14 +82,10 @@ _PHONE_RE: Pattern[str] = re.compile(
 )
 
 # JWT estándar (tres segmentos base64url separados por punto).
-_JWT_RE: Pattern[str] = re.compile(
-    r"eyJ[A-Za-z0-9_\-]+\.eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+"
-)
+_JWT_RE: Pattern[str] = re.compile(r"eyJ[A-Za-z0-9_\-]+\.eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+")
 
 # Bearer <token> (redacción separada para no depender del formato JWT).
-_BEARER_RE: Pattern[str] = re.compile(
-    r"(?i)\bBearer\s+[A-Za-z0-9_\-\.=]+"
-)
+_BEARER_RE: Pattern[str] = re.compile(r"(?i)\bBearer\s+[A-Za-z0-9_\-\.=]+")
 
 # Pares clave=valor o clave: "valor" en texto libre o JSON-like
 # (soporta tanto `key=value` como `'key': 'value'` de dict repr).
@@ -117,6 +111,7 @@ _REDACT_MARK = "[REDACTED]"
 # ─────────────────────────────────────────────────────────────
 # Funciones públicas
 # ─────────────────────────────────────────────────────────────
+
 
 def _redact_kv(match: re.Match[str]) -> str:
     """
@@ -154,6 +149,7 @@ def redact(text: str) -> str:
 # Filtro de logging
 # ─────────────────────────────────────────────────────────────
 
+
 class PIIRedactor(logging.Filter):
     """
     Filtro que redacta PII en cada LogRecord antes de emitirlo.
@@ -169,8 +165,9 @@ class PIIRedactor(logging.Filter):
         # con eventos de auditoría. "-" si no estamos en un request.
         try:
             from app.core.request_context import current_request_id
+
             rid = current_request_id.get()
-            record.rid = (rid[:12] if rid else "-")
+            record.rid = rid[:12] if rid else "-"
         except Exception:  # noqa: BLE001
             record.rid = "-"
 
@@ -199,6 +196,7 @@ class PIIRedactor(logging.Filter):
 # ─────────────────────────────────────────────────────────────
 # Instalación
 # ─────────────────────────────────────────────────────────────
+
 
 def install_pii_redactor(logger_name: str = "") -> PIIRedactor:
     """

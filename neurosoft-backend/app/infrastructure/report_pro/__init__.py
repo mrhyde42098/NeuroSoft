@@ -20,6 +20,7 @@ Variantes soportadas (case-insensitive):
     "junta_medica" → variants/junta_medica.py
     "inconcluso"   → variants/inconcluso.py
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -35,8 +36,8 @@ VARIANTES_DISPONIBLES = (
     "medicolegal",
     "junta_medica",
     "inconcluso",
-    "therapy_closure",   # cierre/alta de proceso psicoterapéutico
-    "paciente",          # versión en lenguaje claro para el paciente
+    "therapy_closure",  # cierre/alta de proceso psicoterapéutico
+    "paciente",  # versión en lenguaje claro para el paciente
 )
 
 
@@ -51,22 +52,29 @@ def generate_pro_pdf(report_data: ReportData, template: str = "pro") -> bytes:
     key = (template or "pro").strip().lower()
     if key == "pediatrico":
         from .variants.pediatric import PediatricGenerator
+
         return PediatricGenerator().generate(report_data)
     if key == "medicolegal":
         from .variants.medicolegal import MedicoLegalGenerator
+
         return MedicoLegalGenerator().generate(report_data)
     if key == "junta_medica":
         from .variants.junta_medica import JuntaMedicaGenerator
+
         return JuntaMedicaGenerator().generate(report_data)
     if key == "inconcluso":
         from .variants.inconcluso import InconclusoGenerator
+
         return InconclusoGenerator().generate(report_data)
     if key == "therapy_closure":
         from .variants.therapy_closure import TherapyClosureGenerator
+
         return TherapyClosureGenerator().generate(report_data)
     if key == "paciente":
         from .variants.paciente import PacienteGenerator
+
         return PacienteGenerator().generate(report_data)
     # default
     from .variants.pro import ProGenerator
+
     return ProGenerator().generate(report_data)

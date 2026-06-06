@@ -26,6 +26,7 @@ Interpretación:
     • Índice consistencia = palabras recordadas libremente en ≥ 2 ensayos
     • Intrusiones (palabras no incluidas en la lista)
 """
+
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
@@ -39,21 +40,21 @@ from dataclasses import dataclass, field
 # Grober-Buschke clásico.
 # ─────────────────────────────────────────────────────────────
 DEFAULT_WORD_LIST: list[dict] = [
-    {"palabra": "uva",        "categoria": "fruta"},
-    {"palabra": "oso",        "categoria": "animal_salvaje"},
-    {"palabra": "martillo",   "categoria": "herramienta"},
-    {"palabra": "camisa",     "categoria": "prenda"},
-    {"palabra": "trompeta",   "categoria": "instrumento_musical"},
-    {"palabra": "lechuga",    "categoria": "verdura"},
-    {"palabra": "bicicleta",  "categoria": "vehiculo"},
-    {"palabra": "silla",      "categoria": "mueble"},
-    {"palabra": "rosa",       "categoria": "flor"},
-    {"palabra": "tenedor",    "categoria": "utensilio_cocina"},
-    {"palabra": "sardina",    "categoria": "pez"},
-    {"palabra": "abeja",      "categoria": "insecto"},
-    {"palabra": "cobre",      "categoria": "metal"},
-    {"palabra": "medico",     "categoria": "profesion"},
-    {"palabra": "rubi",       "categoria": "piedra_preciosa"},
+    {"palabra": "uva", "categoria": "fruta"},
+    {"palabra": "oso", "categoria": "animal_salvaje"},
+    {"palabra": "martillo", "categoria": "herramienta"},
+    {"palabra": "camisa", "categoria": "prenda"},
+    {"palabra": "trompeta", "categoria": "instrumento_musical"},
+    {"palabra": "lechuga", "categoria": "verdura"},
+    {"palabra": "bicicleta", "categoria": "vehiculo"},
+    {"palabra": "silla", "categoria": "mueble"},
+    {"palabra": "rosa", "categoria": "flor"},
+    {"palabra": "tenedor", "categoria": "utensilio_cocina"},
+    {"palabra": "sardina", "categoria": "pez"},
+    {"palabra": "abeja", "categoria": "insecto"},
+    {"palabra": "cobre", "categoria": "metal"},
+    {"palabra": "medico", "categoria": "profesion"},
+    {"palabra": "rubi", "categoria": "piedra_preciosa"},
     {"palabra": "basquetbol", "categoria": "deporte"},
 ]
 
@@ -67,6 +68,7 @@ DEFAULT_NUM_TRIALS = 3
 @dataclass
 class GroberTrial:
     """Un ensayo de aprendizaje: palabras libres + palabras con clave."""
+
     libre: list[str] = field(default_factory=list)
     con_clave: list[str] = field(default_factory=list)
     intrusiones: list[str] = field(default_factory=list)
@@ -75,6 +77,7 @@ class GroberTrial:
 @dataclass
 class GroberDiferido:
     """Recuerdo diferido (tras período de interferencia)."""
+
     libre: list[str] = field(default_factory=list)
     con_clave: list[str] = field(default_factory=list)
     intrusiones: list[str] = field(default_factory=list)
@@ -83,6 +86,7 @@ class GroberDiferido:
 @dataclass
 class GroberReconocimiento:
     """Reconocimiento final con distractores."""
+
     aciertos: int = 0
     falsos_positivos: int = 0
     total_dianas: int = NUM_ITEMS
@@ -101,8 +105,8 @@ class GroberResult:
     max_total: int
 
     # Derivados
-    beneficio_clave: float            # rango 0.0–1.0
-    indice_consistencia: int          # 0–16
+    beneficio_clave: float  # rango 0.0–1.0
+    indice_consistencia: int  # 0–16
     total_intrusiones: int
 
     # Diferido
@@ -114,40 +118,40 @@ class GroberResult:
     # Reconocimiento
     reconocimiento_aciertos: int
     reconocimiento_falsos: int
-    indice_discriminabilidad: float   # aciertos/total − falsos/total  (−1…1)
+    indice_discriminabilidad: float  # aciertos/total − falsos/total  (−1…1)
 
     # Interpretación
-    patron: str                       # "amnesico" | "disejecutivo" | "mixto" | "normal"
-    interpretacion: str               # descripción clínica
+    patron: str  # "amnesico" | "disejecutivo" | "mixto" | "normal"
+    interpretacion: str  # descripción clínica
     alertas: list[str]
 
     def as_dict(self) -> dict:
         return {
             "aprendizaje": {
-                "total_libre":          self.total_libre,
-                "total_con_clave":      self.total_con_clave,
-                "total_libre_mas_clave":self.total_libre_mas_clave,
-                "max_libre":            self.max_libre,
-                "max_total":            self.max_total,
-                "beneficio_clave":      round(self.beneficio_clave, 3),
-                "indice_consistencia":  self.indice_consistencia,
-                "intrusiones":          self.total_intrusiones,
+                "total_libre": self.total_libre,
+                "total_con_clave": self.total_con_clave,
+                "total_libre_mas_clave": self.total_libre_mas_clave,
+                "max_libre": self.max_libre,
+                "max_total": self.max_total,
+                "beneficio_clave": round(self.beneficio_clave, 3),
+                "indice_consistencia": self.indice_consistencia,
+                "intrusiones": self.total_intrusiones,
             },
             "diferido": {
-                "libre":        self.diferido_libre,
-                "con_clave":    self.diferido_con_clave,
-                "total":        self.diferido_total,
-                "intrusiones":  self.diferido_intrusiones,
+                "libre": self.diferido_libre,
+                "con_clave": self.diferido_con_clave,
+                "total": self.diferido_total,
+                "intrusiones": self.diferido_intrusiones,
             },
             "reconocimiento": {
-                "aciertos":                self.reconocimiento_aciertos,
-                "falsos_positivos":        self.reconocimiento_falsos,
-                "indice_discriminabilidad":round(self.indice_discriminabilidad, 3),
+                "aciertos": self.reconocimiento_aciertos,
+                "falsos_positivos": self.reconocimiento_falsos,
+                "indice_discriminabilidad": round(self.indice_discriminabilidad, 3),
             },
             "interpretacion": {
-                "patron":           self.patron,
-                "descripcion":      self.interpretacion,
-                "alertas":          self.alertas,
+                "patron": self.patron,
+                "descripcion": self.interpretacion,
+                "alertas": self.alertas,
             },
         }
 
@@ -158,11 +162,9 @@ class GroberResult:
 def _norm(palabra: str) -> str:
     """Normaliza una palabra: lowercase, strip, sin tildes ni puntuación trivial."""
     import unicodedata
+
     s = (palabra or "").strip().lower()
-    s = "".join(
-        c for c in unicodedata.normalize("NFD", s)
-        if unicodedata.category(c) != "Mn"
-    )
+    s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
     return s.replace(".", "").replace(",", "").replace("-", "")
 
 
@@ -204,9 +206,7 @@ def score_grober_buschke(
     """
     wl = list(word_list) if word_list else list(DEFAULT_WORD_LIST)
     if len(wl) != NUM_ITEMS:
-        raise ValueError(
-            f"La lista debe contener exactamente {NUM_ITEMS} palabras; recibió {len(wl)}."
-        )
+        raise ValueError(f"La lista debe contener exactamente {NUM_ITEMS} palabras; recibió {len(wl)}.")
     if not trials:
         raise ValueError("Se requiere al menos 1 ensayo de aprendizaje.")
 
@@ -277,9 +277,9 @@ def score_grober_buschke(
 
     # ── Reconocimiento ──
     rec_aciertos = reconocimiento.aciertos if reconocimiento else 0
-    rec_falsos   = reconocimiento.falsos_positivos if reconocimiento else 0
+    rec_falsos = reconocimiento.falsos_positivos if reconocimiento else 0
     total_dianas = reconocimiento.total_dianas if reconocimiento else NUM_ITEMS
-    total_distr  = reconocimiento.total_distractores if reconocimiento else NUM_ITEMS
+    total_distr = reconocimiento.total_distractores if reconocimiento else NUM_ITEMS
 
     if total_dianas > 0 and total_distr > 0:
         discriminabilidad = (rec_aciertos / total_dianas) - (rec_falsos / total_distr)

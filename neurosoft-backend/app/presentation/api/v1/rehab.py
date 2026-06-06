@@ -16,6 +16,7 @@ middleware auth NO los proteja):
   • GET  /api/v1/public/rehab/{token}
   • POST /api/v1/public/rehab/{token}/result
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -57,6 +58,7 @@ def _handle(e: Exception):
 # CATÁLOGO
 # ─────────────────────────────────────────────────────────────
 
+
 @rehab_router.get(
     "/activities",
     response_model=list[RehabActivityDTO],
@@ -68,14 +70,17 @@ def list_activities(
     only_active: bool = Query(default=True),
 ):
     from app.application.use_cases.rehab_use_cases import ListActivitiesUseCase
+
     return ListActivitiesUseCase(db).execute(
-        dominio=dominio, only_active=only_active,
+        dominio=dominio,
+        only_active=only_active,
     )
 
 
 # ─────────────────────────────────────────────────────────────
 # PLAN DE INTERVENCIÓN
 # ─────────────────────────────────────────────────────────────
+
 
 @rehab_router.post(
     "/plans",
@@ -85,6 +90,7 @@ def list_activities(
 )
 def create_plan(dto: RehabPlanCreateDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import CreateRehabPlanUseCase
+
     try:
         return CreateRehabPlanUseCase(db).execute(dto)
     except Exception as e:
@@ -102,8 +108,10 @@ def get_plans_by_patient(
     include_archived: bool = Query(default=False),
 ):
     from app.application.use_cases.rehab_use_cases import GetRehabPlanUseCase
+
     return GetRehabPlanUseCase(db).by_patient(
-        patient_id, include_archived=include_archived,
+        patient_id,
+        include_archived=include_archived,
     )
 
 
@@ -114,6 +122,7 @@ def get_plans_by_patient(
 )
 def get_plan(plan_id: str, db: DbSession):
     from app.application.use_cases.rehab_use_cases import GetRehabPlanUseCase
+
     try:
         return GetRehabPlanUseCase(db).by_id(plan_id)
     except Exception as e:
@@ -127,6 +136,7 @@ def get_plan(plan_id: str, db: DbSession):
 )
 def update_plan(plan_id: str, dto: RehabPlanUpdateDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import UpdateRehabPlanUseCase
+
     try:
         return UpdateRehabPlanUseCase(db).execute(plan_id, dto)
     except Exception as e:
@@ -207,26 +217,23 @@ def download_plan_pdf(plan_id: str, db: DbSession):
         raise HTTPException(status_code=404, detail="Paciente del plan no encontrado.")
 
     institucion = db.query(ConfigInstitucionORM).first()
-    profesional = (
-        db.get(ProfessionalORM, plan.profesional_id) if plan.profesional_id else None
-    )
+    profesional = db.get(ProfessionalORM, plan.profesional_id) if plan.profesional_id else None
 
     try:
         pdf_bytes = generate_rehab_plan_pdf(
-            plan=plan, patient=patient,
-            institucion=institucion, profesional=profesional,
+            plan=plan,
+            patient=patient,
+            institucion=institucion,
+            profesional=profesional,
         )
     except RuntimeError as e:  # reportlab missing
         raise HTTPException(status_code=500, detail=str(e))
-    except ValueError as e:    # plan no firmado (defensivo)
+    except ValueError as e:  # plan no firmado (defensivo)
         raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando PDF: {e}")
 
-    nombre = (
-        f"PlanRehab_{patient.primer_apellido or 'paciente'}"
-        f"_{patient.numero_documento}_{plan.id[:8]}.pdf"
-    )
+    nombre = f"PlanRehab_{patient.primer_apellido or 'paciente'}_{patient.numero_documento}_{plan.id[:8]}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -257,6 +264,7 @@ def share_plan(plan_id: str, body: RehabShareCreateDTO, request: Request, db: Db
 # SESIONES
 # ─────────────────────────────────────────────────────────────
 
+
 @rehab_router.post(
     "/sessions",
     response_model=RehabSessionResponseDTO,
@@ -265,6 +273,7 @@ def share_plan(plan_id: str, body: RehabShareCreateDTO, request: Request, db: Db
 )
 def create_session(dto: RehabSessionCreateDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import CreateRehabSessionUseCase
+
     try:
         return CreateRehabSessionUseCase(db).execute(dto)
     except Exception as e:
@@ -283,14 +292,18 @@ def list_sessions_by_patient(
     limit: int = Query(default=200, ge=1, le=1000),
 ):
     from app.application.use_cases.rehab_use_cases import ListRehabSessionsUseCase
+
     return ListRehabSessionsUseCase(db).by_patient(
-        patient_id, plan_id=plan_id, limit=limit,
+        patient_id,
+        plan_id=plan_id,
+        limit=limit,
     )
 
 
 # ─────────────────────────────────────────────────────────────
 # EVOLUCIÓN / ADHERENCIA / SUGERENCIA
 # ─────────────────────────────────────────────────────────────
+
 
 @rehab_router.get(
     "/evolution/{patient_id}",
@@ -307,6 +320,7 @@ def get_evolution(
     plan_id: str | None = Query(default=None),
 ):
     from app.application.use_cases.rehab_use_cases import GetEvolutionUseCase
+
     return GetEvolutionUseCase(db).execute(patient_id, plan_id=plan_id)
 
 
@@ -321,6 +335,7 @@ def get_evolution(
 )
 def get_adherence(patient_id: str, db: DbSession):
     from app.application.use_cases.rehab_use_cases import GetAdherenceUseCase
+
     return GetAdherenceUseCase(db).execute(patient_id)
 
 
@@ -338,6 +353,7 @@ def suggest_plan(evaluation_id: str, db: DbSession):
     from app.application.use_cases.rehab_use_cases import (
         SuggestPlanFromEvaluationUseCase,
     )
+
     try:
         return SuggestPlanFromEvaluationUseCase(db).execute(evaluation_id)
     except Exception as e:
@@ -363,6 +379,7 @@ rehab_public_router = APIRouter(
 )
 def public_get_plan(token: str, db: DbSession):
     from app.application.use_cases.rehab_use_cases import GetPublicRehabPlanUseCase
+
     try:
         return GetPublicRehabPlanUseCase(db).execute(token)
     except ApplicationError as e:
@@ -378,6 +395,7 @@ def public_submit_result(token: str, dto: RehabPublicResultDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import (
         SubmitPublicRehabResultUseCase,
     )
+
     try:
         return SubmitPublicRehabResultUseCase(db).execute(token, dto)
     except ApplicationError as e:

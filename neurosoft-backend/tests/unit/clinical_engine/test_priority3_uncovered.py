@@ -12,8 +12,6 @@ debido a la variabilidad de los rangos de PD válidos.
 """
 
 
-
-
 class TestWISCIVComplementarias:
     """WISC-IV subpruebas complementarias (infantil)."""
 

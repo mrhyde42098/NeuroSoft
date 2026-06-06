@@ -43,6 +43,7 @@ def _resolve_secret_key() -> str:
     # Preferimos settings.secret_key (pydantic) sobre la lectura directa
     try:
         from app.core.config import settings as _settings
+
         env = getattr(_settings, "env", "development")
         value = getattr(_settings, "secret_key", "") or os.getenv("NEUROSOFT_SECRET_KEY", "")
     except Exception:
@@ -53,14 +54,11 @@ def _resolve_secret_key() -> str:
         if not value or value == _DEFAULT_SECRET:
             raise RuntimeError(
                 "NEUROSOFT_SECRET_KEY no configurada en producción. "
-                "Genera una con `python -c \"import secrets; print(secrets.token_urlsafe(48))\"` "
+                'Genera una con `python -c "import secrets; print(secrets.token_urlsafe(48))"` '
                 "y expórtala como variable de entorno antes de arrancar."
             )
         if len(value) < 32:
-            raise RuntimeError(
-                f"NEUROSOFT_SECRET_KEY demasiado corta ({len(value)} chars); "
-                "se requieren al menos 32."
-            )
+            raise RuntimeError(f"NEUROSOFT_SECRET_KEY demasiado corta ({len(value)} chars); se requieren al menos 32.")
         return value
 
     # Desarrollo/test: permitir fallback con warning
@@ -68,8 +66,7 @@ def _resolve_secret_key() -> str:
         value = _DEFAULT_SECRET
     if value == _DEFAULT_SECRET:
         logger.warning(
-            "⚠️  JWT_SECRET usa el valor por defecto. "
-            "Configura NEUROSOFT_SECRET_KEY en .env antes de producción."
+            "⚠️  JWT_SECRET usa el valor por defecto. Configura NEUROSOFT_SECRET_KEY en .env antes de producción."
         )
     return value
 
@@ -86,9 +83,11 @@ ROLES = ("admin", "profesional", "viewer")
 # Helpers de contraseña
 # ─────────────────────────────────────────────────────────────
 
+
 def _get_pwd_context():
     try:
         from passlib.context import CryptContext
+
         return CryptContext(schemes=["bcrypt"], deprecated="auto")
     except ImportError:
         raise RuntimeError("passlib no instalada. Ejecuta: pip install passlib[bcrypt]")
@@ -110,14 +109,14 @@ def verify_password(plain: str, hashed: str) -> bool:
 # JWT
 # ─────────────────────────────────────────────────────────────
 
+
 def _jwt():
     try:
         from jose import JWTError, jwt
+
         return jwt, JWTError
     except ImportError:
-        raise RuntimeError(
-            "python-jose no instalado. Ejecuta: pip install python-jose[cryptography]"
-        )
+        raise RuntimeError("python-jose no instalado. Ejecuta: pip install python-jose[cryptography]")
 
 
 def create_access_token(user_id: str, role: str, username: str | None = None) -> str:
@@ -169,7 +168,9 @@ def decode_access_token(token: str) -> dict:
         # §M14-fix: options explícito asegura que la expiración (exp)
         # y la firma se verifiquen siempre, sin depender de defaults.
         payload = jwt.decode(
-            token, SECRET_KEY, algorithms=[ALGORITHM],
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
             options={"verify_signature": True, "verify_exp": True, "require": ["exp"]},
         )
         if payload.get("type") != "access":
@@ -186,7 +187,9 @@ def decode_refresh_token(token: str) -> str:
         # §M14-fix: options explícito asegura que la expiración (exp)
         # y la firma se verifiquen siempre, sin depender de defaults.
         payload = jwt.decode(
-            token, SECRET_KEY, algorithms=[ALGORITHM],
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
             options={"verify_signature": True, "verify_exp": True, "require": ["exp"]},
         )
         if payload.get("type") != "refresh":
@@ -199,6 +202,7 @@ def decode_refresh_token(token: str) -> str:
 # ─────────────────────────────────────────────────────────────
 # Repositorio de usuarios
 # ─────────────────────────────────────────────────────────────
+
 
 class UserRepository:
     """CRUD sobre la tabla users."""
@@ -215,6 +219,7 @@ class UserRepository:
         profesional_id: str | None = None,
     ):
         from app.infrastructure.database.orm_models import UserORM
+
         existing = self._db.query(UserORM).filter_by(username=username).first()
         if existing:
             raise ValueError(f"El usuario '{username}' ya existe.")
@@ -237,18 +242,17 @@ class UserRepository:
 
     def find_by_username(self, username: str):
         from app.infrastructure.database.orm_models import UserORM
-        return (
-            self._db.query(UserORM)
-            .filter_by(username=username.lower().strip(), is_active=True)
-            .first()
-        )
+
+        return self._db.query(UserORM).filter_by(username=username.lower().strip(), is_active=True).first()
 
     def find_by_id(self, user_id: str):
         from app.infrastructure.database.orm_models import UserORM
+
         return self._db.query(UserORM).filter_by(id=user_id, is_active=True).first()
 
     def update_password(self, user_id: str, new_password: str) -> bool:
         from app.infrastructure.database.orm_models import UserORM
+
         orm = self._db.query(UserORM).filter_by(id=user_id).first()
         if not orm:
             return False
@@ -258,10 +262,12 @@ class UserRepository:
 
     def list_users(self):
         from app.infrastructure.database.orm_models import UserORM
+
         return self._db.query(UserORM).filter_by(is_active=True).all()
 
     def deactivate(self, user_id: str) -> bool:
         from app.infrastructure.database.orm_models import UserORM
+
         orm = self._db.query(UserORM).filter_by(id=user_id).first()
         if not orm:
             return False
@@ -318,9 +324,7 @@ class UserRepository:
                     "Define una contraseña inicial fuerte antes de arrancar."
                 )
             if len(password) < 8:
-                raise RuntimeError(
-                    "NEUROSOFT_ADMIN_PASSWORD demasiado corta (mínimo 8 caracteres)."
-                )
+                raise RuntimeError("NEUROSOFT_ADMIN_PASSWORD demasiado corta (mínimo 8 caracteres).")
         else:
             if not password:
                 # Cuando se ejecuta dentro de un .exe empaquetado (PyInstaller),
@@ -341,6 +345,7 @@ class UserRepository:
                 if not getattr(_sys, "frozen", False):
                     try:
                         from app.core.config import settings as _settings
+
                         cred_file = _settings.data_dir / "admin_password_dev.txt"
                         cred_file.parent.mkdir(parents=True, exist_ok=True)
                         cred_file.write_text(
@@ -352,19 +357,16 @@ class UserRepository:
                         )
                         try:
                             import os as _os
+
                             _os.chmod(str(cred_file), 0o600)
                         except Exception as _exc:
                             logger.debug("chmod falló (no crítico): %s", _exc)
-                        logger.warning(
-                            "Admin password generada aleatoriamente. "
-                            "Consulta: %s", cred_file
-                        )
+                        logger.warning("Admin password generada aleatoriamente. Consulta: %s", cred_file)
                     except Exception as _exc:
                         # Si no podemos persistirla, la regeneramos a una conocida
                         # — mejor que dejar al dev sin acceso al admin.
                         logger.warning(
-                            "No se pudo persistir admin password (%s). "
-                            "Usando fallback documentado en consola.", _exc
+                            "No se pudo persistir admin password (%s). Usando fallback documentado en consola.", _exc
                         )
                         password = "neurosoft2025"
 
@@ -405,11 +407,7 @@ class UserRepository:
 
         # Permitir override de username por env (sin romper installs viejas).
         username = os.getenv("NEUROSOFT_BETA_USERNAME", "") or username
-        password = (
-            default_password
-            or os.getenv("NEUROSOFT_BETA_PASSWORD", "")
-            or "BetaTester2026!"
-        )
+        password = default_password or os.getenv("NEUROSOFT_BETA_PASSWORD", "") or "BetaTester2026!"
         username_clean = username.lower().strip()
         beta = self._db.query(UserORM).filter_by(username=username_clean).first()
         if beta is not None:
@@ -489,12 +487,8 @@ def is_token_revoked(session, jti: str) -> bool:
     if not jti:
         return False
     from app.infrastructure.database.orm_models import TokenBlacklistORM
-    return (
-        session.query(TokenBlacklistORM.jti)
-        .filter(TokenBlacklistORM.jti == jti)
-        .first()
-        is not None
-    )
+
+    return session.query(TokenBlacklistORM.jti).filter(TokenBlacklistORM.jti == jti).first() is not None
 
 
 def purge_expired_blacklist_entries(session) -> int:
@@ -503,6 +497,7 @@ def purge_expired_blacklist_entries(session) -> int:
     Devuelve la cantidad borrada. Pensado para el scheduler.
     """
     from app.infrastructure.database.orm_models import TokenBlacklistORM
+
     now = datetime.now(UTC)
     q = session.query(TokenBlacklistORM).filter(TokenBlacklistORM.expires_at < now)
     n = q.count()
@@ -543,13 +538,15 @@ def revoke_all_user_tokens(
         existing.expires_at = far_exp
         existing.reason = reason
     else:
-        session.add(TokenBlacklistORM(
-            jti=sentinel_jti,
-            user_id=user_id,
-            revoked_at=now,
-            expires_at=far_exp,
-            reason=reason,
-        ))
+        session.add(
+            TokenBlacklistORM(
+                jti=sentinel_jti,
+                user_id=user_id,
+                revoked_at=now,
+                expires_at=far_exp,
+                reason=reason,
+            )
+        )
     session.flush()
     return 1
 
@@ -561,13 +558,10 @@ def is_user_session_revoked(session, user_id: str, token_iat: int) -> bool:
     sesiones después de emitido este token, así que este token ya no vale.
     """
     from app.infrastructure.database.orm_models import TokenBlacklistORM
+
     if not user_id or token_iat is None:
         return False
-    sentinel = (
-        session.query(TokenBlacklistORM)
-        .filter_by(jti=f"user:{user_id}")
-        .first()
-    )
+    sentinel = session.query(TokenBlacklistORM).filter_by(jti=f"user:{user_id}").first()
     if sentinel is None:
         return False
     iat_dt = datetime.fromtimestamp(int(token_iat), tz=UTC)

@@ -34,15 +34,14 @@ rips_router = APIRouter(prefix="/rips", tags=["RIPS"])
     response_class=Response,
     summary="Generar reporte RIPS de un paciente",
     description=(
-        "Genera el PDF de RIPS con todas las atenciones del paciente "
-        "en el período indicado (fecha_inicio → fecha_fin)."
+        "Genera el PDF de RIPS con todas las atenciones del paciente en el período indicado (fecha_inicio → fecha_fin)."
     ),
     responses={200: {"content": {"application/pdf": {}}}},
 )
 def generate_rips(
     patient_id: str,
     fecha_inicio: str = Query(..., description="YYYY-MM-DD"),
-    fecha_fin:    str = Query(..., description="YYYY-MM-DD"),
+    fecha_fin: str = Query(..., description="YYYY-MM-DD"),
     profesional_id: str | None = Query(default=None),
     db: DbSession = None,
 ):
@@ -147,10 +146,7 @@ def export_rips(
         content=files["AC.txt"],
         media_type="text/plain; charset=utf-8",
         headers={
-            "Content-Disposition": (
-                f'attachment; filename="AC_{fi.strftime("%Y%m%d")}'
-                f'_{ff.strftime("%Y%m%d")}.txt"'
-            )
+            "Content-Disposition": (f'attachment; filename="AC_{fi.strftime("%Y%m%d")}_{ff.strftime("%Y%m%d")}.txt"')
         },
     )
 
@@ -182,7 +178,7 @@ def download_database(db: DbSession, admin=Depends(require_admin)):
         db_bytes = f.read()
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename  = f"neurosoft_backup_{timestamp}.db"
+    filename = f"neurosoft_backup_{timestamp}.db"
 
     return Response(
         content=db_bytes,
@@ -221,6 +217,7 @@ def create_server_backup(
 )
 def list_backups(db: DbSession, admin=Depends(require_admin)):
     from app.application.use_cases.clinical_history_use_cases import BackupUseCase
+
     return BackupUseCase(db).list_backups()
 
 
@@ -285,23 +282,25 @@ async def restore_database(
     try:
         from app.infrastructure.database.engine import get_session
         from app.infrastructure.database.orm_models import AuditLogORM  # noqa: F401
+
         db2 = next(get_session())
         try:
             record_event(
                 db2,
                 action="restore",
                 entity_type="backup",
-                summary=f"Restore desde archivo ({safe_name}, {len(contenido)} bytes). "
-                        f"Safety snapshot: {safety.name}",
+                summary=f"Restore desde archivo ({safe_name}, {len(contenido)} bytes). Safety snapshot: {safety.name}",
                 request=request,
             )
         finally:
             db2.close()
     except Exception as _audit_exc:  # noqa: BLE001
         import logging as _logging
+
         _logging.getLogger(__name__).warning(
             "restore/backup: fallo al registrar auditoría (%s: %s)",
-            type(_audit_exc).__name__, _audit_exc,
+            type(_audit_exc).__name__,
+            _audit_exc,
         )
 
     return {
@@ -353,9 +352,11 @@ def delete_backup(
             db.close()
     except Exception as _audit_exc:  # noqa: BLE001
         import logging as _logging
+
         _logging.getLogger(__name__).warning(
             "delete_backup: fallo al registrar auditoría (%s: %s)",
-            type(_audit_exc).__name__, _audit_exc,
+            type(_audit_exc).__name__,
+            _audit_exc,
         )
     return None
 

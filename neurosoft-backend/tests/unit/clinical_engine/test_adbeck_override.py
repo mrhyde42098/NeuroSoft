@@ -18,17 +18,16 @@ Valida:
 5. El BD NO se altera en disco durante load() (trazabilidad clínica).
 6. El loader NO aplica override para AdBeck (BD es la fuente).
 """
+
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 
 import pytest
 
 from app.domain.clinical_engine.baremos_loader import BaremosLoader
 from app.domain.clinical_engine.overrides import (
-    get_override,
     has_override,
     list_overrides,
 )
@@ -37,8 +36,8 @@ from app.domain.clinical_engine.overrides.adbeck import (
     get_adbeck_override,
 )
 
-
 # ── Tests del override como unidad aislada ────────────────────
+
 
 class TestAdBeckOverrideUnit:
     """Tests del módulo adbeck.py sin tocar el loader."""
@@ -59,8 +58,7 @@ class TestAdBeckOverrideUnit:
         baremo = get_adbeck_override()
         for k in baremo:
             assert not k.startswith("1619"), (
-                f"Key heredada del Excel presente: {k}. "
-                f"El override debe usar solo puntos de corte BDI-II."
+                f"Key heredada del Excel presente: {k}. El override debe usar solo puntos de corte BDI-II."
             )
 
     def test_metadata_clinica_incluye_fuente_y_corte(self):
@@ -82,12 +80,14 @@ class TestAdBeckOverrideUnit:
         # Pero el módulo LEGACY sigue importable y la función sigue
         # retornando el baremo BDI-II correcto (por si se reactiva).
         from app.domain.clinical_engine.overrides.adbeck import get_adbeck_override
+
         baremo_legacy = get_adbeck_override()
         assert baremo_legacy["0"] == "Mínima"
         assert baremo_legacy["14"] == "Leve"
 
 
 # ── Tests del loader con override aplicado ────────────────────
+
 
 class TestAdBeckLoaderIntegration:
     """Tests que verifican que BaremosLoader inyecta el override."""
@@ -108,9 +108,7 @@ class TestAdBeckLoaderIntegration:
 
         # Hash después — DEBE ser idéntico (load() no toca disco)
         hash_after = hashlib.sha256(bd_path.read_bytes()).hexdigest()
-        assert hash_before == hash_after, (
-            "BD_NEURO_MAESTRA.json fue modificado en disco durante load()"
-        )
+        assert hash_before == hash_after, "BD_NEURO_MAESTRA.json fue modificado en disco durante load()"
 
         # F7.2: AdBeck ya NO está en overrides (BD es la fuente)
         assert not loader.baremo_en_revision("AdBeck")

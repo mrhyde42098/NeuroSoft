@@ -9,21 +9,19 @@
 
 | Capa | Quién la controla | Herramienta en NeuroSoft |
 |------|-------------------|--------------------------|
-| **Licencia de uso** (beta / trial / perpetua) | Tú generas la clave; el tester la activa offline | `generate_license.py` |
+| **Licencia de uso** (beta / trial / perpetua) | Tú generas la clave; el tester la activa offline | **`NeuroSoft-LicenseAdmin.exe`** (recomendado) o `admin_license_app.py` |
 | **Baremos y motor clínico** | Tú en el build; el cliente solo los usa en memoria | `build_protected.py` (AES + Cython) |
 | **Código fuente Python/JS** | Solo en tu repo `D:\NeuroSoftApp` | No se distribuye; PyInstaller empaqueta bytecode |
 | **Datos clínicos (PHI)** | Profesional + cifrado de disco | BitLocker + `docs/SEGURIDAD_DATOS_CLINICOS.md` |
 | **Claves Fernet/JWT del servidor** | Se generan en primer arranque local | `%APPDATA%\NeuroSoft\` — no las compartes |
 
-**No necesitas un software externo de KMS** para la beta cerrada. Ya tienes:
+**No necesitas un software externo de KMS** para la beta cerrada. Herramientas disponibles:
 
-1. **`python generate_license.py`** — GUI para una licencia (nombre, email, tipo, días).
-2. **Lote para beta testers:**
-   ```powershell
-   cd D:\NeuroSoftApp
-   python generate_license.py --batch 100 --type beta --out licenses_beta_2026.csv
-   ```
-3. **`build_protected.py`** — build “duro” con baremos cifrados y módulos críticos en `.pyd` (Cython).
+1. **`dist\NeuroSoft-LicenseAdmin.exe`** — panel completo (inventario, contadores, Excel, email). **Usar este.**
+2. **`python admin_license_app.py`** — misma UI desde código (desarrollo).
+3. **`python generate_license.py`** — GUI legacy / CLI batch mínima (deprecado; redirige al panel).
+4. **`python build_license_admin.py`** — reconstruir el `.exe` del panel tras cambios en `tools/license_core.py`.
+5. **`build_protected.py`** — build “duro” con baremos cifrados y módulos críticos en `.pyd` (Cython).
 
 Tu flujo de trabajo **no se rompe**: sigues editando en `D:\NeuroSoftApp`. Solo al entregar al cliente corres `build.py` o `build_protected.py` y envías `NeuroSoft-Setup.exe`.
 
@@ -132,14 +130,42 @@ SQLCipher (BD cifrada) queda como mejora post-beta — requiere migración y `py
 | orjson baremos | ✅ Hecho | boot más rápido |
 | FastAPI 0.115.6 | ✅ Pin conservador | 0.136.x post-beta (riesgo breaking) |
 | Lazy load baremos por protocolo | ⏳ Post-beta | requiere refactor loader |
-| Vite 6 / React 19 | ⏳ Post-beta | validar PyInstaller + e2e |
+| Vite 6 / React 19 | ✅ Hecho | Playwright E2E en GitHub Actions |
 | RSA firma en producción | ⏳ Activar en build protegido | generar par de claves una vez |
 
 ---
 
-## 7. Checklist antes de enviar a un beta tester
+## 7. License Admin — panel de licencias (recomendado)
 
-- [ ] `python generate_license.py` → clave tipo **Beta** con nombre/email del tester
+Herramienta de escritorio para generar, inventariar y revocar claves sin servidor.
+
+| Pestaña | Función |
+|---------|---------|
+| **Panel** | Contadores (activas, beta, trial, revocadas), cuotas por tipo |
+| **Licencia** | Generar clave individual (nombre, email, tipo, días trial) |
+| **Lote CSV** | Importar/exportar lote masivo de claves |
+| **Inventario** | Tabla filtrable + **Exportar Excel** (Resumen + Inventario) |
+| **Validar** | Decodificar clave existente (tipo, expiración, machine_id) |
+| **Personalizar** | Pie de email, asunto, plantilla HTML para envío |
+| **Historial** | Log local de acciones del admin |
+| **Email** | Enviar clave por SMTP (opcional) |
+
+**Datos locales (no subir a git):** `%APPDATA%\NeuroSoft\LicenseAdmin\`  
+(`inventory.json`, `history.json`, `settings.json`)
+
+**Build del exe:**
+```powershell
+python build_license_admin.py
+# → dist\NeuroSoft-LicenseAdmin.exe
+```
+
+**Export Excel:** requiere `openpyxl` (incluido en el bundle del exe).
+
+---
+
+## 8. Checklist antes de enviar a un beta tester
+
+- [ ] `NeuroSoft-LicenseAdmin.exe` → clave tipo **Beta** con nombre/email del tester (o lote CSV)
 - [ ] Build: `python build.py --skip-ollama` + Inno Setup (o `build_protected.py` para máxima protección)
 - [ ] Verificar `NeuroSoft.exe` < 100 MB (si pesa ~1.4 GB, Ollama se bundleó mal)
 - [ ] Enviar `NeuroSoft-Setup.exe` + clave por canal separado (WhatsApp clave, Drive instalador)
@@ -147,7 +173,7 @@ SQLCipher (BD cifrada) queda como mejora post-beta — requiere migración y `py
 
 ---
 
-## 8. Alcance realista (importante)
+## 9. Alcance realista (importante)
 
 **Protege bien contra:** copia casual, curiosos, extracción trivial del JSON de baremos, uso sin licencia en beta.
 

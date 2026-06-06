@@ -1,7 +1,7 @@
 """Tests unitarios para tools/license_core.py (generación e inventario offline)."""
+
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -56,6 +56,15 @@ def test_export_inventory_csv(tmp_path):
     assert n >= 1
     text = csv_path.read_text(encoding="utf-8-sig")
     assert "NSFT-" in text
+
+
+def test_export_inventory_xlsx(tmp_path):
+    key = lc.generate_key("beta", "Xlsx", "x@y.z")
+    lc.inventory_register({"key": key, "type": "beta", "name": "Xlsx", "email": "x@y.z", "batch": "XL1"})
+    xlsx_path = tmp_path / "inv.xlsx"
+    n = lc.export_inventory_xlsx(xlsx_path)
+    assert n >= 1
+    assert xlsx_path.stat().st_size > 500
 
 
 def test_import_csv_skips_duplicates(tmp_path):

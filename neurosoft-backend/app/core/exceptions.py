@@ -33,6 +33,7 @@ from typing import Any
 # BASE
 # ============================================================
 
+
 class NeuroSoftError(Exception):
     """Base de todas las excepciones del sistema NeuroSoft."""
 
@@ -62,8 +63,10 @@ class NeuroSoftError(Exception):
 # CAPA DE DOMINIO — Reglas de negocio violadas
 # ============================================================
 
+
 class DomainError(NeuroSoftError):
     """Violación de una regla del dominio clínico."""
+
     pass
 
 
@@ -74,6 +77,7 @@ class InvalidScoreError(DomainError):
     Contexto típico: PD fuera del rango del baremo, tipo de dato incorrecto
     o combinación edad-prueba no soportada.
     """
+
     def __init__(self, test_id: str, pd: Any, reason: str = ""):
         super().__init__(
             message=f"Puntaje inválido para '{test_id}': PD={pd}. {reason}".strip(),
@@ -84,6 +88,7 @@ class InvalidScoreError(DomainError):
 
 class PatientAgeOutOfRangeError(DomainError):
     """La edad del paciente está fuera del rango soportado por el baremo."""
+
     def __init__(self, test_id: str, age_years: int, supported_range: str = ""):
         super().__init__(
             message=(
@@ -97,6 +102,7 @@ class PatientAgeOutOfRangeError(DomainError):
 
 class BaremoNotFoundError(DomainError):
     """No se encontró baremo para el test_id solicitado."""
+
     def __init__(self, test_id: str):
         super().__init__(
             message=f"No existe baremo para la prueba '{test_id}' en BD_NEURO_MAESTRA.json.",
@@ -107,6 +113,7 @@ class BaremoNotFoundError(DomainError):
 
 class GhostFormulaError(DomainError):
     """Error en el cálculo de una prueba fantasma (TONI-2, Frostig, MIDE)."""
+
     def __init__(self, test_code: str, reason: str):
         super().__init__(
             message=f"Error en fórmula fantasma '{test_code}': {reason}",
@@ -117,6 +124,7 @@ class GhostFormulaError(DomainError):
 
 class UnsupportedStrategyError(DomainError):
     """El tipo de cálculo del baremo no tiene strategy implementada."""
+
     def __init__(self, tipo_calculo: str):
         super().__init__(
             message=f"No existe strategy para tipo_calculo='{tipo_calculo}'.",
@@ -129,13 +137,16 @@ class UnsupportedStrategyError(DomainError):
 # CAPA DE APLICACIÓN — Casos de uso fallidos
 # ============================================================
 
+
 class ApplicationError(NeuroSoftError):
     """Error en la orquestación de un caso de uso."""
+
     pass
 
 
 class PatientAlreadyExistsError(ApplicationError):
     """Intento de registrar un paciente que ya existe en esa fecha de atención."""
+
     def __init__(self, numero_documento: str, fecha_atencion: str):
         super().__init__(
             message=(
@@ -149,6 +160,7 @@ class PatientAlreadyExistsError(ApplicationError):
 
 class PatientNotFoundError(ApplicationError):
     """Paciente no encontrado en la base de datos."""
+
     def __init__(self, identifier: str):
         super().__init__(
             message=f"Paciente '{identifier}' no encontrado.",
@@ -159,6 +171,7 @@ class PatientNotFoundError(ApplicationError):
 
 class EvaluationNotFoundError(ApplicationError):
     """Evaluación no encontrada."""
+
     def __init__(self, evaluation_id: str):
         super().__init__(
             message=f"Evaluación '{evaluation_id}' no encontrada.",
@@ -169,6 +182,7 @@ class EvaluationNotFoundError(ApplicationError):
 
 class InvalidProtocolError(ApplicationError):
     """El protocolo clínico seleccionado no es válido para la población del paciente."""
+
     def __init__(self, protocol: str, poblacion: str):
         super().__init__(
             message=f"El protocolo '{protocol}' no es válido para población '{poblacion}'.",
@@ -184,6 +198,7 @@ class EvaluationAlreadySignedError(ApplicationError):
     la evaluación queda inmutable. Para invalidarla hay que crear una
     nueva evaluación del mismo protocolo (no sobreescribir la firmada).
     """
+
     def __init__(self, evaluation_id: str, signed_at: str | None = None):
         super().__init__(
             message=(
@@ -199,6 +214,7 @@ class EvaluationAlreadySignedError(ApplicationError):
 
 class EvaluationNotSignedError(ApplicationError):
     """Operación que requiere firma previa sobre una evaluación no firmada."""
+
     def __init__(self, evaluation_id: str):
         super().__init__(
             message=f"La evaluación '{evaluation_id}' no ha sido firmada todavía.",
@@ -212,13 +228,16 @@ class EvaluationNotSignedError(ApplicationError):
 # CAPA DE INFRAESTRUCTURA — Fallas externas
 # ============================================================
 
+
 class InfrastructureError(NeuroSoftError):
     """Error en una dependencia externa (BD, sistema de archivos)."""
+
     pass
 
 
 class BaremoDatabaseNotLoadedError(InfrastructureError):
     """El JSON de baremos no pudo ser cargado al iniciar la aplicación."""
+
     def __init__(self, path: str):
         super().__init__(
             message=(
@@ -232,6 +251,7 @@ class BaremoDatabaseNotLoadedError(InfrastructureError):
 
 class ReportGenerationError(InfrastructureError):
     """Error al generar un reporte PDF o Word."""
+
     def __init__(self, format_: str, reason: str):
         super().__init__(
             message=f"Error al generar reporte {format_.upper()}: {reason}",
@@ -242,6 +262,7 @@ class ReportGenerationError(InfrastructureError):
 
 class DatabaseConnectionError(InfrastructureError):
     """Error de conexión con la base de datos SQLite."""
+
     def __init__(self, reason: str):
         super().__init__(
             message=f"Error de base de datos: {reason}",
@@ -256,6 +277,7 @@ class ConcurrencyError(ApplicationError):
     Ocurre cuando dos usuarios intentan guardar el mismo registro simultáneamente.
     El cliente debe recargar los datos y reintentar.
     """
+
     def __init__(self, resource: str = "registro", client_version: int = 0, server_version: int = 0):
         super().__init__(
             message=(

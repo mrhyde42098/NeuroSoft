@@ -34,6 +34,7 @@ advanced_router = APIRouter(prefix="/advanced", tags=["Funcionalidades Avanzadas
 # 1. BÚSQUEDA EN HISTORIA CLÍNICA
 # ─────────────────────────────────────────────────────────────
 
+
 @advanced_router.get(
     "/hc/search",
     summary="Búsqueda avanzada en Historias Clínicas",
@@ -48,8 +49,7 @@ advanced_router = APIRouter(prefix="/advanced", tags=["Funcionalidades Avanzadas
 def search_clinical_histories(
     q: str = Query(..., min_length=2, description="Texto a buscar"),
     campo: str | None = Query(
-        default=None,
-        description="Campo específico. Ej: farmacologicos, codigo_cie10. Vacío = todos."
+        default=None, description="Campo específico. Ej: farmacologicos, codigo_cie10. Vacío = todos."
     ),
     limit: int = Query(default=25, ge=1, le=100),
     db: DbSession = None,
@@ -60,14 +60,39 @@ def search_clinical_histories(
 
     # Campos de texto que se buscarán
     TEXT_FIELDS = [
-        "motivo_consulta", "patologicos_medicos", "sensoriales_motores",
-        "psiquiatricos", "farmacologicos", "traumaticos", "quirurgicos",
-        "toxicos", "alergicos", "terapeuticos", "paraclinicos", "familiares",
-        "vive_con", "abc", "escolar_laboral", "cognitivo", "comportamiento_animo",
-        "patron_sueno", "patron_alimentacion", "plan_atencion", "impresion_diagnostica_hc",
-        "obs_clinica_general", "obs_atencion", "obs_memoria", "obs_praxias_gnosias",
-        "obs_lenguaje", "obs_funciones_ejecutivas", "obs_emociones", "obs_ci",
-        "obs_impresion_dx", "obs_funcionalidad", "obs_recomendaciones", "codigo_cie10",
+        "motivo_consulta",
+        "patologicos_medicos",
+        "sensoriales_motores",
+        "psiquiatricos",
+        "farmacologicos",
+        "traumaticos",
+        "quirurgicos",
+        "toxicos",
+        "alergicos",
+        "terapeuticos",
+        "paraclinicos",
+        "familiares",
+        "vive_con",
+        "abc",
+        "escolar_laboral",
+        "cognitivo",
+        "comportamiento_animo",
+        "patron_sueno",
+        "patron_alimentacion",
+        "plan_atencion",
+        "impresion_diagnostica_hc",
+        "obs_clinica_general",
+        "obs_atencion",
+        "obs_memoria",
+        "obs_praxias_gnosias",
+        "obs_lenguaje",
+        "obs_funciones_ejecutivas",
+        "obs_emociones",
+        "obs_ci",
+        "obs_impresion_dx",
+        "obs_funcionalidad",
+        "obs_recomendaciones",
+        "codigo_cie10",
     ]
 
     like = f"%{q}%"
@@ -78,10 +103,7 @@ def search_clinical_histories(
         hcs = db.query(ClinicalHistoryORM).filter(col.ilike(like)).limit(limit).all()
     else:
         # Buscar en todos los campos
-        conditions = [
-            getattr(ClinicalHistoryORM, f).ilike(like)
-            for f in TEXT_FIELDS
-        ]
+        conditions = [getattr(ClinicalHistoryORM, f).ilike(like) for f in TEXT_FIELDS]
         hcs = db.query(ClinicalHistoryORM).filter(or_(*conditions)).limit(limit).all()
 
     results = []
@@ -105,16 +127,18 @@ def search_clinical_histories(
                 extracto = ("..." if start > 0 else "") + val_str[start:end] + ("..." if end < len(val_str) else "")
                 coincidencias[f] = extracto
 
-        results.append({
-            "hc_id": hc.id,
-            "patient_id": hc.patient_id,
-            "nombre_paciente": nombre,
-            "numero_documento": hc.numero_documento,
-            "fecha_atencion": hc.fecha_atencion.isoformat() if hc.fecha_atencion else None,
-            "codigo_cie10": hc.codigo_cie10,
-            "coincidencias": coincidencias,
-            "total_coincidencias": len(coincidencias),
-        })
+        results.append(
+            {
+                "hc_id": hc.id,
+                "patient_id": hc.patient_id,
+                "nombre_paciente": nombre,
+                "numero_documento": hc.numero_documento,
+                "fecha_atencion": hc.fecha_atencion.isoformat() if hc.fecha_atencion else None,
+                "codigo_cie10": hc.codigo_cie10,
+                "coincidencias": coincidencias,
+                "total_coincidencias": len(coincidencias),
+            }
+        )
 
     return {
         "query": q,
@@ -128,6 +152,7 @@ def search_clinical_histories(
 # 2. VERSIONES HISTÓRICAS DE UNA HC
 # ─────────────────────────────────────────────────────────────
 
+
 @advanced_router.get(
     "/hc/{patient_id}/versions",
     summary="Historial de versiones de la Historia Clínica",
@@ -138,11 +163,7 @@ def get_hc_versions(patient_id: str, db: DbSession):
 
     from app.infrastructure.database.orm_models import ClinicalHistoryORM, ClinicalHistoryVersionORM
 
-    hc = (
-        db.query(ClinicalHistoryORM)
-        .filter_by(patient_id=patient_id)
-        .first()
-    )
+    hc = db.query(ClinicalHistoryORM).filter_by(patient_id=patient_id).first()
     if hc is None:
         return {"patient_id": patient_id, "versiones": [], "version_actual": 0}
 
@@ -179,15 +200,13 @@ def get_hc_version_snapshot(patient_id: str, version_num: int, db: DbSession):
     hc = db.query(ClinicalHistoryORM).filter_by(patient_id=patient_id).first()
     if hc is None:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="HC no encontrada.")
 
-    ver = (
-        db.query(ClinicalHistoryVersionORM)
-        .filter_by(hc_id=hc.id, version_num=version_num)
-        .first()
-    )
+    ver = db.query(ClinicalHistoryVersionORM).filter_by(hc_id=hc.id, version_num=version_num).first()
     if ver is None:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail=f"Versión {version_num} no encontrada.")
 
     try:
@@ -209,6 +228,7 @@ def get_hc_version_snapshot(patient_id: str, version_num: int, db: DbSession):
 # 3. EXPORTAR A CSV
 # ─────────────────────────────────────────────────────────────
 
+
 @advanced_router.get(
     "/export/patients",
     response_class=Response,
@@ -227,22 +247,25 @@ def export_patients_csv(
     from app.infrastructure.database.orm_models import EvaluationORM, PatientORM
 
     q = db.query(PatientORM).filter(PatientORM.is_active.is_(True))
-    if sexo: q = q.filter(PatientORM.sexo == sexo)
-    if fecha_desde: q = q.filter(PatientORM.fecha_atencion >= date.fromisoformat(fecha_desde))
-    if fecha_hasta: q = q.filter(PatientORM.fecha_atencion <= date.fromisoformat(fecha_hasta))
+    if sexo:
+        q = q.filter(PatientORM.sexo == sexo)
+    if fecha_desde:
+        q = q.filter(PatientORM.fecha_atencion >= date.fromisoformat(fecha_desde))
+    if fecha_hasta:
+        q = q.filter(PatientORM.fecha_atencion <= date.fromisoformat(fecha_hasta))
 
     # Filtro por población (edad calculada)
     if poblacion:
         hoy = date.today()
         if poblacion == "infantil":
-            q = q.filter(PatientORM.fecha_nacimiento > date(hoy.year-18, hoy.month, hoy.day))
+            q = q.filter(PatientORM.fecha_nacimiento > date(hoy.year - 18, hoy.month, hoy.day))
         elif poblacion == "adulto_joven":
             q = q.filter(
-                PatientORM.fecha_nacimiento <= date(hoy.year-18, hoy.month, hoy.day),
-                PatientORM.fecha_nacimiento > date(hoy.year-50, hoy.month, hoy.day),
+                PatientORM.fecha_nacimiento <= date(hoy.year - 18, hoy.month, hoy.day),
+                PatientORM.fecha_nacimiento > date(hoy.year - 50, hoy.month, hoy.day),
             )
         elif poblacion == "adulto_mayor":
-            q = q.filter(PatientORM.fecha_nacimiento <= date(hoy.year-50, hoy.month, hoy.day))
+            q = q.filter(PatientORM.fecha_nacimiento <= date(hoy.year - 50, hoy.month, hoy.day))
 
     patients = q.order_by(PatientORM.primer_apellido, PatientORM.primer_nombre).all()
 
@@ -257,30 +280,48 @@ def export_patients_csv(
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow([
-        "ID", "Documento", "Tipo_Doc", "Nombre", "Apellido",
-        "Fecha_Nacimiento", "Sexo", "Escolaridad", "Lateralidad",
-        "Ciudad", "EPS", "Remite", "Fecha_Atencion", "Protocolo",
-        "Evaluaciones", "Motivo_Consulta",
-    ])
+    writer.writerow(
+        [
+            "ID",
+            "Documento",
+            "Tipo_Doc",
+            "Nombre",
+            "Apellido",
+            "Fecha_Nacimiento",
+            "Sexo",
+            "Escolaridad",
+            "Lateralidad",
+            "Ciudad",
+            "EPS",
+            "Remite",
+            "Fecha_Atencion",
+            "Protocolo",
+            "Evaluaciones",
+            "Motivo_Consulta",
+        ]
+    )
 
     for p in patients:
-        writer.writerow([
-            p.id, p.numero_documento, p.tipo_documento,
-            f"{p.primer_nombre or ''} {p.segundo_nombre or ''}".strip(),
-            f"{p.primer_apellido or ''} {p.segundo_apellido or ''}".strip(),
-            p.fecha_nacimiento.isoformat() if p.fecha_nacimiento else "",
-            "Masculino" if p.sexo == "H" else "Femenino",
-            p.escolaridad or "",
-            p.lateralidad or "",
-            p.ciudad or "",
-            p.eps or "",
-            p.remite or "",
-            p.fecha_atencion.isoformat() if p.fecha_atencion else "",
-            p.protocolo or "",
-            eval_counts.get(p.id, 0),
-            (p.motivo_consulta or "")[:200],
-        ])
+        writer.writerow(
+            [
+                p.id,
+                p.numero_documento,
+                p.tipo_documento,
+                f"{p.primer_nombre or ''} {p.segundo_nombre or ''}".strip(),
+                f"{p.primer_apellido or ''} {p.segundo_apellido or ''}".strip(),
+                p.fecha_nacimiento.isoformat() if p.fecha_nacimiento else "",
+                "Masculino" if p.sexo == "H" else "Femenino",
+                p.escolaridad or "",
+                p.lateralidad or "",
+                p.ciudad or "",
+                p.eps or "",
+                p.remite or "",
+                p.fecha_atencion.isoformat() if p.fecha_atencion else "",
+                p.protocolo or "",
+                eval_counts.get(p.id, 0),
+                (p.motivo_consulta or "")[:200],
+            ]
+        )
 
     csv_bytes = output.getvalue().encode("utf-8-sig")  # BOM para Excel en Windows
     filename = f"neurosoft_pacientes_{date.today().strftime('%Y%m%d')}.csv"
@@ -308,10 +349,14 @@ def export_evaluations_csv(
     from app.infrastructure.database.orm_models import EvaluationORM, PatientORM
 
     q = db.query(EvaluationORM).filter(EvaluationORM.is_latest.is_(True))
-    if patient_id: q = q.filter(EvaluationORM.patient_id == patient_id)
-    if protocolo:  q = q.filter(EvaluationORM.protocolo == protocolo)
-    if fecha_desde: q = q.filter(EvaluationORM.fecha >= date.fromisoformat(fecha_desde))
-    if fecha_hasta: q = q.filter(EvaluationORM.fecha <= date.fromisoformat(fecha_hasta))
+    if patient_id:
+        q = q.filter(EvaluationORM.patient_id == patient_id)
+    if protocolo:
+        q = q.filter(EvaluationORM.protocolo == protocolo)
+    if fecha_desde:
+        q = q.filter(EvaluationORM.fecha >= date.fromisoformat(fecha_desde))
+    if fecha_hasta:
+        q = q.filter(EvaluationORM.fecha <= date.fromisoformat(fecha_hasta))
 
     evals = q.order_by(EvaluationORM.fecha.desc()).all()
 
@@ -334,8 +379,14 @@ def export_evaluations_csv(
 
     # Header row
     base_cols = [
-        "Eval_ID", "Patient_ID", "Documento", "Nombre_Paciente",
-        "Fecha", "Protocolo", "Poblacion", "Edad_Display",
+        "Eval_ID",
+        "Patient_ID",
+        "Documento",
+        "Nombre_Paciente",
+        "Fecha",
+        "Protocolo",
+        "Poblacion",
+        "Edad_Display",
         "Pruebas_Realizadas",
     ]
     # For each test: PD, Escalar, Z, Interpretacion
@@ -358,7 +409,10 @@ def export_evaluations_csv(
         res_by_id = {r.get("test_id"): r for r in resultados}
 
         base = [
-            ev.id, ev.patient_id, doc, nombre,
+            ev.id,
+            ev.patient_id,
+            doc,
+            nombre,
             ev.fecha.isoformat() if ev.fecha else "",
             ev.protocolo or "",
             ev.poblacion or "",
@@ -371,7 +425,7 @@ def export_evaluations_csv(
             r = res_by_id.get(tid, {})
             pd_v = r.get("puntaje_bruto", "")
             es_v = r.get("puntaje_escalar", "")
-            z_v  = r.get("z_equivalente", "")
+            z_v = r.get("z_equivalente", "")
             ni_v = r.get("interpretacion", "")
             # Don't export 9999 as PD
             if pd_v == 9999 or pd_v == 9999.0:
@@ -392,6 +446,7 @@ def export_evaluations_csv(
 # ─────────────────────────────────────────────────────────────
 # 4. PLANTILLAS DE OBSERVACIONES (sugerencia automática)
 # ─────────────────────────────────────────────────────────────
+
 
 @advanced_router.post(
     "/templates/suggest",
@@ -529,6 +584,7 @@ def suggest_observation_text(
 # 5. SUBIR FIRMA DEL PROFESIONAL (base64)
 # ─────────────────────────────────────────────────────────────
 
+
 @advanced_router.post(
     "/config/profesionales/{prof_id}/firma",
     summary="Subir imagen de firma digital del profesional",
@@ -575,6 +631,7 @@ def upload_firma(
     # Persistimos la representación base64 "limpia" (sin prefijo data:)
     # para que el PDF la pueda incrustar sin tener que re-parsear.
     import base64 as _b64
+
     clean_b64 = _b64.b64encode(raw).decode("ascii")
     previous_present = bool(prof.firma_base64)
 
@@ -613,6 +670,7 @@ def delete_firma(prof_id: str, db: DbSession, admin=Depends(require_admin)):
     from fastapi import HTTPException
 
     from app.infrastructure.database.orm_models import ProfessionalORM
+
     prof = db.get(ProfessionalORM, prof_id)
     if prof is None:
         raise HTTPException(status_code=404, detail="Profesional no encontrado.")

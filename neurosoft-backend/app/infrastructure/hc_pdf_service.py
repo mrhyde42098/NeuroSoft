@@ -10,6 +10,7 @@ Reutiliza ReportLab; output A4 portrait con header, datos sociodemográficos,
 4 tabs HC (Desarrollo, Antecedentes, Familiar-Social, Plan de Atención) y
 firma del profesional.
 """
+
 from __future__ import annotations
 
 import io
@@ -93,6 +94,7 @@ def generate_clinical_history_pdf(
 # Bloques de dibujo
 # ─────────────────────────────────────────────────────────────
 
+
 def _draw_header(c, institucion) -> float:
     """Header con nombre institución y línea TEAL. Devuelve y inicial."""
     name = (institucion and institucion.nombre) or "Consultorio Neuropsicológico"
@@ -129,13 +131,25 @@ def _draw_title(c, y) -> float:
 
 def _draw_paciente_block(c, y, patient) -> float:
     y = _section_title(c, y, "Datos del paciente")
-    nombre = " ".join(x for x in [
-        getattr(patient, "primer_nombre", ""), getattr(patient, "segundo_nombre", ""),
-        getattr(patient, "primer_apellido", ""), getattr(patient, "segundo_apellido", ""),
-    ] if x).strip() or "—"
+    nombre = (
+        " ".join(
+            x
+            for x in [
+                getattr(patient, "primer_nombre", ""),
+                getattr(patient, "segundo_nombre", ""),
+                getattr(patient, "primer_apellido", ""),
+                getattr(patient, "segundo_apellido", ""),
+            ]
+            if x
+        ).strip()
+        or "—"
+    )
     rows = [
         ("Nombre completo", nombre),
-        ("Documento", f"{_safe(getattr(patient, 'tipo_documento', ''))} {_safe(getattr(patient, 'numero_documento', ''))}".strip()),
+        (
+            "Documento",
+            f"{_safe(getattr(patient, 'tipo_documento', ''))} {_safe(getattr(patient, 'numero_documento', ''))}".strip(),
+        ),
         ("Fecha nacimiento", _fmt_date(getattr(patient, "fecha_nacimiento", None))),
         ("Edad actual", _calc_age(getattr(patient, "fecha_nacimiento", None))),
         ("Sexo", _safe(getattr(patient, "sexo", ""))),
@@ -174,32 +188,44 @@ def _draw_hc_tabs(c, y, hc) -> float:
     if hc is None:
         return y
     sections = [
-        ("Antecedentes", [
-            ("Personales (médicos)", getattr(hc, "antecedentes_personales", "")),
-            ("Familiares", getattr(hc, "antecedentes_familiares", "")),
-            ("Psiquiátricos", getattr(hc, "antecedentes_psiquiatricos", "")),
-            ("Farmacológicos", getattr(hc, "farmacos_actuales", "")),
-            ("Tóxicos", getattr(hc, "antecedentes_toxicos", "")),
-            ("Quirúrgicos", getattr(hc, "antecedentes_quirurgicos", "")),
-        ]),
-        ("Historia del desarrollo", [
-            ("Prenatal", getattr(hc, "desarrollo_prenatal", "")),
-            ("Perinatal", getattr(hc, "desarrollo_perinatal", "")),
-            ("Postnatal", getattr(hc, "desarrollo_postnatal", "")),
-            ("Hitos del desarrollo", getattr(hc, "hitos_desarrollo", "")),
-            ("Escolaridad", getattr(hc, "historia_escolar", "")),
-        ]),
-        ("Familiar y social", [
-            ("Composición familiar", getattr(hc, "composicion_familiar", "")),
-            ("Dinámica familiar", getattr(hc, "dinamica_familiar", "")),
-            ("Red de apoyo", getattr(hc, "red_apoyo", "")),
-            ("Situación social", getattr(hc, "situacion_social", "")),
-        ]),
-        ("Plan de atención", [
-            ("Impresión diagnóstica inicial", getattr(hc, "impresion_diagnostica", "")),
-            ("Plan de evaluación", getattr(hc, "plan_evaluacion", "")),
-            ("Recomendaciones iniciales", getattr(hc, "recomendaciones_iniciales", "")),
-        ]),
+        (
+            "Antecedentes",
+            [
+                ("Personales (médicos)", getattr(hc, "antecedentes_personales", "")),
+                ("Familiares", getattr(hc, "antecedentes_familiares", "")),
+                ("Psiquiátricos", getattr(hc, "antecedentes_psiquiatricos", "")),
+                ("Farmacológicos", getattr(hc, "farmacos_actuales", "")),
+                ("Tóxicos", getattr(hc, "antecedentes_toxicos", "")),
+                ("Quirúrgicos", getattr(hc, "antecedentes_quirurgicos", "")),
+            ],
+        ),
+        (
+            "Historia del desarrollo",
+            [
+                ("Prenatal", getattr(hc, "desarrollo_prenatal", "")),
+                ("Perinatal", getattr(hc, "desarrollo_perinatal", "")),
+                ("Postnatal", getattr(hc, "desarrollo_postnatal", "")),
+                ("Hitos del desarrollo", getattr(hc, "hitos_desarrollo", "")),
+                ("Escolaridad", getattr(hc, "historia_escolar", "")),
+            ],
+        ),
+        (
+            "Familiar y social",
+            [
+                ("Composición familiar", getattr(hc, "composicion_familiar", "")),
+                ("Dinámica familiar", getattr(hc, "dinamica_familiar", "")),
+                ("Red de apoyo", getattr(hc, "red_apoyo", "")),
+                ("Situación social", getattr(hc, "situacion_social", "")),
+            ],
+        ),
+        (
+            "Plan de atención",
+            [
+                ("Impresión diagnóstica inicial", getattr(hc, "impresion_diagnostica", "")),
+                ("Plan de evaluación", getattr(hc, "plan_evaluacion", "")),
+                ("Recomendaciones iniciales", getattr(hc, "recomendaciones_iniciales", "")),
+            ],
+        ),
     ]
     for title, rows in sections:
         y = _section_title(c, y, title)
@@ -238,8 +264,7 @@ def _draw_firma(c, profesional) -> None:
 def _draw_footer(c, page_num, total) -> None:
     c.setFillColorRGB(*GRAY)
     c.setFont("Helvetica", 7)
-    txt = ("Documento confidencial. Ley 1581/2012 (Habeas Data Colombia) · "
-           "Resolución 1995/1999 (Historia Clínica)")
+    txt = "Documento confidencial. Ley 1581/2012 (Habeas Data Colombia) · Resolución 1995/1999 (Historia Clínica)"
     c.drawString(MARGIN_L, MARGIN_B / 2, txt)
     c.drawRightString(PAGE_W - MARGIN_R, MARGIN_B / 2, f"Página {page_num}")
 
@@ -247,6 +272,7 @@ def _draw_footer(c, page_num, total) -> None:
 # ─────────────────────────────────────────────────────────────
 # Helpers de dibujo
 # ─────────────────────────────────────────────────────────────
+
 
 def _section_title(c, y, title: str) -> float:
     c.setFillColorRGB(*TEAL)

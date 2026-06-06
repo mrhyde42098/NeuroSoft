@@ -40,6 +40,7 @@ __all__ = ["EvaluationNotFoundError", "EvaluationRecord", "SaveEvaluationCommand
 # Data Transfer Objects (interno al repositorio)
 # ─────────────────────────────────────────────────────────────
 
+
 class EvaluationRecord:
     """Representación plana de una evaluación guardada."""
 
@@ -96,7 +97,7 @@ class SaveEvaluationCommand:
         protocolo: str | None,
         fecha: date,
         puntajes_brutos: dict,
-        resultados: list,          # List[ResultadoPruebaDTO dict]
+        resultados: list,  # List[ResultadoPruebaDTO dict]
         poblacion: str | None,
         edad_display: str | None,
         pruebas_realizadas: int,
@@ -122,6 +123,7 @@ class SaveEvaluationCommand:
 # ─────────────────────────────────────────────────────────────
 # Repositorio
 # ─────────────────────────────────────────────────────────────
+
 
 class EvaluationRepository:
     """
@@ -168,6 +170,7 @@ class EvaluationRepository:
         baremo_checksum = None
         try:
             from app.domain.clinical_engine.baremos_loader import BaremosLoader
+
             _loader = BaremosLoader.instance()
             baremo_version = _loader.baremo_version
             baremo_checksum = _loader.baremo_checksum
@@ -201,7 +204,9 @@ class EvaluationRepository:
 
         logger.info(
             "Evaluación guardada: id=%s patient=%s protocolo=%s",
-            orm.id, cmd.patient_id, cmd.protocolo,
+            orm.id,
+            cmd.patient_id,
+            cmd.protocolo,
         )
         return self._to_record(orm)
 
@@ -245,9 +250,7 @@ class EvaluationRepository:
         )
         return [self._to_record(r) for r in rows]
 
-    def find_latest_by_patient_and_protocolo(
-        self, patient_id: str, protocolo: str
-    ) -> EvaluationRecord | None:
+    def find_latest_by_patient_and_protocolo(self, patient_id: str, protocolo: str) -> EvaluationRecord | None:
         """Retorna la última evaluación de un protocolo específico, o None."""
         orm = (
             self._session.query(EvaluationORM)
@@ -262,11 +265,7 @@ class EvaluationRepository:
 
     def count_by_patient(self, patient_id: str) -> int:
         """Cuenta el total de evaluaciones (todas las versiones) de un paciente."""
-        return (
-            self._session.query(EvaluationORM)
-            .filter(EvaluationORM.patient_id == patient_id)
-            .count()
-        )
+        return self._session.query(EvaluationORM).filter(EvaluationORM.patient_id == patient_id).count()
 
     def delete(self, eval_id: str) -> None:
         """Elimina una evaluación por ID."""

@@ -16,8 +16,9 @@ ampliada), evolución terapéutica y reportes RIPS (Resolución 2275/2023).
 | Módulo | Stack |
 |---|---|
 | Backend | FastAPI · SQLAlchemy · SQLite (WAL) · Python 3.11+ |
-| Frontend | React 18 · Vite 5 · JSX · Tailwind |
-| Motor clínico | Strategy pattern · 173 pruebas normadas · ~1016 tests pytest |
+| Frontend | React 19 · Vite 6 · Playwright E2E · Tailwind |
+| Motor clínico | Strategy pattern · 173 pruebas normadas · ~1030 tests pytest |
+| Licencias | Apache 2.0 (código) · claves comerciales offline vía **License Admin** |
 | Desktop | PyInstaller + Inno Setup (Windows) · Docker opcional |
 
 **Maintainer:** [@mrhyde42098](https://github.com/mrhyde42098) · Ver [CONTRIBUTING.md](CONTRIBUTING.md)

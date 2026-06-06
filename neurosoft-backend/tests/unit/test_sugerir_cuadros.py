@@ -3,6 +3,7 @@
 Verifica la detección de cuadros clínicos principales a partir del
 perfil cognitivo + screening del paciente.
 """
+
 from app.infrastructure.report_pro.narrative import sugerir_cuadros_clinicos
 
 
@@ -79,7 +80,7 @@ def test_infantil_discapacidad_cognitiva():
         _r("NiWiscSem", -3.0, dom="Memoria de Trabajo"),
     ]
     resultado = sugerir_cuadros_clinicos(rs, poblacion="infantil")
-    cuadros = [c["cuadro_id"] for c in resultado]
+    [c["cuadro_id"] for c in resultado]
     # Verifica que devuelve un cuadro (puede ser discapacidad_cognitiva u otro)
     assert isinstance(resultado, list)
     assert len(resultado) >= 1
@@ -92,7 +93,7 @@ def test_adulto_tdah_con_screening():
         _r("AdTMT_AB", -1.5, dom="Atención"),
     ]
     resultado = sugerir_cuadros_clinicos(rs, poblacion="adulto")
-    cuadros = [c["cuadro_id"] for c in resultado]
+    [c["cuadro_id"] for c in resultado]
     # Verifica que devuelve un cuadro (puede ser depresion_ansiedad_tdah u otro)
     assert isinstance(resultado, list)
     assert len(resultado) >= 1

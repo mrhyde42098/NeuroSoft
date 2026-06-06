@@ -30,11 +30,12 @@ class Profesional:
     Perfil de un profesional evaluador.
     En el VBA era un ComboBox fijo; aquí es administrable.
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     nombre_completo: str = ""
-    titulo: str = ""                    # Ej: "Psicóloga Pontificia Universidad Javeriana"
-    especialidad: str = ""              # Ej: "Magister Neurociencias"
-    registro_profesional: str = ""      # Tarjeta profesional
+    titulo: str = ""  # Ej: "Psicóloga Pontificia Universidad Javeriana"
+    especialidad: str = ""  # Ej: "Magister Neurociencias"
+    registro_profesional: str = ""  # Tarjeta profesional
     firma_base64: str | None = None  # Imagen de firma codificada en base64
     sello_base64: str | None = None  # Sello/logo del profesional
     email: str | None = None
@@ -60,14 +61,15 @@ class ConfiguracionInstitucion:
     Datos de la institución para el encabezado del informe.
     Equivalente a los datos hardcoded en el VBA (NeuroSoft).
     """
-    id: str = "institucion_principal"   # Singleton
+
+    id: str = "institucion_principal"  # Singleton
     nombre: str = ""
     nit: str = ""
     direccion: str = ""
     telefono: str = ""
     email: str = ""
     sitio_web: str = ""
-    logo_base64: str | None = None   # Logo de la institución
+    logo_base64: str | None = None  # Logo de la institución
     ciudad: str = "Bogotá"
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -77,13 +79,14 @@ class PreferenciasInforme:
     """
     Configuración visual del informe PDF/Word generado.
     """
-    id: str = "prefs_informe"           # Singleton
-    fuente_cuerpo: str = "Calibri"      # Fuente del texto del informe
-    fuente_titulos: str = "Calibri"     # Fuente de los títulos
+
+    id: str = "prefs_informe"  # Singleton
+    fuente_cuerpo: str = "Calibri"  # Fuente del texto del informe
+    fuente_titulos: str = "Calibri"  # Fuente de los títulos
     tamano_fuente_cuerpo: int = 11
     tamano_fuente_titulos: int = 13
-    color_primario: str = "#1a568c"     # Azul NeuroSoft por defecto
-    color_secundario: str = "#2ec4b6"   # Teal
+    color_primario: str = "#1a568c"  # Azul NeuroSoft por defecto
+    color_secundario: str = "#2ec4b6"  # Teal
     incluir_logo: bool = True
     incluir_firma: bool = True
     incluir_grafica_z: bool = True
@@ -104,6 +107,7 @@ class BackupConfig:
     Registro de backups realizados.
     El VBA tenía un botón de BackUp que copiaba el .xlsm a una carpeta.
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     fecha: datetime = field(default_factory=lambda: datetime.now(UTC))
     ruta: str = ""

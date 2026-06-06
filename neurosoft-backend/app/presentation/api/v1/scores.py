@@ -59,6 +59,7 @@ def _handle(e: Exception):
 # MOTOR DE BAREMOS
 # ──────────────────────────────────────────────────────────────
 
+
 @scores_router.post(
     "/",
     response_model=ScoringResponseDTO,
@@ -73,7 +74,7 @@ def score_evaluation(
     dto: ScoringRequestDTO,
     uc: ScoreEvalUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ) -> ScoringResponseDTO:
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -95,7 +96,7 @@ def score_preview(
     dto: SingleScoreRequestDTO,
     uc: ScorePreviewUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ) -> ResultadoPruebaDTO | None:
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -127,21 +128,21 @@ def list_tests(
 # OBSERVACIONES CLÍNICAS
 # ──────────────────────────────────────────────────────────────
 
+
 @observations_router.post(
     "/",
     response_model=ObservationResponseDTO,
     status_code=status.HTTP_201_CREATED,
     summary="Guardar observación clínica",
     description=(
-        "Guarda o sobreescribe el texto de un dominio cognitivo. "
-        "Un paciente tiene un texto por dominio por evaluación."
+        "Guarda o sobreescribe el texto de un dominio cognitivo. Un paciente tiene un texto por dominio por evaluación."
     ),
 )
 def upsert_observation(
     dto: ObservationUpsertDTO,
     uc: UpsertObsUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ) -> ObservationResponseDTO:
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -158,16 +159,17 @@ def upsert_observation(
 )
 def get_observations(
     patient_id: str,
+    user: CurrentUser,
     db: DbSession,
     evaluation_id: str | None = Query(default=None),
     uc: GetObsUC = ...,
-    user=CurrentUser,
 ) -> ObservationsCompleteDTO:
     get_patient_for_user(patient_id, db, user)
     return uc.execute(patient_id, evaluation_id)
 
 
 # ── CURVA DE MEMORIA GROBER ───────────────────────────────────
+
 
 @scores_router.get(
     "/grober-curve/{patient_id}",
@@ -182,7 +184,7 @@ def get_observations(
 def get_grober_curve(
     patient_id: str,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     """
     Construye la curva de memoria Grober para el frontend.
@@ -198,23 +200,20 @@ def get_grober_curve(
 
     # Pruebas Grober en orden de la curva
     GROBER_SEQUENCE = [
-        ("ViGroberRLT",   "LE1",  "Libre Ensayo 1"),
-        ("ViGroberLE2",   "LE2",  "Libre Ensayo 2"),
-        ("ViGroberLE3",   "LE3",  "Libre Ensayo 3"),
-        ("ViGroberML_Tot","ML",   "Memoria Libre"),
-        ("ViGroberCE1",   "CE1",  "Clave Ensayo 1"),
-        ("ViGroberCE2",   "CE2",  "Clave Ensayo 2"),
-        ("ViGroberCE3",   "CE3",  "Clave Ensayo 3"),
-        ("ViGroberMC_Tot","MC",   "Memoria por Claves"),
-        ("ViGroberRco",   "Rcto", "Reconocimiento"),
+        ("ViGroberRLT", "LE1", "Libre Ensayo 1"),
+        ("ViGroberLE2", "LE2", "Libre Ensayo 2"),
+        ("ViGroberLE3", "LE3", "Libre Ensayo 3"),
+        ("ViGroberML_Tot", "ML", "Memoria Libre"),
+        ("ViGroberCE1", "CE1", "Clave Ensayo 1"),
+        ("ViGroberCE2", "CE2", "Clave Ensayo 2"),
+        ("ViGroberCE3", "CE3", "Clave Ensayo 3"),
+        ("ViGroberMC_Tot", "MC", "Memoria por Claves"),
+        ("ViGroberRco", "Rcto", "Reconocimiento"),
     ]
 
     # Rango normal (percentil 50, sujetos controles adultos mayor)
     # Basado en normativa Grober & Buschke Colombia
-    GROBER_CONTROL = {
-        "LE1": 9, "LE2": 11, "LE3": 13, "ML": 13,
-        "CE1": 13, "CE2": 15, "CE3": 15, "MC": 15, "Rcto": 16
-    }
+    GROBER_CONTROL = {"LE1": 9, "LE2": 11, "LE3": 13, "ML": 13, "CE1": 13, "CE2": 15, "CE3": 15, "MC": 15, "Rcto": 16}
 
     # Buscar última evaluación del paciente con pruebas Grober
     evaluations = (
@@ -240,7 +239,7 @@ def get_grober_curve(
 
     # Construir puntos de la curva
     puntos_paciente = []
-    puntos_control  = []
+    puntos_control = []
 
     resultados_map = {}
     if eval_used:
@@ -253,17 +252,19 @@ def get_grober_curve(
 
     for tid, abrev, nombre in GROBER_SEQUENCE:
         pd_val = patient_values.get(tid)
-        ctrl   = GROBER_CONTROL[abrev]
-        res    = resultados_map.get(tid, {})
-        esc    = res.get("puntaje_escalar")
+        ctrl = GROBER_CONTROL[abrev]
+        res = resultados_map.get(tid, {})
+        esc = res.get("puntaje_escalar")
 
-        puntos_paciente.append({
-            "punto":  abrev,
-            "nombre": nombre,
-            "pd":     pd_val,
-            "escalar": esc,
-            "interpretacion": res.get("interpretacion", "Sin dato"),
-        })
+        puntos_paciente.append(
+            {
+                "punto": abrev,
+                "nombre": nombre,
+                "pd": pd_val,
+                "escalar": esc,
+                "interpretacion": res.get("interpretacion", "Sin dato"),
+            }
+        )
         puntos_control.append({"punto": abrev, "valor": ctrl})
 
     return {
@@ -272,8 +273,8 @@ def get_grober_curve(
         "fecha": eval_used.fecha.isoformat() if eval_used and eval_used.fecha else None,
         "tiene_datos": eval_used is not None,
         "secuencia": [a for _, a, _ in GROBER_SEQUENCE],
-        "paciente":  puntos_paciente,
-        "control":   puntos_control,
+        "paciente": puntos_paciente,
+        "control": puntos_control,
         "nota": (
             "Curva de aprendizaje: LE1→LE2→LE3 (ensayos libres), ML (memoria libre inmediata), "
             "CE1→CE2→CE3 (ensayos por claves), MC (memoria por claves), Rcto (reconocimiento)."

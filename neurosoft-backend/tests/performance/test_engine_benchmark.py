@@ -33,21 +33,25 @@ def _load_engine():
         for f in sorted(fixtures_dir.glob("*.json"))[:5]:
             case = json.loads(f.read_text(encoding="utf-8"))
             if case.get("puntajes"):
-                puntajes_list.append({
-                    "puntajes": case["puntajes"],
-                    "edad": case.get("edad", 45),
-                    "sexo": case.get("sexo", "H"),
-                    "escolaridad": case.get("escolaridad", "Profesional"),
-                })
+                puntajes_list.append(
+                    {
+                        "puntajes": case["puntajes"],
+                        "edad": case.get("edad", 45),
+                        "sexo": case.get("sexo", "H"),
+                        "escolaridad": case.get("escolaridad", "Profesional"),
+                    }
+                )
 
     if not puntajes_list:
         # Fallback: caso sintetico
-        puntajes_list = [{
-            "puntajes": {"NiWiscDC": 30, "NiWiscSem": 18, "NiWiscRDD": 14},
-            "edad": 10,
-            "sexo": "M",
-            "escolaridad": "Primaria",
-        }]
+        puntajes_list = [
+            {
+                "puntajes": {"NiWiscDC": 30, "NiWiscSem": 18, "NiWiscRDD": 14},
+                "edad": 10,
+                "sexo": "M",
+                "escolaridad": "Primaria",
+            }
+        ]
 
     return engine, PatientContext, puntajes_list
 
@@ -89,7 +93,7 @@ def test_benchmark_single_score():
     print(f"\n  Motor benchmark: {len(tiempos)} iteraciones")
     print(f"  Promedio:   {avg:.2f} ms por evaluacion")
     print(f"  Throughput: {per_second:.0f} evaluaciones/segundo")
-    print(f"  Min: {min(tiempos)*1000:.2f} ms  Max: {max(tiempos)*1000:.2f} ms")
+    print(f"  Min: {min(tiempos) * 1000:.2f} ms  Max: {max(tiempos) * 1000:.2f} ms")
 
     assert avg < 500, f"Motor demasiado lento: {avg:.0f}ms (limite 500ms)"
 

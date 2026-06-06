@@ -1,5 +1,6 @@
 """Tests para el helper fit_text_to_width (truncado con elipsis)."""
-from app.infrastructure.report_pro.helpers import fit_text_to_width, _truncate_to_width
+
+from app.infrastructure.report_pro.helpers import _truncate_to_width, fit_text_to_width
 
 
 def test_texto_corto_no_trunca():

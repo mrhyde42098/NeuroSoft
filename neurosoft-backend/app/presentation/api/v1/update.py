@@ -27,7 +27,6 @@ import hmac
 import json
 import logging
 import os
-import shutil
 import tempfile
 import zipfile
 from datetime import UTC, datetime
@@ -60,6 +59,7 @@ def _resolve_hmac_key() -> str:
     # Fallback: derivar del SECRET_KEY para que dev/build no fallen,
     # pero loggeamos warning. En prod, configurar la variable explícita.
     from app.infrastructure.auth.auth_service import SECRET_KEY
+
     derived = hashlib.sha256(("nsupdate-hmac::" + SECRET_KEY).encode("utf-8")).hexdigest()
     logger.warning(
         "NEUROSOFT_UPDATE_HMAC_KEY no configurada; usando derivado de SECRET_KEY. "
@@ -126,7 +126,9 @@ def apply_update(
     if not hmac.compare_digest(expected, x_update_signature.strip().lower()):
         logger.warning(
             "Firma HMAC invalida para %s (esperado %s..., recibido %s...)",
-            file.filename, expected[:8], x_update_signature[:8],
+            file.filename,
+            expected[:8],
+            x_update_signature[:8],
         )
         raise HTTPException(
             status_code=401,
@@ -160,15 +162,17 @@ def apply_update(
 
             logger.info(
                 "Aplicando actualizacion v%s desde archivo %s (sha256=%s)",
-                version, file.filename, file_sha256[:12],
+                version,
+                file.filename,
+                file_sha256[:12],
             )
 
             # 4) Extraer SOLO entradas con prefijo `frontend/` y sin path traversal
             frontend_dist = Path("neurosoft-frontend") / "dist"
-            frontend_dist_resolved = frontend_dist.resolve(strict=False)
+            frontend_dist.resolve(strict=False)
             if not frontend_dist.exists():
                 frontend_dist.mkdir(parents=True, exist_ok=True)
-                frontend_dist_resolved = frontend_dist.resolve(strict=False)
+                frontend_dist.resolve(strict=False)
 
             extracted_count = 0
             for name in names:
@@ -179,7 +183,7 @@ def apply_update(
 
                 # Rechazar paths absolutos, con `..` o cualquier intento de escape
                 # _safe_join valida que el resultado caiga dentro de frontend_dist
-                rel = name[len("frontend/"):]
+                rel = name[len("frontend/") :]
                 if not rel or rel.endswith("/"):
                     # entrada de directorio: ignorar (se crea con mkdir arriba)
                     continue
@@ -241,8 +245,7 @@ def apply_update(
             action="update_applied",
             entity_type="system",
             entity_id=None,
-            summary=(f"Actualizacion v{version} aplicada "
-                     f"({file.filename}, {len(content)} bytes)")[:300],
+            summary=(f"Actualizacion v{version} aplicada ({file.filename}, {len(content)} bytes)")[:300],
             changes=json.dumps(
                 {
                     "version": version,

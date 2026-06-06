@@ -1,7 +1,6 @@
 """
 F6.2 — Tests del validador de los 7 principios narrativos.
 """
-import pytest
 
 from app.infrastructure.report_pro.narrative import (
     PRINCIPIOS_NARRATIVOS,
@@ -31,10 +30,7 @@ class TestValidarPrincipiosNarrativa:
         )
         assert resultado["cumple"] is True
         assert resultado["alertas"] == []
-        assert all(
-            p["estado"] in ("ok", "no_aplica")
-            for p in resultado["principios"].values()
-        )
+        assert all(p["estado"] in ("ok", "no_aplica") for p in resultado["principios"].values())
 
     def test_lenguaje_definitivo_dispara_p4(self):
         texto = (
@@ -52,9 +48,7 @@ class TestValidarPrincipiosNarrativa:
             "El CI Total de 87 sugiere un rendimiento promedio bajo. "
             "El perfil es consistente con dificultades atencionales."
         )
-        resultado = validar_principios_narrativa(
-            texto, recomendaciones="Se recomienda seguimiento."
-        )
+        resultado = validar_principios_narrativa(texto, recomendaciones="Se recomienda seguimiento.")
         p6 = resultado["principios"]["P6"]
         assert p6["estado"] == "revisar"
 
@@ -115,10 +109,7 @@ class TestValidarPrincipiosNarrativa:
             "que la fatiga y la medicación pudieron haber influido en el "
             "rendimiento del paciente durante la evaluación."
         )
-        recomendaciones = (
-            "Iniciar terapia bisemanal con 12 sesiones, evaluación a la "
-            "sesión 6 con ajuste de plan."
-        )
+        recomendaciones = "Iniciar terapia bisemanal con 12 sesiones, evaluación a la sesión 6 con ajuste de plan."
         resultado = validar_principios_narrativa(
             texto, recomendaciones=recomendaciones, poblacion_objetivo="adulto_mayor"
         )

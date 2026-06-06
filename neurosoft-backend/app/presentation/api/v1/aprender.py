@@ -9,6 +9,7 @@ Rutas:
   GET /api/v1/aprender/stats  → manifest (conteos, versión)
   GET /api/v1/aprender/paths  → rutas de estudio guiadas
 """
+
 from __future__ import annotations
 
 import json

@@ -56,9 +56,11 @@ _NO_DATA = 9999.0  # Sentinel del VBA: "prueba no realizada"
 # RESULTADO INTERMEDIO (interno al motor)
 # ============================================================
 
+
 @dataclass
 class ScoringOutput:
     """Salida interna de una strategy antes de convertirse en ResultadoPrueba."""
+
     test_id: str
     test_nombre: str
     tipo_metrica: str
@@ -99,8 +101,11 @@ class ScoringOutput:
 
 def _sin_dato(prueba: PruebaDefinicion) -> ScoringOutput:
     return ScoringOutput(
-        test_id=prueba.id, test_nombre=prueba.nombre,
-        tipo_metrica=prueba.tipo_metrica, puntaje_bruto=None, puntaje_escalar=None,
+        test_id=prueba.id,
+        test_nombre=prueba.nombre,
+        tipo_metrica=prueba.tipo_metrica,
+        puntaje_bruto=None,
+        puntaje_escalar=None,
     )
 
 
@@ -117,8 +122,11 @@ def _not_found(prueba: PruebaDefinicion, pd: float, llave: str) -> ScoringOutput
     """
     logger.warning("Llave '%s' no en baremo de '%s' (PD=%s)", llave, prueba.id, pd)
     return ScoringOutput(
-        test_id=prueba.id, test_nombre=prueba.nombre,
-        tipo_metrica=prueba.tipo_metrica, puntaje_bruto=pd, puntaje_escalar=None,
+        test_id=prueba.id,
+        test_nombre=prueba.nombre,
+        tipo_metrica=prueba.tipo_metrica,
+        puntaje_bruto=pd,
+        puntaje_escalar=None,
         llave_usada=llave,
         metadata={
             "error": f"PD={pd} fuera del rango del baremo",
@@ -132,6 +140,7 @@ def _not_found(prueba: PruebaDefinicion, pd: float, llave: str) -> ScoringOutput
 # ============================================================
 # INTERFAZ BASE
 # ============================================================
+
 
 class IScoringStrategy(ABC):
     """
@@ -169,6 +178,7 @@ class IScoringStrategy(ABC):
 # Llave: {año}{bracket_mes}{pd} o {año}{pd} o {total_meses}{pd}
 # ============================================================
 
+
 class RangoPuntajeStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
         if pd == _NO_DATA or pd is None:
@@ -180,7 +190,8 @@ class RangoPuntajeStrategy(IScoringStrategy):
             # Baremo puede ser escalar (int) o lista [P, C, PC] (Stroop)
             score = float(valor[0]) if isinstance(valor, (list, tuple)) else float(valor)
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
                 tipo_metrica=prueba.tipo_metrica,
                 puntaje_bruto=float(pd_int),
                 puntaje_escalar=score,
@@ -195,6 +206,7 @@ class RangoPuntajeStrategy(IScoringStrategy):
 # Rangos: 1619 | 2024 | 2534 | 3554 | 5569 | 7000
 # ============================================================
 
+
 class WaisRangeStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
         if pd == _NO_DATA or pd is None:
@@ -206,7 +218,8 @@ class WaisRangeStrategy(IScoringStrategy):
             # Value may be a scalar or a list [edad, pd, score]
             score = float(raw[2]) if isinstance(raw, (list, tuple)) and len(raw) >= 3 else float(raw)
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
                 tipo_metrica=prueba.tipo_metrica,
                 puntaje_bruto=float(pd_int),
                 puntaje_escalar=score,
@@ -217,9 +230,14 @@ class WaisRangeStrategy(IScoringStrategy):
         if hit:
             k, v = hit
             score = float(v[2]) if isinstance(v, (list, tuple)) and len(v) >= 3 else float(v)
-            return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                                 tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd_int),
-                                 puntaje_escalar=score, llave_usada=k)
+            return ScoringOutput(
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
+                tipo_metrica=prueba.tipo_metrica,
+                puntaje_bruto=float(pd_int),
+                puntaje_escalar=score,
+                llave_usada=k,
+            )
         return _not_found(prueba, pd_int, llave or "N/A")
 
 
@@ -228,6 +246,7 @@ class WaisRangeStrategy(IScoringStrategy):
 # Adulto mayor con rango etario. Valor: [rango, pd, score]
 # Score = valor[2]
 # ============================================================
+
 
 class DesconocidoStrategy(IScoringStrategy):
     # Tests that use decade+escolaridad key instead of AM range key
@@ -244,13 +263,18 @@ class DesconocidoStrategy(IScoringStrategy):
             if k and k in prueba.baremos:
                 raw = prueba.baremos[k]
                 # raw = [remota_pc50, reciente_pc50]
-                score = float(raw[0]) if isinstance(raw, (list,tuple)) else float(raw)
+                score = float(raw[0]) if isinstance(raw, (list, tuple)) else float(raw)
                 return ScoringOutput(
-                    test_id=prueba.id, test_nombre=prueba.nombre,
-                    tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd_int),
-                    puntaje_escalar=score, llave_usada=k,
-                    metadata={"remota": raw[0] if isinstance(raw,(list,tuple)) else raw,
-                              "reciente": raw[1] if isinstance(raw,(list,tuple)) and len(raw)>1 else None}
+                    test_id=prueba.id,
+                    test_nombre=prueba.nombre,
+                    tipo_metrica=prueba.tipo_metrica,
+                    puntaje_bruto=float(pd_int),
+                    puntaje_escalar=score,
+                    llave_usada=k,
+                    metadata={
+                        "remota": raw[0] if isinstance(raw, (list, tuple)) else raw,
+                        "reciente": raw[1] if isinstance(raw, (list, tuple)) and len(raw) > 1 else None,
+                    },
                 )
             return _not_found(prueba, pd_int, k or "sin_clave_mrem")
 
@@ -260,15 +284,19 @@ class DesconocidoStrategy(IScoringStrategy):
         if not in_range:
             max_age = BaremoKeyBuilder.max_age_covered_by_am_baremo(prueba.baremos)
             logger.warning(
-                "Test '%s': paciente %da fuera del rango del baremo (máx %da) — sin norma",
-                prueba.id, years, max_age
+                "Test '%s': paciente %da fuera del rango del baremo (máx %da) — sin norma", prueba.id, years, max_age
             )
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
-                tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd_int),
-                puntaje_escalar=None, llave_usada=None,
-                metadata={"sin_norma": True,
-                          "razon": f"Baremo cubre hasta {max_age} años; paciente tiene {years} años"}
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
+                tipo_metrica=prueba.tipo_metrica,
+                puntaje_bruto=float(pd_int),
+                puntaje_escalar=None,
+                llave_usada=None,
+                metadata={
+                    "sin_norma": True,
+                    "razon": f"Baremo cubre hasta {max_age} años; paciente tiene {years} años",
+                },
             )
 
         # Use find_in_baremo which tries all candidates including 5056 fallback
@@ -276,10 +304,15 @@ class DesconocidoStrategy(IScoringStrategy):
         if hit:
             llave, raw = hit
             score = float(raw[2]) if isinstance(raw, list) and len(raw) >= 3 else float(raw)
-            return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                                 tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd_int),
-                                 puntaje_escalar=score, llave_usada=llave,
-                                 metadata={"raw_value": raw})
+            return ScoringOutput(
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
+                tipo_metrica=prueba.tipo_metrica,
+                puntaje_bruto=float(pd_int),
+                puntaje_escalar=score,
+                llave_usada=llave,
+                metadata={"raw_value": raw},
+            )
         return _not_found(prueba, pd_int, f"<edad>{pd_int}")
 
 
@@ -287,6 +320,7 @@ class DesconocidoStrategy(IScoringStrategy):
 # STRATEGY 4: Z-SCORE (7 pruebas)
 # baremo[str(años)] = [media, sigma] → Z = (pd - μ) / σ
 # ============================================================
+
 
 class ZScoreStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -303,23 +337,36 @@ class ZScoreStrategy(IScoringStrategy):
         # que el clínico sepa que el baremo está corrupto.
         if sigma == 0:
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
-                tipo_metrica="z_score", puntaje_bruto=float(pd),
-                puntaje_escalar=None, llave_usada=llave,
-                metadata={"mu": mu, "sigma": sigma, "sin_norma": True,
-                          "motivo": "sigma=0 en baremo (división indefinida)"},
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
+                tipo_metrica="z_score",
+                puntaje_bruto=float(pd),
+                puntaje_escalar=None,
+                llave_usada=llave,
+                metadata={
+                    "mu": mu,
+                    "sigma": sigma,
+                    "sin_norma": True,
+                    "motivo": "sigma=0 en baremo (división indefinida)",
+                },
             )
         z = round((pd - mu) / sigma, 2)
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica="z_score", puntaje_bruto=float(pd),
-                             puntaje_escalar=z, llave_usada=llave,
-                             metadata={"mu": mu, "sigma": sigma})
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica="z_score",
+            puntaje_bruto=float(pd),
+            puntaje_escalar=z,
+            llave_usada=llave,
+            metadata={"mu": mu, "sigma": sigma},
+        )
 
 
 # ============================================================
 # STRATEGY 5: Z-SCORE MULTIPLE (1 prueba: CARAS-R)
 # baremo[str(años)] = [mu1, s1, mu2, s2, ...] → Z del primer par
 # ============================================================
+
 
 class ZScoreMultipleStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -332,29 +379,42 @@ class ZScoreMultipleStrategy(IScoringStrategy):
         mu, sigma = float(params[0]), float(params[1])
         if sigma == 0:
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
-                tipo_metrica="z_score", puntaje_bruto=float(pd),
-                puntaje_escalar=None, llave_usada=llave,
-                metadata={"mu": mu, "sigma": sigma, "sin_norma": True,
-                          "motivo": "sigma=0 en baremo (division indefinida)"},
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
+                tipo_metrica="z_score",
+                puntaje_bruto=float(pd),
+                puntaje_escalar=None,
+                llave_usada=llave,
+                metadata={
+                    "mu": mu,
+                    "sigma": sigma,
+                    "sin_norma": True,
+                    "motivo": "sigma=0 en baremo (division indefinida)",
+                },
             )
         z = round((pd - mu) / sigma, 2)
         pares = {}
         labels = ["total", "errores", "corregido"]
         for i in range(0, min(len(params), 6), 2):
-            lbl = labels[i // 2] if i // 2 < len(labels) else f"sub{i//2}"
+            lbl = labels[i // 2] if i // 2 < len(labels) else f"sub{i // 2}"
             if len(params) > i + 1:
-                pares[lbl] = {"mu": params[i], "sigma": params[i+1]}
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica="z_score", puntaje_bruto=float(pd),
-                             puntaje_escalar=z, llave_usada=llave,
-                             metadata={"pares_z": pares})
+                pares[lbl] = {"mu": params[i], "sigma": params[i + 1]}
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica="z_score",
+            puntaje_bruto=float(pd),
+            puntaje_escalar=z,
+            llave_usada=llave,
+            metadata={"pares_z": pares},
+        )
 
 
 # ============================================================
 # STRATEGY 6: PUNTAJE DIRECTO A T (6 pruebas)
 # baremo[str(pd)] = T_score  (sin necesitar edad)
 # ============================================================
+
 
 class PuntajeDirectoATStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -364,15 +424,21 @@ class PuntajeDirectoATStrategy(IScoringStrategy):
         valor = prueba.baremos.get(llave)
         if valor is None:
             return _not_found(prueba, pd, llave)
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(int(pd)),
-                             puntaje_escalar=float(valor), llave_usada=llave)
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(int(pd)),
+            puntaje_escalar=float(valor),
+            llave_usada=llave,
+        )
 
 
 # ============================================================
 # STRATEGY 7: PUNTAJE DOBLE RESULTADO (5 pruebas: GADS)
 # baremo[str(pd)] = {"PE": t_score, "Percentil": pc}
 # ============================================================
+
 
 class PuntajeDoblResultadoStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -400,24 +466,27 @@ class PuntajeDoblResultadoStrategy(IScoringStrategy):
                     break
             else:
                 # Último recurso: tomar el primer valor numérico que no sea Percentil
-                numeric_vals = [
-                    float(v) for k, v in valor.items()
-                    if k != "Percentil" and isinstance(v, (int, float))
-                ]
+                numeric_vals = [float(v) for k, v in valor.items() if k != "Percentil" and isinstance(v, (int, float))]
                 if not numeric_vals:
                     return _not_found(prueba, pd, llave)
                 pe = numeric_vals[0]
             percentil = valor.get("Percentil")
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(int(pd)),
-                             puntaje_escalar=pe, llave_usada=llave,
-                             metadata={"percentil": percentil})
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(int(pd)),
+            puntaje_escalar=pe,
+            llave_usada=llave,
+            metadata={"percentil": percentil},
+        )
 
 
 # ============================================================
 # STRATEGY 8: SUMA A ÍNDICE (14 pruebas: WISC-IV índices CI)
 # baremo[str(suma_escalares)] = CI_compuesto
 # ============================================================
+
 
 class SumaAIndiceStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -427,15 +496,21 @@ class SumaAIndiceStrategy(IScoringStrategy):
         valor = prueba.baremos.get(llave)
         if valor is None:
             return _not_found(prueba, pd, llave)
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica="ci", puntaje_bruto=float(int(pd)),
-                             puntaje_escalar=float(valor), llave_usada=llave)
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica="ci",
+            puntaje_bruto=float(int(pd)),
+            puntaje_escalar=float(valor),
+            llave_usada=llave,
+        )
 
 
 # ============================================================
 # STRATEGY 9: ESCOLARIDAD PC50 (4 pruebas: Dígitos adulto joven)
 # baremo["{años}{cod_esc}"] = [edad, cod, pc50]
 # ============================================================
+
 
 class EscolaridadPC50Strategy(IScoringStrategy):
     # Tests Vi (Neuronorma Colombia AM) usan P/S/U, no B/S/T/U/P
@@ -457,16 +532,22 @@ class EscolaridadPC50Strategy(IScoringStrategy):
             return _not_found(prueba, pd, llave)
         pc50 = float(params[2]) if isinstance(params, list) and len(params) >= 3 else float(params)
         diff = float(pd) - pc50
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd),
-                             puntaje_escalar=float(pd), llave_usada=llave,
-                             metadata={"pc50": pc50, "diferencia_vs_norma": round(diff, 2)})
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(pd),
+            puntaje_escalar=float(pd),
+            llave_usada=llave,
+            metadata={"pc50": pc50, "diferencia_vs_norma": round(diff, 2)},
+        )
 
 
 # ============================================================
 # STRATEGY 10: PUNTAJE DIRECTO (2 pruebas: Vineland)
 # baremo[str(pd)] = [coeficiente]
 # ============================================================
+
 
 class PuntajeDirectoStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -477,9 +558,14 @@ class PuntajeDirectoStrategy(IScoringStrategy):
         if valor is None:
             return _not_found(prueba, pd, llave)
         pe = float(valor[0]) if isinstance(valor, list) else float(valor)
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(int(pd)),
-                             puntaje_escalar=pe, llave_usada=llave)
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(int(pd)),
+            puntaje_escalar=pe,
+            llave_usada=llave,
+        )
 
 
 # ============================================================
@@ -487,6 +573,7 @@ class PuntajeDirectoStrategy(IScoringStrategy):
 # baremo["{rango_edad}{sexo}"] = [sexo, rango, media, sigma]
 # Rangos CDI: 78 (7-8a), 910 (9-10a), 1115 (11-15a)
 # ============================================================
+
 
 class EdadSexoStrategy(IScoringStrategy):
     _CDI_RANGES = [(7, 8, "78"), (9, 10, "910"), (11, 15, "1115")]
@@ -504,17 +591,29 @@ class EdadSexoStrategy(IScoringStrategy):
         mu, sigma = float(params[2]), float(params[3])
         if sigma == 0:
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
-                tipo_metrica="z_score", puntaje_bruto=float(pd),
-                puntaje_escalar=None, llave_usada=llave,
-                metadata={"mu": mu, "sigma": sigma, "sin_norma": True,
-                          "motivo": "sigma=0 en baremo (division indefinida)"},
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
+                tipo_metrica="z_score",
+                puntaje_bruto=float(pd),
+                puntaje_escalar=None,
+                llave_usada=llave,
+                metadata={
+                    "mu": mu,
+                    "sigma": sigma,
+                    "sin_norma": True,
+                    "motivo": "sigma=0 en baremo (division indefinida)",
+                },
             )
         z = round((float(pd) - mu) / sigma, 2)
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica="z_score", puntaje_bruto=float(pd),
-                             puntaje_escalar=z, llave_usada=llave,
-                             metadata={"mu": mu, "sigma": sigma, "sexo": sexo})
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica="z_score",
+            puntaje_bruto=float(pd),
+            puntaje_escalar=z,
+            llave_usada=llave,
+            metadata={"mu": mu, "sigma": sigma, "sexo": sexo},
+        )
 
 
 # ============================================================
@@ -534,6 +633,7 @@ class EdadSexoStrategy(IScoringStrategy):
 # Beck para TODAS las escalas.
 # ============================================================
 
+
 class ClasificacionFijaStrategy(IScoringStrategy):
     # Mapa de codigos categoricos del baremo JSON -> interpretacion clinica
     # N  = Normal           (sin alteracion)
@@ -541,7 +641,7 @@ class ClasificacionFijaStrategy(IScoringStrategy):
     # DE = Deficit Extremo  (alteracion marcada, intervencion)
     # DS = Deficit Severo   (alteracion grave, manejo prioritario)
     _CODIGO_A_INTERPRETACION = {
-        "N":  "Normal",
+        "N": "Normal",
         "DL": "Deficit Leve",
         "DE": "Deficit Extremo",
         "DS": "Deficit Severo",
@@ -549,7 +649,7 @@ class ClasificacionFijaStrategy(IScoringStrategy):
     # Mapa de codigos -> nivel ClinicalInterpreter (Promedio/Limitrofe/Bajo)
     # para que el frontend pueda colorear consistentemente.
     _CODIGO_A_NIVEL = {
-        "N":  "Promedio",
+        "N": "Promedio",
         "DL": "Limítrofe",
         "DE": "Bajo",
         "DS": "Bajo",
@@ -563,10 +663,10 @@ class ClasificacionFijaStrategy(IScoringStrategy):
         (29, 63, "Severa"),
     ]
     _BECK_A_NIVEL = {
-        "Mínima":   "Promedio",
-        "Leve":     "Limítrofe",
+        "Mínima": "Promedio",
+        "Leve": "Limítrofe",
         "Moderada": "Bajo",
-        "Severa":   "Bajo",
+        "Severa": "Bajo",
     }
 
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -581,7 +681,8 @@ class ClasificacionFijaStrategy(IScoringStrategy):
             interp_clinica = self._CODIGO_A_INTERPRETACION[codigo]
             nivel = self._CODIGO_A_NIVEL[codigo]
             return ScoringOutput(
-                test_id=prueba.id, test_nombre=prueba.nombre,
+                test_id=prueba.id,
+                test_nombre=prueba.nombre,
                 tipo_metrica=prueba.tipo_metrica,
                 puntaje_bruto=float(pd_int),
                 puntaje_escalar=float(pd_int),
@@ -603,7 +704,8 @@ class ClasificacionFijaStrategy(IScoringStrategy):
         )
         nivel_beck = self._BECK_A_NIVEL.get(cls_beck, "Promedio")
         return ScoringOutput(
-            test_id=prueba.id, test_nombre=prueba.nombre,
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
             tipo_metrica=prueba.tipo_metrica,
             puntaje_bruto=float(pd_int),
             puntaje_escalar=float(pd_int),
@@ -621,6 +723,7 @@ class ClasificacionFijaStrategy(IScoringStrategy):
 # baremo[str(pd)] = [score_P, score_C, score_PC]
 # ============================================================
 
+
 class AjusteStroopStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
         if pd == _NO_DATA or pd is None:
@@ -633,16 +736,22 @@ class AjusteStroopStrategy(IScoringStrategy):
             sp, sc, spc = float(valor[0]), float(valor[1]), float(valor[2])
         else:
             sp, sc, spc = float(valor), None, None
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(int(pd)),
-                             puntaje_escalar=sp, llave_usada=llave,
-                             metadata={"stroop_P": sp, "stroop_C": sc, "stroop_PC": spc})
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(int(pd)),
+            puntaje_escalar=sp,
+            llave_usada=llave,
+            metadata={"stroop_P": sp, "stroop_C": sc, "stroop_PC": spc},
+        )
 
 
 # ============================================================
 # STRATEGY 14: COMPARATIVO (1 prueba: CVLT)
 # baremo con claves semánticas (E1, E2, MCP, MLP...) → máximos
 # ============================================================
+
 
 class ComparativoStrategy(IScoringStrategy):
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
@@ -656,10 +765,15 @@ class ComparativoStrategy(IScoringStrategy):
         if max_lista <= 0:
             return _not_found(prueba, pd, "total_lista")
         z = round(((float(pd) / max_lista) - 0.5) / 0.15, 2)
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd),
-                             puntaje_escalar=z, llave_usada="total_lista",
-                             metadata={"max_esperado": max_lista})
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(pd),
+            puntaje_escalar=z,
+            llave_usada="total_lista",
+            metadata={"max_esperado": max_lista},
+        )
 
 
 # ============================================================
@@ -667,8 +781,9 @@ class ComparativoStrategy(IScoringStrategy):
 # baremo[str(pd)] = [pe_col1, pd2, pe_col2, pd3, pe_col3, ...]
 # ============================================================
 
+
 class BaremoPEStrategy(IScoringStrategy):
-    _COLS = ["total_correctos_pe","mov_pd","mov_pe","lat_pd","lat_pe","eje_pd","eje_pe","res_pd","res_pe"]
+    _COLS = ["total_correctos_pe", "mov_pd", "mov_pe", "lat_pd", "lat_pe", "eje_pd", "eje_pe", "res_pd", "res_pe"]
 
     def calculate(self, prueba, pd, years=0, months=0, sexo="H", escolaridad="Profesional", **_) -> ScoringOutput:
         if pd == _NO_DATA or pd is None:
@@ -679,6 +794,12 @@ class BaremoPEStrategy(IScoringStrategy):
             return _not_found(prueba, pd, llave)
         pe = float(valor[0])
         meta = {col: valor[i] for i, col in enumerate(self._COLS) if i < len(valor)}
-        return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
-                             tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(int(pd)),
-                             puntaje_escalar=pe, llave_usada=llave, metadata=meta)
+        return ScoringOutput(
+            test_id=prueba.id,
+            test_nombre=prueba.nombre,
+            tipo_metrica=prueba.tipo_metrica,
+            puntaje_bruto=float(int(pd)),
+            puntaje_escalar=pe,
+            llave_usada=llave,
+            metadata=meta,
+        )

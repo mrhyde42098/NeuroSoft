@@ -15,10 +15,10 @@ Cada dominio debilitado se asocia con:
   - 2-4 ejemplos de la vida diaria
   - Una recomendación de apoyo práctica
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
-
 
 # Umbrales Z (alineados con SEMANTIC_* de theme.py)
 Z_DEBIL = -1.0
@@ -218,24 +218,29 @@ def dominios_con_implicaciones(
         media = sum(zs) / len(zs)
         if media > z_umbral:
             continue
-        impl = IMPLICACIONES_POR_DOMINIO.get(dom, {
-            "ejemplos": [
-                "Tareas que dependen de esta función pueden requerir más esfuerzo o tiempo.",
-                "Rendimiento bajo comparado con pares de la misma edad y escolaridad.",
-            ],
-            "estrategias": [
-                "Practicar con constancia y paciencia.",
-                "Acompañar el proceso con apoyo profesional y familiar.",
-            ],
-        })
-        out.append({
-            "dominio": dom,
-            "z_promedio": media,
-            "n_pruebas": len(zs),
-            "ejemplos": impl["ejemplos"][:4],
-            "estrategias": impl["estrategias"][:3],
-            "nivel": "severo" if media <= Z_MUY_DEBIL else "moderado",
-        })
+        impl = IMPLICACIONES_POR_DOMINIO.get(
+            dom,
+            {
+                "ejemplos": [
+                    "Tareas que dependen de esta función pueden requerir más esfuerzo o tiempo.",
+                    "Rendimiento bajo comparado con pares de la misma edad y escolaridad.",
+                ],
+                "estrategias": [
+                    "Practicar con constancia y paciencia.",
+                    "Acompañar el proceso con apoyo profesional y familiar.",
+                ],
+            },
+        )
+        out.append(
+            {
+                "dominio": dom,
+                "z_promedio": media,
+                "n_pruebas": len(zs),
+                "ejemplos": impl["ejemplos"][:4],
+                "estrategias": impl["estrategias"][:3],
+                "nivel": "severo" if media <= Z_MUY_DEBIL else "moderado",
+            }
+        )
     out.sort(key=lambda x: x["z_promedio"])  # más débil primero
     return out
 
@@ -264,7 +269,5 @@ def texto_implicaciones_para_familia(
         )
     if not partes:
         return ""
-    intro = (
-        "Más allá de los puntajes, lo que esto significa en la vida diaria es:"
-    )
+    intro = "Más allá de los puntajes, lo que esto significa en la vida diaria es:"
     return intro + " " + " ".join(partes)

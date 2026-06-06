@@ -32,16 +32,25 @@ logger = logging.getLogger(__name__)
 
 # Dominios clínicos válidos para observaciones
 DOMINIOS_VALIDOS = {
-    "apariencia_conducta", "lenguaje", "atencion_concentracion", "memoria",
-    "funciones_ejecutivas", "habilidades_visoespaciales", "habilidades_motoras",
-    "socio_emocional", "impresion_diagnostica", "recomendaciones",
-    "antecedentes", "motivo_consulta",
+    "apariencia_conducta",
+    "lenguaje",
+    "atencion_concentracion",
+    "memoria",
+    "funciones_ejecutivas",
+    "habilidades_visoespaciales",
+    "habilidades_motoras",
+    "socio_emocional",
+    "impresion_diagnostica",
+    "recomendaciones",
+    "antecedentes",
+    "motivo_consulta",
 }
 
 
 # ─────────────────────────────────────────────────────────────
 # 1. CALIFICAR EVALUACIÓN
 # ─────────────────────────────────────────────────────────────
+
 
 class ScoreEvaluationUseCase:
     """
@@ -145,6 +154,7 @@ class ScoreEvaluationUseCase:
 # 2. CALIFICACIÓN RÁPIDA (preview de una prueba)
 # ─────────────────────────────────────────────────────────────
 
+
 class ScorePreviewUseCase:
     """Califica una sola prueba sin persistir. Para el frontend reactivo."""
 
@@ -181,6 +191,7 @@ class ScorePreviewUseCase:
 # 3. LISTAR PRUEBAS DISPONIBLES
 # ─────────────────────────────────────────────────────────────
 
+
 class ListTestsUseCase:
     """Devuelve el catálogo de pruebas, filtrable por población."""
 
@@ -209,6 +220,7 @@ class ListTestsUseCase:
 # 4. OBSERVACIONES CLÍNICAS
 # ─────────────────────────────────────────────────────────────
 
+
 class UpsertObservationUseCase:
     """Guarda o actualiza la observación de un dominio clínico."""
 
@@ -220,9 +232,9 @@ class UpsertObservationUseCase:
 
         if dto.dominio not in DOMINIOS_VALIDOS:
             from app.core.exceptions import ApplicationError
+
             raise ApplicationError(
-                f"Dominio '{dto.dominio}' no reconocido. "
-                f"Válidos: {sorted(DOMINIOS_VALIDOS)}",
+                f"Dominio '{dto.dominio}' no reconocido. Válidos: {sorted(DOMINIOS_VALIDOS)}",
                 code="INVALID_DOMAIN",
             )
 
@@ -271,9 +283,7 @@ class GetObservationsUseCase:
     def __init__(self, session):
         self._session = session
 
-    def execute(
-        self, patient_id: str, evaluation_id: str | None = None
-    ) -> ObservationsCompleteDTO:
+    def execute(self, patient_id: str, evaluation_id: str | None = None) -> ObservationsCompleteDTO:
         from app.infrastructure.database.orm_models import ObservationORM
 
         q = self._session.query(ObservationORM).filter_by(patient_id=patient_id)
@@ -291,6 +301,7 @@ class GetObservationsUseCase:
 # 4. HISTORIAL DE EVALUACIONES
 # ─────────────────────────────────────────────────────────────
 
+
 class GetEvaluationHistoryUseCase:
     """
     Recupera el historial de evaluaciones de un paciente.
@@ -303,6 +314,7 @@ class GetEvaluationHistoryUseCase:
 
     def get_all(self, patient_id: str) -> PatientEvaluationsDTO:
         from app.application.dtos.scoring_dtos import PatientEvaluationsDTO
+
         # Verificar que el paciente existe
         self._patient_repo.find_by_id(patient_id)
 
@@ -317,6 +329,7 @@ class GetEvaluationHistoryUseCase:
     def get_latest(self, patient_id: str) -> PatientEvaluationsDTO:
         """Solo la última evaluación por protocolo."""
         from app.application.dtos.scoring_dtos import PatientEvaluationsDTO
+
         self._patient_repo.find_by_id(patient_id)
         records = self._eval_repo.find_latest_by_patient(patient_id)
         summaries = [_record_to_summary(r) for r in records]
@@ -335,6 +348,7 @@ class GetEvaluationDetailUseCase:
 
     def execute(self, eval_id: str) -> EvaluationDetailDTO:
         from app.application.dtos.scoring_dtos import EvaluationDetailDTO, ResultadoPruebaDTO
+
         record = self._eval_repo.find_by_id(eval_id)
         summary = _record_to_summary(record)
 
@@ -348,7 +362,9 @@ class GetEvaluationDetailUseCase:
                 # que el administrador pueda depurar la data sucia.
                 logger.warning(
                     "get_evaluation_detail: resultado descartado (%s: %s); raw=%.200r",
-                    type(_skip_exc).__name__, _skip_exc, r,
+                    type(_skip_exc).__name__,
+                    _skip_exc,
+                    r,
                 )
 
         return EvaluationDetailDTO(
@@ -363,6 +379,7 @@ class GetEvaluationDetailUseCase:
 # 5. WORKFLOW DE FIRMA (Res. 2654 MinSalud)
 # ─────────────────────────────────────────────────────────────
 
+
 def _canonical_payload_for_signature(orm) -> str:
     """
     Serializa de forma determinística los campos inmutables de una
@@ -374,6 +391,7 @@ def _canonical_payload_for_signature(orm) -> str:
     clínicos (evidencia de tampering).
     """
     import json as _json
+
     payload = {
         "id": orm.id,
         "patient_id": orm.patient_id,
@@ -391,9 +409,8 @@ def _canonical_payload_for_signature(orm) -> str:
 def _compute_signature_hash(orm) -> str:
     """SHA-256 del payload canónico — usado como prueba de integridad."""
     import hashlib as _hashlib
-    return _hashlib.sha256(
-        _canonical_payload_for_signature(orm).encode("utf-8")
-    ).hexdigest()
+
+    return _hashlib.sha256(_canonical_payload_for_signature(orm).encode("utf-8")).hexdigest()
 
 
 class SignEvaluationUseCase:
@@ -462,7 +479,9 @@ class SignEvaluationUseCase:
 
         logger.info(
             "Evaluación firmada: id=%s by=%s sha=%s",
-            evaluation_id, actor_id, sha[:12],
+            evaluation_id,
+            actor_id,
+            sha[:12],
         )
         return SignatureStatusDTO(
             evaluation_id=evaluation_id,
@@ -501,7 +520,7 @@ class GetSignatureStatusUseCase:
         valid: bool | None = None
         if signed and orm.signature_sha256:
             recomputed = _compute_signature_hash(orm)
-            valid = (recomputed == orm.signature_sha256)
+            valid = recomputed == orm.signature_sha256
             if not valid:
                 logger.warning(
                     "Signature MISMATCH para evaluación %s: stored=%s recomputed=%s",
@@ -524,6 +543,7 @@ class GetSignatureStatusUseCase:
 # Helper interno
 def _record_to_summary(record) -> EvaluationSummaryDTO:
     from app.application.dtos.scoring_dtos import EvaluationSummaryDTO
+
     signed_at = getattr(record, "signed_at", None)
     return EvaluationSummaryDTO(
         evaluation_id=record.id,

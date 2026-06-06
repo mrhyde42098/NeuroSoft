@@ -13,6 +13,7 @@ las Historias Clínicas según la Resolución 1995 de 1999, art. 28.
 
 Solo accesible para usuarios con rol 'admin' (gating por rol actual).
 """
+
 from __future__ import annotations
 
 from datetime import date

@@ -16,8 +16,10 @@ from app.core.validators import OptionalUUIDStr, UUIDStr
 # HISTORIA CLÍNICA — REQUEST DTOs
 # ═══════════════════════════════════════════════════════════════
 
+
 class HCDesarrolloDTO(BaseModel):
     """Pestaña 1: Desarrollo (riesgos perinatales e hitos)."""
+
     motivo_consulta: str = "N/A"
     edad_materna: str = "N/A"
     no_gestacion: str = "N/A"
@@ -46,6 +48,7 @@ class HCDesarrolloDTO(BaseModel):
 
 class HCAntecedentesDTO(BaseModel):
     """Pestaña 2: Antecedentes Médicos."""
+
     patologicos_medicos: str = "N/A"
     sensoriales_motores: str = "N/A"
     psiquiatricos: str = "N/A"
@@ -61,6 +64,7 @@ class HCAntecedentesDTO(BaseModel):
 
 class HCFamiliarDTO(BaseModel):
     """Pestaña 3: Familiar/Social/Funcional."""
+
     vive_con: str = "N/A"
     abc: str = "N/A"
     escolar_laboral: str = "N/A"
@@ -72,6 +76,7 @@ class HCFamiliarDTO(BaseModel):
 
 class HCPlanAtencionDTO(BaseModel):
     """Pestaña 4: Plan de Atención."""
+
     plan_atencion: str = "N/A"
     impresion_diagnostica_hc: str = "N/A"
     hipotesis_pre_eval: str = "N/A"
@@ -79,6 +84,7 @@ class HCPlanAtencionDTO(BaseModel):
 
 class HCObservacionesDTO(BaseModel):
     """Observaciones Clínicas por dominio (FormObsClinNPS)."""
+
     obs_clinica_general: str = "N/A"
     obs_atencion: str = "N/A"
     obs_memoria: str = "N/A"
@@ -97,6 +103,7 @@ class ClinicalHistoryUpsertDTO(BaseModel):
     DTO completo para crear o actualizar la Historia Clínica.
     Agrupa las 4 pestañas del FormHC + las observaciones del FormObsClinNPS.
     """
+
     patient_id: UUIDStr
     fecha_atencion: date
     codigo_cie10: str = "F809"
@@ -121,7 +128,7 @@ class ClinicalHistoryUpsertDTO(BaseModel):
                 "antecedentes": {"patologicos_medicos": "IRA frecuentes..."},
                 "familiar": {"vive_con": "Mamá, papá, hermana..."},
                 "plan_atencion": {"plan_atencion": "Se recomienda PIR..."},
-                "observaciones": {"obs_atencion": "Se mantiene..."}
+                "observaciones": {"obs_atencion": "Se mantiene..."},
             }
         }
     }
@@ -129,13 +136,14 @@ class ClinicalHistoryUpsertDTO(BaseModel):
 
 class ClinicalHistoryResponseDTO(BaseModel):
     """Respuesta de la Historia Clínica completa."""
+
     id: str
     patient_id: str
     numero_documento: str
     fecha_atencion: date
     codigo_cie10: str
     codigo_cie11: str | None = None
-    row_version: int = 1   # Para optimistic locking — el cliente lo reenvía en el siguiente save
+    row_version: int = 1  # Para optimistic locking — el cliente lo reenvía en el siguiente save
     # Los 4 tabs aplanados para facilitar el frontend
     motivo_consulta: str
     edad_materna: str
@@ -199,8 +207,10 @@ class ClinicalHistoryResponseDTO(BaseModel):
 # EVOLUCIÓN TERAPIA
 # ═══════════════════════════════════════════════════════════════
 
+
 class EvolTerapiaCreateDTO(BaseModel):
     """Crear o actualizar una sesión de evolución."""
+
     patient_id: UUIDStr
     sesiones_orden: str | None = None
     numero_orden: str | None = None
@@ -232,6 +242,7 @@ class EvolTerapiaUpdateDTO(BaseModel):
     Ley 1581: sólo exponemos las columnas clínicas esperadas; el resto
     (id, patient_id, archived_*, created_at) se ignora si viene en el body.
     """
+
     model_config = {"extra": "forbid"}
 
     fecha_sesion: date | None = None
@@ -243,9 +254,9 @@ class EvolTerapiaUpdateDTO(BaseModel):
 
 class EvolTerapiaArchiveDTO(BaseModel):
     """Payload para archivar una sesión (soft-delete, Res. 1995)."""
+
     model_config = {"extra": "forbid"}
-    reason: str = Field(..., min_length=3, max_length=500,
-                        description="Motivo del archivo — queda en auditoría.")
+    reason: str = Field(..., min_length=3, max_length=500, description="Motivo del archivo — queda en auditoría.")
 
 
 class SignatureUploadDTO(BaseModel):
@@ -253,6 +264,7 @@ class SignatureUploadDTO(BaseModel):
     Subida de firma digital del profesional.
     SVG se rechaza para prevenir XSS almacenado.
     """
+
     model_config = {"extra": "forbid"}
     firma_base64: str = Field(
         ...,
@@ -265,15 +277,17 @@ class SignatureUploadDTO(BaseModel):
 # CONFIGURACIÓN
 # ═══════════════════════════════════════════════════════════════
 
+
 class ProfessionalCreateDTO(BaseModel):
     """Crear o actualizar un profesional evaluador."""
+
     nombre_completo: str = Field(..., min_length=3)
     titulo: str | None = None
     especialidad: str | None = None
     registro_profesional: str | None = None
-    firma_base64: str | None = None   # "data:image/png;base64,..."
+    firma_base64: str | None = None  # "data:image/png;base64,..."
     sello_base64: str | None = None
-    foto_base64:  str | None = None   # avatar/foto del profesional
+    foto_base64: str | None = None  # avatar/foto del profesional
     email: str | None = None
     activo: bool = True
 
@@ -285,14 +299,15 @@ class ProfessionalResponseDTO(BaseModel):
     especialidad: str | None
     registro_profesional: str | None
     tiene_firma: bool
-    tiene_foto:  bool = False
-    foto_base64: str | None = None    # devolvemos para mostrar avatar en UI
+    tiene_foto: bool = False
+    foto_base64: str | None = None  # devolvemos para mostrar avatar en UI
     email: str | None
     activo: bool
 
 
 class ConfigInstitucionDTO(BaseModel):
     """Datos de la institución para el informe."""
+
     nombre: str = ""
     nit: str = ""
     direccion: str = ""
@@ -305,6 +320,7 @@ class ConfigInstitucionDTO(BaseModel):
 
 class ConfigPrefsInformeDTO(BaseModel):
     """Preferencias visuales del informe."""
+
     fuente_cuerpo: str = "Calibri"
     fuente_titulos: str = "Calibri"
     tamano_fuente_cuerpo: int = Field(default=11, ge=8, le=16)
@@ -320,6 +336,7 @@ class ConfigPrefsInformeDTO(BaseModel):
 
 class ConfigCompleteResponseDTO(BaseModel):
     """Toda la configuración del sistema en un solo response."""
+
     institucion: ConfigInstitucionDTO
     prefs_informe: ConfigPrefsInformeDTO
     profesionales: list[ProfessionalResponseDTO]
@@ -329,21 +346,23 @@ class ConfigCompleteResponseDTO(BaseModel):
 # DOCUMENTOS — Comprobantes, Recetario, RIPS
 # ═══════════════════════════════════════════════════════════════
 
+
 class ComprobanteAsistenciaDTO(BaseModel):
     """
     Comprobante de asistencia a la cita.
     VBA: CompAtencion form.
     """
+
     patient_id: UUIDStr
     profesional_id: OptionalUUIDStr = None
     fecha_atencion: date = Field(default_factory=date.today)
-    hora_inicio: str | None = None         # "09:00"
-    hora_fin: str | None = None            # "11:00"
+    hora_inicio: str | None = None  # "09:00"
+    hora_fin: str | None = None  # "11:00"
     duracion_minutos: int | None = None
     tipo_servicio: str = "Evaluación Neuropsicológica"
     codigo_cups: str = "890208"
     observaciones: str | None = None
-    formato: str = "pdf"                      # pdf | docx
+    formato: str = "pdf"  # pdf | docx
 
 
 class ComprobantePruebasDTO(BaseModel):
@@ -351,6 +370,7 @@ class ComprobantePruebasDTO(BaseModel):
     Comprobante de pruebas aplicadas.
     Lista las pruebas del protocolo aplicadas en la sesión.
     """
+
     patient_id: UUIDStr
     evaluation_id: OptionalUUIDStr = None
     profesional_id: OptionalUUIDStr = None
@@ -365,10 +385,11 @@ class RemisionDTO(BaseModel):
     Formulario de remisión/interconsulta.
     VBA: FormRemision.
     """
+
     patient_id: UUIDStr
     profesional_id: OptionalUUIDStr = None
     fecha: date = Field(default_factory=date.today)
-    remite_a: str = ""                        # "Neurología | Psiquiatría | Fonoaudiología"
+    remite_a: str = ""  # "Neurología | Psiquiatría | Fonoaudiología"
     motivo_remision: str = ""
     diagnostico_presuntivo: str = ""
     codigo_cie10: str = ""
@@ -378,6 +399,7 @@ class RemisionDTO(BaseModel):
 
 class RIPSRequestDTO(BaseModel):
     """Generación del reporte RIPS."""
+
     patient_id: UUIDStr
     fecha_inicio: date
     fecha_fin: date
@@ -387,6 +409,7 @@ class RIPSRequestDTO(BaseModel):
 
 class DocumentoResponseDTO(BaseModel):
     """Respuesta tras generar un documento."""
+
     id: str
     tipo: str
     titulo: str
@@ -400,8 +423,10 @@ class DocumentoResponseDTO(BaseModel):
 # BACKUP
 # ═══════════════════════════════════════════════════════════════
 
+
 class BackupRequestDTO(BaseModel):
     """Solicitud de backup manual."""
+
     destino: str | None = None  # Ruta destino (vacío = ruta por defecto)
     incluir_archivos_generados: bool = True
     notas: str | None = None
@@ -409,6 +434,7 @@ class BackupRequestDTO(BaseModel):
 
 class BackupRestoreDTO(BaseModel):
     """Restaurar desde un backup."""
+
     ruta_backup: str
     confirmar: bool = Field(..., description="Debe ser True para proceder")
 

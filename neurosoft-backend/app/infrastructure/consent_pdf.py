@@ -1,4 +1,5 @@
 """Generación de PDF para consentimientos informados (imprimir / enviar por correo)."""
+
 from __future__ import annotations
 
 import base64
@@ -46,7 +47,7 @@ def _draw_paragraphs(c, text: str, x: float, y: float, max_w: float, page_h: flo
                 y = page_h - margin
             c.drawString(x, y, chunk)
             y -= 12
-            block = block[len(chunk):].lstrip()
+            block = block[len(chunk) :].lstrip()
     return y
 
 
@@ -85,7 +86,11 @@ def build_consent_pdf(
     y -= 14
 
     if patient:
-        nombre = " ".join(filter(None, [patient.primer_nombre, patient.segundo_nombre, patient.primer_apellido, patient.segundo_apellido]))
+        nombre = " ".join(
+            filter(
+                None, [patient.primer_nombre, patient.segundo_nombre, patient.primer_apellido, patient.segundo_apellido]
+            )
+        )
         c.drawString(margin, y, f"Paciente: {nombre} · Doc: {patient.numero_documento or '—'}")
         y -= 12
     if borrador:
@@ -120,6 +125,7 @@ def build_consent_pdf(
                 raw = firma_base64.split(",", 1)[1]
                 img_bytes = base64.b64decode(raw)
                 from reportlab.lib.utils import ImageReader
+
                 img = ImageReader(io.BytesIO(img_bytes))
                 c.drawImage(img, margin, y - 55, width=180, height=50, preserveAspectRatio=True, mask="auto")
                 y -= 65
@@ -133,7 +139,9 @@ def build_consent_pdf(
     return buf.getvalue()
 
 
-def pdf_from_consent_record(consent: ConsentimientoORM, patient: PatientORM | None, textos: dict | None = None) -> bytes:
+def pdf_from_consent_record(
+    consent: ConsentimientoORM, patient: PatientORM | None, textos: dict | None = None
+) -> bytes:
     meta = (textos or {}).get(consent.tipo, {})
     titulo = meta.get("titulo", consent.tipo)
     return build_consent_pdf(

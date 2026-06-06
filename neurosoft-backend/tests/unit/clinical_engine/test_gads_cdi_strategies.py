@@ -10,6 +10,7 @@ Cubre:
 Ambas estrategias tenían cobertura mínima hasta ahora. Estos tests
 verifican comportamiento en casos representativos + edge cases.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -33,6 +34,7 @@ def loader():
 # ═══════════════════════════════════════════════════════════════════
 # NiGADSCTAs — puntaje_doble_resultado
 # ═══════════════════════════════════════════════════════════════════
+
 
 class TestNiGADSCTAs:
     """GADS Coeficiente Trastorno Asperger.
@@ -80,6 +82,7 @@ class TestNiGADSCTAs:
 # ═══════════════════════════════════════════════════════════════════
 # NiCDI — edad_sexo
 # ═══════════════════════════════════════════════════════════════════
+
 
 class TestNiCDI:
     """Inventario de Depresión Infantil de Kovacs.
@@ -149,6 +152,7 @@ class TestNiCDI:
 # Integración con engine completo
 # ═══════════════════════════════════════════════════════════════════
 
+
 class TestIntegracionEngine:
     """Verificación end-to-end pasando por engine.score()."""
 
@@ -159,9 +163,10 @@ class TestIntegracionEngine:
 
         engine = ClinicalEngine(loader)
         ctx = PatientContext.from_demographics(
-            birth_date=date(2016, 1, 15),       # 9 años en 2025
+            birth_date=date(2016, 1, 15),  # 9 años en 2025
             evaluation_date=date(2025, 5, 15),
-            sexo="H", escolaridad="Primaria",
+            sexo="H",
+            escolaridad="Primaria",
         )
         result = engine.score(
             paciente_id="test_n3",

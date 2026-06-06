@@ -14,6 +14,7 @@ Ejecutar:
   - Manualmente: `python -m app.infrastructure.audit.monitor`
   - Automáticamente: vía APScheduler job `audit_monitor_daily` (6 AM diario)
 """
+
 from __future__ import annotations
 
 import json
@@ -28,7 +29,6 @@ from app.infrastructure.database.engine import session_scope
 from app.infrastructure.database.orm_models import (
     AuditLogORM,
     EvaluationORM,
-    ObservationORM,
     PatientORM,
 )
 
@@ -59,12 +59,14 @@ class AuditMonitor:
         """Context manager: usa la sesión externa si se pasó, sino session_scope()."""
         if self._external_db is not None:
             from contextlib import contextmanager
+
             @contextmanager
             def _ctx():
                 try:
                     yield self._external_db
                 finally:
                     pass
+
             return _ctx()
         return session_scope()
 
@@ -94,17 +96,20 @@ class AuditMonitor:
                 for r in resultados:
                     metadata = r.get("metadata", {})
                     if metadata.get("out_of_baremo"):
-                        outliers.append({
-                            "evaluation_id": ev.id,
-                            "patient_id": ev.patient_id,
-                            "test_id": r.get("test_id"),
-                            "pd": r.get("puntaje_bruto"),
-                            "razon": metadata.get("error", "PD fuera del rango del baremo"),
-                            "fecha": ev.fecha.isoformat() if ev.fecha else None,
-                        })
+                        outliers.append(
+                            {
+                                "evaluation_id": ev.id,
+                                "patient_id": ev.patient_id,
+                                "test_id": r.get("test_id"),
+                                "pd": r.get("puntaje_bruto"),
+                                "razon": metadata.get("error", "PD fuera del rango del baremo"),
+                                "fecha": ev.fecha.isoformat() if ev.fecha else None,
+                            }
+                        )
         if outliers:
             self._add_alert(
-                "MEDIUM", "BARE_OUTLIER",
+                "MEDIUM",
+                "BARE_OUTLIER",
                 f"{len(outliers)} puntajes brutos fuera del rango del baremo detectados.",
                 details=outliers[:10],
             )
@@ -126,7 +131,8 @@ class AuditMonitor:
         # Alerta si un dx representa >50% del total
         if top_5 and top_5[0]["pct"] > self.HIGH_DX_FREQUENCY_THRESHOLD * 100:
             self._add_alert(
-                "LOW", "DX_DISTRIBUTION",
+                "LOW",
+                "DX_DISTRIBUTION",
                 f"Diagnóstico {top_5[0]['dx']} representa {top_5[0]['pct']}% de la cohorte.",
             )
         return {"total_with_dx": total, "top_5": top_5}
@@ -134,16 +140,18 @@ class AuditMonitor:
     def check_pd_outliers(self) -> dict[str, Any]:
         """Detecta PD con z-score > 3 (outliers estadísticos)."""
         with self._get_db() as db:
-            evs = db.query(EvaluationORM).filter(EvaluationORM.is_latest == True).all()
+            evs = db.query(EvaluationORM).filter(EvaluationORM.is_latest).all()
             by_test: dict[str, list] = defaultdict(list)
             for ev in evs:
                 pd_dict = json.loads(ev.puntajes_brutos_json or "{}")
                 for test_id, pd in pd_dict.items():
                     if pd != 9999:
-                        by_test[test_id].append({
-                            "pd": pd,
-                            "evaluation_id": ev.id,
-                        })
+                        by_test[test_id].append(
+                            {
+                                "pd": pd,
+                                "evaluation_id": ev.id,
+                            }
+                        )
             outliers = []
             for test_id, samples in by_test.items():
                 if len(samples) < self.MIN_SAMPLE_FOR_OUTLIER:
@@ -156,15 +164,18 @@ class AuditMonitor:
                 for s in samples:
                     z = (s["pd"] - avg) / sd
                     if abs(z) > self.OUTLIER_ZSCORE_THRESHOLD:
-                        outliers.append({
-                            "test_id": test_id,
-                            "pd": s["pd"],
-                            "z_score": round(z, 2),
-                            "evaluation_id": s["evaluation_id"],
-                        })
+                        outliers.append(
+                            {
+                                "test_id": test_id,
+                                "pd": s["pd"],
+                                "z_score": round(z, 2),
+                                "evaluation_id": s["evaluation_id"],
+                            }
+                        )
         if outliers:
             self._add_alert(
-                "LOW", "PD_OUTLIER",
+                "LOW",
+                "PD_OUTLIER",
                 f"{len(outliers)} puntajes con z-score > 3 detectados.",
                 details=outliers[:10],
             )
@@ -174,17 +185,21 @@ class AuditMonitor:
         """Detecta evaluaciones sin firmar con >7 días."""
         with self._get_db() as db:
             cutoff = datetime.utcnow() - timedelta(days=self.STALE_EVAL_DAYS)
-            stale = db.query(EvaluationORM).filter(
-                EvaluationORM.signed_at.is_(None),
-                EvaluationORM.created_at < cutoff,
-            ).all()
+            stale = (
+                db.query(EvaluationORM)
+                .filter(
+                    EvaluationORM.signed_at.is_(None),
+                    EvaluationORM.created_at < cutoff,
+                )
+                .all()
+            )
         if stale:
             self._add_alert(
-                "MEDIUM", "STALE_EVAL",
+                "MEDIUM",
+                "STALE_EVAL",
                 f"{len(stale)} evaluaciones sin firmar con >{self.STALE_EVAL_DAYS} días.",
                 details=[
-                    {"id": e.id, "patient_id": e.patient_id,
-                     "fecha": e.fecha.isoformat() if e.fecha else None}
+                    {"id": e.id, "patient_id": e.patient_id, "fecha": e.fecha.isoformat() if e.fecha else None}
                     for e in stale[:10]
                 ],
             )
@@ -194,23 +209,30 @@ class AuditMonitor:
         """Monitorea volumen de audit log (alerta si >1000 eventos/día)."""
         with self._get_db() as db:
             last_24h = datetime.utcnow() - timedelta(hours=24)
-            count = db.query(AuditLogORM).filter(
-                AuditLogORM.ts >= last_24h,
-            ).count()
+            count = (
+                db.query(AuditLogORM)
+                .filter(
+                    AuditLogORM.ts >= last_24h,
+                )
+                .count()
+            )
         if count > self.AUDIT_LOG_MAX_EVENTS_PER_DAY:
             self._add_alert(
-                "HIGH", "AUDIT_VOLUME",
+                "HIGH",
+                "AUDIT_VOLUME",
                 f"Volumen inusual: {count} eventos de audit en últimas 24h.",
             )
         return {"events_last_24h": count}
 
     def _add_alert(self, severity: str, alert_type: str, message: str, details: Any = None) -> None:
-        self.alerts.append({
-            "severity": severity,
-            "type": alert_type,
-            "message": message,
-            "details": details,
-        })
+        self.alerts.append(
+            {
+                "severity": severity,
+                "type": alert_type,
+                "message": message,
+                "details": details,
+            }
+        )
 
     def _summary(self) -> dict[str, Any]:
         sev_counts = Counter(a["severity"] for a in self.alerts)

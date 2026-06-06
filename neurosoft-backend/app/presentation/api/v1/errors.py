@@ -12,7 +12,7 @@ Formato: JSON lines (un objeto JSON por linea) en data/crash_reports.jsonl
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, Field
@@ -41,7 +41,7 @@ def report_crash(request: Request, report: CrashReportDTO):
     genere un loop infinito.
     """
     entry = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
         "error": report.error_message[:500],
         "stack": report.error_stack[:2000],
         "route": report.route[:200],
@@ -53,6 +53,7 @@ def report_crash(request: Request, report: CrashReportDTO):
 
     try:
         from pathlib import Path
+
         log_path = Path("data") / "crash_reports.jsonl"
         log_path.parent.mkdir(parents=True, exist_ok=True)
 

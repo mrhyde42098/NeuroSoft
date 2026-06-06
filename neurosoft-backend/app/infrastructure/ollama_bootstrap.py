@@ -20,6 +20,7 @@ Idempotente: deja un flag `.ollama_install_attempted` en data_dir para
 NO reintentar en arranques sucesivos (el usuario puede borrarlo si quiere
 forzar otro intento).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -71,6 +72,7 @@ def _flag_path() -> Path | None:
     """Ruta al flag de 'ya intentamos auto-instalar' en data_dir."""
     try:
         from app.core.config import settings
+
         d = Path(settings.data_dir if hasattr(settings, "data_dir") else settings.db_path).parent
         d.mkdir(parents=True, exist_ok=True)
         return d / ".ollama_install_attempted"
@@ -188,8 +190,10 @@ async def _set_default_provider_ollama_if_empty() -> None:
         cfg = db.query(AIConfigORM).filter_by(user_id=admin.id).first()
         if cfg is None:
             cfg = AIConfigORM(
-                user_id=admin.id, provider="ollama",
-                model="llama3.1:8b", ollama_url=OLLAMA_URL,
+                user_id=admin.id,
+                provider="ollama",
+                model="llama3.1:8b",
+                ollama_url=OLLAMA_URL,
             )
             db.add(cfg)
             db.commit()

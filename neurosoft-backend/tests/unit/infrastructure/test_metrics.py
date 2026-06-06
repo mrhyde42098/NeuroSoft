@@ -1,6 +1,7 @@
 """
 S4.2: Tests del módulo de métricas (opt-in).
 """
+
 import pytest
 
 from app.infrastructure.observability import metrics
@@ -86,6 +87,7 @@ def test_reset_limpia_estado(monkeypatch):
 def test_counter_thread_safe(monkeypatch):
     """Múltiples hilos incrementando el mismo counter."""
     import threading
+
     monkeypatch.setenv("NEUROSOFT_METRICS_ENABLED", "1")
     n = 100
     barrier = threading.Barrier(10)

@@ -1,4 +1,5 @@
 """Tests del servicio de mapeo CIE-10 → CIE-11."""
+
 from app.domain.clinical_engine.cie_mapping_service import (
     map_cie10_to_cie11,
     resolve_cie11_code,

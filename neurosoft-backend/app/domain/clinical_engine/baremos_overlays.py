@@ -14,6 +14,7 @@ adicionales en `data/baremos/*.json` para que:
 La filosofía es **conservadora**: no romper el motor de scoring actual,
 sólo enriquecer la observabilidad.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -52,8 +53,8 @@ def discover_overlays(baremos_dir: Path) -> list[dict[str, Any]]:
             "fuente_id": fp.stem,
             "fuente_nombre": fp.stem.replace("_", " ").title(),
             "path": str(fp.relative_to(baremos_dir.parent.parent))
-                    if baremos_dir.parent.parent in fp.parents
-                    else str(fp),
+            if baremos_dir.parent.parent in fp.parents
+            else str(fp),
             "checksum_sha256": None,
             "pruebas": [],
             "total_pruebas": 0,
@@ -68,10 +69,7 @@ def discover_overlays(baremos_dir: Path) -> list[dict[str, Any]]:
             meta = raw.get("_meta", {}) or {}
             entry["fuente_id"] = meta.get("fuente_id", entry["fuente_id"])
             entry["fuente_nombre"] = meta.get("fuente_nombre", entry["fuente_nombre"])
-            entry["meta"] = {
-                k: v for k, v in meta.items()
-                if k not in ("baterias",)
-            }
+            entry["meta"] = {k: v for k, v in meta.items() if k not in ("baterias",)}
             baterias = raw.get("baterias", {}) or {}
             pruebas: list[str] = []
             for grupo_pruebas in baterias.values():
@@ -93,6 +91,7 @@ def get_overlays_for_settings() -> list[dict[str, Any]]:
     `<baremo_path>.parent/baremos/`."""
     try:
         from app.core.config import settings
+
         baremo_path = Path(settings.baremo_path)
         overlays_dir = baremo_path.parent / "baremos"
         return discover_overlays(overlays_dir)

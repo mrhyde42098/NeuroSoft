@@ -21,6 +21,7 @@ Campos esperados en ReportData (todos opcionales — usa placeholders si faltan)
   therapy_motivo_cierre  — str categorico
   therapy_nota_cierre    — str narrativo del clínico
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro
@@ -103,12 +104,24 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
         c.setFillColorRGB(*PLUM)
         c.roundRect(-95, -24, 190, 48, 6, fill=1, stroke=0)
         draw_text(
-            c, "CIERRE", 0, 6,
-            font_name=FONT_SANS_BOLD, size=11, color=WHITE, align="center",
+            c,
+            "CIERRE",
+            0,
+            6,
+            font_name=FONT_SANS_BOLD,
+            size=11,
+            color=WHITE,
+            align="center",
         )
         draw_text(
-            c, "TERAPÉUTICO", 0, -10,
-            font_name=FONT_SANS_BOLD, size=12, color=WHITE, align="center",
+            c,
+            "TERAPÉUTICO",
+            0,
+            -10,
+            font_name=FONT_SANS_BOLD,
+            size=12,
+            color=WHITE,
+            align="center",
         )
         c.restoreState()
 
@@ -187,20 +200,17 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
             ("Sesiones realizadas / estimadas", f"{sesiones_real} / {duracion_estim}"),
         ]
         for label, value in rows:
-            draw_text(c, label, L.margin, y - 4,
-                      font_name=FONT_SANS_BOLD, size=8, color=SLATE)
-            draw_text(c, str(value), L.margin + 180, y - 4,
-                      font_name=FONT_SANS, size=10, color=NAVY)
+            draw_text(c, label, L.margin, y - 4, font_name=FONT_SANS_BOLD, size=8, color=SLATE)
+            draw_text(c, str(value), L.margin + 180, y - 4, font_name=FONT_SANS, size=10, color=NAVY)
             y -= 16
 
         # Motivo de consulta (texto largo, párrafo)
         y -= 4
-        draw_text(c, "Motivo de consulta inicial:", L.margin, y - 4,
-                  font_name=FONT_SANS_BOLD, size=8, color=SLATE)
+        draw_text(c, "Motivo de consulta inicial:", L.margin, y - 4, font_name=FONT_SANS_BOLD, size=8, color=SLATE)
         y -= 16
-        y = draw_paragraph(c, motivo, L.margin, y,
-                           w=L.page_w - L.margin - L.margin,
-                           font_name=FONT_SERIF, size=10, color=NAVY)
+        y = draw_paragraph(
+            c, motivo, L.margin, y, w=L.page_w - L.margin - L.margin, font_name=FONT_SERIF, size=10, color=NAVY
+        )
         return y - 8
 
     def _draw_motivo_cierre(self, c, data, y: float) -> float:
@@ -221,9 +231,16 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = callout(c, label, L.margin, y, L.content_w, accent=color)
         y -= 4
-        y = draw_paragraph(c, nota, LAYOUT.margin, y,
-                           w=LAYOUT.page_w - LAYOUT.margin - LAYOUT.margin,
-                           font_name=FONT_SERIF, size=10, color=NAVY)
+        y = draw_paragraph(
+            c,
+            nota,
+            LAYOUT.margin,
+            y,
+            w=LAYOUT.page_w - LAYOUT.margin - LAYOUT.margin,
+            font_name=FONT_SERIF,
+            size=10,
+            color=NAVY,
+        )
         return y - 8
 
     def _draw_objetivos_evolucion(self, c, data, y: float) -> float:
@@ -231,9 +248,15 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         objetivos = getattr(data, "therapy_objectives", []) or []
         if not objetivos:
-            draw_text(c, "No se documentaron objetivos terapéuticos formalmente.",
-                      L.margin, y - 4,
-                      font_name=FONT_SERIF, size=10, color=SLATE)
+            draw_text(
+                c,
+                "No se documentaron objetivos terapéuticos formalmente.",
+                L.margin,
+                y - 4,
+                font_name=FONT_SERIF,
+                size=10,
+                color=SLATE,
+            )
             return y - 24
 
         for i, obj in enumerate(objetivos, 1):
@@ -243,19 +266,28 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
             criterios = obj.get("criterios_medibles", "")
 
             # Número + descripción
-            draw_text(c, f"{i:02d}", L.margin, y - 4,
-                      font_name=FONT_SERIF_BOLD, size=12, color=PLUM)
+            draw_text(c, f"{i:02d}", L.margin, y - 4, font_name=FONT_SERIF_BOLD, size=12, color=PLUM)
             y_text = draw_paragraph(
-                c, desc, L.margin + 28, y,
+                c,
+                desc,
+                L.margin + 28,
+                y,
                 w=L.page_w - L.margin - L.margin - 28,
-                font_name=FONT_SANS, size=10, color=NAVY,
+                font_name=FONT_SANS,
+                size=10,
+                color=NAVY,
             )
             # Criterios medibles
             if criterios:
                 y_text = draw_paragraph(
-                    c, f"Criterio: {criterios}", L.margin + 28, y_text - 2,
+                    c,
+                    f"Criterio: {criterios}",
+                    L.margin + 28,
+                    y_text - 2,
                     w=L.page_w - L.margin - L.margin - 28,
-                    font_name=FONT_SERIF, size=8.5, color=SLATE,
+                    font_name=FONT_SERIF,
+                    size=8.5,
+                    color=SLATE,
                 )
             # Barra de progreso
             y_bar = y_text - 10
@@ -271,28 +303,41 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
                 c.setFillColorRGB(*color_bar)
                 c.roundRect(bar_x, y_bar, bar_w * min(progreso, 100) / 100, bar_h, 3, fill=1, stroke=0)
             # Texto % y estado
-            draw_text(c, f"{progreso}%", bar_x + bar_w + 6, y_bar - 1,
-                      font_name=FONT_SANS_BOLD, size=9, color=color_bar)
-            estado_lbl = {"cumplido": "Cumplido", "activo": "En proceso",
-                          "modificado": "Modificado", "abandonado": "Abandonado"}.get(estado, estado)
-            draw_text(c, estado_lbl, bar_x + bar_w + 6, y_bar - 12,
-                      font_name=FONT_SANS, size=7.5, color=SLATE)
+            draw_text(
+                c, f"{progreso}%", bar_x + bar_w + 6, y_bar - 1, font_name=FONT_SANS_BOLD, size=9, color=color_bar
+            )
+            estado_lbl = {
+                "cumplido": "Cumplido",
+                "activo": "En proceso",
+                "modificado": "Modificado",
+                "abandonado": "Abandonado",
+            }.get(estado, estado)
+            draw_text(c, estado_lbl, bar_x + bar_w + 6, y_bar - 12, font_name=FONT_SANS, size=7.5, color=SLATE)
             y = y_bar - 24
 
         return y
 
     def _draw_sintesis_proceso(self, c, data, y: float) -> float:
         """Texto narrativo del clínico que resume la evolución del paciente."""
-        sintesis = getattr(data, "therapy_sintesis", None) \
-                   or getattr(data, "therapy_nota_cierre", None) \
-                   or ("Espacio reservado para la narrativa integradora del proceso. "
-                       "El clínico debería redactar aquí: estado al inicio vs estado al cierre, "
-                       "hitos significativos, dificultades superadas, recursos del paciente que "
-                       "se hicieron visibles, y cambios observables en su funcionamiento.")
+        sintesis = (
+            getattr(data, "therapy_sintesis", None)
+            or getattr(data, "therapy_nota_cierre", None)
+            or (
+                "Espacio reservado para la narrativa integradora del proceso. "
+                "El clínico debería redactar aquí: estado al inicio vs estado al cierre, "
+                "hitos significativos, dificultades superadas, recursos del paciente que "
+                "se hicieron visibles, y cambios observables en su funcionamiento."
+            )
+        )
         return draw_paragraph(
-            c, sintesis, LAYOUT.margin, y,
+            c,
+            sintesis,
+            LAYOUT.margin,
+            y,
             w=LAYOUT.page_w - LAYOUT.margin - LAYOUT.margin,
-            font_name=FONT_SERIF, size=10, color=NAVY,
+            font_name=FONT_SERIF,
+            size=10,
+            color=NAVY,
         )
 
     def _draw_riesgo_longitudinal(self, c, data, y: float) -> float:
@@ -304,15 +349,15 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
 
         NIVEL_COLOR = {
             "ninguno": SEMANTIC_OK,
-            "leve":     SEMANTIC_WARN,
+            "leve": SEMANTIC_WARN,
             "moderado": (0.706, 0.325, 0.035),  # naranja oscuro
-            "alto":     SEMANTIC_DEFICIT,
-            "inminente":(0.498, 0.114, 0.180),   # ruby oscuro
+            "alto": SEMANTIC_DEFICIT,
+            "inminente": (0.498, 0.114, 0.180),  # ruby oscuro
         }
 
-        draw_text(c, f"Evaluaciones registradas: {len(riesgos)}",
-                  L.margin, y - 4,
-                  font_name=FONT_SANS, size=9, color=SLATE)
+        draw_text(
+            c, f"Evaluaciones registradas: {len(riesgos)}", L.margin, y - 4, font_name=FONT_SANS, size=9, color=SLATE
+        )
         y -= 18
 
         # Render simple tipo línea
@@ -322,11 +367,16 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
             color = NIVEL_COLOR.get(nivel, SLATE)
             c.setFillColorRGB(*color)
             c.circle(L.margin + 6, y, 4, fill=1, stroke=0)
-            draw_text(c, str(fecha)[:10], L.margin + 20, y - 3,
-                      font_name=FONT_SANS, size=8.5, color=SLATE)
-            draw_text(c, nivel.replace("_", " ").title(),
-                      L.margin + 120, y - 3,
-                      font_name=FONT_SANS_BOLD, size=8.5, color=color)
+            draw_text(c, str(fecha)[:10], L.margin + 20, y - 3, font_name=FONT_SANS, size=8.5, color=SLATE)
+            draw_text(
+                c,
+                nivel.replace("_", " ").title(),
+                L.margin + 120,
+                y - 3,
+                font_name=FONT_SANS_BOLD,
+                size=8.5,
+                color=color,
+            )
             y -= 14
         return y - 4
 
@@ -334,15 +384,22 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
         """Recomendaciones específicas para el post-cierre."""
         recs = (getattr(data, "recomendaciones", None) or "").strip()
         if not recs:
-            recs = ("Reservado para recomendaciones del clínico al cierre. "
-                    "Ejemplos típicos: continuar con prácticas trabajadas en sesión, "
-                    "considerar terapia de mantenimiento, monitoreo a 3/6 meses, "
-                    "contactar nuevamente si reaparecen síntomas, derivación a otro "
-                    "profesional si aplica.")
+            recs = (
+                "Reservado para recomendaciones del clínico al cierre. "
+                "Ejemplos típicos: continuar con prácticas trabajadas en sesión, "
+                "considerar terapia de mantenimiento, monitoreo a 3/6 meses, "
+                "contactar nuevamente si reaparecen síntomas, derivación a otro "
+                "profesional si aplica."
+            )
         return draw_paragraph(
-            c, recs, LAYOUT.margin, y,
+            c,
+            recs,
+            LAYOUT.margin,
+            y,
             w=LAYOUT.page_w - LAYOUT.margin - LAYOUT.margin,
-            font_name=FONT_SERIF, size=10, color=NAVY,
+            font_name=FONT_SERIF,
+            size=10,
+            color=NAVY,
         )
 
     def _draw_implicaciones_diarias(self, c, data, y: float) -> float:
@@ -357,17 +414,28 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
         items = dominios_con_implicaciones(data.resultados)
         if not items:
             draw_text(
-                c, "No se identificaron dominios debilitados relevantes.",
-                L.margin, y - 4, font_name=FONT_SERIF, size=9.5, color=SLATE,
+                c,
+                "No se identificaron dominios debilitados relevantes.",
+                L.margin,
+                y - 4,
+                font_name=FONT_SERIF,
+                size=9.5,
+                color=SLATE,
             )
             return y - 22
 
         y = draw_paragraph(
-            c, ("Para sostener los avances logrados en el proceso terapéutico, "
-                "tenga en cuenta cómo estas áreas se manifiestan en la vida diaria:"),
-            L.margin, y - 4,
+            c,
+            (
+                "Para sostener los avances logrados en el proceso terapéutico, "
+                "tenga en cuenta cómo estas áreas se manifiestan en la vida diaria:"
+            ),
+            L.margin,
+            y - 4,
             w=L.page_w - L.margin - L.margin,
-            font_name=FONT_SERIF, size=9.5, color=NAVY,
+            font_name=FONT_SERIF,
+            size=9.5,
+            color=NAVY,
         )
         y -= 4
 
@@ -377,27 +445,30 @@ class TherapyClosureGenerator(NeuroPDFGeneratorPro):
             z = it["z_promedio"]
             y = self._ensure_room(c, data, y, 80)
             y = block_header(
-                c, f"{dom}  ·  Z̄={z:+.1f}σ ({nivel})", y, color=PLUM,
+                c,
+                f"{dom}  ·  Z̄={z:+.1f}σ ({nivel})",
+                y,
+                color=PLUM,
             )
             ejemplos = it.get("ejemplos", [])[:2]
             estrategias = it.get("estrategias", [])[:2]
             for ej in ejemplos:
                 y = self._ensure_room(c, data, y, 30)
-                y = bullet(c, ej, L.margin, y - 2,
-                          L.page_w - L.margin - L.margin) - 1
+                y = bullet(c, ej, L.margin, y - 2, L.page_w - L.margin - L.margin) - 1
             if estrategias:
                 y -= 4
                 draw_text(
-                    c, "Estrategias de apoyo:", L.margin, y - 4,
-                    font_name=FONT_SANS_BOLD, size=8, color=SLATE,
+                    c,
+                    "Estrategias de apoyo:",
+                    L.margin,
+                    y - 4,
+                    font_name=FONT_SANS_BOLD,
+                    size=8,
+                    color=SLATE,
                 )
                 y -= 14
                 for es in estrategias:
                     y = self._ensure_room(c, data, y, 30)
-                    y = bullet(c, es, L.margin + 12, y - 2,
-                              L.page_w - L.margin - L.margin - 12) - 1
+                    y = bullet(c, es, L.margin + 12, y - 2, L.page_w - L.margin - L.margin - 12) - 1
             y -= 6
         return y
-
-
-

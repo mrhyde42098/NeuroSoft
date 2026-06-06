@@ -39,101 +39,175 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────
 _COGNITIVE_DOMAINS: dict[str, str] = {
     # WISC-IV
-    "NiWiscDC": "Razonamiento Perceptual", "NiWiscSem": "Comprensión Verbal",
-    "NiWiscVoc": "Comprensión Verbal", "NiWiscCom": "Comprensión Verbal",
-    "NiWiscLN": "Memoria de Trabajo", "NiWiscAri": "Memoria de Trabajo",
-    "NiWiscMat": "Razonamiento Perceptual", "NiWiscConD": "Razonamiento Perceptual",
-    "NiWiscCl": "Velocidad de Proceso", "NiWiscBusSim": "Velocidad de Proceso",
-    "NiWisFigInc": "Razonamiento Perceptual", "NiWisInf": "Comprensión Verbal",
-    "NiWiscRDD": "Memoria de Trabajo", "NiWisPalCon": "Comprensión Verbal",
+    "NiWiscDC": "Razonamiento Perceptual",
+    "NiWiscSem": "Comprensión Verbal",
+    "NiWiscVoc": "Comprensión Verbal",
+    "NiWiscCom": "Comprensión Verbal",
+    "NiWiscLN": "Memoria de Trabajo",
+    "NiWiscAri": "Memoria de Trabajo",
+    "NiWiscMat": "Razonamiento Perceptual",
+    "NiWiscConD": "Razonamiento Perceptual",
+    "NiWiscCl": "Velocidad de Proceso",
+    "NiWiscBusSim": "Velocidad de Proceso",
+    "NiWisFigInc": "Razonamiento Perceptual",
+    "NiWisInf": "Comprensión Verbal",
+    "NiWiscRDD": "Memoria de Trabajo",
+    "NiWisPalCon": "Comprensión Verbal",
     "NiWisReg": "Comprensión Verbal",
     # WISC-IV Índices
-    "NiWISCTot": "Inteligencia General", "NiWISCIndCapGen": "Inteligencia General",
-    "NiWISCIndCopCog": "Inteligencia General", "NiWISCIndComVer": "Índice CI",
-    "NiWISCIndRazPer": "Índice CI", "NiWISCIndMemTra": "Índice CI",
+    "NiWISCTot": "Inteligencia General",
+    "NiWISCIndCapGen": "Inteligencia General",
+    "NiWISCIndCopCog": "Inteligencia General",
+    "NiWISCIndComVer": "Índice CI",
+    "NiWISCIndRazPer": "Índice CI",
+    "NiWISCIndMemTra": "Índice CI",
     "NiWISCIndVelPro": "Índice CI",
     # KABC-II
-    "NiKabcVMag": "Razonamiento Perceptual", "NiKabcRC": "Memoria",
-    "NiKabcMMa": "Funciones Ejecutivas", "NiKabcCG": "Razonamiento Perceptual",
-    "NiKabcRN": "Memoria de Trabajo", "NiKabcTria": "Razonamiento Perceptual",
-    "NiKabcOPa": "Memoria", "NiKabcSFot": "Memoria",
-    "NiKabcMEsp": "Memoria", "NiKabcMAna": "Razonamiento Perceptual",
+    "NiKabcVMag": "Razonamiento Perceptual",
+    "NiKabcRC": "Memoria",
+    "NiKabcMMa": "Funciones Ejecutivas",
+    "NiKabcCG": "Razonamiento Perceptual",
+    "NiKabcRN": "Memoria de Trabajo",
+    "NiKabcTria": "Razonamiento Perceptual",
+    "NiKabcOPa": "Memoria",
+    "NiKabcSFot": "Memoria",
+    "NiKabcMEsp": "Memoria",
+    "NiKabcMAna": "Razonamiento Perceptual",
     # ENI-2
-    "NiENIRHis": "Memoria", "NiENIRHLP": "Memoria",
-    "NiEniMLP": "Memoria Verbal", "NiENIMLPCl": "Memoria Verbal",
-    "NiEniReco": "Memoria Verbal", "NiENIDen": "Lenguaje",
-    "NiENIROra": "Lenguaje", "NiENIDel": "Lenguaje",
-    "NiENILNum": "Lenguaje", "NiENIDNum": "Lenguaje",
-    "NiENISDir": "Memoria de Trabajo", "NiENISInv": "Funciones Ejecutivas",
-    "NiENICDib": "Atención", "NiENICLet": "Atención",
-    "NiENIEOra": "Lenguaje", "NiENISIns": "Lenguaje",
-    "NiENIVLS": "Lenguaje", "NiENIVLVA": "Lenguaje",
+    "NiENIRHis": "Memoria",
+    "NiENIRHLP": "Memoria",
+    "NiEniMLP": "Memoria Verbal",
+    "NiENIMLPCl": "Memoria Verbal",
+    "NiEniReco": "Memoria Verbal",
+    "NiENIDen": "Lenguaje",
+    "NiENIROra": "Lenguaje",
+    "NiENIDel": "Lenguaje",
+    "NiENILNum": "Lenguaje",
+    "NiENIDNum": "Lenguaje",
+    "NiENISDir": "Memoria de Trabajo",
+    "NiENISInv": "Funciones Ejecutivas",
+    "NiENICDib": "Atención",
+    "NiENICLet": "Atención",
+    "NiENIEOra": "Lenguaje",
+    "NiENISIns": "Lenguaje",
+    "NiENIVLS": "Lenguaje",
+    "NiENIVLVA": "Lenguaje",
     # Atención
-    "NiTMTA": "Atención", "NiTMTB": "Funciones Ejecutivas",
-    "NiSt_Edades": "Atención", "NiSt_Puntajes": "Atención",
-    "NiTestPC": "Atención", "NiTestPC_R": "Atención",
-    "NiDR": "Funciones Ejecutivas", "NiRDD": "Funciones Ejecutivas",
+    "NiTMTA": "Atención",
+    "NiTMTB": "Funciones Ejecutivas",
+    "NiSt_Edades": "Atención",
+    "NiSt_Puntajes": "Atención",
+    "NiTestPC": "Atención",
+    "NiTestPC_R": "Atención",
+    "NiDR": "Funciones Ejecutivas",
+    "NiRDD": "Funciones Ejecutivas",
     "NiIntObj": "Funciones Ejecutivas",
     # Memoria visuoespacial
-    "NiFCROCop": "Memoria Visuoespacial", "NiFCRORec": "Memoria Visuoespacial",
+    "NiFCROCop": "Memoria Visuoespacial",
+    "NiFCRORec": "Memoria Visuoespacial",
     # Lectura
-    "NiComp": "Lenguaje", "NiLVS": "Lenguaje",
-    "NiPrec": "Lenguaje", "NiCopTxt": "Lenguaje",
+    "NiComp": "Lenguaje",
+    "NiLVS": "Lenguaje",
+    "NiPrec": "Lenguaje",
+    "NiCopTxt": "Lenguaje",
     # FCRO Adulto
     "AdFCRO_Rey": "Memoria Visuoespacial",
     # Lenguaje
-    "NiFA": "Lenguaje - Fluidez", "NiFM": "Lenguaje - Fluidez",
+    "NiFA": "Lenguaje - Fluidez",
+    "NiFM": "Lenguaje - Fluidez",
     "NiRecEmo": "Habilidades Socioemocionales",
     # EAD
-    "NiEADMG": "Desarrollo Motor", "NiEADMF": "Desarrollo Motor",
-    "NiEADAL": "Desarrollo Lenguaje", "NiEADPS": "Desarrollo Social",
+    "NiEADMG": "Desarrollo Motor",
+    "NiEADMF": "Desarrollo Motor",
+    "NiEADAL": "Desarrollo Lenguaje",
+    "NiEADPS": "Desarrollo Social",
     "NiEADTot": "Desarrollo Global",
     # Socioemocional
-    "NiCDI": "Socioemocional - Depresión", "NiVin": "Funcionamiento Adaptativo",
-    "NiSpenceOCD": "Socioemocional - Ansiedad", "NiSpenceGA": "Socioemocional - Ansiedad",
-    "NiSpenceSA": "Socioemocional - Ansiedad", "NiSpenceSepAx": "Socioemocional - Ansiedad",
-    "NiSpencePIF": "Socioemocional - Ansiedad", "NiSpenceTo": "Socioemocional - Ansiedad",
-    "NiGadsIS": "Socioemocional - TEA", "NiGadsHP": "Socioemocional - TEA",
-    "NiGadsPRC": "Socioemocional - TEA", "NiGadsPatCog": "Socioemocional - TEA",
+    "NiCDI": "Socioemocional - Depresión",
+    "NiVin": "Funcionamiento Adaptativo",
+    "NiSpenceOCD": "Socioemocional - Ansiedad",
+    "NiSpenceGA": "Socioemocional - Ansiedad",
+    "NiSpenceSA": "Socioemocional - Ansiedad",
+    "NiSpenceSepAx": "Socioemocional - Ansiedad",
+    "NiSpencePIF": "Socioemocional - Ansiedad",
+    "NiSpenceTo": "Socioemocional - Ansiedad",
+    "NiGadsIS": "Socioemocional - TEA",
+    "NiGadsHP": "Socioemocional - TEA",
+    "NiGadsPRC": "Socioemocional - TEA",
+    "NiGadsPatCog": "Socioemocional - TEA",
     "NiGADSCTAs": "Socioemocional - TEA",
     # WAIS-III
-    "AdWAISCIT": "Inteligencia General", "AdWAISEMan": "Inteligencia General",
-    "AdWASIEVer": "Índice CI", "AdWAISICV": "Índice CI",
-    "AdWAISICP": "Índice CI", "AdWAISIMT": "Índice CI", "AdWAISIVP": "Índice CI",
-    "AdWAISV": "Comprensión Verbal", "AdWAISI": "Comprensión Verbal",
-    "AdWAISC": "Comprensión Verbal", "AdWAISA": "Comprensión Verbal",
-    "AdWAISCC": "Organización Perceptual", "AdSDWais": "Velocidad de Proceso",
-    "AdMatr": "Organización Perceptual", "AdWAISFI": "Organización Perceptual",
-    "AdWAISHI": "Organización Perceptual", "AdWAISRO": "Organización Perceptual",
-    "AdWAISL": "Memoria de Trabajo", "AdSemWais": "Comprensión Verbal",
-    "AdDDir": "Atención", "AdDPros": "Atención", "AdDReg": "Atención",
-    "AdBusSim": "Velocidad de Proceso", "AdBusSim + ViBusSim": "Velocidad de Proceso",
+    "AdWAISCIT": "Inteligencia General",
+    "AdWAISEMan": "Inteligencia General",
+    "AdWASIEVer": "Índice CI",
+    "AdWAISICV": "Índice CI",
+    "AdWAISICP": "Índice CI",
+    "AdWAISIMT": "Índice CI",
+    "AdWAISIVP": "Índice CI",
+    "AdWAISV": "Comprensión Verbal",
+    "AdWAISI": "Comprensión Verbal",
+    "AdWAISC": "Comprensión Verbal",
+    "AdWAISA": "Comprensión Verbal",
+    "AdWAISCC": "Organización Perceptual",
+    "AdSDWais": "Velocidad de Proceso",
+    "AdMatr": "Organización Perceptual",
+    "AdWAISFI": "Organización Perceptual",
+    "AdWAISHI": "Organización Perceptual",
+    "AdWAISRO": "Organización Perceptual",
+    "AdWAISL": "Memoria de Trabajo",
+    "AdSemWais": "Comprensión Verbal",
+    "AdDDir": "Atención",
+    "AdDPros": "Atención",
+    "AdDReg": "Atención",
+    "AdBusSim": "Velocidad de Proceso",
+    "AdBusSim + ViBusSim": "Velocidad de Proceso",
     "AdFCRO_Rey": "Memoria Visuoespacial",
     # Adulto: Memoria y FE
-    "AdCVLT": "Memoria Verbal", "AdTMT_AB": "Atención / Funciones Ejecutivas",
-    "AdStroop_Corr": "Atención", "AdTL_Torre": "Funciones Ejecutivas",
+    "AdCVLT": "Memoria Verbal",
+    "AdTMT_AB": "Atención / Funciones Ejecutivas",
+    "AdStroop_Corr": "Atención",
+    "AdTL_Torre": "Funciones Ejecutivas",
     "AdBeck": "Socioemocional - Depresión",
     # Adulto mayor
-    "ViTMTA": "Atención", "ViTMTB": "Funciones Ejecutivas",
-    "ViRDD": "Memoria de Trabajo", "ViRDInv": "Memoria de Trabajo",
-    "ViStP": "Atención", "ViStC": "Atención", "ViStPC": "Atención",
-    "ViAni": "Lenguaje - Fluidez", "ViSem": "Lenguaje",
-    "ViWCat": "Funciones Ejecutivas", "ViWCor": "Funciones Ejecutivas",
-    "ViWEPer": "Funciones Ejecutivas", "ViWEAte": "Atención",
-    "ViTLTC": "Funciones Ejecutivas", "ViTLMExc": "Funciones Ejecutivas",
-    "ViTLLat": "Funciones Ejecutivas", "ViTLEje": "Funciones Ejecutivas",
-    "ViTLRes": "Funciones Ejecutivas", "ViGrober_Main": "Memoria Verbal",
-    "ViMRemRec": "Memoria", "ViP": "Lenguaje",
-    "ViDeno": "Lenguaje", "ViYesavage": "Socioemocional - Depresión",
+    "ViTMTA": "Atención",
+    "ViTMTB": "Funciones Ejecutivas",
+    "ViRDD": "Memoria de Trabajo",
+    "ViRDInv": "Memoria de Trabajo",
+    "ViStP": "Atención",
+    "ViStC": "Atención",
+    "ViStPC": "Atención",
+    "ViAni": "Lenguaje - Fluidez",
+    "ViSem": "Lenguaje",
+    "ViWCat": "Funciones Ejecutivas",
+    "ViWCor": "Funciones Ejecutivas",
+    "ViWEPer": "Funciones Ejecutivas",
+    "ViWEAte": "Atención",
+    "ViTLTC": "Funciones Ejecutivas",
+    "ViTLMExc": "Funciones Ejecutivas",
+    "ViTLLat": "Funciones Ejecutivas",
+    "ViTLEje": "Funciones Ejecutivas",
+    "ViTLRes": "Funciones Ejecutivas",
+    "ViGrober_Main": "Memoria Verbal",
+    "ViMRemRec": "Memoria",
+    "ViP": "Lenguaje",
+    "ViDeno": "Lenguaje",
+    "ViYesavage": "Socioemocional - Depresión",
 }
 
 # Tests de tamizaje / escalas / observación directa que no tienen baremos
 # en BD_NEURO_MAESTRA.json. El motor los omite sin advertencia porque su
 # puntuación se maneja client-side (ScreeningPage.jsx, datos directos).
 _NON_BAREMO_TESTS: set[str] = {
-    "EscSTAI", "EscASRS", "BNT", "FluidM", "NiCalcEscrito",
-    "NiFigHum", "NiRecEscrita", "REY15",
+    "EscSTAI",
+    "EscASRS",
+    "BNT",
+    "FluidM",
+    "NiCalcEscrito",
+    "NiFigHum",
+    "NiRecEscrita",
+    "REY15",
 }
+
 
 def _get_domain(test_id: str) -> str:
     return _COGNITIVE_DOMAINS.get(test_id, "General")
@@ -143,16 +217,18 @@ def _get_domain(test_id: str) -> str:
 # CONTEXTO DEL PACIENTE (lo que el Engine necesita)
 # ─────────────────────────────────────────────────────────────
 
+
 @dataclass(frozen=True)
 class PatientContext:
     """
     Snapshot demográfico del paciente para el motor.
     Inmutable: garantiza que el motor no muta datos del paciente.
     """
+
     age: CronologicalAge
     sexo: str
     escolaridad: str
-    poblacion: str              # infantil | adulto_joven | adulto_mayor
+    poblacion: str  # infantil | adulto_joven | adulto_mayor
 
     @classmethod
     def from_demographics(
@@ -172,8 +248,10 @@ class PatientContext:
 
     @staticmethod
     def _determine_poblacion(years: int) -> str:
-        if years < 18:  return "infantil"
-        if years < 50:  return "adulto_joven"
+        if years < 18:
+            return "infantil"
+        if years < 50:
+            return "adulto_joven"
         return "adulto_mayor"
 
 
@@ -181,12 +259,14 @@ class PatientContext:
 # RESULTADO DEL MOTOR
 # ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class EngineResult:
     """
     Resultado completo de una sesión de calificación.
     Contiene todos los ResultadoPrueba + metadatos del proceso.
     """
+
     paciente_id: str
     protocolo: str | None
     poblacion: str
@@ -234,9 +314,21 @@ _EDAD_RANGO_POR_PREFIJO: tuple[tuple[str, int, int, str], ...] = (
 _ESCALAS_SIN_RANGO_ETARIO = {
     # Escalas autoadministradas / escalas funcionales / escalas
     # multidominio que no tienen restricción etaria dura.
-    "MMSE", "EscYesavage", "EscBeck", "EscLawton", "EscHDRS", "EscHAM_A",
-    "EscASRS", "EscPANAS", "FCSRT", "CVLTTotal", "GBTotal",
-    "TokenTest", "TowerOfLondon", "Denom48", "BNT",
+    "MMSE",
+    "EscYesavage",
+    "EscBeck",
+    "EscLawton",
+    "EscHDRS",
+    "EscHAM_A",
+    "EscASRS",
+    "EscPANAS",
+    "FCSRT",
+    "CVLTTotal",
+    "GBTotal",
+    "TokenTest",
+    "TowerOfLondon",
+    "Denom48",
+    "BNT",
 }
 
 
@@ -306,7 +398,9 @@ class ClinicalEngine:
 
         logger.info(
             "Engine: %d pruebas calificadas para paciente %s (%d advertencias)",
-            resultado.pruebas_realizadas, paciente_id, len(resultado.advertencias),
+            resultado.pruebas_realizadas,
+            paciente_id,
+            len(resultado.advertencias),
         )
         return resultado
 
@@ -351,10 +445,7 @@ class ClinicalEngine:
 
         # 2b. Rechazar PD negativos (clínicamente inválidos)
         if pd < 0:
-            msg = (
-                f"PD negativo para '{test_id}': {pd}. "
-                "Los puntajes brutos no pueden ser negativos."
-            )
+            msg = f"PD negativo para '{test_id}': {pd}. Los puntajes brutos no pueden ser negativos."
             logger.warning(msg)
             return None, [msg]
 
@@ -364,8 +455,9 @@ class ClinicalEngine:
             ajuste = self._loader.get_ajuste_escolaridad(test_id, ctx.escolaridad)
             if ajuste != 0:
                 pd_ajustado = pd + ajuste
-                logger.debug("Ajuste escolaridad %s para %s: PD %s+%s=%s",
-                             ctx.escolaridad, test_id, pd, ajuste, pd_ajustado)
+                logger.debug(
+                    "Ajuste escolaridad %s para %s: PD %s+%s=%s", ctx.escolaridad, test_id, pd, ajuste, pd_ajustado
+                )
 
         # 4. Seleccionar y ejecutar strategy
         try:
@@ -409,8 +501,7 @@ class ClinicalEngine:
         # 6. Detectar PD fuera del rango del baremo (hallazgo CLIN-1).
         if output.metadata.get("out_of_baremo"):
             warns.append(
-                f"'{prueba.nombre}' (PD={pd}): fuera del rango del baremo "
-                f"para esta edad/llave — no se calificó."
+                f"'{prueba.nombre}' (PD={pd}): fuera del rango del baremo para esta edad/llave — no se calificó."
             )
 
         # 6b. Fix: BD_NEURO_MAESTRA.json marca erroneamente `tipo_metrica="ci"`

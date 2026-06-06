@@ -45,8 +45,7 @@ def report_data_rich():
         ciudad="Bogotá",
         acompanante="Madre",
         motivo_consulta=(
-            "Dificultades escolares progresivas con bajo rendimiento en "
-            "matemáticas y atención dispersa en clase."
+            "Dificultades escolares progresivas con bajo rendimiento en matemáticas y atención dispersa en clase."
         ),
         patologicos_medicos="Sin antecedentes patológicos relevantes",
         psiquiatricos="Negativos",
@@ -59,10 +58,7 @@ def report_data_rich():
         obs_funciones_ejecutivas="Dificultades leves de planeación.",
         codigo_cie10="F81.9",
         codigo_cie10_desc="Trastorno del desarrollo de habilidades escolares",
-        obs_impresion_dx=(
-            "Perfil cognitivo dentro del rango promedio con asimetría leve "
-            "entre índices."
-        ),
+        obs_impresion_dx=("Perfil cognitivo dentro del rango promedio con asimetría leve entre índices."),
         obs_recomendaciones=(
             "[ESCOLAR] (alta) Apoyo pedagógico individual en matemáticas\n"
             "[TERAPEUTICA] (alta) Rehabilitación cognitiva orientada a "
@@ -214,9 +210,7 @@ def test_generate_pdf_each_variant_returns_bytes(report_data_rich, template):
         report_data_rich.informe_inconcluso_nota = "Paciente cansado tras 90 min."
     pdf_bytes = generate_report_pdf(report_data_rich, template=template)
     assert isinstance(pdf_bytes, bytes), f"{template}: no es bytes"
-    assert (
-        len(pdf_bytes) > 1500
-    ), f"{template}: PDF demasiado pequeño ({len(pdf_bytes)} B)"
+    assert len(pdf_bytes) > 1500, f"{template}: PDF demasiado pequeño ({len(pdf_bytes)} B)"
     # Cabecera mágica PDF
     assert pdf_bytes[:4] == b"%PDF", f"{template}: cabecera PDF inválida"
     # Trailer válido (último kilobyte contiene %%EOF)
@@ -282,8 +276,7 @@ def test_junta_medica_is_compact(report_data_rich):
     assert pdf_pro[:4] == b"%PDF"
     # Junta médica debe ser más pequeña (sin portada ni anexo)
     assert len(pdf_junta) < len(pdf_pro), (
-        f"Junta Médica ({len(pdf_junta)}) debería ser más compacta que Pro "
-        f"({len(pdf_pro)})"
+        f"Junta Médica ({len(pdf_junta)}) debería ser más compacta que Pro ({len(pdf_pro)})"
     )
 
 
@@ -293,9 +286,7 @@ def test_inconcluso_with_category_and_note(report_data_rich):
     from app.infrastructure.report_service import generate_report_pdf
 
     report_data_rich.informe_inconcluso_cat = "fatiga"
-    report_data_rich.informe_inconcluso_nota = (
-        "Paciente reporta fatiga significativa después de 90 minutos."
-    )
+    report_data_rich.informe_inconcluso_nota = "Paciente reporta fatiga significativa después de 90 minutos."
     pdf_bytes = generate_report_pdf(report_data_rich, template="inconcluso")
     assert pdf_bytes[:4] == b"%PDF"
     # El contenido contiene el texto en alguna forma (puede estar encodeado en
@@ -366,8 +357,9 @@ def test_strengths_weaknesses_extraction(report_data_rich):
 @pytest.mark.integration
 def test_footer_includes_normograma_version():
     """F5.3: el footer del PDF Pro debe incluir la versión del Normograma."""
-    from app.infrastructure.report_pro.base import NORMOGRAMA_VERSION
     from datetime import date
+
+    from app.infrastructure.report_pro.base import NORMOGRAMA_VERSION
 
     assert NORMOGRAMA_VERSION == "2026.06"
 
@@ -400,6 +392,7 @@ def test_footer_includes_normograma_version():
 def test_normograma_version_frontend_backend_lockstep():
     """F5.3: la versión del Normograma debe coincidir entre frontend y backend."""
     from pathlib import Path
+
     from app.infrastructure.report_pro.base import NORMOGRAMA_VERSION
 
     fe = (
@@ -420,6 +413,4 @@ def test_normograma_version_frontend_backend_lockstep():
         src,
     )
     assert m, "Frontend debe declarar NORMOGRAMA_VERSION con literal de versión"
-    assert (
-        m.group(1) == NORMOGRAMA_VERSION
-    ), f"Desincronizado: backend={NORMOGRAMA_VERSION} frontend={m.group(1)}"
+    assert m.group(1) == NORMOGRAMA_VERSION, f"Desincronizado: backend={NORMOGRAMA_VERSION} frontend={m.group(1)}"

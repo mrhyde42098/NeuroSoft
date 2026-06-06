@@ -7,11 +7,11 @@ from datetime import date, timedelta
 import pytest
 
 from app.infrastructure.retencion import (
+    ANOS_RETENCION_FACTURAS,
     ANOS_RETENCION_HC_ADULTO,
     ANOS_RETENCION_LOGS_ACCESO,
-    ANOS_RETENCION_FACTURAS,
-    EDAD_MAYORIA,
     EDAD_MAX_REFERENCIA,
+    EDAD_MAYORIA,
     EstadoRetencion,
     estado_retencion,
     fecha_caducidad_factura,
@@ -39,11 +39,11 @@ class TestFechaCaducidadHc:
         # Menor 10a, atención hace 1 año → el plazo 15 años vence
         # LIGERAMENTE DESPUÉS de que cumpla 25, así que el MAX es 15 años.
         ref = _ref()
-        fn = date(2015, 1, 1)         # 11 años en 2026
-        fa = date(2025, 6, 1)         # atención hace 1 año
+        fn = date(2015, 1, 1)  # 11 años en 2026
+        fa = date(2025, 6, 1)  # atención hace 1 año
         cad = fecha_caducidad_hc(fa, fn, ref)
-        cad_15 = fa + timedelta(days=365 * 15)   # 2040-05-31
-        cad_25 = fn + timedelta(days=365 * 25)   # 2040-01-01
+        cad_15 = fa + timedelta(days=365 * 15)  # 2040-05-31
+        cad_25 = fn + timedelta(days=365 * 25)  # 2040-01-01
         assert cad == max(cad_15, cad_25)
         # 15 años desde atención es ligeramente MAYOR que 25 desde nacimiento
         assert cad == cad_15
@@ -52,11 +52,11 @@ class TestFechaCaducidadHc:
         # Menor 17a, atención hace 1 año → 25 años cumple ANTES que 15.
         # Se toma max(15, 25) = 15 años desde atención.
         ref = _ref()
-        fn = date(2008, 6, 1)         # 18 años cumplidos a ref
-        fa = date(2025, 6, 1)         # tenía 16 al atender
+        fn = date(2008, 6, 1)  # 18 años cumplidos a ref
+        fa = date(2025, 6, 1)  # tenía 16 al atender
         cad = fecha_caducidad_hc(fa, fn, ref)
-        cad_15 = fa + timedelta(days=365 * 15)   # 2040
-        cad_25 = fn + timedelta(days=365 * 25)   # 2033
+        cad_15 = fa + timedelta(days=365 * 15)  # 2040
+        cad_25 = fn + timedelta(days=365 * 25)  # 2033
         assert cad == max(cad_15, cad_25)
         # En este caso el 15-años es MAYOR (2040 > 2033)
         assert cad == cad_15
@@ -65,11 +65,11 @@ class TestFechaCaducidadHc:
         # Lactante de 1 año atendido en 2025: 15 años da 2040,
         # 25 años da 2050. Predomina 25 años (mayor protección).
         ref = _ref()
-        fn = date(2024, 1, 1)         # 1 año en 2025
-        fa = date(2025, 6, 1)         # atención con 1 año
+        fn = date(2024, 1, 1)  # 1 año en 2025
+        fa = date(2025, 6, 1)  # atención con 1 año
         cad = fecha_caducidad_hc(fa, fn, ref)
-        cad_15 = fa + timedelta(days=365 * 15)   # 2040
-        cad_25 = fn + timedelta(days=365 * 25)   # 2049
+        fa + timedelta(days=365 * 15)  # 2040
+        cad_25 = fn + timedelta(days=365 * 25)  # 2049
         assert cad == cad_25  # 25 años predomina
 
     def test_sin_fecha_nacimiento_aplica_15(self):
@@ -83,6 +83,7 @@ class TestFechaCaducidadHc:
 
     def test_acepta_datetime(self):
         from datetime import datetime
+
         fa = datetime(2020, 1, 1, 12, 0)
         cad = fecha_caducidad_hc(fa, None)
         assert cad == date(2020, 1, 1) + timedelta(days=365 * 15)
@@ -162,7 +163,7 @@ class TestEstadoRetencion:
         assert "motivo" in d
 
     def test_es_dataclass_inmutable(self):
-        with pytest.raises(Exception):
+        with pytest.raises((AttributeError, TypeError)):
             EstadoRetencion(
                 fecha_atencion="2024-01-01",
                 fecha_nacimiento="1990-01-01",
@@ -176,26 +177,38 @@ class TestEstadoRetencion:
 
 class TestResumenInventario:
     def _pacientes(self):
-        ref = _ref()
+        _ref()
         return [
             # Vigente adulto
-            type("P", (), {
-                "id": "p1",
-                "fecha_atencion": date(2024, 1, 1),
-                "fecha_nacimiento": date(1990, 1, 1),
-            })(),
+            type(
+                "P",
+                (),
+                {
+                    "id": "p1",
+                    "fecha_atencion": date(2024, 1, 1),
+                    "fecha_nacimiento": date(1990, 1, 1),
+                },
+            )(),
             # Vigente menor
-            type("P", (), {
-                "id": "p2",
-                "fecha_atencion": date(2025, 1, 1),
-                "fecha_nacimiento": date(2015, 1, 1),
-            })(),
+            type(
+                "P",
+                (),
+                {
+                    "id": "p2",
+                    "fecha_atencion": date(2025, 1, 1),
+                    "fecha_nacimiento": date(2015, 1, 1),
+                },
+            )(),
             # Caducada
-            type("P", (), {
-                "id": "p3",
-                "fecha_atencion": date(2000, 1, 1),
-                "fecha_nacimiento": date(1960, 1, 1),
-            })(),
+            type(
+                "P",
+                (),
+                {
+                    "id": "p3",
+                    "fecha_atencion": date(2000, 1, 1),
+                    "fecha_nacimiento": date(1960, 1, 1),
+                },
+            )(),
         ]
 
     def test_resumen_basico(self):
@@ -226,20 +239,28 @@ class TestResumenInventario:
         # 2 pacientes próximos a caducar
         ref = _ref()
         pacientes = [
-            type("P", (), {
-                "id": "p_cerca",
-                "fecha_atencion": ref - timedelta(days=365 * 14.5),  # 0.5 año
-                "fecha_nacimiento": date(1990, 1, 1),
-            })(),
-            type("P", (), {
-                "id": "p_lejos",
-                "fecha_atencion": ref - timedelta(days=365 * 13.5),  # 1.5 años
-                "fecha_nacimiento": date(1990, 1, 1),
-            })(),
+            type(
+                "P",
+                (),
+                {
+                    "id": "p_cerca",
+                    "fecha_atencion": ref - timedelta(days=365 * 14.5),  # 0.5 año
+                    "fecha_nacimiento": date(1990, 1, 1),
+                },
+            )(),
+            type(
+                "P",
+                (),
+                {
+                    "id": "p_lejos",
+                    "fecha_atencion": ref - timedelta(days=365 * 13.5),  # 1.5 años
+                    "fecha_nacimiento": date(1990, 1, 1),
+                },
+            )(),
         ]
         resumen = resumen_inventario(pacientes, ref)
         assert resumen["proximo_a_caducar"] == 2
         # Verifica que el detalle está ordenado por fecha de caducidad
         detalle = resumen["proximo_a_caducar_detalle"]
-        assert detalle[0]["id"] == "p_cerca"   # caduca antes
-        assert detalle[1]["id"] == "p_lejos"   # caduca después
+        assert detalle[0]["id"] == "p_cerca"  # caduca antes
+        assert detalle[1]["id"] == "p_lejos"  # caduca después

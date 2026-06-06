@@ -18,6 +18,7 @@ Gráficos disponibles:
 Cada función recibe ``c`` (canvas) y ``y`` (posición vertical), devuelve el
 ``y`` final tras dibujar.
 """
+
 from __future__ import annotations
 
 import logging
@@ -31,7 +32,6 @@ from .helpers import draw_text
 from .theme import (
     FONT_SANS,
     FONT_SANS_BOLD,
-    FONT_SERIF,
     LAYOUT,
     NAVY,
     SEMANTIC_DEFICIT,
@@ -51,6 +51,7 @@ from .theme import (
 # ──────────────────────────────────────────────────────────
 # 1) PERFIL Z HORIZONTAL — versión Pro
 # ──────────────────────────────────────────────────────────
+
 
 def draw_z_profile(
     c,
@@ -77,26 +78,45 @@ def draw_z_profile(
         c.setFillColorRGB(*SURFACE)
         c.rect(L.margin, yy - 18, L.content_w, 16, fill=1, stroke=0)
         draw_text(
-            c, "PRUEBA", L.margin + 4, yy - 12,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY,
+            c,
+            "PRUEBA",
+            L.margin + 4,
+            yy - 12,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=NAVY,
         )
         for z_val in [-3, -2, -1, 0, 1, 2, 3]:
             px = track_x + (z_val - Z_MIN) / z_range * track_w
             draw_text(
-                c, str(z_val), px, yy - 12,
-                font_name=FONT_SANS, size=TYPE.caption, color=SLATE, align="center",
+                c,
+                str(z_val),
+                px,
+                yy - 12,
+                font_name=FONT_SANS,
+                size=TYPE.caption,
+                color=SLATE,
+                align="center",
             )
         draw_text(
-            c, "Z", track_x + track_w + 4, yy - 12,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY,
+            c,
+            "Z",
+            track_x + track_w + 4,
+            yy - 12,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=NAVY,
         )
         return yy - 22
 
     # Título descriptivo del gráfico (sólo UNA vez, antes del header)
     from .helpers import chart_title
+
     y = chart_title(
-        c, "Perfil Z por prueba",
-        y, note=(
+        c,
+        "Perfil Z por prueba",
+        y,
+        note=(
             "Eje horizontal: puntaje Z (rango -3 a +3). Verde = zona normal; "
             "rojo/naranja = debajo del promedio; azul = por encima."
         ),
@@ -147,6 +167,7 @@ def draw_z_profile(
         rows_drawn += 1
 
         from .helpers import human_test_name
+
         nombre = human_test_name(
             r.get("test_id", "") or "",
             r.get("test_nombre", "") or "",
@@ -173,6 +194,7 @@ def draw_z_profile(
 
         # Label — truncado inteligente con elipsis según ancho real
         from .helpers import fit_text_to_width, human_test_name
+
         nombre_legible = human_test_name(
             r.get("test_id", "") or "",
             nombre,
@@ -184,15 +206,25 @@ def draw_z_profile(
             size=label_size,
         )
         draw_text(
-            c, nombre_visible, L.margin + 4, y - 9,
-            font_name=FONT_SANS, size=label_size, color=NAVY,
+            c,
+            nombre_visible,
+            L.margin + 4,
+            y - 9,
+            font_name=FONT_SANS,
+            size=label_size,
+            color=NAVY,
         )
 
         # Valor Z numérico
         z_str = f"{z:+.2f}"
         draw_text(
-            c, z_str, track_x + track_w + 4, y - 9,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=color,
+            c,
+            z_str,
+            track_x + track_w + 4,
+            y - 9,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=color,
         )
         y -= row_h
 
@@ -202,8 +234,13 @@ def draw_z_profile(
     # Leyenda compacta
     y -= 6
     draw_text(
-        c, "Banda verde = rango normal (-1 a +1 σ).  Z<-1 sugiere debilidad.  Z>+1 sugiere fortaleza relativa.",
-        L.margin, y, font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE,
+        c,
+        "Banda verde = rango normal (-1 a +1 σ).  Z<-1 sugiere debilidad.  Z>+1 sugiere fortaleza relativa.",
+        L.margin,
+        y,
+        font_name=FONT_SANS,
+        size=TYPE.micro + 0.5,
+        color=SLATE,
     )
     return y - 10
 
@@ -211,6 +248,7 @@ def draw_z_profile(
 # ──────────────────────────────────────────────────────────
 # 2) RADAR DE DOMINIOS COGNITIVOS
 # ──────────────────────────────────────────────────────────
+
 
 def _aggregate_by_domain(resultados: Sequence[dict]) -> dict[str, float]:
     """Agrupa resultados por ``dominio_cognitivo`` y promedia el Z."""
@@ -247,9 +285,12 @@ def draw_domain_radar(
 
     # Título descriptivo (visible antes del gráfico)
     from .helpers import chart_title
+
     y = chart_title(
-        c, "Perfil cognitivo por dominio",
-        y, note=(
+        c,
+        "Perfil cognitivo por dominio",
+        y,
+        note=(
             "Cada eje representa un dominio cognitivo. El polígono teal "
             "muestra el Z̄ del paciente; la franja verde central equivale "
             "al rango normal (-1 a +1 σ)."
@@ -258,10 +299,19 @@ def draw_domain_radar(
 
     # Orden estable: dominios clínicos típicos primero
     preferred = [
-        "Atención", "Memoria", "Lenguaje", "Funciones Ejecutivas",
-        "Visoespacial", "Visoconstrucción", "Velocidad de Procesamiento",
-        "Comprensión Verbal", "Memoria de Trabajo", "Razonamiento Perceptual",
-        "Praxias", "Gnosias", "Habilidades Académicas",
+        "Atención",
+        "Memoria",
+        "Lenguaje",
+        "Funciones Ejecutivas",
+        "Visoespacial",
+        "Visoconstrucción",
+        "Velocidad de Procesamiento",
+        "Comprensión Verbal",
+        "Memoria de Trabajo",
+        "Razonamiento Perceptual",
+        "Praxias",
+        "Gnosias",
+        "Habilidades Académicas",
     ]
     ordered = [d for d in preferred if d in domain_z]
     ordered += [d for d in domain_z if d not in ordered]
@@ -273,17 +323,20 @@ def draw_domain_radar(
 
     # Z mapeado a r normalizado (0 a 1) — usamos rango -3 a +3
     Z_MIN, Z_MAX = -3.0, 3.0
+
     def z_to_r(z: float) -> float:
         return max(0.05, min(1.0, (z - Z_MIN) / (Z_MAX - Z_MIN)))
 
     # ── Anillos concéntricos en Z = -3, -2, -1, 0, 1, 2, 3 ──
-    rings = [(-3, 0.0, SLATE_LIGHT, 0.15),
-             (-2, 0.167, SEMANTIC_DEFICIT, 0.3),
-             (-1, 0.333, SEMANTIC_LIMITE, 0.35),
-             (0, 0.5, SLATE, 0.5),
-             (1, 0.667, SEMANTIC_PROMEDIO, 0.35),
-             (2, 0.833, SEMANTIC_SUPERIOR, 0.3),
-             (3, 1.0, SLATE_LIGHT, 0.15)]
+    rings = [
+        (-3, 0.0, SLATE_LIGHT, 0.15),
+        (-2, 0.167, SEMANTIC_DEFICIT, 0.3),
+        (-1, 0.333, SEMANTIC_LIMITE, 0.35),
+        (0, 0.5, SLATE, 0.5),
+        (1, 0.667, SEMANTIC_PROMEDIO, 0.35),
+        (2, 0.833, SEMANTIC_SUPERIOR, 0.3),
+        (3, 1.0, SLATE_LIGHT, 0.15),
+    ]
     for z_val, frac, col, alpha in rings:
         r_ring = radius * frac
         if z_val == 0:
@@ -313,10 +366,8 @@ def draw_domain_radar(
     outer_pts = []
     for i in range(n):
         ang = math.pi / 2 - 2 * math.pi * i / n
-        inner_pts.append((cx + radius * inner_frac * math.cos(ang),
-                          cy + radius * inner_frac * math.sin(ang)))
-        outer_pts.append((cx + radius * outer_frac * math.cos(ang),
-                          cy + radius * outer_frac * math.sin(ang)))
+        inner_pts.append((cx + radius * inner_frac * math.cos(ang), cy + radius * inner_frac * math.sin(ang)))
+        outer_pts.append((cx + radius * outer_frac * math.cos(ang), cy + radius * outer_frac * math.sin(ang)))
     # Sombreado del anillo normal (verde muy translúcido)
     c.setFillColorRGB(0.92, 0.98, 0.93)
     path = c.beginPath()
@@ -336,6 +387,7 @@ def draw_domain_radar(
 
     # ── Líneas radiales + labels ──
     from .helpers import fit_text_to_width
+
     for i, dom in enumerate(ordered):
         ang = math.pi / 2 - 2 * math.pi * i / n
         end_x = cx + radius * math.cos(ang)
@@ -365,8 +417,10 @@ def draw_domain_radar(
         max_label_w = 90 if math.cos(ang) > 0.7 or math.cos(ang) < -0.7 else 80
         raw_label = ABBREV.get(dom, dom)
         label = fit_text_to_width(
-            raw_label, max_width=max_label_w,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption,
+            raw_label,
+            max_width=max_label_w,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
         )
         align = "center"
         if math.cos(ang) > 0.3:
@@ -374,13 +428,24 @@ def draw_domain_radar(
         elif math.cos(ang) < -0.3:
             align = "right"
         draw_text(
-            c, label, label_x, label_y - 3,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY, align=align,
+            c,
+            label,
+            label_x,
+            label_y - 3,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=NAVY,
+            align=align,
         )
         draw_text(
-            c, f"Z={z_val:+.1f}", label_x, label_y - 11,
-            font_name=FONT_SANS, size=TYPE.micro + 0.5,
-            color=semantic_color_for_z(z_val), align=align,
+            c,
+            f"Z={z_val:+.1f}",
+            label_x,
+            label_y - 11,
+            font_name=FONT_SANS,
+            size=TYPE.micro + 0.5,
+            color=semantic_color_for_z(z_val),
+            align=align,
         )
 
     # ── Polígono del paciente ──
@@ -430,6 +495,7 @@ def draw_domain_radar(
 # 3) SEMÁFORO DE DOMINIOS (alternativa compacta al radar)
 # ──────────────────────────────────────────────────────────
 
+
 def draw_domain_traffic_light(
     c,
     resultados: Sequence[dict],
@@ -447,6 +513,7 @@ def draw_domain_traffic_light(
     """
     L = LAYOUT
     from .narrative import _domain_summary
+
     domains = _domain_summary(resultados)
     if not domains:
         return y
@@ -461,9 +528,28 @@ def draw_domain_traffic_light(
     c.setFillColorRGB(*SURFACE)
     c.rect(L.margin, y - 14, L.content_w, 12, fill=1, stroke=0)
     from .helpers import draw_text  # type: ignore
+
     draw_text(c, "DOMINIO", L.margin + 4, y - 10, font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY)
-    draw_text(c, "Z̄", L.margin + L.content_w * 0.55, y - 10, font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY, align="left")
-    draw_text(c, "BANDA", L.margin + L.content_w * 0.70, y - 10, font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY, align="left")
+    draw_text(
+        c,
+        "Z̄",
+        L.margin + L.content_w * 0.55,
+        y - 10,
+        font_name=FONT_SANS_BOLD,
+        size=TYPE.caption,
+        color=NAVY,
+        align="left",
+    )
+    draw_text(
+        c,
+        "BANDA",
+        L.margin + L.content_w * 0.70,
+        y - 10,
+        font_name=FONT_SANS_BOLD,
+        size=TYPE.caption,
+        color=NAVY,
+        align="left",
+    )
     y -= 16
 
     def _banda(z: float) -> tuple[str, tuple[float, float, float]]:
@@ -486,23 +572,41 @@ def draw_domain_traffic_light(
         c.circle(L.margin + 7, y - row_h / 2, dot_r, fill=1, stroke=0)
         # Nombre
         from .helpers import fit_text_to_width  # type: ignore
+
         nombre_v = fit_text_to_width(
-            dominio, max_width=L.content_w * 0.50,
-            font_name=FONT_SANS, size=TYPE.body_sm,
+            dominio,
+            max_width=L.content_w * 0.50,
+            font_name=FONT_SANS,
+            size=TYPE.body_sm,
         )
         draw_text(
-            c, nombre_v, L.margin + 16, y - row_h + 3,
-            font_name=FONT_SANS, size=TYPE.body_sm, color=NAVY,
+            c,
+            nombre_v,
+            L.margin + 16,
+            y - row_h + 3,
+            font_name=FONT_SANS,
+            size=TYPE.body_sm,
+            color=NAVY,
         )
         # Z̄
         draw_text(
-            c, f"{z:+.2f}σ", L.margin + L.content_w * 0.55, y - row_h + 3,
-            font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=color,
+            c,
+            f"{z:+.2f}σ",
+            L.margin + L.content_w * 0.55,
+            y - row_h + 3,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.body_sm,
+            color=color,
         )
         # Banda
         draw_text(
-            c, banda, L.margin + L.content_w * 0.70, y - row_h + 3,
-            font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
+            c,
+            banda,
+            L.margin + L.content_w * 0.70,
+            y - row_h + 3,
+            font_name=FONT_SANS,
+            size=TYPE.body_sm,
+            color=SLATE,
         )
         y -= row_h
     return y - 4
@@ -511,6 +615,7 @@ def draw_domain_traffic_light(
 # ──────────────────────────────────────────────────────────
 # 4) CURVA NORMAL ESTÁNDAR — Z del paciente sobre la curva
 # ──────────────────────────────────────────────────────────
+
 
 def draw_normal_curve(
     c,
@@ -528,17 +633,22 @@ def draw_normal_curve(
     width = L.content_w
     bottom = y - height - 22
 
-    z_values = [r.get("z_equivalente") for r in resultados
-                if r.get("z_equivalente") is not None
-                and r.get("tipo_metrica") != "ci"]
+    z_values = [
+        r.get("z_equivalente")
+        for r in resultados
+        if r.get("z_equivalente") is not None and r.get("tipo_metrica") != "ci"
+    ]
     if not z_values:
         return y
 
     # Título descriptivo
     from .helpers import chart_title
+
     y = chart_title(
-        c, "Curva normal con puntajes Z del paciente",
-        y, note=(
+        c,
+        "Curva normal con puntajes Z del paciente",
+        y,
+        note=(
             "Eje horizontal: puntaje Z (unidades de desviación estándar). "
             "Las marcas rojas son los puntajes del paciente sobre la curva."
         ),
@@ -594,8 +704,14 @@ def draw_normal_curve(
         px = x_of(z_val)
         c.line(px, bottom, px, bottom - 3)
         draw_text(
-            c, str(z_val), px, bottom - 12,
-            font_name=FONT_SANS, size=TYPE.caption, color=SLATE, align="center",
+            c,
+            str(z_val),
+            px,
+            bottom - 12,
+            font_name=FONT_SANS,
+            size=TYPE.caption,
+            color=SLATE,
+            align="center",
         )
 
     # Marcadores del paciente: ticks verticales coloreados sobre la curva
@@ -615,9 +731,14 @@ def draw_normal_curve(
 
     # Leyenda (sin título duplicado — el chart_title ya puso el título arriba)
     draw_text(
-        c, f"n = {len(z_values)} pruebas con norma disponible",
-        L.margin + width, y - 8,
-        font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE, align="right",
+        c,
+        f"n = {len(z_values)} pruebas con norma disponible",
+        L.margin + width,
+        y - 8,
+        font_name=FONT_SANS,
+        size=TYPE.micro + 0.5,
+        color=SLATE,
+        align="right",
     )
     return bottom - 20
 
@@ -661,6 +782,7 @@ def draw_bell_curve_with_ci(
     width = L.content_w
 
     Z_MIN, Z_MAX = -3.5, 3.5
+
     def x_of(z: float) -> float:
         return L.margin + (z - Z_MIN) / (Z_MAX - Z_MIN) * width
 
@@ -699,8 +821,11 @@ def draw_bell_curve_with_ci(
         c,
         f"IC 95% [{ic_95_lo:.0f}–{ic_95_hi:.0f}]   ·   IC 90% [{ic_90_lo:.0f}–{ic_90_hi:.0f}]"
         f"   ·   CIT observado: {cit:.0f}",
-        L.margin, label_y,
-        font_name=FONT_SANS, size=TYPE.micro + 0.5, color=NAVY,
+        L.margin,
+        label_y,
+        font_name=FONT_SANS,
+        size=TYPE.micro + 0.5,
+        color=NAVY,
     )
 
     return label_y - 12
@@ -728,11 +853,17 @@ def _extract_indices(resultados: Sequence[dict]) -> dict[str, int]:
     """
     mapping = {
         # WISC-IV
-        "indcomver": "ICV", "icv": "ICV",
-        "indrazper": "IRP", "irp": "IRP",
-        "indmemtra": "IMT", "imt": "IMT",
-        "indvelpro": "IVP", "ivp": "IVP",
-        "tot": "CIT", "cit": "CIT", "indtot": "CIT",
+        "indcomver": "ICV",
+        "icv": "ICV",
+        "indrazper": "IRP",
+        "irp": "IRP",
+        "indmemtra": "IMT",
+        "imt": "IMT",
+        "indvelpro": "IVP",
+        "ivp": "IVP",
+        "tot": "CIT",
+        "cit": "CIT",
+        "indtot": "CIT",
         # WAIS-III
         "icp": "IRP",  # alias frecuente
     }
@@ -766,9 +897,12 @@ def draw_discrepancies(
 
     # Título descriptivo (única vez — antes se duplicaba con un H2 adicional)
     from .helpers import chart_title
+
     y = chart_title(
-        c, "Discrepancias entre índices",
-        y, note=(
+        c,
+        "Discrepancias entre índices",
+        y,
+        note=(
             "Líneas punteadas: tendencia (p<.15). Líneas continuas: "
             "diferencia confiable (p<.05). La barra central es la diferencia "
             "observada entre los dos índices."
@@ -810,8 +944,14 @@ def draw_discrepancies(
     for delta in [-scale_max, -scale_max // 2, 0, scale_max // 2, scale_max]:
         px = x_of(delta)
         draw_text(
-            c, str(delta), px, chart_bottom - 12,
-            font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE, align="center",
+            c,
+            str(delta),
+            px,
+            chart_bottom - 12,
+            font_name=FONT_SANS,
+            size=TYPE.micro + 0.5,
+            color=SLATE,
+            align="center",
         )
 
     # Filas
@@ -852,19 +992,33 @@ def draw_discrepancies(
 
         # Label izquierda
         draw_text(
-            c, name, L.margin, row_y - 3,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=NAVY,
+            c,
+            name,
+            L.margin,
+            row_y - 3,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=NAVY,
         )
         # Valores
         draw_text(
-            c, f"{a_val} − {b_val}", L.margin + label_w, row_y - 3,
-            font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
+            c,
+            f"{a_val} − {b_val}",
+            L.margin + label_w,
+            row_y - 3,
+            font_name=FONT_SANS,
+            size=TYPE.caption,
+            color=SLATE,
         )
         # Diff numérico
         draw_text(
-            c, f"{diff:+d} ({tag})",
-            chart_x + chart_w + 6, row_y - 3,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=color,
+            c,
+            f"{diff:+d} ({tag})",
+            chart_x + chart_w + 6,
+            row_y - 3,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=color,
         )
     return chart_bottom - 20
 
@@ -873,6 +1027,7 @@ def draw_discrepancies(
 # 6) FILA DE "TARJETAS KPI" PARA ÍNDICES CI
 # ──────────────────────────────────────────────────────────
 
+
 def draw_ci_kpi_row(
     c,
     resultados: Sequence[dict],
@@ -880,9 +1035,7 @@ def draw_ci_kpi_row(
 ) -> float:
     """Tarjetas grandes con los índices CI compuestos (estilo "métricas")."""
     L = LAYOUT
-    indices_ci = [r for r in resultados
-                  if r.get("tipo_metrica") == "ci"
-                  and r.get("puntaje_escalar") is not None]
+    indices_ci = [r for r in resultados if r.get("tipo_metrica") == "ci" and r.get("puntaje_escalar") is not None]
     if not indices_ci:
         return y
 
@@ -893,7 +1046,8 @@ def draw_ci_kpi_row(
     start_x = L.margin + (L.content_w - total_w) / 2
     card_h = 64
 
-    from .helpers import kpi_card, human_test_name  # local import para evitar ciclos
+    from .helpers import human_test_name, kpi_card  # local import para evitar ciclos
+
     for i, r in enumerate(indices_ci):
         bx = start_x + i * (card_w + gap)
         val = r.get("puntaje_escalar")
@@ -904,12 +1058,19 @@ def draw_ci_kpi_row(
             r.get("test_nombre", "") or "",
         )
         # Normalizar nombres comunes (WISC)
-        label = (label.replace("Ind ", "").replace("NiWISC", "")
-                       .replace("AdWAIS", "").replace("Índice ", "")
-                       .strip())[:16]
+        label = (label.replace("Ind ", "").replace("NiWISC", "").replace("AdWAIS", "").replace("Índice ", "").strip())[
+            :16
+        ]
         interp = str(r.get("interpretacion", "—"))[:22]
         kpi_card(
-            c, label, str(int(val)), interp, bx, y,
-            w=card_w, h=card_h, accent=color,
+            c,
+            label,
+            str(int(val)),
+            interp,
+            bx,
+            y,
+            w=card_w,
+            h=card_h,
+            accent=color,
         )
     return y - card_h - 8

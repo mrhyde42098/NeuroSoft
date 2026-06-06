@@ -14,6 +14,7 @@ Cambiar la marca:
 Por defecto se usa "NeuroSoft" para que el software sea neutral al ser
 compartido con cualquier institución.
 """
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -24,6 +25,7 @@ def clinical_brand() -> str:
     """Nombre corto de la marca. Ej: 'NeuroSoft', 'Mi Clínica'."""
     try:
         from app.core.config import settings
+
         return (settings.clinical_brand or "NeuroSoft").strip()
     except Exception:
         return "NeuroSoft"
@@ -34,8 +36,8 @@ def clinical_brand_subtitle() -> str:
     """Descripción corta de la marca (subtítulo/tagline)."""
     try:
         from app.core.config import settings
-        return (settings.clinical_brand_subtitle
-                or "Plataforma de evaluación neuropsicológica").strip()
+
+        return (settings.clinical_brand_subtitle or "Plataforma de evaluación neuropsicológica").strip()
     except Exception:
         return "Plataforma de evaluación neuropsicológica"
 

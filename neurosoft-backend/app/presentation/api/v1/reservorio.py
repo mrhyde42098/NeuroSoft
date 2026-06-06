@@ -16,6 +16,7 @@ Rutas:
                                                       (query: resultados_json
                                                        + poblacion)
 """
+
 from __future__ import annotations
 
 import json
@@ -67,10 +68,7 @@ def get_info() -> dict[str, Any]:
         "source": data.get("source"),
         "notes": data.get("notes", []),
         "total_cuadros": total,
-        "cuadros_por_grupo": {
-            grp: len(g.get("cuadros", {}))
-            for grp, g in grupos_meta.items()
-        },
+        "cuadros_por_grupo": {grp: len(g.get("cuadros", {})) for grp, g in grupos_meta.items()},
     }
     if settings.env != "production":
         info["path"] = str(_RESERVORIO_PATH)
@@ -96,13 +94,15 @@ def list_cuadros(poblacion: str | None = Query(None)) -> dict[str, Any]:
             continue
         label_grupo = grupo_info.get("label", grupo_id)
         for cuadro_id, cuadro_info in grupo_info.get("cuadros", {}).items():
-            out.append({
-                "grupo": grupo_id,
-                "grupo_label": label_grupo,
-                "id": cuadro_id,
-                "label": cuadro_info.get("label", cuadro_id),
-                "n_recomendaciones": len(cuadro_info.get("recomendaciones", [])),
-            })
+            out.append(
+                {
+                    "grupo": grupo_id,
+                    "grupo_label": label_grupo,
+                    "id": cuadro_id,
+                    "label": cuadro_info.get("label", cuadro_id),
+                    "n_recomendaciones": len(cuadro_info.get("recomendaciones", [])),
+                }
+            )
     out.sort(key=lambda x: (x["grupo"], x["label"]))
     return {
         "filtro_poblacion": poblacion,
@@ -127,8 +127,7 @@ def get_cuadro(grupo: str, cuadro_id: str) -> dict[str, Any]:
     if cuadro_id not in cuadros:
         raise HTTPException(
             status_code=404,
-            detail=f"Cuadro '{cuadro_id}' no existe en '{grupo}'. "
-                   f"Disponibles: {list(cuadros.keys())}",
+            detail=f"Cuadro '{cuadro_id}' no existe en '{grupo}'. Disponibles: {list(cuadros.keys())}",
         )
     info = cuadros[cuadro_id]
     return {
@@ -143,8 +142,8 @@ def get_cuadro(grupo: str, cuadro_id: str) -> dict[str, Any]:
 @router.get("/sugerir", summary="Sugerencia automática basada en resultados")
 def sugerir_cuadros(
     resultados: str = Query(
-        ..., description="JSON serializado: lista de dicts con campos "
-                        "tipo_metrica, dominio_cognitivo, z_equivalente, etc.",
+        ...,
+        description="JSON serializado: lista de dicts con campos tipo_metrica, dominio_cognitivo, z_equivalente, etc.",
     ),
     poblacion: str = Query("adulto", description="infantil | adulto | adulto_mayor"),
 ) -> dict[str, Any]:
@@ -165,6 +164,7 @@ def sugerir_cuadros(
         from app.infrastructure.report_pro.narrative import (
             sugerir_cuadros_clinicos,
         )
+
         sugerencias = sugerir_cuadros_clinicos(resultados_list, poblacion=poblacion)
     except Exception as e:  # noqa: BLE001
         logger.error("Error en sugerir_cuadros_clinicos: %s", e)
@@ -179,14 +179,16 @@ def sugerir_cuadros(
         sgrupo = sug.get("grupo", poblacion)
         grupo_info = grupos.get(sgrupo, {})
         cuadro_info = grupo_info.get("cuadros", {}).get(sid, {})
-        out.append({
-            "id": sid,
-            "grupo": sgrupo,
-            "label": cuadro_info.get("label") or sug.get("label", sid),
-            "relevancia": sug.get("relevancia", "media"),
-            "razon": sug.get("razon", ""),
-            "recomendaciones": cuadro_info.get("recomendaciones", []),
-        })
+        out.append(
+            {
+                "id": sid,
+                "grupo": sgrupo,
+                "label": cuadro_info.get("label") or sug.get("label", sid),
+                "relevancia": sug.get("relevancia", "media"),
+                "razon": sug.get("razon", ""),
+                "recomendaciones": cuadro_info.get("recomendaciones", []),
+            }
+        )
 
     return {
         "poblacion": poblacion,

@@ -16,8 +16,6 @@ Fuentes de referencia:
 """
 
 
-
-
 class TestViTLRes:
     """Torre de Londres - Resolución (adulto_mayor)."""
 
@@ -200,7 +198,7 @@ class TestEscKertesz:
         assert r.test_id == "EscKertesz"
         assert r.fue_realizada
         # PD=5 debería dar clasificación N (Normal)
-        assert r.metadata['clasificacion_codigo'] == "N"
+        assert r.metadata["clasificacion_codigo"] == "N"
         assert r.interpretacion == "Normal"
 
     def test_esckertesz_deterioro_leve(self, engine, ctx_adulto_mayor_65):
@@ -212,7 +210,7 @@ class TestEscKertesz:
         r = result.resultados[0]
         assert r.fue_realizada
         # PD=15 debería dar clasificación DL (Deterioro Leve)
-        assert r.metadata['clasificacion_codigo'] == "DL"
+        assert r.metadata["clasificacion_codigo"] == "DL"
         assert r.interpretacion == "Deficit Leve"
 
     def test_esckertesz_deterioro_ejecutivo(self, engine, ctx_adulto_mayor_65):
@@ -224,5 +222,5 @@ class TestEscKertesz:
         r = result.resultados[0]
         assert r.fue_realizada
         # PD=30 debería dar clasificación DE (Deterioro Ejecutivo)
-        assert r.metadata['clasificacion_codigo'] == "DE"
+        assert r.metadata["clasificacion_codigo"] == "DE"
         assert r.interpretacion == "Deficit Extremo"

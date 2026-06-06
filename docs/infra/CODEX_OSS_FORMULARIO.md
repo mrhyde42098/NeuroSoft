@@ -28,10 +28,10 @@ En el engranaje ⚙ junto a **About** (columna derecha del repo):
 
 **Description:**
 ```
-OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.
+OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI · React 19 · Vite 6 · offline license admin · 1000+ pytest.
 ```
 
-**Topics:** `neuropsychology` `healthcare` `fastapi` `react` `python` `colombia` `open-source` `clinical-software` `sqlite` `mental-health`
+**Topics:** `neuropsychology` `healthcare` `fastapi` `react` `vite` `python` `colombia` `open-source` `clinical-software` `sqlite` `mental-health` `playwright`
 
 → **Save changes**
 

@@ -44,33 +44,32 @@ Normograma aplicado:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
-from typing import Iterable, List, Optional, Dict, Any
-
+from typing import Any, Iterable, Optional
 
 # ── Constantes ────────────────────────────────────────────────────────
-ANOS_RETENCION_HC_ADULTO = 15          # Resolución 1995/1999 art. 28
-EDAD_MAYORIA = 18                      # Código Civil Colombiano
-ANOS_PROTECCION_POST_MAYORIA = 10      # Protección reforzada al menor
+ANOS_RETENCION_HC_ADULTO = 15  # Resolución 1995/1999 art. 28
+EDAD_MAYORIA = 18  # Código Civil Colombiano
+ANOS_PROTECCION_POST_MAYORIA = 10  # Protección reforzada al menor
 ANOS_RETENCION_LOGS_ACCESO = 5
 ANOS_RETENCION_FACTURAS = 5
-EDAD_MAX_REFERENCIA = 25               # Edad tope del cómputo (si se computa por edad)
+EDAD_MAX_REFERENCIA = 25  # Edad tope del cómputo (si se computa por edad)
 
 
 @dataclass(frozen=True)
 class EstadoRetencion:
     """Estado de retención de una HC individual."""
 
-    fecha_atencion: Optional[str]   # ISO-8601 (YYYY-MM-DD)
+    fecha_atencion: Optional[str]  # ISO-8601 (YYYY-MM-DD)
     fecha_nacimiento: Optional[str]  # ISO-YYYY-MM-DD
     fecha_caducidad: Optional[str]  # ISO-YYYY-MM-DD
     anos_restantes: Optional[float]
-    estado: str                     # "vigente" | "proximo_a_caducar" | "caducada"
-    poblacion: str                  # "adulto" | "menor" | "desconocida"
-    motivo: str                     # Razón legal que sustenta la decisión
+    estado: str  # "vigente" | "proximo_a_caducar" | "caducada"
+    poblacion: str  # "adulto" | "menor" | "desconocida"
+    motivo: str  # Razón legal que sustenta la decisión
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -197,10 +196,7 @@ def estado_retencion(
         estado = "vigente"
 
     edad_en_atencion = _edad_en_anos(fn, fa) if fn else None
-    poblacion = (
-        "menor" if (edad_en_atencion is not None and edad_en_atencion < EDAD_MAYORIA)
-        else "adulto"
-    )
+    poblacion = "menor" if (edad_en_atencion is not None and edad_en_atencion < EDAD_MAYORIA) else "adulto"
     if poblacion == "menor":
         motivo = (
             f"Menor al momento de la atención ({edad_en_atencion} años). "
@@ -209,8 +205,8 @@ def estado_retencion(
         )
     else:
         motivo = (
-            f"Adulto al momento de la atención. Retención legal: 15 años "
-            f"desde la última atención (Res. 1995/1999 art. 28)."
+            "Adulto al momento de la atención. Retención legal: 15 años "
+            "desde la última atención (Res. 1995/1999 art. 28)."
         )
 
     return EstadoRetencion(
@@ -227,17 +223,17 @@ def estado_retencion(
 def resumen_inventario(
     patients: Iterable[Any],
     fecha_actual: Optional[date] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Dado un iterable de objetos (o dicts) con atributos:
       - fecha_atencion / fecha_nacimiento
     devuelve estadísticas agregadas del inventario.
     """
     ref = fecha_actual or date.today()
-    estados: List[str] = []
-    por_poblacion: Dict[str, int] = {"adulto": 0, "menor": 0, "desconocida": 0}
-    caducadas: List[Dict[str, Any]] = []
-    proximas: List[Dict[str, Any]] = []
+    estados: list[str] = []
+    por_poblacion: dict[str, int] = {"adulto": 0, "menor": 0, "desconocida": 0}
+    caducadas: list[dict[str, Any]] = []
+    proximas: list[dict[str, Any]] = []
 
     for p in patients:
         if isinstance(p, dict):
@@ -253,18 +249,22 @@ def resumen_inventario(
         estados.append(e.estado)
         por_poblacion[e.poblacion] = por_poblacion.get(e.poblacion, 0) + 1
         if e.estado == "caducada":
-            caducadas.append({
-                "id": pid,
-                "fecha_atencion": e.fecha_atencion,
-                "fecha_caducidad": e.fecha_caducidad,
-            })
+            caducadas.append(
+                {
+                    "id": pid,
+                    "fecha_atencion": e.fecha_atencion,
+                    "fecha_caducidad": e.fecha_caducidad,
+                }
+            )
         elif e.estado == "proximo_a_caducar":
-            proximas.append({
-                "id": pid,
-                "fecha_atencion": e.fecha_atencion,
-                "fecha_caducidad": e.fecha_caducidad,
-                "anos_restantes": e.anos_restantes,
-            })
+            proximas.append(
+                {
+                    "id": pid,
+                    "fecha_atencion": e.fecha_atencion,
+                    "fecha_caducidad": e.fecha_caducidad,
+                    "anos_restantes": e.anos_restantes,
+                }
+            )
 
     total = len(estados)
     return {
@@ -283,9 +283,7 @@ def resumen_inventario(
             "facturas_anos": ANOS_RETENCION_FACTURAS,
         },
         "caducadas_detalle": caducadas,
-        "proximo_a_caducar_detalle": sorted(
-            proximas, key=lambda x: x.get("fecha_caducidad") or ""
-        ),
+        "proximo_a_caducar_detalle": sorted(proximas, key=lambda x: x.get("fecha_caducidad") or ""),
     }
 
 

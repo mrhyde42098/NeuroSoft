@@ -76,6 +76,7 @@ def record_event(
         if not rid or not isinstance(rid, str):
             try:
                 from app.core.request_context import current_request_id
+
                 cv = current_request_id.get()
                 rid = cv if isinstance(cv, str) and cv else None
             except Exception:
@@ -120,6 +121,7 @@ def audit_action(entity_type: str, action: str, summary: str | None = None):
     Requiere que el endpoint reciba una `Session` por DI y `Request`.
     Extrae actor_id desde `request.state.user` si existe.
     """
+
     def deco(fn):
         @wraps(fn)
         def wrapper(*a, **kw):
@@ -131,15 +133,10 @@ def audit_action(entity_type: str, action: str, summary: str | None = None):
                 if req is not None and hasattr(req.state, "user"):
                     u = req.state.user
                     actor_id = getattr(u, "id", None) or u.get("id") if isinstance(u, dict) else None
-                    actor_label = (
-                        getattr(u, "username", None)
-                        or (u.get("username") if isinstance(u, dict) else None)
-                    )
+                    actor_label = getattr(u, "username", None) or (u.get("username") if isinstance(u, dict) else None)
                 ent_id = None
                 try:
-                    ent_id = getattr(result, "id", None) or (
-                        result.get("id") if isinstance(result, dict) else None
-                    )
+                    ent_id = getattr(result, "id", None) or (result.get("id") if isinstance(result, dict) else None)
                 except (AttributeError, TypeError):
                     # `result` no expone .id ni es dict → ent_id queda None
                     pass
@@ -157,5 +154,7 @@ def audit_action(entity_type: str, action: str, summary: str | None = None):
             except Exception as exc:
                 _log.warning("audit_action decorator error: %s", exc)
             return result
+
         return wrapper
+
     return deco

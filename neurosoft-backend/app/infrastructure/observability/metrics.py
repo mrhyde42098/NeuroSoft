@@ -27,6 +27,7 @@ Métricas expuestas:
     - counter: pdf_generated_total{template}
     - counter: ai_requests_total{provider, status}
 """
+
 from __future__ import annotations
 
 import json
@@ -47,6 +48,7 @@ _METRICS_DSN = os.getenv("NEUROSOFT_METRICS_DSN", "")
 @dataclass
 class _Counter:
     """Contador monotónico thread-safe."""
+
     value: int = 0
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
@@ -62,6 +64,7 @@ class _Counter:
 @dataclass
 class _Histogram:
     """Histograma simple con conteo, suma, min, max."""
+
     count: int = 0
     sum: float = 0.0
     min: float = float("inf")
@@ -161,9 +164,12 @@ def flush_to_dsn() -> bool:
         return False
     try:
         import urllib.request
+
         data = json.dumps(snapshot()).encode("utf-8")
         req = urllib.request.Request(
-            _METRICS_DSN, data=data, method="POST",
+            _METRICS_DSN,
+            data=data,
+            method="POST",
             headers={"Content-Type": "application/json"},
         )
         with urllib.request.urlopen(req, timeout=5) as resp:

@@ -15,6 +15,7 @@ from typing import Any
 @dataclass(frozen=True)
 class PacienteId:
     """Value Object: identificador único del paciente."""
+
     value: str
 
     def __post_init__(self):
@@ -36,13 +37,14 @@ class PacienteId:
 @dataclass
 class Paciente:
     """Entidad central: persona evaluada neuropsicológicamente."""
+
     id: PacienteId
     numero_documento: str
     tipo_documento: str
     primer_nombre: str
     primer_apellido: str
     fecha_nacimiento: date
-    sexo: str                       # "H" | "M"
+    sexo: str  # "H" | "M"
     escolaridad: str
     fecha_atencion: date
     segundo_nombre: str | None = None
@@ -100,6 +102,7 @@ class Paciente:
 @dataclass(frozen=True)
 class ResultadoPrueba:
     """Resultado estandarizado de una prueba. Inmutable."""
+
     test_id: str
     test_nombre: str
     puntaje_bruto: float | None
@@ -127,6 +130,7 @@ class ResultadoPrueba:
 @dataclass
 class Evaluacion:
     """Sesión de evaluación neuropsicológica completa."""
+
     id: str
     paciente_id: PacienteId
     protocolo: str | None
@@ -155,6 +159,7 @@ class Evaluacion:
 @dataclass(frozen=True)
 class PruebaDefinicion:
     """Definición de una prueba desde BD_NEURO_MAESTRA.json."""
+
     id: str
     nombre: str
     tipo_calculo: str

@@ -12,6 +12,7 @@ Verifica que:
   - update_patient no permite reasignar el profesional_id (403 si no es admin).
   - export_patient_data respeta ownership.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -32,6 +33,7 @@ def _create_profesional(client, db, suffix: str, profesional_id: str | None) -> 
     """
     from app.infrastructure.auth.auth_service import UserRepository, hash_password
     from app.infrastructure.database.orm_models import ProfessionalORM, UserORM
+
     username = f"prof_own_{suffix}"
     with db() as session:
         # 1) Asegurar que existe el ProfessionalORM (FK target)
@@ -71,6 +73,7 @@ def _create_profesional(client, db, suffix: str, profesional_id: str | None) -> 
 def _create_patient_direct(db, profesional_id: str | None, doc: str) -> str:
     """Inserta un paciente vía ORM y devuelve su id."""
     from app.infrastructure.database.orm_models import PatientORM
+
     pid = str(uuid.uuid4())
     with db() as session:
         p = PatientORM(
@@ -95,15 +98,18 @@ def _create_patient_direct(db, profesional_id: str | None, doc: str) -> str:
 def _ensure_professional(db, profesional_id: str, suffix: str) -> None:
     """Crea ProfessionalORM si no existe (necesario para FK)."""
     from app.infrastructure.database.orm_models import ProfessionalORM
+
     with db() as session:
         existing = session.query(ProfessionalORM).filter_by(id=profesional_id).first()
         if existing is None:
-            session.add(ProfessionalORM(
-                id=profesional_id,
-                nombre_completo=f"Profesional {suffix}",
-                titulo="Psicólogo",
-                activo=True,
-            ))
+            session.add(
+                ProfessionalORM(
+                    id=profesional_id,
+                    nombre_completo=f"Profesional {suffix}",
+                    titulo="Psicólogo",
+                    activo=True,
+                )
+            )
             session.commit()
 
 
@@ -128,7 +134,9 @@ def _auth(token: str) -> dict:
 @pytest.fixture(scope="module")
 def client():
     from fastapi.testclient import TestClient
+
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -136,6 +144,7 @@ def client():
 @pytest.fixture(scope="module")
 def db_session_factory():
     from app.infrastructure.database.engine import SessionLocal
+
     return SessionLocal
 
 
@@ -144,6 +153,7 @@ def admin_token(client) -> str:
     from app.infrastructure.auth.auth_service import UserRepository, hash_password
     from app.infrastructure.database.engine import SessionLocal
     from app.infrastructure.database.orm_models import UserORM
+
     with SessionLocal() as s:
         repo = UserRepository(s)
         existing = s.query(UserORM).filter_by(username="admin_own_test").first()
@@ -194,7 +204,10 @@ class TestPatientOwnership:
     """
 
     def test_admin_puede_leer_cualquier_paciente(
-        self, client, admin_token, db_session_factory,
+        self,
+        client,
+        admin_token,
+        db_session_factory,
     ):
         # paciente de un profesional cualquiera
         prof_id = str(uuid.uuid4())
@@ -205,7 +218,10 @@ class TestPatientOwnership:
         assert r.json()["id"] == pid
 
     def test_prof_puede_leer_su_propio_paciente(
-        self, client, prof_a_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        db_session_factory,
     ):
         token_a, prof_a_id = prof_a_token
         pid = _create_patient_direct(db_session_factory, prof_a_id, f"DOC-A-{uuid.uuid4().hex[:6]}")
@@ -214,7 +230,11 @@ class TestPatientOwnership:
         assert r.json()["id"] == pid
 
     def test_prof_NO_puede_leer_paciente_de_otro_prof(
-        self, client, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         token_a, _ = prof_a_token
         _, prof_b_id = prof_b_token
@@ -225,7 +245,9 @@ class TestPatientOwnership:
         assert "permiso" in r.text.lower()
 
     def test_paciente_inexistente_retorna_404(
-        self, client, admin_token,
+        self,
+        client,
+        admin_token,
     ):
         r = client.get(
             f"/api/v1/patients/{uuid.uuid4()}",
@@ -234,7 +256,11 @@ class TestPatientOwnership:
         assert r.status_code == 404
 
     def test_update_paciente_de_otro_prof_retorna_403(
-        self, client, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         token_a, _ = prof_a_token
         _, prof_b_id = prof_b_token
@@ -247,7 +273,11 @@ class TestPatientOwnership:
         assert r.status_code == 403, r.text
 
     def test_archive_paciente_de_otro_prof_retorna_403(
-        self, client, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         token_a, _ = prof_a_token
         _, prof_b_id = prof_b_token
@@ -259,7 +289,11 @@ class TestPatientOwnership:
         assert r.status_code == 403, r.text
 
     def test_export_paciente_de_otro_prof_retorna_403(
-        self, client, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         token_a, _ = prof_a_token
         _, prof_b_id = prof_b_token
@@ -271,7 +305,9 @@ class TestPatientOwnership:
         assert r.status_code == 403, r.text
 
     def test_register_asigna_profesional_id_del_user(
-        self, client, prof_a_token,
+        self,
+        client,
+        prof_a_token,
     ):
         """
         El handler fuerza dto.profesional_id = user.profesional_id para
@@ -281,6 +317,7 @@ class TestPatientOwnership:
         """
         from app.infrastructure.database.engine import SessionLocal
         from app.infrastructure.database.orm_models import PatientORM
+
         token_a, prof_a_id = prof_a_token
         doc = f"DOC-R-{uuid.uuid4().hex[:6]}"
         fake_prof = str(uuid.uuid4())
@@ -306,12 +343,14 @@ class TestPatientOwnership:
             p = s.query(PatientORM).filter_by(numero_documento=doc).first()
             assert p is not None
             assert p.profesional_id == prof_a_id, (
-                f"Se esperaba profesional_id={prof_a_id} (del user), "
-                f"se guardo {p.profesional_id}"
+                f"Se esperaba profesional_id={prof_a_id} (del user), se guardo {p.profesional_id}"
             )
 
     def test_update_no_permite_reasignar_profesional_id(
-        self, client, prof_a_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        db_session_factory,
     ):
         """
         El DTO PatientUpdateDTO NO expone `profesional_id` por diseño;
@@ -325,10 +364,16 @@ class TestPatientOwnership:
         # Paciente de OTRO prof
         from app.infrastructure.database.engine import SessionLocal
         from app.infrastructure.database.orm_models import ProfessionalORM
+
         with SessionLocal() as s:
-            s.add(ProfessionalORM(
-                id=other_prof, nombre_completo="Otro", titulo="Psi", activo=True,
-            ))
+            s.add(
+                ProfessionalORM(
+                    id=other_prof,
+                    nombre_completo="Otro",
+                    titulo="Psi",
+                    activo=True,
+                )
+            )
             s.commit()
         pid_other = _create_patient_direct(db_session_factory, other_prof, f"DOC-RA-{uuid.uuid4().hex[:6]}")
         # Intento de PATCH con profesional_id inyectado: debe ser 403 (no 200)
@@ -340,7 +385,11 @@ class TestPatientOwnership:
         assert r.status_code == 403, r.text
 
     def test_list_solo_devuelve_pacientes_del_prof(
-        self, client, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         """
         El endpoint /patients/ filtra por scope (profesional_id del user).
@@ -348,6 +397,7 @@ class TestPatientOwnership:
         """
         from app.infrastructure.database.engine import SessionLocal
         from app.infrastructure.database.orm_models import PatientORM
+
         token_a, prof_a_id = prof_a_token
         _, prof_b_id = prof_b_token
         # Asegurar que existan los ProfessionalORM para las FKs
@@ -363,22 +413,27 @@ class TestPatientOwnership:
         rows = r.json()
         returned_docs = {row["numero_documento"] for row in rows}
         # El paciente de B no debe aparecer en el listado del prof A
-        assert doc_b not in returned_docs, (
-            f"List del prof A devolvio el paciente {doc_b} (de B)"
-        )
+        assert doc_b not in returned_docs, f"List del prof A devolvio el paciente {doc_b} (de B)"
         # Y verificamos en BD que el filtro coincide
         with SessionLocal() as s:
-            count_a_in_db = s.query(PatientORM).filter(
-                PatientORM.profesional_id == prof_a_id,
-                PatientORM.is_active.is_(True),
-            ).count()
-            # Aproximadamente, el listado del prof A no debe exceder su scope
-            assert len(rows) <= count_a_in_db + 10, (
-                f"List del prof A ({len(rows)}) excede su scope ({count_a_in_db})"
+            count_a_in_db = (
+                s.query(PatientORM)
+                .filter(
+                    PatientORM.profesional_id == prof_a_id,
+                    PatientORM.is_active.is_(True),
+                )
+                .count()
             )
+            # Aproximadamente, el listado del prof A no debe exceder su scope
+            assert len(rows) <= count_a_in_db + 10, f"List del prof A ({len(rows)}) excede su scope ({count_a_in_db})"
 
     def test_admin_ve_todos_los_pacientes(
-        self, client, admin_token, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        admin_token,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         token_a, prof_a_id = prof_a_token
         _, prof_b_id = prof_b_token
@@ -408,10 +463,15 @@ class TestPatientOwnership:
         assert unique_b in docs_b, f"Admin no encuentra paciente de B: {docs_b}"
 
     def test_intento_cross_tenant_queda_en_audit(
-        self, client, prof_a_token, prof_b_token, db_session_factory,
+        self,
+        client,
+        prof_a_token,
+        prof_b_token,
+        db_session_factory,
     ):
         from app.infrastructure.database.engine import SessionLocal
         from app.infrastructure.database.orm_models import AuditLogORM
+
         token_a, _ = prof_a_token
         _, prof_b_id = prof_b_token
         _ensure_professional(db_session_factory, prof_b_id, "b3")
@@ -421,8 +481,6 @@ class TestPatientOwnership:
         assert r.status_code == 403
         # Verifica que quedo registrado
         with SessionLocal() as s:
-            row = (s.query(AuditLogORM)
-                   .filter_by(action="access_denied", entity_id=pid)
-                   .first())
+            row = s.query(AuditLogORM).filter_by(action="access_denied", entity_id=pid).first()
             assert row is not None, "No se registro el access_denied en audit_log"
             assert "cross-tenant" in (row.summary or "").lower()

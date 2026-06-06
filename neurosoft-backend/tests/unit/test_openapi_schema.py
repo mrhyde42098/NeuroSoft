@@ -3,6 +3,7 @@ tests/unit/test_openapi_schema.py
 ==================================
 Valida que el esquema OpenAPI se genera sin errores tras upgrades FastAPI/Pydantic.
 """
+
 from __future__ import annotations
 
 import pytest

@@ -54,18 +54,18 @@ _log = logging.getLogger("neurosoft.audit.listeners")
 
 # Entidades bajo auditoría automática
 _WATCHED = {
-    PatientORM:            ("patient",          "Paciente"),
-    ClinicalHistoryORM:    ("clinical_history", "Historia Clínica"),
-    EvaluationORM:         ("evaluation",       "Evaluación"),
-    EvolTerapiaORM:        ("evolucion",        "Evolución"),
-    ConsentimientoORM:     ("consentimiento",   "Consentimiento"),
-    InformeInconclusoORM:  ("inconcluso",       "Informe Inconcluso"),
+    PatientORM: ("patient", "Paciente"),
+    ClinicalHistoryORM: ("clinical_history", "Historia Clínica"),
+    EvaluationORM: ("evaluation", "Evaluación"),
+    EvolTerapiaORM: ("evolucion", "Evolución"),
+    ConsentimientoORM: ("consentimiento", "Consentimiento"),
+    InformeInconclusoORM: ("inconcluso", "Informe Inconcluso"),
 }
 
 # Contexto de actor rellenado por la capa HTTP (ver auth middleware)
-current_actor_id:    ContextVar[str | None] = ContextVar("ns_actor_id", default=None)
+current_actor_id: ContextVar[str | None] = ContextVar("ns_actor_id", default=None)
 current_actor_label: ContextVar[str | None] = ContextVar("ns_actor_label", default=None)
-current_ip:          ContextVar[str | None] = ContextVar("ns_actor_ip", default=None)
+current_ip: ContextVar[str | None] = ContextVar("ns_actor_ip", default=None)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -73,47 +73,130 @@ current_ip:          ContextVar[str | None] = ContextVar("ns_actor_ip", default=
 # ═══════════════════════════════════════════════════════════════
 
 # Campos VERBATIM (no-PHI): metadatos, IDs, flags, fechas, codigos
-_VERBATIM_FIELDS: frozenset[str] = frozenset({
-    # Identificadores y FKs
-    "id", "patient_id", "hc_id", "session_id", "user_id",
-    "profesional_id", "evaluacion_id", "companion_id",
-    "riesgo_id", "informe_id", "owner_id", "created_by",
-    # Banderas / booleanos
-    "is_active", "is_latest", "donante", "activo", "incapacidad",
-    "pruebas_realizadas", "pruebas_sin_dato", "numero_sesiones",
-    "row_version", "orden",
-    # Catalogos y codigos
-    "codigo_rips", "cups", "sexo", "lateralidad", "escolaridad",
-    "tipo_documento", "finalidad_consulta", "protocolo",
-    "estado", "estado_civil", "estrato", "localidad", "grupo_etnico",
-    "lugar_nacimiento", "tipo_parto", "sosten_cefalico", "sedestacion",
-    "gateo", "marcha", "balbuceo", "primeras_palabras", "habla_claro",
-    "control_anual", "control_vesical", "incubadora", "ucin",
-    "gestacion", "semanas", "peso_gr", "talla_cm", "no_gestacion",
-    "riesgos", "edad_materna", "tipo", "nivel", "escala", "motivo_id",
-    "version", "tamano", "tamano_bytes", "filename", "extension",
-    "sha256",
-    # Timestamps (no son PHI clinico)
-    "created_at", "updated_at", "signed_at", "fecha_atencion",
-    "fecha_nacimiento", "saved_at", "ts", "applied_at", "expires_at",
-    "archived_at", "archived_by", "archived_reason",
-    # Calculos clinicos (los escalares / CIs son parte del producto
-    # clínico pero no son PHI identificable por si solos).
-    "ci", "pd", "pd_ajustado", "escalar", "percentil", "z_score",
-    "suma_escalares", "rango", "interpretacion",
-    # Catalogos psicometricos
-    "nombre", "titulo", "especialidad", "registro_profesional",
-    "ciudad", "sitio_web", "direccion_oficina",
-})
+_VERBATIM_FIELDS: frozenset[str] = frozenset(
+    {
+        # Identificadores y FKs
+        "id",
+        "patient_id",
+        "hc_id",
+        "session_id",
+        "user_id",
+        "profesional_id",
+        "evaluacion_id",
+        "companion_id",
+        "riesgo_id",
+        "informe_id",
+        "owner_id",
+        "created_by",
+        # Banderas / booleanos
+        "is_active",
+        "is_latest",
+        "donante",
+        "activo",
+        "incapacidad",
+        "pruebas_realizadas",
+        "pruebas_sin_dato",
+        "numero_sesiones",
+        "row_version",
+        "orden",
+        # Catalogos y codigos
+        "codigo_rips",
+        "cups",
+        "sexo",
+        "lateralidad",
+        "escolaridad",
+        "tipo_documento",
+        "finalidad_consulta",
+        "protocolo",
+        "estado",
+        "estado_civil",
+        "estrato",
+        "localidad",
+        "grupo_etnico",
+        "lugar_nacimiento",
+        "tipo_parto",
+        "sosten_cefalico",
+        "sedestacion",
+        "gateo",
+        "marcha",
+        "balbuceo",
+        "primeras_palabras",
+        "habla_claro",
+        "control_anual",
+        "control_vesical",
+        "incubadora",
+        "ucin",
+        "gestacion",
+        "semanas",
+        "peso_gr",
+        "talla_cm",
+        "no_gestacion",
+        "riesgos",
+        "edad_materna",
+        "tipo",
+        "nivel",
+        "escala",
+        "motivo_id",
+        "version",
+        "tamano",
+        "tamano_bytes",
+        "filename",
+        "extension",
+        "sha256",
+        # Timestamps (no son PHI clinico)
+        "created_at",
+        "updated_at",
+        "signed_at",
+        "fecha_atencion",
+        "fecha_nacimiento",
+        "saved_at",
+        "ts",
+        "applied_at",
+        "expires_at",
+        "archived_at",
+        "archived_by",
+        "archived_reason",
+        # Calculos clinicos (los escalares / CIs son parte del producto
+        # clínico pero no son PHI identificable por si solos).
+        "ci",
+        "pd",
+        "pd_ajustado",
+        "escalar",
+        "percentil",
+        "z_score",
+        "suma_escalares",
+        "rango",
+        "interpretacion",
+        # Catalogos psicometricos
+        "nombre",
+        "titulo",
+        "especialidad",
+        "registro_profesional",
+        "ciudad",
+        "sitio_web",
+        "direccion_oficina",
+    }
+)
 
 # Campos SKIP: blobs binarios, secretos. Nunca al audit log.
-_SKIP_FIELDS: frozenset[str] = frozenset({
-    "firma_base64", "sello_base64", "foto_base64",
-    "contenido_base64", "firma", "firma_digital",
-    "hashed_password", "password", "password_hash",
-    "pdf_base64", "documento_base64",
-    "tokens", "refresh_token", "access_token",
-})
+_SKIP_FIELDS: frozenset[str] = frozenset(
+    {
+        "firma_base64",
+        "sello_base64",
+        "foto_base64",
+        "contenido_base64",
+        "firma",
+        "firma_digital",
+        "hashed_password",
+        "password",
+        "password_hash",
+        "pdf_base64",
+        "documento_base64",
+        "tokens",
+        "refresh_token",
+        "access_token",
+    }
+)
 
 
 def _hash_phi(value: Any) -> str:
@@ -243,8 +326,7 @@ def _queue_audit(session: Session, action: str, obj: Any, changes: dict | None =
         entity_type=entity_type,
         entity_id=(str(entity_id)[:36] if entity_id else None),
         summary=summary[:300],
-        changes=(json.dumps(changes, default=str, ensure_ascii=False)[:20000]
-                 if changes else None),
+        changes=(json.dumps(changes, default=str, ensure_ascii=False)[:20000] if changes else None),
         ip=current_ip.get(),
     )
     session.add(entry)
@@ -283,6 +365,7 @@ def register_audit_listeners() -> None:
                     if _classify(col) == "skip":
                         continue
                     from sqlalchemy.orm.attributes import get_history
+
                     h = get_history(obj, col)
                     if h.has_changes():
                         old = h.deleted[0] if h.deleted else None

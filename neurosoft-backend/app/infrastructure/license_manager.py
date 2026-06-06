@@ -64,10 +64,10 @@ def _machine_id() -> str:
     No es PII — solo hash de características del sistema.
     """
     factors = [
-        platform.node(),                    # hostname
-        platform.processor(),               # CPU info
-        str(uuid.getnode()),                # MAC address
-        platform.machine(),                 # arquitectura
+        platform.node(),  # hostname
+        platform.processor(),  # CPU info
+        str(uuid.getnode()),  # MAC address
+        platform.machine(),  # arquitectura
     ]
     combined = "|".join(factors)
     return hashlib.sha256(combined.encode()).hexdigest()[:16]

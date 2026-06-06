@@ -15,6 +15,7 @@ valida que:
   6. Dos sesiones del mismo usuario (dos logins) tienen jtis distintos:
      revocar una no debe afectar la otra.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
@@ -25,14 +26,15 @@ import pytest
 # 1. JTI EN EL TOKEN
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestAccessTokenHasJti:
-
     def test_create_access_token_incluye_jti(self):
         from app.infrastructure.auth.auth_service import (
             create_access_token,
             decode_access_token,
         )
+
         tok = create_access_token("user-1", "admin", username="alice")
         payload = decode_access_token(tok)
         assert "jti" in payload
@@ -44,6 +46,7 @@ class TestAccessTokenHasJti:
             create_access_token,
             decode_access_token,
         )
+
         t1 = create_access_token("user-1", "admin")
         t2 = create_access_token("user-1", "admin")
         p1 = decode_access_token(t1)
@@ -55,6 +58,7 @@ class TestAccessTokenHasJti:
             create_access_token,
             decode_access_token,
         )
+
         tok = create_access_token("user-1", "profesional", username="bob")
         payload = decode_access_token(tok)
         assert payload.get("username") == "bob"
@@ -65,6 +69,7 @@ class TestAccessTokenHasJti:
             create_access_token,
             decode_access_token,
         )
+
         tok = create_access_token("user-9", "viewer")
         payload = decode_access_token(tok)
         assert payload["sub"] == "user-9"
@@ -75,14 +80,15 @@ class TestAccessTokenHasJti:
 # 2. REVOCACIÓN — capa de persistencia
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestRevokeToken:
-
     def test_revoke_inserta_en_blacklist(self, in_memory_db):
         from app.infrastructure.auth.auth_service import (
             is_token_revoked,
             revoke_token,
         )
+
         jti = "jti-test-001"
         assert is_token_revoked(in_memory_db, jti) is False
 
@@ -115,6 +121,7 @@ class TestRevokeToken:
     def test_is_revoked_con_jti_vacio_retorna_false(self, in_memory_db):
         """Tokens legacy emitidos antes del feature no deben romperse."""
         from app.infrastructure.auth.auth_service import is_token_revoked
+
         assert is_token_revoked(in_memory_db, "") is False
         assert is_token_revoked(in_memory_db, None) is False  # type: ignore[arg-type]
 
@@ -128,7 +135,7 @@ class TestRevokeToken:
         now = datetime.now(UTC)
         # Uno caducado hace 1h, otro vigente por 1h
         revoke_token(in_memory_db, "expirado", "u1", now - timedelta(hours=1), "logout")
-        revoke_token(in_memory_db, "vigente",  "u2", now + timedelta(hours=1), "logout")
+        revoke_token(in_memory_db, "vigente", "u2", now + timedelta(hours=1), "logout")
         in_memory_db.commit()
 
         deleted = purge_expired_blacklist_entries(in_memory_db)
@@ -155,6 +162,7 @@ class TestRevokeToken:
 # 3. GET_CURRENT_USER — rechaza tokens revocados
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestGetCurrentUserRejectsRevokedTokens:
     """
@@ -164,6 +172,7 @@ class TestGetCurrentUserRejectsRevokedTokens:
 
     def _make_user(self, db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(db)
         user = repo.create(
             username="revoker",
@@ -292,6 +301,7 @@ class TestGetCurrentUserRejectsRevokedTokens:
 # 4. ENDPOINT LOGOUT — test directo de la función
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestLogoutEndpointFunction:
     """
@@ -304,6 +314,7 @@ class TestLogoutEndpointFunction:
             UserRepository,
             create_access_token,
         )
+
         repo = UserRepository(db)
         user = repo.create(
             username="logouttest",
@@ -345,11 +356,7 @@ class TestLogoutEndpointFunction:
         in_memory_db.commit()
 
         assert is_token_revoked(in_memory_db, payload["jti"]) is True
-        entry = (
-            in_memory_db.query(TokenBlacklistORM)
-            .filter_by(jti=payload["jti"])
-            .one()
-        )
+        entry = in_memory_db.query(TokenBlacklistORM).filter_by(jti=payload["jti"]).one()
         assert entry.user_id == user.id
         assert entry.reason == "logout"
 

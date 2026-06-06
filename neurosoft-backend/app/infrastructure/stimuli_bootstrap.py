@@ -2,6 +2,7 @@
 Mantenimiento de estímulos en datos de usuario.
 Los recortes masivos de PDFs de capacitación no deben bloquear el arranque.
 """
+
 from __future__ import annotations
 
 import logging

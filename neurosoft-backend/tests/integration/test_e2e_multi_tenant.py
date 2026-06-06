@@ -15,12 +15,12 @@ Simula el flujo completo de un ataque cross-tenant:
 Este test es el "smoke test" de toda la cadena de seguridad
 (autenticacion -> autorizacion -> audit log).
 """
+
 from __future__ import annotations
 
 import uuid
 
 import pytest
-
 
 # ═══════════════════════════════════════════════════════════════════
 # Fixtures locales (no se reutiliza conftest.client para mantener aislado)
@@ -30,7 +30,9 @@ import pytest
 @pytest.fixture
 def client():
     from fastapi.testclient import TestClient
+
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -38,6 +40,7 @@ def client():
 @pytest.fixture
 def db_session_factory():
     from app.infrastructure.database.engine import SessionLocal
+
     return SessionLocal
 
 
@@ -48,6 +51,7 @@ def db_session_factory():
 
 def _ensure_professional(db, prof_id: str, suffix: str = ""):
     from app.infrastructure.database.orm_models import ProfessionalORM
+
     p = db.get(ProfessionalORM, prof_id)
     if p is None:
         p = ProfessionalORM(
@@ -64,7 +68,9 @@ def _ensure_professional(db, prof_id: str, suffix: str = ""):
 
 def _create_patient(db, prof_id: str, doc: str):
     from datetime import date
+
     from app.infrastructure.database.orm_models import PatientORM
+
     p = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -88,6 +94,7 @@ def _create_user(db, user_id: str, prof_id: str | None, role: str = "profesional
     """Crea un user real (no solo profesional) y devuelve su id."""
     from app.infrastructure.auth.auth_service import hash_password
     from app.infrastructure.database.orm_models import UserORM
+
     u = UserORM(
         id=user_id,
         username=f"e2e-{user_id[:8]}",
@@ -104,8 +111,11 @@ def _create_user(db, user_id: str, prof_id: str | None, role: str = "profesional
 
 def _make_token(user_id: str, prof_id: str | None, role: str = "profesional") -> str:
     from datetime import UTC, datetime, timedelta
+
     from jose import jwt
+
     from app.infrastructure.auth.auth_service import ALGORITHM, SECRET_KEY
+
     now = datetime.now(UTC)
     payload = {
         "sub": user_id,
@@ -127,9 +137,10 @@ def _make_token(user_id: str, prof_id: str | None, role: str = "profesional") ->
 
 @pytest.mark.integration
 class TestE2EMultiTenant:
-
     def test_flujo_completo_ataque_cross_tenant(
-        self, client, db_session_factory,
+        self,
+        client,
+        db_session_factory,
     ):
         """
         Simula el ataque completo de un profesional B contra
@@ -158,15 +169,15 @@ class TestE2EMultiTenant:
             _create_user(db, user_admin_id, None, "admin")
             patient_a = _create_patient(db, prof_a_id, f"E2E-A-{uuid.uuid4().hex[:6]}")
             patient_orphan = _create_patient(
-                db, prof_a_id, f"E2E-ORPHAN-{uuid.uuid4().hex[:6]}",
+                db,
+                prof_a_id,
+                f"E2E-ORPHAN-{uuid.uuid4().hex[:6]}",
             )
             # Forzar el paciente orphan a profesional_id = None
             patient_orphan.profesional_id = None
             db.commit()
             patient_a_id = patient_a.id
             patient_orphan_id = patient_orphan.id
-            doc_a = patient_a.numero_documento
-            doc_orphan = patient_orphan.numero_documento
 
         token_a = _make_token(user_a_id, prof_a_id, "profesional")
         token_b = _make_token(user_b_id, prof_b_id, "profesional")
@@ -236,17 +247,13 @@ class TestE2EMultiTenant:
             f"/api/v1/patients/{patient_orphan_id}",
             headers={"Authorization": f"Bearer {token_c}"},
         )
-        assert r.status_code == 200, (
-            f"C debe ver paciente huerfano: {r.text}"
-        )
+        assert r.status_code == 200, f"C debe ver paciente huerfano: {r.text}"
 
         r = client.get(
             f"/api/v1/patients/{patient_a_id}",
             headers={"Authorization": f"Bearer {token_c}"},
         )
-        assert r.status_code == 403, (
-            f"C NO debe ver paciente de A (no es huerfano): {r.text}"
-        )
+        assert r.status_code == 403, f"C NO debe ver paciente de A (no es huerfano): {r.text}"
 
         # ─────────────────────────────────────────────────
         # 8. Audit: cada intento cross-tenant debe estar registrado
@@ -261,15 +268,16 @@ class TestE2EMultiTenant:
                 .all()
             )
             # Minimo esperado: 4 intentos de B bloqueados
-            assert len(denied_logs) >= 4, (
-                f"Se esperaban >=4 logs cross-tenant, hay {len(denied_logs)}"
-            )
+            assert len(denied_logs) >= 4, f"Se esperaban >=4 logs cross-tenant, hay {len(denied_logs)}"
 
     def test_jwt_invalido_es_rechazado_en_todos_los_endpoints(
-        self, client, db_session_factory,
+        self,
+        client,
+        db_session_factory,
     ):
         """Un JWT con firma incorrecta debe ser 401 en TODOS los endpoints."""
         from datetime import UTC, datetime, timedelta
+
         from jose import jwt
 
         user_id = str(uuid.uuid4())
@@ -299,7 +307,9 @@ class TestE2EMultiTenant:
         assert r.status_code == 401
 
     def test_sin_authorization_es_rechazado(
-        self, client, db_session_factory,
+        self,
+        client,
+        db_session_factory,
     ):
         """Sin header Authorization, los endpoints devuelven 401."""
         r = client.get("/api/v1/patients/")
@@ -314,7 +324,9 @@ class TestE2EMultiTenant:
         assert r.status_code == 401
 
     def test_authorization_malformado_es_rechazado(
-        self, client, db_session_factory,
+        self,
+        client,
+        db_session_factory,
     ):
         """Headers Authorization malformados no bypassean la auth."""
         malformed = [

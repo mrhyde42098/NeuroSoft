@@ -4,6 +4,7 @@ Verifica la estructura conclusión → hallazgos → implicación en los tres
 perfiles clínicos principales: AM con demencia, adulto con TDAH, infantil
 con Dislexia.
 """
+
 from app.infrastructure.report_pro.narrative import build_executive_summary
 
 
@@ -49,8 +50,7 @@ def test_perfil_normal_implicacion_seguimiento():
 
 
 def test_perfil_deficit_severo_implicacion_prioritaria():
-    rs = [_r("P1", -3.0, dom="Memoria"), _r("P2", -2.5, dom="Atención"),
-          _r("P3", -1.0, dom="Lenguaje")]
+    rs = [_r("P1", -3.0, dom="Memoria"), _r("P2", -2.5, dom="Atención"), _r("P3", -1.0, dom="Lenguaje")]
     ej = build_executive_summary(rs)
     assert "prioritaria" in ej["implicacion"].lower() or "intervención" in ej["implicacion"].lower()
 

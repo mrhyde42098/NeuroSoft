@@ -32,16 +32,16 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────
 # Colores corporativos (configurables por PreferenciasInforme)
 # ─────────────────────────────────────────────────────────────
-AZUL_HEADER  = (0.07, 0.28, 0.55)   # #12468c
-AZUL_SECCION = (0.18, 0.45, 0.71)   # #2e73b5
-GRIS_CLARO   = (0.94, 0.94, 0.94)
-GRIS_TEXTO   = (0.25, 0.25, 0.25)
-ROJO_BAJO    = (0.77, 0.09, 0.29)   # #c4173a
-NARANJA_LIM  = (0.96, 0.49, 0.17)   # #f57d2c
-VERDE_PROM   = (0.17, 0.63, 0.17)   # #2ca12a
-AZUL_SUP     = (0.10, 0.49, 0.82)   # #1a7dd1
-BLANCO       = (1, 1, 1)
-NEGRO        = (0, 0, 0)
+AZUL_HEADER = (0.07, 0.28, 0.55)  # #12468c
+AZUL_SECCION = (0.18, 0.45, 0.71)  # #2e73b5
+GRIS_CLARO = (0.94, 0.94, 0.94)
+GRIS_TEXTO = (0.25, 0.25, 0.25)
+ROJO_BAJO = (0.77, 0.09, 0.29)  # #c4173a
+NARANJA_LIM = (0.96, 0.49, 0.17)  # #f57d2c
+VERDE_PROM = (0.17, 0.63, 0.17)  # #2ca12a
+AZUL_SUP = (0.10, 0.49, 0.82)  # #1a7dd1
+BLANCO = (1, 1, 1)
+NEGRO = (0, 0, 0)
 
 
 def _nivel_color(z: float | None) -> tuple[float, float, float]:
@@ -58,11 +58,16 @@ def _nivel_color(z: float | None) -> tuple[float, float, float]:
 
 def _nivel_label(interp: str) -> str:
     mapping = {
-        'Bajo': 'BAJO', 'Limítrofe': 'LIMÍTROFE',
-        'Promedio Bajo': 'PROM. BAJO', 'Promedio': 'PROMEDIO',
-        'Promedio Alto': 'PROM. ALTO', 'Superior': 'SUPERIOR',
-        'Muy Superior': 'MUY SUPERIOR',
-        'Normal': 'NORMAL', 'DL': 'DEP. LEVE', 'DE': 'DEP. ESTAB.',
+        "Bajo": "BAJO",
+        "Limítrofe": "LIMÍTROFE",
+        "Promedio Bajo": "PROM. BAJO",
+        "Promedio": "PROMEDIO",
+        "Promedio Alto": "PROM. ALTO",
+        "Superior": "SUPERIOR",
+        "Muy Superior": "MUY SUPERIOR",
+        "Normal": "NORMAL",
+        "DL": "DEP. LEVE",
+        "DE": "DEP. ESTAB.",
     }
     for k, v in mapping.items():
         if k.lower() in interp.lower():
@@ -74,83 +79,85 @@ def _nivel_label(interp: str) -> str:
 # Data container para el generador
 # ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class ReportData:
     """
     Toda la información necesaria para generar el informe.
     Se construye en el use case antes de llamar a generate_pdf().
     """
+
     # Institución
     institucion_nombre: str = "Consultorio Neuropsicológico"
-    institucion_nit:    str = ""
-    institucion_dir:    str = ""
-    institucion_tel:    str = ""
-    logo_base64:        str | None = None
+    institucion_nit: str = ""
+    institucion_dir: str = ""
+    institucion_tel: str = ""
+    logo_base64: str | None = None
 
     # Paciente
-    nombre_completo:    str = ""
-    numero_documento:   str = ""
-    tipo_documento:     str = "CC"
-    fecha_nacimiento:   date | None = None
-    fecha_atencion:     date | None = None
-    edad_display:       str = ""
-    sexo:               str = ""
-    escolaridad:        str = ""
-    lateralidad:        str = ""
-    ocupacion:          str = ""
-    ciudad:             str = ""
-    acompanante:        str = ""
-    remite:             str = ""
-    orden_no:           str = ""
-    eps:                str = ""
-    poblacion:          str = ""
+    nombre_completo: str = ""
+    numero_documento: str = ""
+    tipo_documento: str = "CC"
+    fecha_nacimiento: date | None = None
+    fecha_atencion: date | None = None
+    edad_display: str = ""
+    sexo: str = ""
+    escolaridad: str = ""
+    lateralidad: str = ""
+    ocupacion: str = ""
+    ciudad: str = ""
+    acompanante: str = ""
+    remite: str = ""
+    orden_no: str = ""
+    eps: str = ""
+    poblacion: str = ""
 
     # Historia clínica (campos opcionales - si no hay HC se omiten)
-    motivo_consulta:        str = ""
-    patologicos_medicos:    str = ""
-    sensoriales_motores:    str = ""
-    psiquiatricos:          str = ""
-    farmacologicos:         str = ""
-    traumaticos:            str = ""
-    quirurgicos:            str = ""
-    toxicos:                str = ""
-    alergicos:              str = ""
-    terapeuticos:           str = ""
-    paraclinicos:           str = ""
-    familiares:             str = ""
-    vive_con:               str = ""
-    abc:                    str = ""
-    escolar_laboral:        str = ""
-    patron_sueno:           str = ""
-    patron_alimentacion:    str = ""
-    comportamiento_animo:   str = ""
+    motivo_consulta: str = ""
+    patologicos_medicos: str = ""
+    sensoriales_motores: str = ""
+    psiquiatricos: str = ""
+    farmacologicos: str = ""
+    traumaticos: str = ""
+    quirurgicos: str = ""
+    toxicos: str = ""
+    alergicos: str = ""
+    terapeuticos: str = ""
+    paraclinicos: str = ""
+    familiares: str = ""
+    vive_con: str = ""
+    abc: str = ""
+    escolar_laboral: str = ""
+    patron_sueno: str = ""
+    patron_alimentacion: str = ""
+    comportamiento_animo: str = ""
 
     # Observaciones clínicas por dominio
-    obs_clinica_general:        str = ""
-    obs_atencion:               str = ""
-    obs_memoria:                str = ""
-    obs_praxias_gnosias:        str = ""
-    obs_lenguaje:               str = ""
-    obs_funciones_ejecutivas:   str = ""
-    obs_emociones:              str = ""
-    obs_ci:                     str = ""
-    obs_impresion_dx:           str = ""
-    obs_funcionalidad:          str = ""
-    obs_recomendaciones:        str = ""
+    obs_clinica_general: str = ""
+    obs_atencion: str = ""
+    obs_memoria: str = ""
+    obs_praxias_gnosias: str = ""
+    obs_lenguaje: str = ""
+    obs_funciones_ejecutivas: str = ""
+    obs_emociones: str = ""
+    obs_ci: str = ""
+    obs_impresion_dx: str = ""
+    obs_funcionalidad: str = ""
+    obs_recomendaciones: str = ""
 
     # Resultados del engine
-    resultados:         list[dict] = field(default_factory=list)  # List[ResultadoPruebaDTO.model_dump()]
-    protocolo:          str = ""
-    puntos_debiles:     list[str] = field(default_factory=list)
-    puntos_fuertes:     list[str] = field(default_factory=list)
-    advertencias:       list[str] = field(default_factory=list)
+    resultados: list[dict] = field(default_factory=list)  # List[ResultadoPruebaDTO.model_dump()]
+    protocolo: str = ""
+    puntos_debiles: list[str] = field(default_factory=list)
+    puntos_fuertes: list[str] = field(default_factory=list)
+    advertencias: list[str] = field(default_factory=list)
     pruebas_realizadas: int = 0
 
     # Profesional
-    profesional_nombre:    str = ""
-    profesional_titulo:    str = ""
-    profesional_registro:  str = ""
-    firma_base64:          str | None = None
+    profesional_nombre: str = ""
+    profesional_titulo: str = ""
+    profesional_registro: str = ""
+    firma_base64: str | None = None
 
     # Código CIE-10 (de clinical_histories.codigo_cie10)
     codigo_cie10: str = ""
@@ -178,8 +185,8 @@ class ReportData:
 
     # Campos específicos de la variante "Inconcluso" — sólo se llenan si la
     # evaluación se cerró antes de completarse.
-    informe_inconcluso_cat:  str = ""   # ej. "no_colabora", "fatiga", "tiempo"
-    informe_inconcluso_nota: str = ""   # texto libre del clínico
+    informe_inconcluso_cat: str = ""  # ej. "no_colabora", "fatiga", "tiempo"
+    informe_inconcluso_nota: str = ""  # texto libre del clínico
 
     # §clinical-disclaimer-v2: estos campos quedan SOLO para trazabilidad
     # interna (tabla `ai_logs` y auditoría). NO se exponen en el PDF —
@@ -193,6 +200,7 @@ class ReportData:
 # Generador principal
 # ─────────────────────────────────────────────────────────────
 
+
 class NeuroPDFGenerator:
     """
     Genera el informe de evaluación neuropsicológica en PDF.
@@ -205,9 +213,9 @@ class NeuroPDFGenerator:
     # Medidas de página A4 en puntos (1pt = 1/72 inch)
     PAGE_W = 595.27
     PAGE_H = 841.89
-    MARGIN = 36          # ~1.27cm
+    MARGIN = 36  # ~1.27cm
     CONTENT_W = PAGE_W - 2 * MARGIN
-    COL_LEFT  = MARGIN
+    COL_LEFT = MARGIN
     COL_RIGHT = PAGE_W - MARGIN
 
     def generate(self, data: ReportData) -> bytes:
@@ -216,10 +224,7 @@ class NeuroPDFGenerator:
             from reportlab.lib.pagesizes import A4
             from reportlab.pdfgen import canvas
         except ImportError:
-            raise RuntimeError(
-                "reportlab no está instalado. "
-                "Ejecuta: pip install reportlab"
-            )
+            raise RuntimeError("reportlab no está instalado. Ejecuta: pip install reportlab")
 
         buffer = io.BytesIO()
         c = canvas.Canvas(buffer, pagesize=A4)
@@ -276,9 +281,18 @@ class NeuroPDFGenerator:
         if data.logo_base64:
             try:
                 img_bytes = base64.b64decode(data.logo_base64)
-                img_reader = __import__('reportlab.lib.utils', fromlist=['ImageReader']).ImageReader(io.BytesIO(img_bytes))
-                c.drawImage(img_reader, self.MARGIN, self.PAGE_H - 68, width=55, height=55,
-                            preserveAspectRatio=True, mask='auto')
+                img_reader = __import__("reportlab.lib.utils", fromlist=["ImageReader"]).ImageReader(
+                    io.BytesIO(img_bytes)
+                )
+                c.drawImage(
+                    img_reader,
+                    self.MARGIN,
+                    self.PAGE_H - 68,
+                    width=55,
+                    height=55,
+                    preserveAspectRatio=True,
+                    mask="auto",
+                )
                 logo_drawn = True
             except Exception as _e:
                 logger.warning("Logo no se pudo decodificar para PDF: %s", _e)
@@ -351,7 +365,7 @@ class NeuroPDFGenerator:
 
     def _text_block(self, c, text: str, x: float, y: float, w: float, min_y: float = 100) -> float:
         """Dibuja un bloque de texto con word-wrap simple."""
-        if not text or text.strip() in ('', 'N/A', 'n/a'):
+        if not text or text.strip() in ("", "N/A", "n/a"):
             return y
         c.setFont("Helvetica", 7.5)
         c.setFillColorRGB(*GRIS_TEXTO)
@@ -406,8 +420,18 @@ class NeuroPDFGenerator:
 
         # Filas de datos en cuadrícula
         rows = [
-            [("Edad", data.edad_display), ("Estado Civil", ""), ("Escolaridad", data.escolaridad), ("Ocupación", data.ocupacion)],
-            [("Fecha nacimiento", data.fecha_nacimiento.strftime("%d/%m/%Y") if data.fecha_nacimiento else ""), ("Ciudad", data.ciudad), ("Acompañante", data.acompanante), ("Lateralidad", data.lateralidad)],
+            [
+                ("Edad", data.edad_display),
+                ("Estado Civil", ""),
+                ("Escolaridad", data.escolaridad),
+                ("Ocupación", data.ocupacion),
+            ],
+            [
+                ("Fecha nacimiento", data.fecha_nacimiento.strftime("%d/%m/%Y") if data.fecha_nacimiento else ""),
+                ("Ciudad", data.ciudad),
+                ("Acompañante", data.acompanante),
+                ("Lateralidad", data.lateralidad),
+            ],
             [("Teléfono", ""), ("Dirección", ""), ("Correo", ""), ("Remite", data.remite)],
         ]
         col_w = self.CONTENT_W / 4
@@ -433,7 +457,7 @@ class NeuroPDFGenerator:
     def _draw_section_antecedentes(self, c, data: ReportData, y: float) -> float:
         y -= 4
         # Motivo de consulta (si existe)
-        if data.motivo_consulta and data.motivo_consulta not in ('N/A', ''):
+        if data.motivo_consulta and data.motivo_consulta not in ("N/A", ""):
             y = self._section_title(c, "Motivo de Consulta", y)
             y = self._text_block(c, data.motivo_consulta, self.MARGIN + 3, y, self.CONTENT_W - 6)
             y -= 4
@@ -481,7 +505,7 @@ class NeuroPDFGenerator:
         y = min(y_left, y_right) - 2
 
         # Paraclínicos (ancho completo)
-        if data.paraclinicos and data.paraclinicos not in ('N/A', ''):
+        if data.paraclinicos and data.paraclinicos not in ("N/A", ""):
             c.setFont("Helvetica-Bold", 7.5)
             c.setFillColorRGB(*GRIS_TEXTO)
             c.drawString(self.MARGIN + 3, y, "Paraclínicos")
@@ -504,7 +528,7 @@ class NeuroPDFGenerator:
             ("Comportamiento / Ánimo", data.comportamiento_animo),
         ]
         # Only draw if there's content
-        has_content = any(v and v not in ('N/A', '') for _, v in items)
+        has_content = any(v and v not in ("N/A", "") for _, v in items)
         if not has_content:
             return y
 
@@ -513,7 +537,7 @@ class NeuroPDFGenerator:
         y = self._section_title(c, "Familiar / Social / Funcional", y)
 
         for lbl, val in items:
-            if val and val not in ('N/A', ''):
+            if val and val not in ("N/A", ""):
                 y = self._check_page(c, y, 30)
                 c.setFont("Helvetica-Bold", 7.5)
                 c.setFillColorRGB(*GRIS_TEXTO)
@@ -541,7 +565,7 @@ class NeuroPDFGenerator:
             ("Funcionalidad", data.obs_funcionalidad),
         ]
 
-        has_obs = any(v and v not in ('N/A','') for _, v in obs_sections)
+        has_obs = any(v and v not in ("N/A", "") for _, v in obs_sections)
         if not has_obs:
             return y
 
@@ -553,7 +577,7 @@ class NeuroPDFGenerator:
         col_w = self.CONTENT_W / 2 - 4
         mid_x = self.MARGIN + col_w + 6
 
-        left_obs  = obs_sections[:5]
+        left_obs = obs_sections[:5]
         right_obs = obs_sections[5:]
 
         # Render interleaved so columns stay balanced
@@ -565,7 +589,7 @@ class NeuroPDFGenerator:
             # left item
             if i_l < len(left_obs):
                 lbl, val = left_obs[i_l]
-                if val and val not in ('N/A',''):
+                if val and val not in ("N/A", ""):
                     c.setFont("Helvetica-Bold", 7.5)
                     c.setFillColorRGB(*GRIS_TEXTO)
                     c.drawString(self.MARGIN + 3, start_block, lbl)
@@ -579,7 +603,7 @@ class NeuroPDFGenerator:
             # right item
             if i_r < len(right_obs):
                 lbl, val = right_obs[i_r]
-                if val and val not in ('N/A',''):
+                if val and val not in ("N/A", ""):
                     c.setFont("Helvetica-Bold", 7.5)
                     c.setFillColorRGB(*GRIS_TEXTO)
                     c.drawString(mid_x + 3, start_block, lbl)
@@ -608,11 +632,14 @@ class NeuroPDFGenerator:
         # ── Filtrar resultados con escalar (excluir CI/índices para la gráfica Z) ──
         resultados = data.resultados
         # Separar escalares de índices CI
-        escalares = [r for r in resultados if r.get('puntaje_escalar') is not None
-                     and r.get('tipo_metrica') not in ('ci',)
-                     and r.get('z_equivalente') is not None]
-        indices_ci = [r for r in resultados if r.get('tipo_metrica') == 'ci'
-                      and r.get('puntaje_escalar') is not None]
+        escalares = [
+            r
+            for r in resultados
+            if r.get("puntaje_escalar") is not None
+            and r.get("tipo_metrica") not in ("ci",)
+            and r.get("z_equivalente") is not None
+        ]
+        indices_ci = [r for r in resultados if r.get("tipo_metrica") == "ci" and r.get("puntaje_escalar") is not None]
 
         # ── CI boxes si existen ──
         if indices_ci:
@@ -641,9 +668,9 @@ class NeuroPDFGenerator:
 
         for i, r in enumerate(indices):
             bx = x_start + i * (box_w + 6)
-            val = r.get('puntaje_escalar', 0) or 0
-            interp = r.get('interpretacion', '')
-            color = _nivel_color(r.get('z_equivalente'))
+            val = r.get("puntaje_escalar", 0) or 0
+            interp = r.get("interpretacion", "")
+            color = _nivel_color(r.get("z_equivalente"))
 
             # Box border
             c.setStrokeColorRGB(*color)
@@ -659,11 +686,12 @@ class NeuroPDFGenerator:
             # Name (small) — siempre vía human_test_name para que no se cuele
             # un identificador técnico tipo "NiWiscDC" en la cajita del KPI.
             from .report_pro.helpers import human_test_name
+
             nombre = human_test_name(
-                r.get('test_id', '') or '',
-                r.get('test_nombre', '') or '',
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
             )
-            nombre = nombre.replace('Ind ', '').replace('NiWISC', '').strip()[:14]
+            nombre = nombre.replace("Ind ", "").replace("NiWISC", "").strip()[:14]
             c.setFont("Helvetica", 6.5)
             c.setFillColorRGB(*GRIS_TEXTO)
             c.drawCentredString(bx + box_w / 2, y - 38, nombre)
@@ -682,12 +710,12 @@ class NeuroPDFGenerator:
         Z_MIN, Z_MAX = -3.0, 3.0
         z_range = Z_MAX - Z_MIN
 
-        label_w   = 145   # ancho de la etiqueta izquierda
-        val_w     = 30    # ancho del valor derecho
-        track_w   = self.CONTENT_W - label_w - val_w - 6
-        track_x   = self.MARGIN + label_w + 3
-        row_h     = 14
-        bar_h     = 8
+        label_w = 145  # ancho de la etiqueta izquierda
+        val_w = 30  # ancho del valor derecho
+        track_w = self.CONTENT_W - label_w - val_w - 6
+        track_x = self.MARGIN + label_w + 3
+        row_h = 14
+        bar_h = 8
 
         def _draw_z_header(c, y):
             """Dibuja encabezado de ejes de la gráfica Z."""
@@ -707,7 +735,7 @@ class NeuroPDFGenerator:
         norm_w = 2 / z_range * track_w
 
         for r in resultados:
-            z = r.get('z_equivalente')
+            z = r.get("z_equivalente")
             if z is None:
                 continue
 
@@ -718,9 +746,10 @@ class NeuroPDFGenerator:
                 y = _draw_z_header(c, y)
 
             from .report_pro.helpers import human_test_name
+
             nombre = human_test_name(
-                r.get('test_id', '') or '',
-                r.get('test_nombre', '') or '',
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
             )[:28]
             color = _nivel_color(z)
 
@@ -740,7 +769,7 @@ class NeuroPDFGenerator:
 
             # Barra de Z
             bar_pct = max(0.0, min(1.0, (z - Z_MIN) / z_range))
-            bar_px  = track_x + bar_pct * track_w
+            bar_px = track_x + bar_pct * track_w
             zero_px = track_x + ((0 - Z_MIN) / z_range) * track_w
             bx = min(bar_px, zero_px)
             bw = abs(bar_px - zero_px)
@@ -766,11 +795,7 @@ class NeuroPDFGenerator:
         y -= 4
         c.setFont("Helvetica", 6)
         c.setFillColorRGB(*GRIS_TEXTO)
-        leyenda = (
-            "Rango Normal -1 a 1 (σ): área sombreada. "
-            "Puntos débiles: Z < -1. "
-            "Puntos fuertes: Z > 1."
-        )
+        leyenda = "Rango Normal -1 a 1 (σ): área sombreada. Puntos débiles: Z < -1. Puntos fuertes: Z > 1."
         c.drawString(self.MARGIN + 3, y, leyenda)
         return y - 10
 
@@ -801,23 +826,24 @@ class NeuroPDFGenerator:
                 c.setFillColorRGB(0.96, 0.96, 0.96)
                 c.rect(self.MARGIN, y - row_h + 1, self.CONTENT_W, row_h - 1, fill=1, stroke=0)
 
-            z = r.get('z_equivalente')
+            z = r.get("z_equivalente")
             color = _nivel_color(z)
-            interp = r.get('interpretacion', '')
+            interp = r.get("interpretacion", "")
 
             c.setFont("Helvetica", 6.5)
             c.setFillColorRGB(*GRIS_TEXTO)
             from .report_pro.helpers import human_test_name
+
             nombre = human_test_name(
-                r.get('test_id', '') or '',
-                r.get('test_nombre', '') or '',
+                r.get("test_id", "") or "",
+                r.get("test_nombre", "") or "",
             )[:34]
             c.drawString(self.MARGIN + 3, y - 7, nombre)
 
-            pd = r.get('puntaje_bruto')
+            pd = r.get("puntaje_bruto")
             c.drawString(self.MARGIN + 165, y - 7, str(int(pd)) if pd is not None else "—")
 
-            esc = r.get('puntaje_escalar')
+            esc = r.get("puntaje_escalar")
             c.setFont("Helvetica-Bold", 6.5)
             c.setFillColorRGB(*color)
             c.drawString(self.MARGIN + 202, y - 7, str(int(esc)) if esc is not None else "—")
@@ -826,7 +852,7 @@ class NeuroPDFGenerator:
             c.drawString(self.MARGIN + 239, y - 7, _nivel_label(interp)[:12])
 
             c.setFillColorRGB(*GRIS_TEXTO)
-            dom = str(r.get('dominio_cognitivo', ''))[:28]
+            dom = str(r.get("dominio_cognitivo", ""))[:28]
             c.drawString(self.MARGIN + 286, y - 7, dom)
 
             y -= row_h
@@ -838,7 +864,7 @@ class NeuroPDFGenerator:
     # ──────────────────────────────────────────────────────────
 
     def _draw_section_impresion(self, c, data: ReportData, y: float) -> float:
-        has_dx = data.obs_impresion_dx and data.obs_impresion_dx not in ('N/A', '')
+        has_dx = data.obs_impresion_dx and data.obs_impresion_dx not in ("N/A", "")
         has_cie = data.codigo_cie10 and data.codigo_cie10.strip()
         if not has_dx and not has_cie:
             return y
@@ -867,7 +893,7 @@ class NeuroPDFGenerator:
     # ──────────────────────────────────────────────────────────
 
     def _draw_section_recomendaciones(self, c, data: ReportData, y: float) -> float:
-        if not data.obs_recomendaciones or data.obs_recomendaciones in ('N/A', ''):
+        if not data.obs_recomendaciones or data.obs_recomendaciones in ("N/A", ""):
             return y
         y -= 4
         y = self._check_page(c, y, 80)
@@ -913,10 +939,10 @@ class NeuroPDFGenerator:
         if data.firma_base64:
             try:
                 from reportlab.lib.utils import ImageReader
+
                 img_bytes = base64.b64decode(data.firma_base64)
                 img = ImageReader(io.BytesIO(img_bytes))
-                c.drawImage(img, firma_x + 20, y + 2, width=100, height=35,
-                            preserveAspectRatio=True, mask='auto')
+                c.drawImage(img, firma_x + 20, y + 2, width=100, height=35, preserveAspectRatio=True, mask="auto")
             except Exception as _e:
                 logger.warning("Firma no se pudo decodificar para PDF: %s", _e)
 
@@ -948,15 +974,19 @@ class NeuroPDFGenerator:
         c.setFillColorRGB(0.6, 0.6, 0.6)
         c.setFont("Helvetica", 6)
         if data:
-            c.drawString(self.MARGIN, 20,
+            c.drawString(
+                self.MARGIN,
+                20,
                 f"{data.institucion_nombre}  ·  "
                 f"Tel: {data.institucion_tel}  ·  "
-                f"Informe Neuropsicológico — Confidencial")
+                f"Informe Neuropsicológico — Confidencial",
+            )
 
 
 # ─────────────────────────────────────────────────────────────
 # Función de conveniencia para el use case
 # ─────────────────────────────────────────────────────────────
+
 
 def _lookup_cie10_desc(code: str) -> str:
     """Retorna la descripción del código CIE-10 desde el catálogo neuropsicológico."""
@@ -964,6 +994,7 @@ def _lookup_cie10_desc(code: str) -> str:
         return ""
     try:
         from app.domain.entities.configuration import CIE10_NEUROPSICOLOGIA
+
         code_upper = code.upper().strip()
         for item in CIE10_NEUROPSICOLOGIA:
             if item.get("codigo", "").upper() == code_upper:
@@ -1019,9 +1050,7 @@ def _load_therapy_closure_context(
         plan = q.filter(TherapyPlanORM.id == therapy_plan_id).first()
     else:
         plan = (
-            q.filter(TherapyPlanORM.estado == "cerrado")
-            .order_by(TherapyPlanORM.fecha_cierre.desc())
-            .first()
+            q.filter(TherapyPlanORM.estado == "cerrado").order_by(TherapyPlanORM.fecha_cierre.desc()).first()
         ) or q.order_by(TherapyPlanORM.fecha_inicio.desc()).first()
 
     if not plan:
@@ -1033,24 +1062,11 @@ def _load_therapy_closure_context(
         .order_by(TherapyObjectiveORM.orden, TherapyObjectiveORM.fecha_inicio)
         .all()
     )
-    sesiones_count = (
-        db.query(TherapySessionORM)
-        .filter_by(patient_id=patient_id, plan_id=plan.id)
-        .count()
-    )
+    sesiones_count = db.query(TherapySessionORM).filter_by(patient_id=patient_id, plan_id=plan.id).count()
     if sesiones_count == 0:
-        sesiones_count = (
-            db.query(TherapySessionORM)
-            .filter_by(patient_id=patient_id)
-            .count()
-        )
+        sesiones_count = db.query(TherapySessionORM).filter_by(patient_id=patient_id).count()
 
-    riesgos = (
-        db.query(RiskAssessmentORM)
-        .filter_by(patient_id=patient_id)
-        .order_by(RiskAssessmentORM.fecha)
-        .all()
-    )
+    riesgos = db.query(RiskAssessmentORM).filter_by(patient_id=patient_id).order_by(RiskAssessmentORM.fecha).all()
 
     return {
         "therapy_plan": {
@@ -1112,6 +1128,7 @@ def build_report_data_from_db(
         therapy_plan_id:   UUID del plan terapéutico a documentar en cierre.
         include_therapy:   Si True, carga plan/objetivos/sesiones del paciente.
     """
+
     def _get(obj, attr, default=""):
         val = getattr(obj, attr, default) or default
         return str(val) if val not in (None, "N/A") else ""
@@ -1121,7 +1138,7 @@ def build_report_data_from_db(
 
     def _obs_field(hc_val: str, dominio: str) -> str:
         """Retorna hc_val si no está vacío; si no, el texto del dominio en observations."""
-        if hc_val and hc_val not in ('', 'N/A'):
+        if hc_val and hc_val not in ("", "N/A"):
             return hc_val
         return obs.get(dominio, "")
 
@@ -1139,77 +1156,73 @@ def build_report_data_from_db(
         cie11_code = str(hc.codigo_cie11)
     elif hc and getattr(hc, "codigo_cie10", None):
         from app.domain.clinical_engine.cie_mapping_service import resolve_cie11_code
+
         cie11_code = resolve_cie11_code(hc.codigo_cie10) or ""
 
     return ReportData(
         # Institución
-        institucion_nombre=_get(institucion, 'nombre', 'Consultorio Neuropsicológico'),
-        institucion_nit=_get(institucion, 'nit'),
-        institucion_dir=_get(institucion, 'direccion'),
-        institucion_tel=_get(institucion, 'telefono'),
-        logo_base64=getattr(institucion, 'logo_base64', None),
-
+        institucion_nombre=_get(institucion, "nombre", "Consultorio Neuropsicológico"),
+        institucion_nit=_get(institucion, "nit"),
+        institucion_dir=_get(institucion, "direccion"),
+        institucion_tel=_get(institucion, "telefono"),
+        logo_base64=getattr(institucion, "logo_base64", None),
         # Paciente
         nombre_completo=(
-            f"{_get(patient,'primer_nombre')} "
-            f"{_get(patient,'segundo_nombre')} "
-            f"{_get(patient,'primer_apellido')} "
-            f"{_get(patient,'segundo_apellido')}"
+            f"{_get(patient, 'primer_nombre')} "
+            f"{_get(patient, 'segundo_nombre')} "
+            f"{_get(patient, 'primer_apellido')} "
+            f"{_get(patient, 'segundo_apellido')}"
         ).strip(),
-        numero_documento=_get(patient, 'numero_documento'),
-        tipo_documento=_get(patient, 'tipo_documento', 'CC'),
-        fecha_nacimiento=getattr(patient, 'fecha_nacimiento', None),
-        fecha_atencion=getattr(patient, 'fecha_atencion', None),
-        edad_display=getattr(ev, 'edad_display', None) or "",
-        sexo="Masculino" if _get(patient, 'sexo') == 'H' else "Femenino",
-        escolaridad=_get(patient, 'escolaridad'),
-        lateralidad=_get(patient, 'lateralidad', 'Diestro'),
-        ocupacion=_get(patient, 'ocupacion'),
-        ciudad=_get(patient, 'ciudad'),
-        acompanante=_get(patient, 'acompanante'),
-        remite=_get(patient, 'remite'),
-        orden_no=_get(patient, 'orden_medica_no'),
-        eps=_get(patient, 'eps'),
-        poblacion=getattr(ev, 'poblacion', '') or "",
-
+        numero_documento=_get(patient, "numero_documento"),
+        tipo_documento=_get(patient, "tipo_documento", "CC"),
+        fecha_nacimiento=getattr(patient, "fecha_nacimiento", None),
+        fecha_atencion=getattr(patient, "fecha_atencion", None),
+        edad_display=getattr(ev, "edad_display", None) or "",
+        sexo="Masculino" if _get(patient, "sexo") == "H" else "Femenino",
+        escolaridad=_get(patient, "escolaridad"),
+        lateralidad=_get(patient, "lateralidad", "Diestro"),
+        ocupacion=_get(patient, "ocupacion"),
+        ciudad=_get(patient, "ciudad"),
+        acompanante=_get(patient, "acompanante"),
+        remite=_get(patient, "remite"),
+        orden_no=_get(patient, "orden_medica_no"),
+        eps=_get(patient, "eps"),
+        poblacion=getattr(ev, "poblacion", "") or "",
         # Historia clínica
-        motivo_consulta=_get(hc, 'motivo_consulta') if hc else "",
-        patologicos_medicos=_get(hc, 'patologicos_medicos') if hc else "",
-        sensoriales_motores=_get(hc, 'sensoriales_motores') if hc else "",
-        psiquiatricos=_get(hc, 'psiquiatricos') if hc else "",
-        farmacologicos=_get(hc, 'farmacologicos') if hc else "",
-        traumaticos=_get(hc, 'traumaticos') if hc else "",
-        quirurgicos=_get(hc, 'quirurgicos') if hc else "",
-        toxicos=_get(hc, 'toxicos') if hc else "",
-        alergicos=_get(hc, 'alergicos') if hc else "",
-        terapeuticos=_get(hc, 'terapeuticos') if hc else "",
-        paraclinicos=_get(hc, 'paraclinicos') if hc else "",
-        familiares=_get(hc, 'familiares') if hc else "",
-        vive_con=_get(hc, 'vive_con') if hc else "",
-        abc=_get(hc, 'abc') if hc else "",
-        escolar_laboral=_get(hc, 'escolar_laboral') if hc else "",
-        patron_sueno=_get(hc, 'patron_sueno') if hc else "",
-        patron_alimentacion=_get(hc, 'patron_alimentacion') if hc else "",
-        comportamiento_animo=_get(hc, 'comportamiento_animo') if hc else "",
-
+        motivo_consulta=_get(hc, "motivo_consulta") if hc else "",
+        patologicos_medicos=_get(hc, "patologicos_medicos") if hc else "",
+        sensoriales_motores=_get(hc, "sensoriales_motores") if hc else "",
+        psiquiatricos=_get(hc, "psiquiatricos") if hc else "",
+        farmacologicos=_get(hc, "farmacologicos") if hc else "",
+        traumaticos=_get(hc, "traumaticos") if hc else "",
+        quirurgicos=_get(hc, "quirurgicos") if hc else "",
+        toxicos=_get(hc, "toxicos") if hc else "",
+        alergicos=_get(hc, "alergicos") if hc else "",
+        terapeuticos=_get(hc, "terapeuticos") if hc else "",
+        paraclinicos=_get(hc, "paraclinicos") if hc else "",
+        familiares=_get(hc, "familiares") if hc else "",
+        vive_con=_get(hc, "vive_con") if hc else "",
+        abc=_get(hc, "abc") if hc else "",
+        escolar_laboral=_get(hc, "escolar_laboral") if hc else "",
+        patron_sueno=_get(hc, "patron_sueno") if hc else "",
+        patron_alimentacion=_get(hc, "patron_alimentacion") if hc else "",
+        comportamiento_animo=_get(hc, "comportamiento_animo") if hc else "",
         # Observaciones clínicas — prioriza HC; usa tabla observations como fallback
-        obs_clinica_general=_obs_field(_get(hc, 'obs_clinica_general') if hc else "", "apariencia_conducta"),
-        obs_atencion=_obs_field(_get(hc, 'obs_atencion') if hc else "", "atencion_concentracion"),
-        obs_memoria=_obs_field(_get(hc, 'obs_memoria') if hc else "", "memoria"),
-        obs_praxias_gnosias=_obs_field(_get(hc, 'obs_praxias_gnosias') if hc else "", "habilidades_visoespaciales"),
-        obs_lenguaje=_obs_field(_get(hc, 'obs_lenguaje') if hc else "", "lenguaje"),
-        obs_funciones_ejecutivas=_obs_field(_get(hc, 'obs_funciones_ejecutivas') if hc else "", "funciones_ejecutivas"),
-        obs_emociones=_obs_field(_get(hc, 'obs_emociones') if hc else "", "socio_emocional"),
-        obs_ci=_get(hc, 'obs_ci') if hc else "",
-        obs_impresion_dx=_obs_field(_get(hc, 'obs_impresion_dx') if hc else "", "impresion_diagnostica"),
-        obs_funcionalidad=_get(hc, 'obs_funcionalidad') if hc else "",
-        obs_recomendaciones=_obs_field(_get(hc, 'obs_recomendaciones') if hc else "", "recomendaciones"),
-
+        obs_clinica_general=_obs_field(_get(hc, "obs_clinica_general") if hc else "", "apariencia_conducta"),
+        obs_atencion=_obs_field(_get(hc, "obs_atencion") if hc else "", "atencion_concentracion"),
+        obs_memoria=_obs_field(_get(hc, "obs_memoria") if hc else "", "memoria"),
+        obs_praxias_gnosias=_obs_field(_get(hc, "obs_praxias_gnosias") if hc else "", "habilidades_visoespaciales"),
+        obs_lenguaje=_obs_field(_get(hc, "obs_lenguaje") if hc else "", "lenguaje"),
+        obs_funciones_ejecutivas=_obs_field(_get(hc, "obs_funciones_ejecutivas") if hc else "", "funciones_ejecutivas"),
+        obs_emociones=_obs_field(_get(hc, "obs_emociones") if hc else "", "socio_emocional"),
+        obs_ci=_get(hc, "obs_ci") if hc else "",
+        obs_impresion_dx=_obs_field(_get(hc, "obs_impresion_dx") if hc else "", "impresion_diagnostica"),
+        obs_funcionalidad=_get(hc, "obs_funcionalidad") if hc else "",
+        obs_recomendaciones=_obs_field(_get(hc, "obs_recomendaciones") if hc else "", "recomendaciones"),
         # CIE-10 / CIE-11
-        codigo_cie10=_get(hc, 'codigo_cie10') if hc else "",
-        codigo_cie10_desc=_lookup_cie10_desc(_get(hc, 'codigo_cie10') if hc else ""),
+        codigo_cie10=_get(hc, "codigo_cie10") if hc else "",
+        codigo_cie10_desc=_lookup_cie10_desc(_get(hc, "codigo_cie10") if hc else ""),
         codigo_cie11=cie11_code,
-
         # Terapia (therapy_closure)
         therapy_plan=therapy_ctx.get("therapy_plan", {}),
         therapy_objectives=therapy_ctx.get("therapy_objectives", []),
@@ -1217,29 +1230,25 @@ def build_report_data_from_db(
         therapy_risk_history=therapy_ctx.get("therapy_risk_history", []),
         therapy_motivo_cierre=therapy_ctx.get("therapy_motivo_cierre", ""),
         therapy_nota_cierre=therapy_ctx.get("therapy_nota_cierre", ""),
-
         # Resultados — el ORM guarda JSON en `resultados_json` (no hay attr `resultados`).
         # Hay que deserializarlo; si no, la sección de resultados del PDF queda vacía.
-        resultados=json.loads(getattr(ev, 'resultados_json', '[]') or '[]') if ev else [],
-        puntos_debiles=json.loads(getattr(ev, 'puntos_debiles_json', '[]') or '[]') if ev else [],
-        puntos_fuertes=json.loads(getattr(ev, 'puntos_fuertes_json', '[]') or '[]') if ev else [],
-        advertencias=json.loads(getattr(ev, 'advertencias_json', '[]') or '[]') if ev else [],
-        pruebas_realizadas=getattr(ev, 'pruebas_realizadas', 0) or 0,
-        protocolo=getattr(ev, 'protocolo', '') or "",
-
+        resultados=json.loads(getattr(ev, "resultados_json", "[]") or "[]") if ev else [],
+        puntos_debiles=json.loads(getattr(ev, "puntos_debiles_json", "[]") or "[]") if ev else [],
+        puntos_fuertes=json.loads(getattr(ev, "puntos_fuertes_json", "[]") or "[]") if ev else [],
+        advertencias=json.loads(getattr(ev, "advertencias_json", "[]") or "[]") if ev else [],
+        pruebas_realizadas=getattr(ev, "pruebas_realizadas", 0) or 0,
+        protocolo=getattr(ev, "protocolo", "") or "",
         # Profesional
-        profesional_nombre=_get(profesional, 'nombre_completo') if profesional else "",
-        profesional_titulo=(
-            f"{_get(profesional,'titulo')} {_get(profesional,'especialidad')}"
-        ).strip() if profesional else "",
-        profesional_registro=_get(profesional, 'numero_registro') if profesional else "",
-        firma_base64=getattr(profesional, 'firma_base64', None) if profesional else None,
-
+        profesional_nombre=_get(profesional, "nombre_completo") if profesional else "",
+        profesional_titulo=(f"{_get(profesional, 'titulo')} {_get(profesional, 'especialidad')}").strip()
+        if profesional
+        else "",
+        profesional_registro=_get(profesional, "numero_registro") if profesional else "",
+        firma_base64=getattr(profesional, "firma_base64", None) if profesional else None,
         # Identificador de evaluación (usado por la variante Pro en footer/portada)
-        eval_id=_get(ev, 'id') if ev else "",
-
+        eval_id=_get(ev, "id") if ev else "",
         # Campos específicos de la variante "Inconcluso" — ausentes en el ORM
         # antiguo, por eso usamos getattr con default.
-        informe_inconcluso_cat=str(getattr(ev, 'informe_inconcluso_cat', '') or '') if ev else "",
-        informe_inconcluso_nota=str(getattr(ev, 'informe_inconcluso_nota', '') or '') if ev else "",
+        informe_inconcluso_cat=str(getattr(ev, "informe_inconcluso_cat", "") or "") if ev else "",
+        informe_inconcluso_nota=str(getattr(ev, "informe_inconcluso_nota", "") or "") if ev else "",
     )

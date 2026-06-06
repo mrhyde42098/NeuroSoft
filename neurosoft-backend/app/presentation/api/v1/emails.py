@@ -13,6 +13,7 @@ GET  /emails/logs
 GET  /emails/status
     Reporta si SMTP está configurado (sin exponer credenciales).
 """
+
 from __future__ import annotations
 
 import logging
@@ -95,10 +96,16 @@ def _build_ctx_from_eval(db, eval_id: str):
     prof = db.get(ProfessionalORM, pat.profesional_id) if pat.profesional_id else None
     inst = db.query(ConfigInstitucionORM).first()
 
-    nombre = " ".join(x for x in [
-        pat.primer_nombre or "", pat.segundo_nombre or "",
-        pat.primer_apellido or "", pat.segundo_apellido or "",
-    ] if x).strip()
+    nombre = " ".join(
+        x
+        for x in [
+            pat.primer_nombre or "",
+            pat.segundo_nombre or "",
+            pat.primer_apellido or "",
+            pat.segundo_apellido or "",
+        ]
+        if x
+    ).strip()
 
     ctx = TemplateContext(
         patient_nombre=nombre or "(paciente)",
@@ -143,6 +150,7 @@ def send_report_email(
 
     # §QW-3: usar plantilla custom de BD si existe; fallback a DEFAULT_TEMPLATES
     from app.infrastructure.database.orm_models import ConfigEmailTemplateORM
+
     custom = db.query(ConfigEmailTemplateORM).filter_by(tipo=dto.tipo, activo=True).first()
     if custom is not None:
         tpl_subject = custom.subject or DEFAULT_TEMPLATES.get(dto.tipo, DEFAULT_TEMPLATES["otro"])["subject"]
@@ -179,13 +187,14 @@ def send_report_email(
                 profesional=prof,
             )
             pdf_bytes = generate_report_pdf(report_data, template="pro")
-            fname = (
-                f"InformeNPS_{(pat.primer_apellido or '').strip()}"
-                f"_{pat.numero_documento}.pdf"
-            ).replace(" ", "_")
-            attachments.append(Attachment(
-                filename=fname, content=pdf_bytes, mime_type="application/pdf",
-            ))
+            fname = (f"InformeNPS_{(pat.primer_apellido or '').strip()}_{pat.numero_documento}.pdf").replace(" ", "_")
+            attachments.append(
+                Attachment(
+                    filename=fname,
+                    content=pdf_bytes,
+                    mime_type="application/pdf",
+                )
+            )
         except Exception as e:  # noqa: BLE001
             logger.warning("No se pudo adjuntar PDF (%s). Envío continúa sin adjunto.", e)
 
@@ -207,6 +216,7 @@ def send_report_email(
     # Auditoría a nivel sistema
     try:
         from app.infrastructure.audit import record_event
+
         record_event(
             db,
             action="send_email" if result.ok else "send_email_failed",
@@ -247,20 +257,22 @@ def list_email_logs(
     q = q.order_by(EmailLogORM.ts.desc()).limit(limit)
     out = []
     for r in q.all():
-        out.append({
-            "id": r.id,
-            "ts": r.ts.isoformat() if r.ts else None,
-            "actor_id": r.actor_id,
-            "actor_label": r.actor_label,
-            "patient_id": r.patient_id,
-            "evaluation_id": r.evaluation_id,
-            "tipo": r.tipo,
-            "recipient_to": r.recipient_to,
-            "recipient_cc": r.recipient_cc,
-            "subject": r.subject,
-            "status": r.status,
-            "error_message": r.error_message,
-        })
+        out.append(
+            {
+                "id": r.id,
+                "ts": r.ts.isoformat() if r.ts else None,
+                "actor_id": r.actor_id,
+                "actor_label": r.actor_label,
+                "patient_id": r.patient_id,
+                "evaluation_id": r.evaluation_id,
+                "tipo": r.tipo,
+                "recipient_to": r.recipient_to,
+                "recipient_cc": r.recipient_cc,
+                "subject": r.subject,
+                "status": r.status,
+                "error_message": r.error_message,
+            }
+        )
     return out
 
 
@@ -311,10 +323,12 @@ class SmtpConfigDTO(BaseModel):
 @smtp_config_router.get("/smtp", summary="Obtener configuración SMTP (sin password)")
 def get_smtp_config(db: DbSession):
     from app.infrastructure.database.orm_models import ConfigSmtpORM
+
     row = db.get(ConfigSmtpORM, "1")
     if row is None:
         # Devolver defaults desde env (para que UI muestre algo)
         from app.core.config import settings
+
         return {
             "host": settings.smtp_host or "",
             "port": settings.smtp_port or 587,
@@ -458,16 +472,18 @@ def list_email_templates(db: DbSession):
     for tipo in _TIPOS_VALIDOS:
         row = rows.get(tipo)
         default = DEFAULT_TEMPLATES.get(tipo, DEFAULT_TEMPLATES["otro"])
-        out.append({
-            "tipo": tipo,
-            "subject": row.subject if row else default["subject"],
-            "body": row.body if row else default["body"],
-            "activo": bool(row.activo) if row else True,
-            "default_subject": default["subject"],
-            "default_body": default["body"],
-            "source": "db" if row else "default",
-            "updated_at": row.updated_at.isoformat() if row and row.updated_at else None,
-        })
+        out.append(
+            {
+                "tipo": tipo,
+                "subject": row.subject if row else default["subject"],
+                "body": row.body if row else default["body"],
+                "activo": bool(row.activo) if row else True,
+                "default_subject": default["subject"],
+                "default_body": default["body"],
+                "source": "db" if row else "default",
+                "updated_at": row.updated_at.isoformat() if row and row.updated_at else None,
+            }
+        )
     return out
 
 
@@ -493,6 +509,7 @@ def put_email_template(tipo: str, dto: EmailTemplateDTO, db: DbSession):
 @email_tpl_router.delete("/email-templates/{tipo}", summary="Restaurar plantilla default (borrar override)")
 def delete_email_template(tipo: str, db: DbSession):
     from app.infrastructure.database.orm_models import ConfigEmailTemplateORM
+
     row = db.query(ConfigEmailTemplateORM).filter_by(tipo=tipo).first()
     if row is not None:
         db.delete(row)

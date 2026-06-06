@@ -28,8 +28,10 @@ logger = logging.getLogger(__name__)
 # Base declarativa (todas las ORM hereden de aquí)
 # ─────────────────────────────────────────────────────────────
 
+
 class Base(DeclarativeBase):
     """Clase base para todos los modelos ORM."""
+
     pass
 
 
@@ -37,13 +39,14 @@ class Base(DeclarativeBase):
 # Motor y fábrica de sesiones
 # ─────────────────────────────────────────────────────────────
 
+
 def _create_engine():
     """Crea el motor SQLAlchemy con configuración optimizada para SQLite."""
     engine = create_engine(
         settings.sqlalchemy_url,
         connect_args={"check_same_thread": False},  # Necesario para FastAPI async
-        echo=settings.is_development,               # SQL logging en dev
-        pool_pre_ping=True,                         # Detecta conexiones muertas
+        echo=settings.is_development,  # SQL logging en dev
+        pool_pre_ping=True,  # Detecta conexiones muertas
     )
 
     # Habilitar WAL mode y foreign keys en cada nueva conexión SQLite
@@ -66,6 +69,7 @@ SessionLocal = sessionmaker(bind=_engine, autocommit=False, autoflush=False)
 # ─────────────────────────────────────────────────────────────
 # Ciclo de vida
 # ─────────────────────────────────────────────────────────────
+
 
 def init_database() -> None:
     """
@@ -138,68 +142,69 @@ def _apply_additive_schema_patches() -> None:
 
     patches: list[tuple[str, str, str]] = [
         # (tabla, columna, tipo_sql_sqlite)
-        ("patients",          "acompanante_relacion", "VARCHAR(100)"),
-        ("patients",          "acompanante_telefono", "VARCHAR(50)"),
-        ("patients",          "archived_at",      "DATETIME"),
-        ("patients",          "archived_by",      "VARCHAR(36)"),
-        ("patients",          "archived_reason",  "TEXT"),
+        ("patients", "acompanante_relacion", "VARCHAR(100)"),
+        ("patients", "acompanante_telefono", "VARCHAR(50)"),
+        ("patients", "archived_at", "DATETIME"),
+        ("patients", "archived_by", "VARCHAR(36)"),
+        ("patients", "archived_reason", "TEXT"),
         # QW-6 etiquetas de paciente (JSON serializado en TEXT)
-        ("patients",          "etiquetas",        "TEXT"),
+        ("patients", "etiquetas", "TEXT"),
         # Régimen de afiliación y país (registro ampliado)
-        ("patients",          "regimen",          "TEXT"),
-        ("patients",          "pais",             "TEXT"),
+        ("patients", "regimen", "TEXT"),
+        ("patients", "pais", "TEXT"),
         # Endpoint OpenAI-compatible para IA en línea (MedGemma, OpenRouter…)
-        ("ai_config",         "openai_base_url",  "TEXT"),
-        ("evaluations",       "baremo_version",          "VARCHAR(30)"),
-        ("evaluations",       "baremo_checksum",         "VARCHAR(64)"),
+        ("ai_config", "openai_base_url", "TEXT"),
+        ("evaluations", "baremo_version", "VARCHAR(30)"),
+        ("evaluations", "baremo_checksum", "VARCHAR(64)"),
         # Campos de categoría/nota de informe inconcluso
-        ("evaluations",       "informe_inconcluso_cat",  "VARCHAR(80)"),
-        ("evaluations",       "informe_inconcluso_nota", "TEXT"),
+        ("evaluations", "informe_inconcluso_cat", "VARCHAR(80)"),
+        ("evaluations", "informe_inconcluso_nota", "TEXT"),
         # Workflow de firma clínica (Res. 2654 MinSalud)
-        ("evaluations",       "signed_at",        "DATETIME"),
-        ("evaluations",       "signed_by",        "VARCHAR(36)"),
-        ("evaluations",       "signed_by_label",  "VARCHAR(150)"),
-        ("evaluations",       "signature_sha256", "VARCHAR(64)"),
+        ("evaluations", "signed_at", "DATETIME"),
+        ("evaluations", "signed_by", "VARCHAR(36)"),
+        ("evaluations", "signed_by_label", "VARCHAR(150)"),
+        ("evaluations", "signature_sha256", "VARCHAR(64)"),
         # Soft-delete de sesiones de evolución (Res. 1995)
-        ("evolucion_terapia", "updated_at",       "DATETIME"),
-        ("evolucion_terapia", "archived_at",      "DATETIME"),
-        ("evolucion_terapia", "archived_by",      "VARCHAR(36)"),
-        ("evolucion_terapia", "archived_reason",  "TEXT"),
+        ("evolucion_terapia", "updated_at", "DATETIME"),
+        ("evolucion_terapia", "archived_at", "DATETIME"),
+        ("evolucion_terapia", "archived_by", "VARCHAR(36)"),
+        ("evolucion_terapia", "archived_reason", "TEXT"),
         # Trazabilidad por request: X-Request-ID en cada asiento de auditoría
-        ("audit_log",         "request_id",       "VARCHAR(64)"),
+        ("audit_log", "request_id", "VARCHAR(64)"),
         # Campo de hipótesis pre-evaluativa añadido en v8 a la HC
         ("clinical_histories", "hipotesis_pre_eval", "TEXT"),
         # Foto/avatar del profesional para mostrar en perfil e informes
-        ("professionals",     "foto_base64",      "TEXT"),
+        ("professionals", "foto_base64", "TEXT"),
         # PLAN_MAESTRO migrations 007-009 (auto-upgrade para BDs sin Alembic)
-        ("patients",          "via_atencion",     "TEXT"),
-        ("clinical_histories", "codigo_cie11",    "TEXT"),
-        ("therapy_plans",     "codigo_cie11",     "TEXT"),
-        ("appointments",      "eps",              "TEXT"),
-        ("appointments",      "regimen",          "TEXT"),
-        ("appointments",      "autorizacion_no",  "TEXT"),
-        ("appointments",      "cups",             "TEXT"),
-        ("appointments",      "modalidad",        "TEXT"),
-        ("appointments",      "discapacidad",     "TEXT"),
-        ("appointments",      "contacto_telefono", "TEXT"),
-        ("appointments",      "contacto_correo",  "TEXT"),
+        ("patients", "via_atencion", "TEXT"),
+        ("clinical_histories", "codigo_cie11", "TEXT"),
+        ("therapy_plans", "codigo_cie11", "TEXT"),
+        ("appointments", "eps", "TEXT"),
+        ("appointments", "regimen", "TEXT"),
+        ("appointments", "autorizacion_no", "TEXT"),
+        ("appointments", "cups", "TEXT"),
+        ("appointments", "modalidad", "TEXT"),
+        ("appointments", "discapacidad", "TEXT"),
+        ("appointments", "contacto_telefono", "TEXT"),
+        ("appointments", "contacto_correo", "TEXT"),
     ]
     # §C5-fix: validación estricta de identificadores SQL.
     # Aunque `patches` está hardcoded internamente, evitamos cualquier
     # posibilidad de inyección (futura) verificando que cada identificador
     # solo contenga caracteres seguros [A-Za-z0-9_] y tipos permitidos.
     import re as _re
+
     _IDENT = _re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-    _ALLOWED_TYPES = {"TEXT", "INTEGER", "REAL", "BLOB", "NUMERIC",
-                       "DATETIME", "BOOLEAN"}
+    _ALLOWED_TYPES = {"TEXT", "INTEGER", "REAL", "BLOB", "NUMERIC", "DATETIME", "BOOLEAN"}
 
     with _engine.begin() as conn:
         for table, column, sql_type in patches:
-            if not (_IDENT.match(table) and _IDENT.match(column)
-                    and sql_type.upper() in _ALLOWED_TYPES):
+            if not (_IDENT.match(table) and _IDENT.match(column) and sql_type.upper() in _ALLOWED_TYPES):
                 logger.error(
                     "Auto-upgrade: identificador inválido rechazado: %s.%s %s",
-                    table, column, sql_type,
+                    table,
+                    column,
+                    sql_type,
                 )
                 continue
             try:
@@ -210,14 +215,14 @@ def _apply_additive_schema_patches() -> None:
             if column in existing:
                 continue
             try:
-                conn.exec_driver_sql(
-                    f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}"
-                )
+                conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}")
                 logger.info("Auto-upgrade: %s.%s agregada", table, column)
             except Exception as e:  # noqa: BLE001
                 logger.warning(
                     "Auto-upgrade: no se pudo agregar %s.%s: %s",
-                    table, column, e,
+                    table,
+                    column,
+                    e,
                 )
 
 
@@ -272,31 +277,37 @@ def session_scope():
 # Audit log — append-only (Res. 1995 trazabilidad)
 # ─────────────────────────────────────────────────────────────
 
+
 def _init_audit_log_append_only() -> None:
     """Impide UPDATE/DELETE en audit_log a nivel SQLite."""
     from sqlalchemy import text
 
     with _engine.begin() as conn:
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS audit_log_no_update
             BEFORE UPDATE ON audit_log
             BEGIN
                 SELECT RAISE(ABORT, 'audit_log is append-only');
             END
-        """))
-        conn.execute(text("""
+        """)
+        )
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS audit_log_no_delete
             BEFORE DELETE ON audit_log
             BEGIN
                 SELECT RAISE(ABORT, 'audit_log is append-only');
             END
-        """))
+        """)
+        )
     logger.info("Audit log: triggers append-only activos")
 
 
 # ─────────────────────────────────────────────────────────────
 # FTS5 — Full-Text Search para pacientes
 # ─────────────────────────────────────────────────────────────
+
 
 def _init_fts5_index() -> None:
     """
@@ -310,9 +321,9 @@ def _init_fts5_index() -> None:
     from sqlalchemy import text
 
     with _engine.begin() as conn:
-        result = conn.execute(text(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='patients_fts'"
-        )).fetchone()
+        result = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='patients_fts'")
+        ).fetchone()
 
         if result:
             count = conn.execute(text("SELECT COUNT(*) FROM patients_fts")).scalar()
@@ -322,7 +333,8 @@ def _init_fts5_index() -> None:
             logger.info("FTS5: índice repoblado (%d documentos)", count)
             return
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE VIRTUAL TABLE IF NOT EXISTS patients_fts
             USING fts5(
                 id UNINDEXED,
@@ -339,9 +351,11 @@ def _init_fts5_index() -> None:
                 content_rowid='rowid',
                 tokenize='unicode61'
             )
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS patients_ai AFTER INSERT ON patients BEGIN
                 INSERT INTO patients_fts(rowid, id, primer_nombre, segundo_nombre,
                     primer_apellido, segundo_apellido, numero_documento,
@@ -350,9 +364,11 @@ def _init_fts5_index() -> None:
                     new.primer_apellido, new.segundo_apellido, new.numero_documento,
                     new.motivo_consulta, new.eps, new.ciudad, new.ocupacion);
             END
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS patients_ad AFTER DELETE ON patients BEGIN
                 INSERT INTO patients_fts(patients_fts, rowid, id, primer_nombre,
                     segundo_nombre, primer_apellido, segundo_apellido,
@@ -362,9 +378,11 @@ def _init_fts5_index() -> None:
                     old.numero_documento, old.motivo_consulta, old.eps,
                     old.ciudad, old.ocupacion);
             END
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS patients_au AFTER UPDATE ON patients BEGIN
                 INSERT INTO patients_fts(patients_fts, rowid, id, primer_nombre,
                     segundo_nombre, primer_apellido, segundo_apellido,
@@ -380,11 +398,14 @@ def _init_fts5_index() -> None:
                     new.primer_apellido, new.segundo_apellido, new.numero_documento,
                     new.motivo_consulta, new.eps, new.ciudad, new.ocupacion);
             END
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             INSERT INTO patients_fts(patients_fts) VALUES('rebuild')
-        """))
+        """)
+        )
 
         count = conn.execute(text("SELECT COUNT(*) FROM patients_fts")).scalar()
         logger.info("FTS5: índice creado y poblado (%d documentos)", count)

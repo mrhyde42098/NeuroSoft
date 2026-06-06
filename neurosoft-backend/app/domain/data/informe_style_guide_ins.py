@@ -12,6 +12,7 @@ Fuentes clínicas:
   - Protocolos internos de informe NPS WISC
   - Análisis de Discrepancias WISC-IV (Flanagan & Kaufman, 2009)
 """
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -38,11 +39,11 @@ INS_STYLE_RULES: list[str] = [
 # menciona atención, lenguaje, memoria.
 INS_THEORY_MODELS: dict[str, str] = {
     "atencion": "Modelo de Solberg-Mateer (atención focalizada, sostenida, selectiva, alternante, dividida).",
-    "memoria":  "Modelos de Tulving y Atkinson-Shiffrin (registro sensorial, CP, MLP, episódica, semántica, procedimental).",
+    "memoria": "Modelos de Tulving y Atkinson-Shiffrin (registro sensorial, CP, MLP, episódica, semántica, procedimental).",
     "lenguaje": "Modelo de Ellis-Young (procesamiento fonológico, léxico, semántico y sintáctico).",
-    "ffee":     "Modelo de Luria y Stuss (control inhibitorio, flexibilidad, planeación, memoria de trabajo).",
+    "ffee": "Modelo de Luria y Stuss (control inhibitorio, flexibilidad, planeación, memoria de trabajo).",
     "visoespacial": "Modelo de la corriente dorsal vs ventral (Ungerleider-Mishkin).",
-    "praxias":  "Modelo de Liepmann (ideomotora, ideatoria, constructiva).",
+    "praxias": "Modelo de Liepmann (ideomotora, ideatoria, constructiva).",
 }
 
 
@@ -62,6 +63,7 @@ INS_TERM_REPLACEMENTS_PEDIATRIC: dict[str, str] = {
 # Helpers para inyectar en system prompts
 # ─────────────────────────────────────────────────────────────
 
+
 def build_ins_style_suffix(
     *,
     is_pediatric: bool = False,
@@ -76,6 +78,7 @@ def build_ins_style_suffix(
     """
     try:
         from app.core.branding import clinical_brand
+
         _brand = clinical_brand()
     except Exception:
         _brand = "institucional"

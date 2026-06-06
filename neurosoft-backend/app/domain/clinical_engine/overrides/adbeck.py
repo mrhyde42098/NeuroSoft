@@ -40,14 +40,14 @@ Siguiendo el patrón del resto de clasificaciones_fijas del motor
 inferiores** de cada banda. El strategy ya sabe cómo buscar la
 banda que contiene el puntaje.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
-
+from typing import Any
 
 # Tabla BDI-II (Beck, Steer & Brown, 1996, Manual cap. 4)
 # Cada key es el límite INFERIOR (inclusivo) de la banda.
-_BDI_II_BANDAS: Dict[str, str] = {
+_BDI_II_BANDAS: dict[str, str] = {
     "0": "Mínima",
     "14": "Leve",
     "20": "Moderada",
@@ -65,7 +65,7 @@ _BDI_II_CORTE_CLINICO: int = 14
 _BDI_II_FUENTE: str = "Beck, Steer & Brown (1996). BDI-II Manual. Psychological Corporation."
 
 
-def get_adbeck_override() -> Dict[str, Any]:
+def get_adbeck_override() -> dict[str, Any]:
     """
     Retorna el dict `baremos` correcto para AdBeck (BDI-II).
 
@@ -84,7 +84,7 @@ def get_adbeck_override() -> Dict[str, Any]:
     }
 
 
-def get_adbeck_metadata() -> Dict[str, Any]:
+def get_adbeck_metadata() -> dict[str, Any]:
     """
     Metadata clínico-administrativa de la override AdBeck.
 

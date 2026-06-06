@@ -10,6 +10,7 @@ Casos:
   3. Plan inexistente → 404.
   4. Generador acepta plan firmado y rechaza borrador (ValueError).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -22,8 +23,10 @@ import pytest
 # independencia de fixtures cruzadas)
 # ─────────────────────────────────────────────────────────────
 
+
 def _make_patient(db, doc="REHABPDF1", first="Lucia"):
     from app.infrastructure.database.orm_models import PatientORM
+
     p = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -50,6 +53,7 @@ def _create_and_sign_plan(db, patient_id):
         SignRehabPlanUseCase,
         seed_activity_catalog,
     )
+
     seed_activity_catalog(db)
     dto = RehabPlanCreateDTO(
         patient_id=patient_id,
@@ -66,7 +70,9 @@ def _create_and_sign_plan(db, patient_id):
     plan = CreateRehabPlanUseCase(db).execute(dto)
     db.commit()
     signed = SignRehabPlanUseCase(db).execute(
-        plan_id=plan["id"], actor_id="prof-01", actor_label="Dra. Prueba",
+        plan_id=plan["id"],
+        actor_id="prof-01",
+        actor_label="Dra. Prueba",
     )
     db.commit()
     return signed
@@ -78,6 +84,7 @@ def _create_unsigned_plan(db, patient_id):
         CreateRehabPlanUseCase,
         seed_activity_catalog,
     )
+
     seed_activity_catalog(db)
     dto = RehabPlanCreateDTO(
         patient_id=patient_id,
@@ -94,9 +101,9 @@ def _create_unsigned_plan(db, patient_id):
 # Tests del generador puro (sin HTTP)
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestRehabPDFGenerator:
-
     def test_generator_devuelve_bytes_pdf_para_plan_firmado(self, in_memory_db):
         from app.infrastructure.database.orm_models import PatientORM, RehabPlanORM
         from app.infrastructure.rehab_pdf_service import generate_rehab_plan_pdf
@@ -131,11 +138,13 @@ class TestRehabPDFGenerator:
 # Tests del endpoint vía TestClient
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.fixture(scope="module")
 def app_client():
     from fastapi.testclient import TestClient
 
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -143,9 +152,13 @@ def app_client():
 @pytest.fixture(scope="module")
 def admin_token(app_client):
     """Reutiliza el admin sembrado en el startup de la app."""
-    r = app_client.post("/api/v1/auth/login", json={
-        "username": "admin", "password": "neurosoft2025",
-    })
+    r = app_client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": "admin",
+            "password": "neurosoft2025",
+        },
+    )
     if r.status_code == 401:
         pytest.skip("Admin password no es 'neurosoft2025' en este entorno")
     assert r.status_code == 200, r.text
@@ -158,28 +171,36 @@ def _auth(token):
 
 def _seed_via_api(client, token, signed=True):
     """Crea un paciente + plan vía HTTP. Devuelve (patient_id, plan_id)."""
-    pat = client.post("/api/v1/patients/", headers=_auth(token), json={
-        "numero_documento": f"PDF{uuid.uuid4().hex[:6].upper()}",
-        "tipo_documento": "CC",
-        "primer_nombre": "Test",
-        "primer_apellido": "PDFRehab",
-        "fecha_nacimiento": "2010-01-01",
-        "sexo": "M",
-        "escolaridad": "Primaria Incompleta",
-        "lateralidad": "Diestro",
-        "fecha_atencion": "2026-03-20",
-    })
+    pat = client.post(
+        "/api/v1/patients/",
+        headers=_auth(token),
+        json={
+            "numero_documento": f"PDF{uuid.uuid4().hex[:6].upper()}",
+            "tipo_documento": "CC",
+            "primer_nombre": "Test",
+            "primer_apellido": "PDFRehab",
+            "fecha_nacimiento": "2010-01-01",
+            "sexo": "M",
+            "escolaridad": "Primaria Incompleta",
+            "lateralidad": "Diestro",
+            "fecha_atencion": "2026-03-20",
+        },
+    )
     assert pat.status_code in (200, 201), pat.text
     pid = pat.json()["id"]
 
-    plan = client.post("/api/v1/rehab/plans", headers=_auth(token), json={
-        "patient_id": pid,
-        "fecha_inicio": "2026-04-01",
-        "frecuencia_semanal": 2,
-        "objetivos": "Atención sostenida",
-        "dominios": ["atencion"],
-        "actividades": [{"slug": "stroop", "dificultad": 1}],
-    })
+    plan = client.post(
+        "/api/v1/rehab/plans",
+        headers=_auth(token),
+        json={
+            "patient_id": pid,
+            "fecha_inicio": "2026-04-01",
+            "frecuencia_semanal": 2,
+            "objetivos": "Atención sostenida",
+            "dominios": ["atencion"],
+            "actividades": [{"slug": "stroop", "dificultad": 1}],
+        },
+    )
     assert plan.status_code in (200, 201), plan.text
     plan_id = plan.json()["id"]
 
@@ -195,7 +216,6 @@ def _seed_via_api(client, token, signed=True):
 
 @pytest.mark.integration
 class TestRehabPDFEndpoint:
-
     def test_plan_firmado_devuelve_pdf_200(self, app_client, admin_token):
         _, plan_id = _seed_via_api(app_client, admin_token, signed=True)
         r = app_client.post(

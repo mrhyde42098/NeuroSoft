@@ -1,20 +1,13 @@
 """
 F19 — Tests del sistema de identidad configurable.
 """
-import json
-import os
-import pytest
-import sqlite3
-import tempfile
-from pathlib import Path
 
 from app.core.config_institucion import (
     InstitucionConfig,
     demo_data,
-    get_config_institucion,
-    save_institucion_config,
-    load_institucion_config,
     invalidate_cache,
+    load_institucion_config,
+    save_institucion_config,
 )
 
 
@@ -71,9 +64,7 @@ class TestInstitucionConfig:
         assert ph["codigo_habilitacion"] == "[CÓDIGO HABILITACIÓN]"
 
     def test_from_dict_ignora_claves_desconocidas(self):
-        cfg = InstitucionConfig.from_dict(
-            {"nombre_completo": "Ps. X", "campo_inventado": "ignorar"}
-        )
+        cfg = InstitucionConfig.from_dict({"nombre_completo": "Ps. X", "campo_inventado": "ignorar"})
         assert cfg.nombre_completo == "Ps. X"
 
     def test_to_dict_incluye_los_14_campos(self):
@@ -82,10 +73,19 @@ class TestInstitucionConfig:
         assert len(d) == 14
         # Verifica que los nombres del F19.1 están presentes
         for f in [
-            "nombre_completo", "tarjeta_profesional", "universidad", "fecha_tarjeta",
-            "resolucion", "institucion_nombre", "institucion_nit",
-            "institucion_direccion", "institucion_telefono", "institucion_correo",
-            "institucion_logo_path", "pie_pagina_pdf", "codigo_habilitacion",
+            "nombre_completo",
+            "tarjeta_profesional",
+            "universidad",
+            "fecha_tarjeta",
+            "resolucion",
+            "institucion_nombre",
+            "institucion_nit",
+            "institucion_direccion",
+            "institucion_telefono",
+            "institucion_correo",
+            "institucion_logo_path",
+            "pie_pagina_pdf",
+            "codigo_habilitacion",
             "sello_digital_path",
         ]:
             assert f in d, f"Falta campo {f}"

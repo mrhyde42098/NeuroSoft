@@ -42,6 +42,7 @@ def _row_to_dict(orm) -> dict[str, Any]:
     para tener control fino del scope).
     """
     from sqlalchemy import inspect as _inspect
+
     out: dict[str, Any] = {}
     insp = _inspect(orm)
     for col in insp.mapper.column_attrs:
@@ -121,11 +122,7 @@ class ExportPatientDataUseCase:
                 }
 
         # ── Historia clínica + versiones
-        hc_orm = (
-            self._db.query(ClinicalHistoryORM)
-            .filter_by(patient_id=patient_id)
-            .first()
-        )
+        hc_orm = self._db.query(ClinicalHistoryORM).filter_by(patient_id=patient_id).first()
         clinical_history = _row_to_dict(hc_orm) if hc_orm else None
         hc_versions: list[dict[str, Any]] = []
         if hc_orm is not None:
@@ -145,10 +142,7 @@ class ExportPatientDataUseCase:
         # ── Evaluaciones
         evaluaciones: list[dict[str, Any]] = []
         for ev in (
-            self._db.query(EvaluationORM)
-            .filter_by(patient_id=patient_id)
-            .order_by(EvaluationORM.fecha.desc())
-            .all()
+            self._db.query(EvaluationORM).filter_by(patient_id=patient_id).order_by(EvaluationORM.fecha.desc()).all()
         ):
             row = _row_to_dict(ev)
             row["puntajes_brutos"] = _parse_json_field(ev.puntajes_brutos_json)
@@ -157,8 +151,11 @@ class ExportPatientDataUseCase:
             row["puntos_debiles"] = _parse_json_field(ev.puntos_debiles_json)
             row["puntos_fuertes"] = _parse_json_field(ev.puntos_fuertes_json)
             for k in (
-                "puntajes_brutos_json", "resultados_json",
-                "advertencias_json", "puntos_debiles_json", "puntos_fuertes_json",
+                "puntajes_brutos_json",
+                "resultados_json",
+                "advertencias_json",
+                "puntos_debiles_json",
+                "puntos_fuertes_json",
             ):
                 row.pop(k, None)
             evaluaciones.append(row)
@@ -226,12 +223,7 @@ class ExportPatientDataUseCase:
 
         # ── Correos enviados al paciente
         emails_enviados = []
-        for em in (
-            self._db.query(EmailLogORM)
-            .filter_by(patient_id=patient_id)
-            .order_by(EmailLogORM.ts.desc())
-            .all()
-        ):
+        for em in self._db.query(EmailLogORM).filter_by(patient_id=patient_id).order_by(EmailLogORM.ts.desc()).all():
             row = _row_to_dict(em)
             row["adjuntos"] = _parse_json_field(em.attachments_json)
             row.pop("attachments_json", None)

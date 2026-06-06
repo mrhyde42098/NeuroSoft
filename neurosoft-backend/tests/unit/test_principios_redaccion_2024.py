@@ -2,13 +2,12 @@
 F9.2/F9.3 — Tests del validador de principios de redacción 2024
 y del constructor del bloque legal del encabezado.
 """
-import pytest
 
 from app.infrastructure.report_pro.narrative import (
-    PRINCIPIOS_REDACCION_2024,
-    validar_principios_redaccion_2024,
-    construir_bloque_legal_encabezado,
     CLAUSULAS_INFORME_PROFESIONAL,
+    PRINCIPIOS_REDACCION_2024,
+    construir_bloque_legal_encabezado,
+    validar_principios_redaccion_2024,
 )
 
 
@@ -102,9 +101,7 @@ class TestValidarPrincipiosRedaccion2024:
 
     def test_mentiona_baremos_explicito_override_inferencia(self):
         texto = "El paciente presenta déficit atencional."
-        resultado = validar_principios_redaccion_2024(
-            texto, poblacion_objetivo="adulto_joven", menciona_baremos=True
-        )
+        resultado = validar_principios_redaccion_2024(texto, poblacion_objetivo="adulto_joven", menciona_baremos=True)
         r6 = resultado["principios"]["R6"]
         assert r6["estado"] == "ok"
 

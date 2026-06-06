@@ -25,6 +25,7 @@ from tools.license_core import (  # noqa: E402
     decode_key,
     email_template,
     export_inventory_csv,
+    export_inventory_xlsx,
     generate_key,
     import_csv_inventory,
     inventory_batches,
@@ -167,7 +168,8 @@ class LicenseAdminApp:
         bf.pack(fill="x", pady=12)
         self._btn(bf, "Actualizar contadores", self._refresh_dashboard, primary=True)
         self._btn(bf, "Backup inventario", self._backup_inv)
-        self._btn(bf, "Exportar inventario CSV", self._export_all_inv)
+        self._btn(bf, "Exportar CSV", self._export_all_inv)
+        self._btn(bf, "Exportar Excel", self._export_all_inv_xlsx)
         self._btn(bf, "Importar CSV existente", self._import_csv)
 
     def _refresh_dashboard(self) -> None:
@@ -312,6 +314,7 @@ class LicenseAdminApp:
         self._btn(bf, "Marcar disponible", self._inv_mark_available)
         self._btn(bf, "Revocar", self._inv_revoke)
         self._btn(bf, "Exportar filtro CSV", self._export_filtered_inv)
+        self._btn(bf, "Exportar filtro Excel", self._export_filtered_inv_xlsx)
         self._btn(bf, "Importar CSV", self._import_csv)
 
         cols = ("status", "type", "name", "email", "batch", "key")
@@ -635,6 +638,20 @@ DATOS LOCALES (no subir a GitHub)
             n = export_inventory_csv(path)
             messagebox.showinfo("Exportado", f"{n} filas → {path}")
 
+    def _export_all_inv_xlsx(self) -> None:
+        path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel", "*.xlsx")],
+            initialfile="inventario_licencias.xlsx",
+        )
+        if not path:
+            return
+        try:
+            n = export_inventory_xlsx(path)
+            messagebox.showinfo("Exportado", f"{n} filas → {path}")
+        except RuntimeError as exc:
+            messagebox.showerror("Excel", str(exc))
+
     def _export_filtered_inv(self) -> None:
         st_f = self.inv_status.get()
         status = None if st_f == "todas" else st_f
@@ -642,6 +659,22 @@ DATOS LOCALES (no subir a GitHub)
         if path:
             n = export_inventory_csv(path, status=status)
             messagebox.showinfo("Exportado", f"{n} filas → {path}")
+
+    def _export_filtered_inv_xlsx(self) -> None:
+        st_f = self.inv_status.get()
+        status = None if st_f == "todas" else st_f
+        path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel", "*.xlsx")],
+            initialfile=f"licencias_{st_f}.xlsx",
+        )
+        if not path:
+            return
+        try:
+            n = export_inventory_xlsx(path, status=status)
+            messagebox.showinfo("Exportado", f"{n} filas → {path}")
+        except RuntimeError as exc:
+            messagebox.showerror("Excel", str(exc))
 
     def _save_customize(self) -> None:
         self.settings = {

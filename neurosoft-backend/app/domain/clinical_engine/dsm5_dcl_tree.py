@@ -24,14 +24,15 @@ En ambos casos se exige:
 Este módulo es declarativo — no hace inferencia probabilística formal;
 replica el árbol cualitativo que el clínico aplica en consulta.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Literal
 
 TipoDeclive = Literal["ninguno", "leve", "moderado", "significativo"]
-Extension   = Literal["monodominio", "multidominio"]
-Subtipo     = Literal["amnesico", "no_amnesico"]
+Extension = Literal["monodominio", "multidominio"]
+Subtipo = Literal["amnesico", "no_amnesico"]
 
 
 # ─────────────────────────────────────────────────────────────
@@ -44,12 +45,12 @@ class DCLInput:
     dominios_afectados: list[str] = field(default_factory=list)  # p. ej. ["memoria", "funciones_ejecutivas"]
 
     # Criterio B — interferencia funcional
-    avd_afectadas: bool = False         # SÍ/NO afecta AVD instrumentales
-    independencia_perdida: bool = False # SÍ/NO requiere asistencia para AVD básicas
+    avd_afectadas: bool = False  # SÍ/NO afecta AVD instrumentales
+    independencia_perdida: bool = False  # SÍ/NO requiere asistencia para AVD básicas
 
     # Criterios de exclusión
     delirium_activo: bool = False
-    otro_trastorno_mental: bool = False    # p. ej. depresión mayor que explique el cuadro
+    otro_trastorno_mental: bool = False  # p. ej. depresión mayor que explique el cuadro
 
     # Pistas etiológicas (opcionales — refinan la salida)
     inicio_insidioso: bool = False
@@ -82,15 +83,15 @@ class DCLResult:
 
     def as_dict(self) -> dict:
         return {
-            "clasificacion":        self.clasificacion,
-            "clasificacion_label":  self.clasificacion_label,
-            "cie10_sugerido":       self.cie10_sugerido,
-            "subtipo":              self.subtipo,
-            "extension":            self.extension,
+            "clasificacion": self.clasificacion,
+            "clasificacion_label": self.clasificacion_label,
+            "cie10_sugerido": self.cie10_sugerido,
+            "subtipo": self.subtipo,
+            "extension": self.extension,
             "etiologias_probables": self.etiologias_probables,
-            "criterios_cumplidos":  self.criterios_cumplidos,
-            "criterios_faltantes":  self.criterios_faltantes,
-            "notas":                self.notas,
+            "criterios_cumplidos": self.criterios_cumplidos,
+            "criterios_faltantes": self.criterios_faltantes,
+            "notas": self.notas,
         }
 
 
@@ -122,8 +123,10 @@ def classify_dcl(entrada: DCLInput) -> DCLResult:
             etiologias_probables=[],
             criterios_cumplidos=cumplidos,
             criterios_faltantes=faltantes,
-            notas=["DSM-5 exige que el déficit NO ocurra exclusivamente durante un delirium. "
-                   "Re-evaluar tras resolución del delirium."],
+            notas=[
+                "DSM-5 exige que el déficit NO ocurra exclusivamente durante un delirium. "
+                "Re-evaluar tras resolución del delirium."
+            ],
         )
 
     if entrada.otro_trastorno_mental:
@@ -221,40 +224,53 @@ def _inferir_etiologias(
 ) -> list[str]:
     """Devuelve etiologías ordenadas de más a menos probable."""
     scores: dict[str, int] = {
-        "Enfermedad de Alzheimer":                   0,
-        "Demencia vascular":                         0,
-        "Demencia por cuerpos de Lewy":              0,
-        "Demencia frontotemporal":                   0,
-        "Enfermedad de Parkinson con demencia":      0,
-        "Secuelar a TCE":                            0,
+        "Enfermedad de Alzheimer": 0,
+        "Demencia vascular": 0,
+        "Demencia por cuerpos de Lewy": 0,
+        "Demencia frontotemporal": 0,
+        "Enfermedad de Parkinson con demencia": 0,
+        "Secuelar a TCE": 0,
     }
 
     # EA — insidioso, gradual, amnésico multidominio
-    if e.inicio_insidioso:                       scores["Enfermedad de Alzheimer"] += 2
-    if e.progresion_gradual:                     scores["Enfermedad de Alzheimer"] += 2
-    if subtipo == "amnesico":                    scores["Enfermedad de Alzheimer"] += 3
-    if extension == "multidominio":              scores["Enfermedad de Alzheimer"] += 1
+    if e.inicio_insidioso:
+        scores["Enfermedad de Alzheimer"] += 2
+    if e.progresion_gradual:
+        scores["Enfermedad de Alzheimer"] += 2
+    if subtipo == "amnesico":
+        scores["Enfermedad de Alzheimer"] += 3
+    if extension == "multidominio":
+        scores["Enfermedad de Alzheimer"] += 1
 
     # Vascular — escalonado, factores de riesgo
-    if e.escalonado_post_acv:                    scores["Demencia vascular"] += 3
-    if e.factores_riesgo_vascular:               scores["Demencia vascular"] += 2
+    if e.escalonado_post_acv:
+        scores["Demencia vascular"] += 3
+    if e.factores_riesgo_vascular:
+        scores["Demencia vascular"] += 2
 
     # Lewy — alucinaciones visuales, parkinsonismo, fluctuaciones
-    if e.alucinaciones_visuales:                 scores["Demencia por cuerpos de Lewy"] += 3
-    if e.parkinsonismo:                          scores["Demencia por cuerpos de Lewy"] += 2
-    if e.fluctuaciones_cognitivas:               scores["Demencia por cuerpos de Lewy"] += 2
+    if e.alucinaciones_visuales:
+        scores["Demencia por cuerpos de Lewy"] += 3
+    if e.parkinsonismo:
+        scores["Demencia por cuerpos de Lewy"] += 2
+    if e.fluctuaciones_cognitivas:
+        scores["Demencia por cuerpos de Lewy"] += 2
 
     # FTD — desinhibición, apatía, no-amnésico
-    if e.desinhibicion_precoz:                   scores["Demencia frontotemporal"] += 3
-    if e.apatia_marcada:                         scores["Demencia frontotemporal"] += 2
-    if subtipo == "no_amnesico":                 scores["Demencia frontotemporal"] += 1
+    if e.desinhibicion_precoz:
+        scores["Demencia frontotemporal"] += 3
+    if e.apatia_marcada:
+        scores["Demencia frontotemporal"] += 2
+    if subtipo == "no_amnesico":
+        scores["Demencia frontotemporal"] += 1
 
     # Parkinson con demencia
     if e.parkinsonismo and not e.alucinaciones_visuales:
         scores["Enfermedad de Parkinson con demencia"] += 2
 
     # TCE
-    if e.antecedente_tce:                        scores["Secuelar a TCE"] += 3
+    if e.antecedente_tce:
+        scores["Secuelar a TCE"] += 3
 
     # Edad >= 80 refuerza EA; < 65 refuerza FTD
     if e.edad is not None:

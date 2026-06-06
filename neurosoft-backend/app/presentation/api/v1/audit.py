@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from app.infrastructure.database.orm_models import AuditLogORM
-from app.presentation.api.v1.auth import get_current_user, require_admin
+from app.presentation.api.v1.auth import require_admin
 from app.presentation.dependencies import DbSession
 
 audit_router = APIRouter(prefix="/audit", tags=["Auditoría"])
@@ -115,17 +115,14 @@ def historial_entidad(
     db: DbSession,
     admin=Depends(require_admin),
 ):
-    q = (
-        db.query(AuditLogORM)
-        .filter_by(entity_type=entity_type, entity_id=entity_id)
-        .order_by(AuditLogORM.ts.desc())
-    )
+    q = db.query(AuditLogORM).filter_by(entity_type=entity_type, entity_id=entity_id).order_by(AuditLogORM.ts.desc())
     return [_to_dto(o) for o in q.all()]
 
 
 # ═══════════════════════════════════════════════════════════════════
 # S2.6: Endpoint de auditoría de acceso a ítems verbatim
 # ═══════════════════════════════════════════════════════════════════
+
 
 class ClinicalAccessDTO(BaseModel):
     test_id: str
@@ -149,6 +146,7 @@ def registrar_acceso_clinico(
     No retorna contenido; solo persiste el log de auditoría.
     """
     from app.infrastructure.audit import record_event
+
     record_event(
         db,
         action=body.action,
@@ -156,10 +154,7 @@ def registrar_acceso_clinico(
         entity_id=body.test_id + (f":{body.item_index}" if body.item_index is not None else ""),
         actor_id=user.id if hasattr(user, "id") else None,
         actor_label=user.username if hasattr(user, "username") else None,
-        summary=(
-            f"Acceso a ítem verbatim de '{body.test_id}' "
-            f"(paciente={body.patient_id or 'N/A'})"
-        ),
+        summary=(f"Acceso a ítem verbatim de '{body.test_id}' (paciente={body.patient_id or 'N/A'})"),
     )
     db.commit()
     return None

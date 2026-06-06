@@ -33,7 +33,7 @@ class HistoriaClinica:
 
     # ── Identificación ────────────────────────────────────────────────
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    patient_id: str = ""                        # FK → Paciente
+    patient_id: str = ""  # FK → Paciente
     numero_documento: str = ""
     fecha_atencion: date | None = None
     codigo_cie10: str = "F809"
@@ -46,76 +46,76 @@ class HistoriaClinica:
     motivo_consulta: str = "N/A"
 
     # Datos gestacionales
-    edad_materna: str = "N/A"               # EMaterna — años
-    no_gestacion: str = "N/A"              # NoGestacion — número de gestación
-    riesgos: str = "N/A"                   # Riesgos — Si/No
-    cual_riesgo: str = "N/A"               # Cual — descripción del riesgo
-    estres_prenatal: str = "N/A"           # EstresP — tipo de estrés
-    tipo_estres_prenatal: str = "N/A"      # TEPrenatal (col 46)
-    ucin: str = "N/A"                      # UCIN (col 47) — Si/No/Días
+    edad_materna: str = "N/A"  # EMaterna — años
+    no_gestacion: str = "N/A"  # NoGestacion — número de gestación
+    riesgos: str = "N/A"  # Riesgos — Si/No
+    cual_riesgo: str = "N/A"  # Cual — descripción del riesgo
+    estres_prenatal: str = "N/A"  # EstresP — tipo de estrés
+    tipo_estres_prenatal: str = "N/A"  # TEPrenatal (col 46)
+    ucin: str = "N/A"  # UCIN (col 47) — Si/No/Días
 
     # Parto y nacimiento
-    gestacion: str = "Término"             # Gestacion — Término/Pretérmino
-    semanas: str = "N/A"                   # Semanas — semanas de gestación
-    tipo_parto: str = "N/A"               # TParto — Vaginal/Cesárea/etc.
-    peso: str = "N/A"                      # Peso — en gramos
-    talla: str = "N/A"                     # Talla — en cm
-    condiciones_neonatales: str = "N/A"    # CNeonatales — cianosis, hipoxia, etc.
-    incubadora: str = "N/A"               # Incubadora — Si/No/días
+    gestacion: str = "Término"  # Gestacion — Término/Pretérmino
+    semanas: str = "N/A"  # Semanas — semanas de gestación
+    tipo_parto: str = "N/A"  # TParto — Vaginal/Cesárea/etc.
+    peso: str = "N/A"  # Peso — en gramos
+    talla: str = "N/A"  # Talla — en cm
+    condiciones_neonatales: str = "N/A"  # CNeonatales — cianosis, hipoxia, etc.
+    incubadora: str = "N/A"  # Incubadora — Si/No/días
 
     # Hitos de desarrollo motor (en meses)
-    sostén_cefalico: str = "N/A"          # SosCefalico
-    sedestacion: str = "N/A"              # Sedestacion
-    gateo: str = "N/A"                    # Gateo
-    marcha: str = "N/A"                   # Marcha
+    sostén_cefalico: str = "N/A"  # SosCefalico
+    sedestacion: str = "N/A"  # Sedestacion
+    gateo: str = "N/A"  # Gateo
+    marcha: str = "N/A"  # Marcha
 
     # Hitos de desarrollo del lenguaje (en meses)
-    balbuceo: str = "N/A"                 # Balbuceo
-    primeras_palabras: str = "N/A"        # Palabras (1ras 10 palabras)
-    habla_claro: str = "N/A"             # HablaClaro
+    balbuceo: str = "N/A"  # Balbuceo
+    primeras_palabras: str = "N/A"  # Palabras (1ras 10 palabras)
+    habla_claro: str = "N/A"  # HablaClaro
 
     # Control de esfínteres
-    control_anual: str = "N/A"           # Anal (esfínter anal)
-    control_vesical: str = "N/A"         # Vesical
+    control_anual: str = "N/A"  # Anal (esfínter anal)
+    control_vesical: str = "N/A"  # Vesical
 
     # ═══════════════════════════════════════════════════════════════
     # PESTAÑA 2: ANTECEDENTES MÉDICOS
     # Campos col 26-36 de DBHC
     # ═══════════════════════════════════════════════════════════════
 
-    patologicos_medicos: str = "N/A"      # Patologicos — enfermedades médicas
-    sensoriales_motores: str = "N/A"      # Sensoriales — visión, audición, motor
-    psiquiatricos: str = "N/A"            # Psiquiatricos — diagnósticos psiq.
-    farmacologicos: str = "N/A"           # Farmacologicos — medicamentos actuales
-    traumaticos: str = "N/A"              # Traumaticos — TCE, fracturas
-    quirurgicos: str = "N/A"              # Quirurgicos — cirugías y anestesias
-    toxicos: str = "N/A"                  # Toxicos — SPA, exposición química
-    alergicos: str = "N/A"               # Alergicos — alergias atópicas
-    terapeuticos: str = "N/A"            # Terapeuticos — PIR, terapias previas
-    paraclinicos: str = "N/A"            # Paraclinicos — imágenes, EEG, genética
-    familiares: str = "N/A"              # Familiares — antecedentes familiares
+    patologicos_medicos: str = "N/A"  # Patologicos — enfermedades médicas
+    sensoriales_motores: str = "N/A"  # Sensoriales — visión, audición, motor
+    psiquiatricos: str = "N/A"  # Psiquiatricos — diagnósticos psiq.
+    farmacologicos: str = "N/A"  # Farmacologicos — medicamentos actuales
+    traumaticos: str = "N/A"  # Traumaticos — TCE, fracturas
+    quirurgicos: str = "N/A"  # Quirurgicos — cirugías y anestesias
+    toxicos: str = "N/A"  # Toxicos — SPA, exposición química
+    alergicos: str = "N/A"  # Alergicos — alergias atópicas
+    terapeuticos: str = "N/A"  # Terapeuticos — PIR, terapias previas
+    paraclinicos: str = "N/A"  # Paraclinicos — imágenes, EEG, genética
+    familiares: str = "N/A"  # Familiares — antecedentes familiares
 
     # ═══════════════════════════════════════════════════════════════
     # PESTAÑA 3: FAMILIAR / SOCIAL / FUNCIONAL
     # Campos col 37-43 de DBHC
     # ═══════════════════════════════════════════════════════════════
 
-    vive_con: str = "N/A"                # Vive — con quién vive, red de apoyo
-    abc: str = "N/A"                     # ABC — ABVD, AIVD, AAVD
-    escolar_laboral: str = "N/A"         # Escolar — rendimiento académico/laboral
-    cognitivo: str = "N/A"              # Cognitivo — funciones cognitivas narrativas
-    comportamiento_animo: str = "N/A"    # CompAnimo — comportamiento y estado de ánimo
-    patron_sueno: str = "N/A"           # Sueno — patrón de sueño descriptivo
-    patron_alimentacion: str = "N/A"     # Alimentacion — patrón alimentario
+    vive_con: str = "N/A"  # Vive — con quién vive, red de apoyo
+    abc: str = "N/A"  # ABC — ABVD, AIVD, AAVD
+    escolar_laboral: str = "N/A"  # Escolar — rendimiento académico/laboral
+    cognitivo: str = "N/A"  # Cognitivo — funciones cognitivas narrativas
+    comportamiento_animo: str = "N/A"  # CompAnimo — comportamiento y estado de ánimo
+    patron_sueno: str = "N/A"  # Sueno — patrón de sueño descriptivo
+    patron_alimentacion: str = "N/A"  # Alimentacion — patrón alimentario
 
     # ═══════════════════════════════════════════════════════════════
     # PESTAÑA 4: PLAN DE ATENCIÓN
     # Campos col 44-45 de DBHC
     # ═══════════════════════════════════════════════════════════════
 
-    plan_atencion: str = "N/A"           # PAtencion — plan terapéutico
+    plan_atencion: str = "N/A"  # PAtencion — plan terapéutico
     impresion_diagnostica_hc: str = "N/A"  # ImpDx — impresión inicial en HC
-    hipotesis_pre_eval: str = "N/A"      # HipDx — hipótesis diagnóstica al cierre HC
+    hipotesis_pre_eval: str = "N/A"  # HipDx — hipótesis diagnóstica al cierre HC
 
     # ═══════════════════════════════════════════════════════════════
     # OBSERVACIONES CLÍNICAS POR DOMINIO
@@ -124,17 +124,17 @@ class HistoriaClinica:
     # DESPUÉS de aplicar las pruebas.
     # ═══════════════════════════════════════════════════════════════
 
-    obs_clinica_general: str = "N/A"     # ObsClinica — apariencia/conducta durante evaluación
-    obs_atencion: str = "N/A"           # Atencion — interpretación de atención
-    obs_memoria: str = "N/A"            # Memoria — interpretación de memoria
-    obs_praxias_gnosias: str = "N/A"    # PGnosias — interpretación praxias/gnosias
-    obs_lenguaje: str = "N/A"           # Lenguaje — interpretación de lenguaje
+    obs_clinica_general: str = "N/A"  # ObsClinica — apariencia/conducta durante evaluación
+    obs_atencion: str = "N/A"  # Atencion — interpretación de atención
+    obs_memoria: str = "N/A"  # Memoria — interpretación de memoria
+    obs_praxias_gnosias: str = "N/A"  # PGnosias — interpretación praxias/gnosias
+    obs_lenguaje: str = "N/A"  # Lenguaje — interpretación de lenguaje
     obs_funciones_ejecutivas: str = "N/A"  # FEjecutivas — interpretación FE
-    obs_emociones: str = "N/A"          # Emociones — esfera emocional/conductual
-    obs_ci: str = "N/A"                 # CI — interpretación CI/funcionamiento intelectual
-    obs_impresion_dx: str = "N/A"       # IDx — impresión diagnóstica neuropsicológica
-    obs_funcionalidad: str = "N/A"      # Funcionalidad — AVD y autonomía
-    obs_recomendaciones: str = "N/A"    # Recomendaciones terapéuticas
+    obs_emociones: str = "N/A"  # Emociones — esfera emocional/conductual
+    obs_ci: str = "N/A"  # CI — interpretación CI/funcionamiento intelectual
+    obs_impresion_dx: str = "N/A"  # IDx — impresión diagnóstica neuropsicológica
+    obs_funcionalidad: str = "N/A"  # Funcionalidad — AVD y autonomía
+    obs_recomendaciones: str = "N/A"  # Recomendaciones terapéuticas
 
     # ── Auditoría ─────────────────────────────────────────────────
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -226,23 +226,25 @@ class HistoriaClinica:
 # Corresponde al formulario FormObsClinNPS2 / hoja DBETN en VBA
 # ──────────────────────────────────────────────────────────────────
 
+
 @dataclass
 class EvolicionTerapia:
     """
     Registro de una sesión de seguimiento/rehabilitación.
     Hoja DBETN en el VBA: cols 5=Objetivos, 6=Actividades, 7=Ptrabajo, 8=Fecha
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     patient_id: str = ""
     numero_documento: str = ""
-    sesiones_orden: str = ""            # Número total de sesiones de la orden
-    numero_orden: str = ""             # Número de la orden médica
+    sesiones_orden: str = ""  # Número total de sesiones de la orden
+    numero_orden: str = ""  # Número de la orden médica
     fecha_inicio: date | None = None
     fecha_sesion: date | None = None
     numero_sesion: str = "N/A"
 
-    objetivos: str = "N/A"             # Objetivos de la sesión
-    actividades: str = "N/A"           # Actividades realizadas
-    plan_trabajo: str = "N/A"          # Plan para próxima sesión
+    objetivos: str = "N/A"  # Objetivos de la sesión
+    actividades: str = "N/A"  # Actividades realizadas
+    plan_trabajo: str = "N/A"  # Plan para próxima sesión
 
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

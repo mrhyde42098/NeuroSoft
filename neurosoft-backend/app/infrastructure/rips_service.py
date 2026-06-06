@@ -25,31 +25,32 @@ from datetime import date, datetime
 logger = logging.getLogger(__name__)
 
 # Colores institucionales
-AZUL      = (0.07, 0.28, 0.55)
+AZUL = (0.07, 0.28, 0.55)
 AZUL_LITE = (0.18, 0.45, 0.71)
-GRIS      = (0.94, 0.94, 0.94)
-GRIS_T    = (0.25, 0.25, 0.25)
-BLANCO    = (1, 1, 1)
-NEGRO     = (0, 0, 0)
+GRIS = (0.94, 0.94, 0.94)
+GRIS_T = (0.25, 0.25, 0.25)
+BLANCO = (1, 1, 1)
+NEGRO = (0, 0, 0)
 
 
 @dataclass
 class RIPSData:
     """Datos para el reporte RIPS."""
+
     # Institución prestadora
-    nombre_prestador:  str = ""
-    nit_prestador:     str = ""
+    nombre_prestador: str = ""
+    nit_prestador: str = ""
     codigo_habilitacion: str = ""
-    ciudad:            str = "Bogotá"
-    direccion:         str = ""
-    telefono:          str = ""
+    ciudad: str = "Bogotá"
+    direccion: str = ""
+    telefono: str = ""
 
     # Periodo
     fecha_inicio: date = field(default_factory=date.today)
-    fecha_fin:    date = field(default_factory=date.today)
+    fecha_fin: date = field(default_factory=date.today)
 
     # Profesional
-    profesional_nombre:  str = ""
+    profesional_nombre: str = ""
     profesional_registro: str = ""
 
     # Registros de atenciones
@@ -67,7 +68,7 @@ class RIPSGenerator:
     PAGE_W = 595.27
     PAGE_H = 841.89
     MARGIN = 36
-    CW     = PAGE_W - 72   # content width
+    CW = PAGE_W - 72  # content width
 
     def generate(self, data: RIPSData) -> bytes:
         try:
@@ -96,17 +97,19 @@ class RIPSGenerator:
 
         c.setFillColorRGB(*BLANCO)
         c.setFont("Helvetica-Bold", 14)
-        c.drawString(self.MARGIN, self.PAGE_H - 26,
-                     "Registro Individual de Prestación de Servicios de Salud")
+        c.drawString(self.MARGIN, self.PAGE_H - 26, "Registro Individual de Prestación de Servicios de Salud")
         c.setFont("Helvetica", 9)
         c.drawString(self.MARGIN, self.PAGE_H - 40, "RIPS — Resolución 3374/2000")
-        c.drawString(self.MARGIN, self.PAGE_H - 52,
-                     f"Período: {data.fecha_inicio.strftime('%d/%m/%Y')} "
-                     f"al {data.fecha_fin.strftime('%d/%m/%Y')}")
+        c.drawString(
+            self.MARGIN,
+            self.PAGE_H - 52,
+            f"Período: {data.fecha_inicio.strftime('%d/%m/%Y')} al {data.fecha_fin.strftime('%d/%m/%Y')}",
+        )
 
         c.setFont("Helvetica-Bold", 8)
-        c.drawRightString(self.PAGE_W - self.MARGIN, self.PAGE_H - 26,
-                          f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        c.drawRightString(
+            self.PAGE_W - self.MARGIN, self.PAGE_H - 26, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        )
         return self.PAGE_H - 72
 
     def _section(self, c, title: str, y: float) -> float:
@@ -178,14 +181,14 @@ class RIPSGenerator:
 
         # Headers de la tabla
         cols = [
-            (self.MARGIN,       60,  "Documento"),
-            (self.MARGIN + 62,  100, "Paciente"),
-            (self.MARGIN + 164, 45,  "F. Atención"),
-            (self.MARGIN + 211, 35,  "Edad"),
-            (self.MARGIN + 248, 40,  "CIE-10"),
-            (self.MARGIN + 290, 90,  "Diagnóstico"),
-            (self.MARGIN + 382, 50,  "CUPS"),
-            (self.MARGIN + 434, 50,  "Copago"),
+            (self.MARGIN, 60, "Documento"),
+            (self.MARGIN + 62, 100, "Paciente"),
+            (self.MARGIN + 164, 45, "F. Atención"),
+            (self.MARGIN + 211, 35, "Edad"),
+            (self.MARGIN + 248, 40, "CIE-10"),
+            (self.MARGIN + 290, 90, "Diagnóstico"),
+            (self.MARGIN + 382, 50, "CUPS"),
+            (self.MARGIN + 434, 50, "Copago"),
         ]
         row_h = 12
 
@@ -211,43 +214,45 @@ class RIPSGenerator:
             c.setFillColorRGB(*GRIS_T)
 
             values = [
-                f"{at.get('tipo_doc','')} {at.get('num_doc','')}",
-                str(at.get('nombre', ''))[:22],
-                str(at.get('fecha_consulta', '')),
-                self._calc_age(at.get('fecha_nac'), at.get('fecha_consulta')),
-                str(at.get('codigo_dx', '')),
-                str(at.get('dx_descripcion', ''))[:20],
-                str(at.get('cups', '')),
+                f"{at.get('tipo_doc', '')} {at.get('num_doc', '')}",
+                str(at.get("nombre", ""))[:22],
+                str(at.get("fecha_consulta", "")),
+                self._calc_age(at.get("fecha_nac"), at.get("fecha_consulta")),
+                str(at.get("codigo_dx", "")),
+                str(at.get("dx_descripcion", ""))[:20],
+                str(at.get("cups", "")),
                 f"${at.get('valor_copago', 0):,}",
             ]
             for (cx, cw, _), val in zip(cols, values):
-                c.drawString(cx + 2, y - 8, val[:int(cw/4.3)])
+                c.drawString(cx + 2, y - 8, val[: int(cw / 4.3)])
 
             y -= row_h
 
         # Totales al final
         y -= 8
-        total_copagos = sum(at.get('valor_copago', 0) for at in data.atenciones)
+        total_copagos = sum(at.get("valor_copago", 0) for at in data.atenciones)
         c.setFont("Helvetica-Bold", 7.5)
         c.setFillColorRGB(*GRIS_T)
-        c.drawRightString(self.PAGE_W - self.MARGIN, y,
-                          f"Total atenciones: {len(data.atenciones)}   "
-                          f"Total copagos: ${total_copagos:,}")
+        c.drawRightString(
+            self.PAGE_W - self.MARGIN,
+            y,
+            f"Total atenciones: {len(data.atenciones)}   Total copagos: ${total_copagos:,}",
+        )
         return y - 16
 
     def _draw_footer(self, c, data: RIPSData) -> None:
         c.setFillColorRGB(0.6, 0.6, 0.6)
         c.setFont("Helvetica", 6)
-        c.drawString(self.MARGIN, 18,
-                     f"RIPS — {data.nombre_prestador}  |  "
-                     f"NIT {data.nit_prestador}  |  "
-                     f"Documento confidencial")
+        c.drawString(
+            self.MARGIN, 18, f"RIPS — {data.nombre_prestador}  |  NIT {data.nit_prestador}  |  Documento confidencial"
+        )
 
     @staticmethod
     def _calc_age(fecha_nac, fecha_ref) -> str:
         try:
             if isinstance(fecha_nac, str):
                 from datetime import date
+
                 fn = date.fromisoformat(fecha_nac)
             else:
                 fn = fecha_nac
@@ -360,51 +365,59 @@ def generate_rips_monthly_txt(
             sexo = "M"
         key_us = f"{tdoc}|{ndoc}"
         if key_us not in us_seen:
-            us_lines.append(_pipe(
-                tdoc, ndoc,
-                (pat.eps or "")[:6],        # cod_entidad_administradora (EPS)
-                "01",                        # tipo_usuario (01=contributivo como default)
-                (pat.primer_apellido or "")[:30],
-                (pat.segundo_apellido or "")[:30],
-                (pat.primer_nombre or "")[:20],
-                (pat.segundo_nombre or "")[:20],
-                edad,
-                1,                           # unidad de edad = años
-                sexo,
-                "11",                        # cod_depto placeholder
-                "001",                       # cod_municipio placeholder
-                "U",                         # U=urbano, R=rural
-            ))
+            us_lines.append(
+                _pipe(
+                    tdoc,
+                    ndoc,
+                    (pat.eps or "")[:6],  # cod_entidad_administradora (EPS)
+                    "01",  # tipo_usuario (01=contributivo como default)
+                    (pat.primer_apellido or "")[:30],
+                    (pat.segundo_apellido or "")[:30],
+                    (pat.primer_nombre or "")[:20],
+                    (pat.segundo_nombre or "")[:20],
+                    edad,
+                    1,  # unidad de edad = años
+                    sexo,
+                    "11",  # cod_depto placeholder
+                    "001",  # cod_municipio placeholder
+                    "U",  # U=urbano, R=rural
+                )
+            )
             us_seen.add(key_us)
 
         # AC.txt: 1 línea por consulta/evaluación
         cie = (pat.codigo_rips or "F809")[:4]
         cups = (pat.cups or "890201")[:10]
         finalidad = (pat.finalidad_consulta or "10")[:2]
-        ac_lines.append(_pipe(
-            numero_factura,
-            codigo_prestador,
-            tdoc, ndoc,
-            ev.fecha.strftime("%d/%m/%Y") if ev.fecha else "",
-            (pat.orden_medica_no or "")[:15],   # numero_autorizacion
-            cups,                                # cod_consulta CUPS
-            finalidad,                           # finalidad
-            "13",                                # causa externa (13=otra)
-            cie,                                 # dx principal
-            "", "", "",                          # dx relacionados 1/2/3
-            "1",                                 # tipo dx ppal (1=impresion dx)
-            0,                                   # valor consulta
-            0,                                   # valor cuota moderadora
-            0,                                   # valor neto a pagar
-        ))
+        ac_lines.append(
+            _pipe(
+                numero_factura,
+                codigo_prestador,
+                tdoc,
+                ndoc,
+                ev.fecha.strftime("%d/%m/%Y") if ev.fecha else "",
+                (pat.orden_medica_no or "")[:15],  # numero_autorizacion
+                cups,  # cod_consulta CUPS
+                finalidad,  # finalidad
+                "13",  # causa externa (13=otra)
+                cie,  # dx principal
+                "",
+                "",
+                "",  # dx relacionados 1/2/3
+                "1",  # tipo dx ppal (1=impresion dx)
+                0,  # valor consulta
+                0,  # valor cuota moderadora
+                0,  # valor neto a pagar
+            )
+        )
 
     # CT.txt: una línea de cabecera
     ct_lines = [
         _pipe(
             numero_factura,
             codigo_prestador,
-            "",                                   # tipo_nota vacío
-            "",                                   # numero_nota vacío
+            "",  # tipo_nota vacío
+            "",  # numero_nota vacío
         ),
     ]
 
@@ -494,36 +507,43 @@ def build_rips_data_from_db(
     def _get(obj, attr, default=""):
         return str(getattr(obj, attr, None) or default)
 
-    nombre = " ".join(filter(None, [
-        _get(patient, 'primer_nombre'),
-        _get(patient, 'primer_apellido'),
-    ]))
+    nombre = " ".join(
+        filter(
+            None,
+            [
+                _get(patient, "primer_nombre"),
+                _get(patient, "primer_apellido"),
+            ],
+        )
+    )
 
     atenciones = []
     for ev in evaluaciones:
-        atenciones.append({
-            "tipo_doc":       _get(patient, 'tipo_documento', 'CC'),
-            "num_doc":        _get(patient, 'numero_documento'),
-            "nombre":         nombre,
-            "fecha_nac":      patient.fecha_nacimiento.isoformat() if patient.fecha_nacimiento else "",
-            "sexo":           _get(patient, 'sexo'),
-            "fecha_consulta": ev.fecha.isoformat() if ev.fecha else "",
-            "codigo_dx":      _get(patient, 'codigo_rips', 'F809'),
-            "dx_descripcion": "Evaluación Neuropsicológica",
-            "cups":           _get(patient, 'cups', '890201'),
-            "valor_copago":   0,
-        })
+        atenciones.append(
+            {
+                "tipo_doc": _get(patient, "tipo_documento", "CC"),
+                "num_doc": _get(patient, "numero_documento"),
+                "nombre": nombre,
+                "fecha_nac": patient.fecha_nacimiento.isoformat() if patient.fecha_nacimiento else "",
+                "sexo": _get(patient, "sexo"),
+                "fecha_consulta": ev.fecha.isoformat() if ev.fecha else "",
+                "codigo_dx": _get(patient, "codigo_rips", "F809"),
+                "dx_descripcion": "Evaluación Neuropsicológica",
+                "cups": _get(patient, "cups", "890201"),
+                "valor_copago": 0,
+            }
+        )
 
     return RIPSData(
-        nombre_prestador=_get(inst, 'nombre', 'Consultorio') if inst else 'Consultorio',
-        nit_prestador=_get(inst, 'nit') if inst else '',
-        codigo_habilitacion='',
-        ciudad=_get(inst, 'ciudad', 'Bogotá') if inst else 'Bogotá',
-        direccion=_get(inst, 'direccion') if inst else '',
-        telefono=_get(inst, 'telefono') if inst else '',
+        nombre_prestador=_get(inst, "nombre", "Consultorio") if inst else "Consultorio",
+        nit_prestador=_get(inst, "nit") if inst else "",
+        codigo_habilitacion="",
+        ciudad=_get(inst, "ciudad", "Bogotá") if inst else "Bogotá",
+        direccion=_get(inst, "direccion") if inst else "",
+        telefono=_get(inst, "telefono") if inst else "",
         fecha_inicio=fecha_inicio,
         fecha_fin=fecha_fin,
-        profesional_nombre=_get(prof, 'nombre_completo') if prof else '',
-        profesional_registro=_get(prof, 'registro_profesional') if prof else '',
+        profesional_nombre=_get(prof, "nombre_completo") if prof else "",
+        profesional_registro=_get(prof, "registro_profesional") if prof else "",
         atenciones=atenciones,
     )

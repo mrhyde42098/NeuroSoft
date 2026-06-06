@@ -178,12 +178,8 @@ DOMAIN_DESCRIPTIONS = {
             "Se identifica una velocidad de procesamiento reducida, lo que puede "
             "impactar el rendimiento en tareas que requieren rapidez y automatización."
         ),
-        "prompts_promedio": (
-            "La velocidad de procesamiento se ubica en rango promedio para la edad."
-        ),
-        "prompts_superior": (
-            "Alta velocidad de procesamiento, con eficiente ejecución de tareas automatizadas."
-        ),
+        "prompts_promedio": ("La velocidad de procesamiento se ubica en rango promedio para la edad."),
+        "prompts_superior": ("Alta velocidad de procesamiento, con eficiente ejecución de tareas automatizadas."),
     },
     "Cociente Intelectual Total": {
         "icono": "🎓",
@@ -218,25 +214,25 @@ DOMAIN_DESCRIPTIONS = {
 
 # CI — clasificación completa (WISC-IV / WAIS-III)
 CI_RANGES = [
-    (130, 999,   "Muy Superior",       "#1565C0", "superior"),
-    (120, 129,   "Superior",           "#1976D2", "superior"),
-    (110, 119,   "Promedio Alto",      "#2196F3", "promedio"),
-    (90,  109,   "Promedio",           "#4CAF50", "promedio"),
-    (80,  89,    "Promedio Bajo",      "#FF9800", "limitrofe"),
-    (70,  79,    "Limítrofe",          "#F44336", "limitrofe"),
-    (55,  69,    "Discapacidad Leve",  "#B71C1C", "bajo"),
-    (0,   54,    "Discapacidad Mod.",  "#7B1FA2", "bajo"),
+    (130, 999, "Muy Superior", "#1565C0", "superior"),
+    (120, 129, "Superior", "#1976D2", "superior"),
+    (110, 119, "Promedio Alto", "#2196F3", "promedio"),
+    (90, 109, "Promedio", "#4CAF50", "promedio"),
+    (80, 89, "Promedio Bajo", "#FF9800", "limitrofe"),
+    (70, 79, "Limítrofe", "#F44336", "limitrofe"),
+    (55, 69, "Discapacidad Leve", "#B71C1C", "bajo"),
+    (0, 54, "Discapacidad Mod.", "#7B1FA2", "bajo"),
 ]
 
 # Escalares (WISC / WAIS subescalas)
 ESCALAR_RANGES = [
-    (16, 19, "Muy Superior",   "#1565C0", "superior"),
-    (13, 15, "Superior",       "#1976D2", "superior"),
-    (10, 12, "Promedio",       "#4CAF50", "promedio"),
-    (8,   9, "Promedio Bajo",  "#FF9800", "limitrofe"),
-    (7,   7, "Bajo Promedio",  "#FF5722", "limitrofe"),
-    (5,   6, "Limítrofe",      "#F44336", "limitrofe"),
-    (1,   4, "Bajo",           "#B71C1C", "bajo"),
+    (16, 19, "Muy Superior", "#1565C0", "superior"),
+    (13, 15, "Superior", "#1976D2", "superior"),
+    (10, 12, "Promedio", "#4CAF50", "promedio"),
+    (8, 9, "Promedio Bajo", "#FF9800", "limitrofe"),
+    (7, 7, "Bajo Promedio", "#FF5722", "limitrofe"),
+    (5, 6, "Limítrofe", "#F44336", "limitrofe"),
+    (1, 4, "Bajo", "#B71C1C", "bajo"),
 ]
 
 
@@ -258,6 +254,7 @@ def classify_escalar(pe: float) -> dict:
 # PERFIL DE DOMINIO
 # ─────────────────────────────────────────────────────────────────
 
+
 @dataclass
 class DomainProfile:
     """
@@ -265,12 +262,13 @@ class DomainProfile:
     El frontend usa este objeto para pintar la gráfica Z
     y generar el template de texto por dominio.
     """
+
     dominio: str
     pruebas: list[ResultadoPrueba]
     z_promedio: float | None = None
     nivel_general: str = "Sin dato"  # bajo | limitrofe | promedio | superior
     color: str = "#9E9E9E"
-    sugerencia_texto: str = ""       # Texto sugerido (clínico puede editar)
+    sugerencia_texto: str = ""  # Texto sugerido (clínico puede editar)
     puntos_debiles: list[str] = field(default_factory=list)
     puntos_fuertes: list[str] = field(default_factory=list)
     icono: str = "🧠"
@@ -284,6 +282,7 @@ class DomainProfile:
 # MOTOR DE INTERPRETACIÓN
 # ─────────────────────────────────────────────────────────────────
 
+
 class InterpretationEngine:
     """
     Analiza los ResultadoPrueba y construye perfiles por dominio.
@@ -294,9 +293,7 @@ class InterpretationEngine:
         z_data = engine.build_z_chart_data(resultados)
     """
 
-    def build_profiles(
-        self, resultados: list[ResultadoPrueba]
-    ) -> list[DomainProfile]:
+    def build_profiles(self, resultados: list[ResultadoPrueba]) -> list[DomainProfile]:
         """
         Agrupa resultados por dominio y construye un DomainProfile por cada uno.
         Retorna los dominios ordenados: CI primero, luego cognitivos, luego escalas.
@@ -315,20 +312,32 @@ class InterpretationEngine:
             profiles.append(profile)
 
         # Ordenar: CI Total primero, luego el resto
-        order = ["Cociente Intelectual Total", "Inteligencia General",
-                 "Comprensión Verbal (CI)", "Razonamiento Perceptual (CI)",
-                 "Memoria de Trabajo", "Velocidad de Procesamiento",
-                 "Atención", "Memoria Verbal", "Memoria Visuoespacial",
-                 "Lenguaje", "Praxias y Gnosias", "Funciones Ejecutivas",
-                 "Socioemocional", "Funcionalidad"]
+        order = [
+            "Cociente Intelectual Total",
+            "Inteligencia General",
+            "Comprensión Verbal (CI)",
+            "Razonamiento Perceptual (CI)",
+            "Memoria de Trabajo",
+            "Velocidad de Procesamiento",
+            "Atención",
+            "Memoria Verbal",
+            "Memoria Visuoespacial",
+            "Lenguaje",
+            "Praxias y Gnosias",
+            "Funciones Ejecutivas",
+            "Socioemocional",
+            "Funcionalidad",
+        ]
+
         def sort_key(p):
-            try: return order.index(p.dominio)
-            except ValueError: return 99
+            try:
+                return order.index(p.dominio)
+            except ValueError:
+                return 99
+
         return sorted(profiles, key=sort_key)
 
-    def _build_profile(
-        self, dominio: str, pruebas: list[ResultadoPrueba]
-    ) -> DomainProfile:
+    def _build_profile(self, dominio: str, pruebas: list[ResultadoPrueba]) -> DomainProfile:
         """Construye el perfil de un dominio a partir de sus pruebas."""
         desc = DOMAIN_DESCRIPTIONS.get(dominio, {})
         icono = desc.get("icono", "🧠")
@@ -342,8 +351,7 @@ class InterpretationEngine:
 
         # Puntos fuertes/débiles dentro del dominio
         puntos_fuertes = [r.test_nombre for r in pruebas if r.interpretacion == "Superior"]
-        puntos_debiles = [r.test_nombre for r in pruebas
-                          if r.interpretacion in ("Bajo", "Limítrofe")]
+        puntos_debiles = [r.test_nombre for r in pruebas if r.interpretacion in ("Bajo", "Limítrofe")]
 
         # Texto sugerido según nivel
         sugerencia = self._get_sugerencia(dominio, nivel, pruebas, z_prom)
@@ -360,9 +368,7 @@ class InterpretationEngine:
             icono=icono,
         )
 
-    def build_z_chart_data(
-        self, resultados: list[ResultadoPrueba]
-    ) -> list[dict]:
+    def build_z_chart_data(self, resultados: list[ResultadoPrueba]) -> list[dict]:
         """
         Construye los datos para la gráfica Z del informe.
         Compatible con el gráfico de barras horizontal del frontend.
@@ -376,17 +382,19 @@ class InterpretationEngine:
                 continue
             z = max(-3.5, min(3.5, r.z_equivalente))
             _, color = self._z_to_level(z)
-            items.append({
-                "test_id": r.test_id,
-                "nombre": r.test_nombre,
-                "dominio": r.dominio_cognitivo,
-                "puntaje_bruto": r.puntaje_bruto,
-                "puntaje_escalar": r.puntaje_escalar,
-                "tipo_metrica": r.tipo_metrica,
-                "z": z,
-                "interpretacion": r.interpretacion,
-                "color": color,
-            })
+            items.append(
+                {
+                    "test_id": r.test_id,
+                    "nombre": r.test_nombre,
+                    "dominio": r.dominio_cognitivo,
+                    "puntaje_bruto": r.puntaje_bruto,
+                    "puntaje_escalar": r.puntaje_escalar,
+                    "tipo_metrica": r.tipo_metrica,
+                    "z": z,
+                    "interpretacion": r.interpretacion,
+                    "color": color,
+                }
+            )
         # Ordenar: primero por dominio, luego por Z
         return sorted(items, key=lambda x: (x["dominio"], x["z"]))
 
@@ -406,7 +414,7 @@ class InterpretationEngine:
                     "clasificacion": classif["label"],
                     "color": classif["color"],
                     "level": classif["level"],
-                    "indices": []  # Se populan con los índices individuales
+                    "indices": [],  # Se populan con los índices individuales
                 }
         return None
 
@@ -417,9 +425,12 @@ class InterpretationEngine:
         """Convierte Z a (nivel_texto, color_hex)."""
         if z is None:
             return "Sin dato", "#9E9E9E"
-        if z <= -2.0:  return "Bajo",       "#C62828"
-        if z <= -1.0:  return "Limítrofe",  "#E64A19"
-        if z <= 1.0:   return "Promedio",   "#2E7D32"
+        if z <= -2.0:
+            return "Bajo", "#C62828"
+        if z <= -1.0:
+            return "Limítrofe", "#E64A19"
+        if z <= 1.0:
+            return "Promedio", "#2E7D32"
         return "Superior", "#1565C0"
 
     @staticmethod

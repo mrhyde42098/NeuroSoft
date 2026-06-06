@@ -18,10 +18,9 @@ Endpoints:
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
-
-import re
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
@@ -121,6 +120,7 @@ TEXTOS_VIGENTES = {
 # DTOs
 # ─────────────────────────────────────────────────────────────
 
+
 class TextoDTO(BaseModel):
     tipo: str
     version: str
@@ -134,7 +134,7 @@ class FirmarDTO(BaseModel):
     aceptado: bool = True
     firma_base64: str | None = None
     nombre_firmante: str | None = None
-    relacion_firmante: str = "paciente"     # paciente | tutor | representante
+    relacion_firmante: str = "paciente"  # paciente | tutor | representante
     documento_firmante: str | None = None
     dispositivo: str | None = None
     profesional_id: str | None = None
@@ -191,6 +191,7 @@ class EnviarConsentimientoResponse(BaseModel):
 # Helpers
 # ─────────────────────────────────────────────────────────────
 
+
 def _to_dto(orm: ConsentimientoORM) -> ConsentimientoResponseDTO:
     return ConsentimientoResponseDTO(
         id=orm.id,
@@ -212,6 +213,7 @@ def _to_dto(orm: ConsentimientoORM) -> ConsentimientoResponseDTO:
 # ─────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────
+
 
 @consentimientos_router.get("/textos", response_model=list[TextoDTO])
 def textos_vigentes():
@@ -247,9 +249,7 @@ def firmar_consentimiento(dto: FirmarDTO, db: DbSession, request: Request):
         texto_completo=texto["texto"],
         aceptado=bool(dto.aceptado),
         firma_base64=dto.firma_base64,
-        nombre_firmante=dto.nombre_firmante or " ".join(
-            filter(None, [pat.primer_nombre, pat.primer_apellido])
-        ),
+        nombre_firmante=dto.nombre_firmante or " ".join(filter(None, [pat.primer_nombre, pat.primer_apellido])),
         relacion_firmante=dto.relacion_firmante,
         documento_firmante=dto.documento_firmante or pat.numero_documento,
         ip_registro=ip,
@@ -288,9 +288,8 @@ def pendientes_paciente(patient_id: str, db: DbSession):
     if not pat:
         raise HTTPException(404, "Paciente no encontrado")
     firmados_vigentes = {
-        c.tipo for c in db.query(ConsentimientoORM)
-        .filter_by(patient_id=patient_id, aceptado=True)
-        .all()
+        c.tipo
+        for c in db.query(ConsentimientoORM).filter_by(patient_id=patient_id, aceptado=True).all()
         if c.fecha_revocado is None
     }
     # habeas_data y evaluacion son obligatorios para poder registrar HC/evaluación

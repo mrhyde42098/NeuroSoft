@@ -26,6 +26,7 @@ Esta es la primera versión MVP del módulo. Próximas iteraciones (ver
 ``ROADMAP_EXPANSION.md`` Pilar 2): C-SSRS embebido, telepsicología,
 tareas terapéuticas, informes de alta.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -51,6 +52,7 @@ therapy_router = APIRouter(prefix="/therapy", tags=["💚 Psicología Clínica"]
 # ═════════════════════════════════════════════════════════════
 # DTOs — Plan terapéutico
 # ═════════════════════════════════════════════════════════════
+
 
 class ObjectiveCreateDTO(BaseModel):
     descripcion: str = Field(..., min_length=3)
@@ -104,6 +106,7 @@ class TherapyPlanResponseDTO(BaseModel):
 
 class TherapyPlanUpdateDTO(BaseModel):
     """Solo campos modificables después de creado."""
+
     fecha_revision: datetime | None = None
     fecha_cierre: datetime | None = None
     motivo_cierre: Literal["alta", "abandono", "derivacion", "cambio_terapeuta"] | None = None
@@ -115,6 +118,7 @@ class TherapyPlanUpdateDTO(BaseModel):
 # ═════════════════════════════════════════════════════════════
 # DTOs — Sesión terapéutica
 # ═════════════════════════════════════════════════════════════
+
 
 class TherapySessionCreateDTO(BaseModel):
     patient_id: str
@@ -128,12 +132,10 @@ class TherapySessionCreateDTO(BaseModel):
     soap_objetivo: str | None = None
     soap_analisis: str | None = None
     soap_plan: str | None = None
-    objetivos_trabajados: str | None = None   # JSON list[obj_id] como str
+    objetivos_trabajados: str | None = None  # JSON list[obj_id] como str
     tareas_asignadas: str | None = None
     medicacion_actual: str | None = None
-    riesgo_suicida: Literal[
-        "ninguno", "ideacion_pasiva", "ideacion_activa", "plan", "intento_reciente"
-    ] = "ninguno"
+    riesgo_suicida: Literal["ninguno", "ideacion_pasiva", "ideacion_activa", "plan", "intento_reciente"] = "ninguno"
     riesgo_observaciones: str | None = None
     alianza_terapeutica: int | None = Field(None, ge=1, le=5)
     estado_emocional_ini: int | None = Field(None, ge=0, le=10)
@@ -169,6 +171,7 @@ class TherapySessionResponseDTO(BaseModel):
 
 class TherapySessionUpdateDTO(BaseModel):
     """Campos modificables mientras la sesión NO esté lockeada."""
+
     soap_subjetivo: str | None = None
     soap_objetivo: str | None = None
     soap_analisis: str | None = None
@@ -186,6 +189,7 @@ class TherapySessionUpdateDTO(BaseModel):
 # ═════════════════════════════════════════════════════════════
 # DTOs — Evaluación de riesgo
 # ═════════════════════════════════════════════════════════════
+
 
 class RiskAssessmentCreateDTO(BaseModel):
     patient_id: str
@@ -227,50 +231,68 @@ class RiskAssessmentResponseDTO(BaseModel):
 # Endpoints — Planes
 # ═════════════════════════════════════════════════════════════
 
+
 def _plan_to_dto(orm: TherapyPlanORM, objetivos: list[TherapyObjectiveORM]) -> TherapyPlanResponseDTO:
     return TherapyPlanResponseDTO(
-        id=orm.id, patient_id=orm.patient_id, profesional_id=orm.profesional_id,
+        id=orm.id,
+        patient_id=orm.patient_id,
+        profesional_id=orm.profesional_id,
         enfoque_principal=orm.enfoque_principal,
         diagnostico_principal=orm.diagnostico_principal,
         diagnostico_secundario=orm.diagnostico_secundario,
         codigo_cie11=getattr(orm, "codigo_cie11", None),
         motivo_consulta=orm.motivo_consulta,
         duracion_estimada_sesiones=orm.duracion_estimada_sesiones,
-        fecha_inicio=orm.fecha_inicio, fecha_revision=orm.fecha_revision,
-        fecha_cierre=orm.fecha_cierre, motivo_cierre=orm.motivo_cierre,
+        fecha_inicio=orm.fecha_inicio,
+        fecha_revision=orm.fecha_revision,
+        fecha_cierre=orm.fecha_cierre,
+        motivo_cierre=orm.motivo_cierre,
         estado=orm.estado,
-        objetivos=[ObjectiveResponseDTO(
-            id=o.id, plan_id=o.plan_id, descripcion=o.descripcion,
-            criterios_medibles=o.criterios_medibles, fecha_inicio=o.fecha_inicio,
-            fecha_meta=o.fecha_meta, estado=o.estado,
-            progreso_pct=o.progreso_pct or 0, orden=o.orden or 0,
-        ) for o in objetivos],
+        objetivos=[
+            ObjectiveResponseDTO(
+                id=o.id,
+                plan_id=o.plan_id,
+                descripcion=o.descripcion,
+                criterios_medibles=o.criterios_medibles,
+                fecha_inicio=o.fecha_inicio,
+                fecha_meta=o.fecha_meta,
+                estado=o.estado,
+                progreso_pct=o.progreso_pct or 0,
+                orden=o.orden or 0,
+            )
+            for o in objetivos
+        ],
     )
 
 
-@therapy_router.get("/plans", response_model=list[TherapyPlanResponseDTO],
-                    summary="Listar planes terapéuticos de un paciente")
+@therapy_router.get(
+    "/plans", response_model=list[TherapyPlanResponseDTO], summary="Listar planes terapéuticos de un paciente"
+)
 def list_plans(
+    _u: CurrentUser,
+    db: DbSession,
     patient_id: str = Query(..., description="UUID del paciente"),
-    db: DbSession = None, _u=CurrentUser,
 ):
-    plans = (db.query(TherapyPlanORM)
-             .filter_by(patient_id=patient_id)
-             .order_by(TherapyPlanORM.fecha_inicio.desc())
-             .all())
+    plans = db.query(TherapyPlanORM).filter_by(patient_id=patient_id).order_by(TherapyPlanORM.fecha_inicio.desc()).all()
     result = []
     for p in plans:
-        objs = (db.query(TherapyObjectiveORM)
-                .filter_by(plan_id=p.id)
-                .order_by(TherapyObjectiveORM.orden, TherapyObjectiveORM.created_at)
-                .all())
+        objs = (
+            db.query(TherapyObjectiveORM)
+            .filter_by(plan_id=p.id)
+            .order_by(TherapyObjectiveORM.orden, TherapyObjectiveORM.created_at)
+            .all()
+        )
         result.append(_plan_to_dto(p, objs))
     return result
 
 
-@therapy_router.post("/plans", response_model=TherapyPlanResponseDTO, status_code=201,
-                     summary="Crear plan terapéutico (con objetivos opcionales)")
-def create_plan(dto: TherapyPlanCreateDTO, db: DbSession, user=CurrentUser):
+@therapy_router.post(
+    "/plans",
+    response_model=TherapyPlanResponseDTO,
+    status_code=201,
+    summary="Crear plan terapéutico (con objetivos opcionales)",
+)
+def create_plan(dto: TherapyPlanCreateDTO, db: DbSession, user: CurrentUser):
     from app.domain.clinical_engine.cie_mapping_service import resolve_cie11_code
 
     cie11 = dto.codigo_cie11 or resolve_cie11_code(dto.diagnostico_principal)
@@ -293,9 +315,13 @@ def create_plan(dto: TherapyPlanCreateDTO, db: DbSession, user=CurrentUser):
     objs: list[TherapyObjectiveORM] = []
     for o_dto in dto.objetivos:
         obj = TherapyObjectiveORM(
-            id=str(uuid.uuid4()), plan_id=plan.id,
-            descripcion=o_dto.descripcion, criterios_medibles=o_dto.criterios_medibles,
-            fecha_meta=o_dto.fecha_meta, orden=o_dto.orden, estado="activo",
+            id=str(uuid.uuid4()),
+            plan_id=plan.id,
+            descripcion=o_dto.descripcion,
+            criterios_medibles=o_dto.criterios_medibles,
+            fecha_meta=o_dto.fecha_meta,
+            orden=o_dto.orden,
+            estado="activo",
             progreso_pct=0,
         )
         db.add(obj)
@@ -304,28 +330,31 @@ def create_plan(dto: TherapyPlanCreateDTO, db: DbSession, user=CurrentUser):
     return _plan_to_dto(plan, objs)
 
 
-@therapy_router.get("/plans/{plan_id}", response_model=TherapyPlanResponseDTO,
-                    summary="Detalle de un plan terapéutico")
-def get_plan(plan_id: str, db: DbSession, _u=CurrentUser):
+@therapy_router.get("/plans/{plan_id}", response_model=TherapyPlanResponseDTO, summary="Detalle de un plan terapéutico")
+def get_plan(plan_id: str, db: DbSession, _u: CurrentUser):
     plan = db.query(TherapyPlanORM).filter_by(id=plan_id).first()
     if not plan:
         raise HTTPException(404, "Plan no encontrado.")
-    objs = (db.query(TherapyObjectiveORM).filter_by(plan_id=plan_id)
-            .order_by(TherapyObjectiveORM.orden, TherapyObjectiveORM.created_at).all())
+    objs = (
+        db.query(TherapyObjectiveORM)
+        .filter_by(plan_id=plan_id)
+        .order_by(TherapyObjectiveORM.orden, TherapyObjectiveORM.created_at)
+        .all()
+    )
     return _plan_to_dto(plan, objs)
 
 
-@therapy_router.patch("/plans/{plan_id}", response_model=TherapyPlanResponseDTO,
-                      summary="Actualizar plan (cerrar, cambiar estado, etc.)")
-def update_plan(plan_id: str, dto: TherapyPlanUpdateDTO, db: DbSession, _u=CurrentUser):
+@therapy_router.patch(
+    "/plans/{plan_id}", response_model=TherapyPlanResponseDTO, summary="Actualizar plan (cerrar, cambiar estado, etc.)"
+)
+def update_plan(plan_id: str, dto: TherapyPlanUpdateDTO, db: DbSession, _u: CurrentUser):
     plan = db.query(TherapyPlanORM).filter_by(id=plan_id).first()
     if not plan:
         raise HTTPException(404, "Plan no encontrado.")
     for field, value in dto.model_dump(exclude_none=True).items():
         setattr(plan, field, value)
     db.commit()
-    objs = (db.query(TherapyObjectiveORM).filter_by(plan_id=plan_id)
-            .order_by(TherapyObjectiveORM.orden).all())
+    objs = db.query(TherapyObjectiveORM).filter_by(plan_id=plan_id).order_by(TherapyObjectiveORM.orden).all()
     return _plan_to_dto(plan, objs)
 
 
@@ -333,17 +362,25 @@ def update_plan(plan_id: str, dto: TherapyPlanUpdateDTO, db: DbSession, _u=Curre
 # Endpoints — Sesiones
 # ═════════════════════════════════════════════════════════════
 
+
 def _session_to_dto(orm: TherapySessionORM) -> TherapySessionResponseDTO:
-    return TherapySessionResponseDTO(**{c.name: getattr(orm, c.name) for c in orm.__table__.columns
-                                        if c.name not in ("signature_sha256", "archived_at", "archived_reason")})
+    return TherapySessionResponseDTO(
+        **{
+            c.name: getattr(orm, c.name)
+            for c in orm.__table__.columns
+            if c.name not in ("signature_sha256", "archived_at", "archived_reason")
+        }
+    )
 
 
-@therapy_router.get("/sessions", response_model=list[TherapySessionResponseDTO],
-                    summary="Listar sesiones terapéuticas de un paciente")
+@therapy_router.get(
+    "/sessions", response_model=list[TherapySessionResponseDTO], summary="Listar sesiones terapéuticas de un paciente"
+)
 def list_sessions(
+    _u: CurrentUser,
+    db: DbSession,
     patient_id: str = Query(...),
     plan_id: str | None = Query(None),
-    db: DbSession = None, _u=CurrentUser,
 ):
     q = db.query(TherapySessionORM).filter_by(patient_id=patient_id)
     if plan_id:
@@ -352,12 +389,17 @@ def list_sessions(
     return [_session_to_dto(s) for s in sesiones]
 
 
-@therapy_router.post("/sessions", response_model=TherapySessionResponseDTO, status_code=201,
-                     summary="Crear sesión terapéutica (notas SOAP)")
-def create_session(dto: TherapySessionCreateDTO, db: DbSession, user=CurrentUser):
+@therapy_router.post(
+    "/sessions",
+    response_model=TherapySessionResponseDTO,
+    status_code=201,
+    summary="Crear sesión terapéutica (notas SOAP)",
+)
+def create_session(dto: TherapySessionCreateDTO, db: DbSession, user: CurrentUser):
     sess = TherapySessionORM(
         id=str(uuid.uuid4()),
-        plan_id=dto.plan_id, patient_id=dto.patient_id,
+        plan_id=dto.plan_id,
+        patient_id=dto.patient_id,
         profesional_id=dto.profesional_id or user.profesional_id,
         fecha=dto.fecha or datetime.now(UTC),
         duracion_min=dto.duracion_min,
@@ -381,18 +423,22 @@ def create_session(dto: TherapySessionCreateDTO, db: DbSession, user=CurrentUser
     return _session_to_dto(sess)
 
 
-@therapy_router.get("/sessions/{session_id}", response_model=TherapySessionResponseDTO,
-                    summary="Detalle de una sesión terapéutica")
-def get_session_detail(session_id: str, db: DbSession, _u=CurrentUser):
+@therapy_router.get(
+    "/sessions/{session_id}", response_model=TherapySessionResponseDTO, summary="Detalle de una sesión terapéutica"
+)
+def get_session_detail(session_id: str, db: DbSession, _u: CurrentUser):
     sess = db.query(TherapySessionORM).filter_by(id=session_id).first()
     if not sess:
         raise HTTPException(404, "Sesión no encontrada.")
     return _session_to_dto(sess)
 
 
-@therapy_router.patch("/sessions/{session_id}", response_model=TherapySessionResponseDTO,
-                      summary="Actualizar sesión (solo si NO está lockeada)")
-def update_session(session_id: str, dto: TherapySessionUpdateDTO, db: DbSession, _u=CurrentUser):
+@therapy_router.patch(
+    "/sessions/{session_id}",
+    response_model=TherapySessionResponseDTO,
+    summary="Actualizar sesión (solo si NO está lockeada)",
+)
+def update_session(session_id: str, dto: TherapySessionUpdateDTO, db: DbSession, _u: CurrentUser):
     sess = db.query(TherapySessionORM).filter_by(id=session_id).first()
     if not sess:
         raise HTTPException(404, "Sesión no encontrada.")
@@ -404,22 +450,28 @@ def update_session(session_id: str, dto: TherapySessionUpdateDTO, db: DbSession,
     return _session_to_dto(sess)
 
 
-@therapy_router.post("/sessions/{session_id}/lock", response_model=TherapySessionResponseDTO,
-                     summary="Firmar (lockear) sesión — irreversible")
-def lock_session(session_id: str, db: DbSession, user=CurrentUser):
+@therapy_router.post(
+    "/sessions/{session_id}/lock",
+    response_model=TherapySessionResponseDTO,
+    summary="Firmar (lockear) sesión — irreversible",
+)
+def lock_session(session_id: str, db: DbSession, user: CurrentUser):
     sess = db.query(TherapySessionORM).filter_by(id=session_id).first()
     if not sess:
         raise HTTPException(404, "Sesión no encontrada.")
     if sess.locked_at:
         return _session_to_dto(sess)  # idempotente
     import hashlib
-    content = "|".join([
-        sess.soap_subjetivo or "",
-        sess.soap_objetivo or "",
-        sess.soap_analisis or "",
-        sess.soap_plan or "",
-        str(sess.riesgo_suicida or ""),
-    ])
+
+    content = "|".join(
+        [
+            sess.soap_subjetivo or "",
+            sess.soap_objetivo or "",
+            sess.soap_analisis or "",
+            sess.soap_plan or "",
+            str(sess.riesgo_suicida or ""),
+        ]
+    )
     sess.locked_at = datetime.now(UTC)
     sess.locked_by = user.id
     sess.signature_sha256 = hashlib.sha256(content.encode("utf-8")).hexdigest()
@@ -431,15 +483,21 @@ def lock_session(session_id: str, db: DbSession, user=CurrentUser):
 # Endpoints — Evaluación de riesgo
 # ═════════════════════════════════════════════════════════════
 
-@therapy_router.post("/risk-assessments", response_model=RiskAssessmentResponseDTO, status_code=201,
-                     summary="Registrar evaluación de riesgo suicida")
-def create_risk_assessment(dto: RiskAssessmentCreateDTO, db: DbSession, user=CurrentUser):
+
+@therapy_router.post(
+    "/risk-assessments",
+    response_model=RiskAssessmentResponseDTO,
+    status_code=201,
+    summary="Registrar evaluación de riesgo suicida",
+)
+def create_risk_assessment(dto: RiskAssessmentCreateDTO, db: DbSession, user: CurrentUser):
     ra = RiskAssessmentORM(
         id=str(uuid.uuid4()),
         patient_id=dto.patient_id,
         session_id=dto.session_id,
         profesional_id=dto.profesional_id or user.profesional_id,
-        instrumento=dto.instrumento, nivel=dto.nivel,
+        instrumento=dto.instrumento,
+        nivel=dto.nivel,
         ideacion_suicida=dto.ideacion_suicida,
         ideacion_con_plan=dto.ideacion_con_plan,
         intento_previo=dto.intento_previo,
@@ -455,18 +513,20 @@ def create_risk_assessment(dto: RiskAssessmentCreateDTO, db: DbSession, user=Cur
     return RiskAssessmentResponseDTO(**{c.name: getattr(ra, c.name) for c in ra.__table__.columns})
 
 
-@therapy_router.get("/risk-assessments", response_model=list[RiskAssessmentResponseDTO],
-                    summary="Historial de evaluaciones de riesgo de un paciente")
+@therapy_router.get(
+    "/risk-assessments",
+    response_model=list[RiskAssessmentResponseDTO],
+    summary="Historial de evaluaciones de riesgo de un paciente",
+)
 def list_risk_assessments(
+    _u: CurrentUser,
+    db: DbSession,
     patient_id: str = Query(...),
-    db: DbSession = None, _u=CurrentUser,
 ):
-    assessments = (db.query(RiskAssessmentORM)
-                   .filter_by(patient_id=patient_id)
-                   .order_by(RiskAssessmentORM.fecha.desc())
-                   .all())
-    return [RiskAssessmentResponseDTO(**{c.name: getattr(a, c.name) for c in a.__table__.columns})
-            for a in assessments]
+    assessments = (
+        db.query(RiskAssessmentORM).filter_by(patient_id=patient_id).order_by(RiskAssessmentORM.fecha.desc()).all()
+    )
+    return [RiskAssessmentResponseDTO(**{c.name: getattr(a, c.name) for c in a.__table__.columns}) for a in assessments]
 
 
 # ═════════════════════════════════════════════════════════════
@@ -474,9 +534,14 @@ def list_risk_assessments(
 # ═════════════════════════════════════════════════════════════
 
 TASK_TIPOS = Literal[
-    "registro_pensamientos", "registro_emocional", "autorregistro_conducta",
-    "exposicion", "activacion_conductual", "habilidades_DBT",
-    "psicoeducacion", "libre",
+    "registro_pensamientos",
+    "registro_emocional",
+    "autorregistro_conducta",
+    "exposicion",
+    "activacion_conductual",
+    "habilidades_DBT",
+    "psicoeducacion",
+    "libre",
 ]
 TASK_ESTADOS = Literal["pendiente", "en_progreso", "completada", "parcial", "omitida"]
 TASK_FRECUENCIAS = Literal["diaria", "varias_semana", "semanal", "unica"]
@@ -497,6 +562,7 @@ class TherapyTaskCreateDTO(BaseModel):
 
 class TherapyTaskUpdateDTO(BaseModel):
     """Para que el clínico revise o el sistema marque estado."""
+
     estado: TASK_ESTADOS | None = None
     respuesta: str | None = None
     adherencia_pct: int | None = Field(None, ge=0, le=100)
@@ -536,11 +602,14 @@ class TherapyTaskResponseDTO(BaseModel):
 # Endpoints — Tareas terapéuticas
 # ═════════════════════════════════════════════════════════════
 
-@therapy_router.post("/tasks", response_model=TherapyTaskResponseDTO, status_code=201,
-                     summary="Asigna una tarea terapéutica al paciente")
+
+@therapy_router.post(
+    "/tasks", response_model=TherapyTaskResponseDTO, status_code=201, summary="Asigna una tarea terapéutica al paciente"
+)
 def create_task(
     dto: TherapyTaskCreateDTO,
-    db: DbSession = None, _u=CurrentUser,
+    db: DbSession,
+    _u: CurrentUser,
 ):
     task = TherapyTaskORM(
         id=str(uuid.uuid4()),
@@ -561,15 +630,19 @@ def create_task(
     return TherapyTaskResponseDTO(**{c.name: getattr(task, c.name) for c in task.__table__.columns})
 
 
-@therapy_router.get("/tasks", response_model=list[TherapyTaskResponseDTO],
-                    summary="Lista tareas de un paciente (opcionalmente filtradas)")
+@therapy_router.get(
+    "/tasks",
+    response_model=list[TherapyTaskResponseDTO],
+    summary="Lista tareas de un paciente (opcionalmente filtradas)",
+)
 def list_tasks(
+    _u: CurrentUser,
+    db: DbSession,
     patient_id: str = Query(...),
     estado: str | None = Query(None, description="Filtrar por estado"),
     plan_id: str | None = Query(None),
     session_id: str | None = Query(None),
     incluir_archivadas: bool = Query(False),
-    db: DbSession = None, _u=CurrentUser,
 ):
     q = db.query(TherapyTaskORM).filter_by(patient_id=patient_id)
     if estado:
@@ -581,25 +654,29 @@ def list_tasks(
     if not incluir_archivadas:
         q = q.filter(TherapyTaskORM.archived_at.is_(None))
     tasks = q.order_by(TherapyTaskORM.fecha_asignacion.desc()).all()
-    return [TherapyTaskResponseDTO(**{c.name: getattr(t, c.name) for c in t.__table__.columns})
-            for t in tasks]
+    return [TherapyTaskResponseDTO(**{c.name: getattr(t, c.name) for c in t.__table__.columns}) for t in tasks]
 
 
-@therapy_router.get("/tasks/{task_id}", response_model=TherapyTaskResponseDTO,
-                    summary="Detalle de una tarea terapéutica")
-def get_task(task_id: str, db: DbSession = None, _u=CurrentUser):
+@therapy_router.get(
+    "/tasks/{task_id}", response_model=TherapyTaskResponseDTO, summary="Detalle de una tarea terapéutica"
+)
+def get_task(task_id: str, db: DbSession, _u: CurrentUser):
     task = db.query(TherapyTaskORM).filter_by(id=task_id).first()
     if not task:
         raise HTTPException(404, "Tarea no encontrada")
     return TherapyTaskResponseDTO(**{c.name: getattr(task, c.name) for c in task.__table__.columns})
 
 
-@therapy_router.patch("/tasks/{task_id}", response_model=TherapyTaskResponseDTO,
-                      summary="Actualiza estado / respuesta / revisión clínica de una tarea")
+@therapy_router.patch(
+    "/tasks/{task_id}",
+    response_model=TherapyTaskResponseDTO,
+    summary="Actualiza estado / respuesta / revisión clínica de una tarea",
+)
 def update_task(
     task_id: str,
     dto: TherapyTaskUpdateDTO,
-    db: DbSession = None, _u=CurrentUser,
+    db: DbSession,
+    _u: CurrentUser,
 ):
     task = db.query(TherapyTaskORM).filter_by(id=task_id).first()
     if not task:
@@ -631,9 +708,8 @@ def update_task(
     return TherapyTaskResponseDTO(**{c.name: getattr(task, c.name) for c in task.__table__.columns})
 
 
-@therapy_router.delete("/tasks/{task_id}", status_code=204,
-                       summary="Archiva una tarea (soft-delete)")
-def archive_task(task_id: str, db: DbSession = None, _u=CurrentUser):
+@therapy_router.delete("/tasks/{task_id}", status_code=204, summary="Archiva una tarea (soft-delete)")
+def archive_task(task_id: str, db: DbSession, _u: CurrentUser):
     task = db.query(TherapyTaskORM).filter_by(id=task_id).first()
     if not task:
         raise HTTPException(404, "Tarea no encontrada")
@@ -642,24 +718,25 @@ def archive_task(task_id: str, db: DbSession = None, _u=CurrentUser):
     return None
 
 
-@therapy_router.get("/tasks/{patient_id}/summary",
-                    summary="Resumen de adherencia a tareas terapéuticas")
-def task_summary(patient_id: str, db: DbSession = None, _u=CurrentUser):
+@therapy_router.get("/tasks/{patient_id}/summary", summary="Resumen de adherencia a tareas terapéuticas")
+def task_summary(patient_id: str, db: DbSession, _u: CurrentUser):
     """
     Resumen de cumplimiento de tareas para un paciente. Útil para mostrar
     en el panel principal de psicoterapia y como insumo para el informe
     de cierre terapéutico.
     """
-    tasks = (db.query(TherapyTaskORM)
-             .filter_by(patient_id=patient_id)
-             .filter(TherapyTaskORM.archived_at.is_(None))
-             .all())
+    tasks = db.query(TherapyTaskORM).filter_by(patient_id=patient_id).filter(TherapyTaskORM.archived_at.is_(None)).all()
     total = len(tasks)
     if total == 0:
         return {
-            "total": 0, "completadas": 0, "parciales": 0, "pendientes": 0,
-            "omitidas": 0, "adherencia_global_pct": 0,
-            "dificultad_promedio": None, "utilidad_promedio": None,
+            "total": 0,
+            "completadas": 0,
+            "parciales": 0,
+            "pendientes": 0,
+            "omitidas": 0,
+            "adherencia_global_pct": 0,
+            "dificultad_promedio": None,
+            "utilidad_promedio": None,
         }
     completadas = sum(1 for t in tasks if t.estado == "completada")
     parciales = sum(1 for t in tasks if t.estado == "parcial")

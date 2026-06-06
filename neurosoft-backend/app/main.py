@@ -61,6 +61,7 @@ install_pii_redactor()
 # Helpers de empaquetado (PyInstaller + frontend estático)
 # ─────────────────────────────────────────────────────────────
 
+
 def _get_static_dir() -> Path | None:
     """
     Devuelve el directorio del frontend compilado si existe.
@@ -94,8 +95,7 @@ def _bootstrap_default_assets() -> None:
     try:
         # BD_NEURO_MAESTRA.json
         if not settings.baremo_path.exists():
-            for candidate_rel in ("data/BD_NEURO_MAESTRA.json",
-                                  "neurosoft-backend/data/BD_NEURO_MAESTRA.json"):
+            for candidate_rel in ("data/BD_NEURO_MAESTRA.json", "neurosoft-backend/data/BD_NEURO_MAESTRA.json"):
                 src = _get_bundled_asset(candidate_rel)
                 if src:
                     settings.baremo_path.parent.mkdir(parents=True, exist_ok=True)
@@ -110,6 +110,7 @@ def _bootstrap_default_assets() -> None:
 # Ciclo de vida
 # ─────────────────────────────────────────────────────────────
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -121,6 +122,7 @@ async def lifespan(app: FastAPI):
     """
     # ── STARTUP ──────────────────────────────────────────────
     import time as _t
+
     app.state.started_at = _t.time()
     logger.info("=" * 55)
     logger.info("  NeuroSoft API v%s — Iniciando...", settings.api_version)
@@ -138,21 +140,20 @@ async def lifespan(app: FastAPI):
         logger.error("❌ Invariantes de producción violados:")
         for p in problems:
             logger.error("   • %s", p)
-        raise RuntimeError(
-            "Configuración insegura para producción: "
-            + "; ".join(problems)
-        )
+        raise RuntimeError("Configuración insegura para producción: " + "; ".join(problems))
 
     # 0.b. Bootstrap: copiar baremo por defecto si no existe (modo empaquetado)
     _bootstrap_default_assets()
 
     # 1. Inicializar base de datos
     from app.infrastructure.database.engine import init_database
+
     init_database()
 
     # 1.b. Registrar listeners de auditoría sobre Session
     try:
         from app.infrastructure.audit import register_audit_listeners
+
         register_audit_listeners()
         logger.info("✅ Audit listeners activos (trazabilidad Resolución 1995)")
     except Exception as e:
@@ -160,6 +161,7 @@ async def lifespan(app: FastAPI):
 
     # 2. Cargar baremos en memoria
     from app.domain.clinical_engine.baremos_loader import BaremosLoader
+
     try:
         loader = BaremosLoader.load(settings.baremo_path)
         app.state.baremo_loaded = True
@@ -176,6 +178,7 @@ async def lifespan(app: FastAPI):
     try:
         from app.application.use_cases.rehab_use_cases import seed_activity_catalog
         from app.infrastructure.database.engine import get_session
+
         _db = next(get_session())
         try:
             seed_activity_catalog(_db)
@@ -188,6 +191,7 @@ async def lifespan(app: FastAPI):
     try:
         from app.infrastructure.auth.auth_service import UserRepository
         from app.infrastructure.database.engine import get_session
+
         db = next(get_session())
         repo = UserRepository(db)
         # Dejar que ensure_admin_exists resuelva la contraseña según el entorno
@@ -204,6 +208,7 @@ async def lifespan(app: FastAPI):
 
     # 4. Iniciar scheduler de tareas programadas
     from app.infrastructure.scheduler_service import start_scheduler
+
     start_scheduler()
 
     # 5. Auto-instalar Ollama al PRIMER arranque (solo Windows, solo si bundled).
@@ -214,6 +219,7 @@ async def lifespan(app: FastAPI):
         import asyncio as _asyncio
 
         from app.infrastructure.ollama_bootstrap import auto_install_ollama_first_run
+
         _asyncio.create_task(auto_install_ollama_first_run())
     except Exception as e:
         logger.debug("Auto-install Ollama no disponible: %s", e)
@@ -243,6 +249,7 @@ async def lifespan(app: FastAPI):
 
     # ── SHUTDOWN ─────────────────────────────────────────────
     from app.infrastructure.scheduler_service import stop_scheduler
+
     stop_scheduler()
     logger.info("NeuroSoft detenido.")
 
@@ -251,11 +258,7 @@ async def lifespan(app: FastAPI):
 # Instancia FastAPI
 # ─────────────────────────────────────────────────────────────
 
-_EXPOSE_DOCS = (
-    settings.effective_expose_docs()
-    if hasattr(settings, "effective_expose_docs")
-    else True
-)
+_EXPOSE_DOCS = settings.effective_expose_docs() if hasattr(settings, "effective_expose_docs") else True
 
 app = FastAPI(
     title=settings.api_title,
@@ -420,6 +423,7 @@ async def auth_middleware(request: Request, call_next):
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         from fastapi.responses import JSONResponse
+
         return JSONResponse(
             status_code=401,
             content={"detail": "Token de autenticación requerido.", "code": "UNAUTHORIZED"},
@@ -429,14 +433,16 @@ async def auth_middleware(request: Request, call_next):
     token = auth_header.split(" ", 1)[1]
     try:
         from app.infrastructure.auth.auth_service import decode_access_token
+
         payload = decode_access_token(token)
         # Adjuntar datos del usuario al request state para los endpoints
-        request.state.user_id    = payload["sub"]
-        request.state.user_role  = payload.get("role", "profesional")
+        request.state.user_id = payload["sub"]
+        request.state.user_role = payload.get("role", "profesional")
         request.state.user_label = payload.get("username") or payload["sub"][:8]
-        request.state.token_jti  = payload.get("jti", "")
+        request.state.token_jti = payload.get("jti", "")
     except ValueError as e:
         from fastapi.responses import JSONResponse
+
         return JSONResponse(
             status_code=401,
             content={"detail": str(e), "code": "TOKEN_INVALID"},
@@ -455,6 +461,7 @@ async def auth_middleware(request: Request, call_next):
                 is_user_session_revoked,
             )
             from app.infrastructure.database.engine import SessionLocal
+
             _check_db = SessionLocal()
             try:
                 if jti and is_token_revoked(_check_db, jti):
@@ -470,10 +477,7 @@ async def auth_middleware(request: Request, call_next):
                     return JSONResponse(
                         status_code=401,
                         content={
-                            "detail": (
-                                "Sesión invalidada (cambio de contraseña "
-                                "o revocación administrativa)."
-                            ),
+                            "detail": ("Sesión invalidada (cambio de contraseña o revocación administrativa)."),
                             "code": "SESSION_INVALIDATED",
                         },
                         headers={"WWW-Authenticate": "Bearer"},
@@ -500,6 +504,7 @@ async def auth_middleware(request: Request, call_next):
     # Propagar actor al ContextVar de auditoría para los listeners ORM
     try:
         from app.infrastructure.audit import current_actor_id, current_actor_label, current_ip
+
         actor_tok = current_actor_id.set(request.state.user_id)
         ip_tok = current_ip.set(request.client.host if request.client else None)
         label_tok = current_actor_label.set(payload.get("username") or request.state.user_id[:8])
@@ -511,6 +516,7 @@ async def auth_middleware(request: Request, call_next):
             current_ip.reset(ip_tok)
     except Exception:
         return await call_next(request)
+
 
 # ─────────────────────────────────────────────────────────────
 # Security Headers Middleware — defensas básicas contra ataques
@@ -529,8 +535,7 @@ _SECURITY_HEADERS = {
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": (
-        "geolocation=(), microphone=(), camera=(), "
-        "payment=(), usb=(), magnetometer=(), accelerometer=()"
+        "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), accelerometer=()"
     ),
     "X-Permitted-Cross-Domain-Policies": "none",
 }
@@ -545,6 +550,7 @@ async def security_headers_middleware(request: Request, call_next):
     S4.2: también cuenta requests en el sistema de métricas opt-in.
     """
     import time as _t
+
     t0 = _t.perf_counter()
     response = await call_next(request)
     elapsed_ms = (_t.perf_counter() - t0) * 1000.0
@@ -560,6 +566,7 @@ async def security_headers_middleware(request: Request, call_next):
         )
     # Métricas opt-in (S4.2): nunca envía PHI
     from app.infrastructure.observability import metrics
+
     if metrics._is_enabled():
         path = request.url.path
         # Sanitizar paths con IDs
@@ -604,6 +611,7 @@ app.add_middleware(
 # Exception Handlers globales
 # Convierten excepciones de dominio en respuestas HTTP coherentes
 # ─────────────────────────────────────────────────────────────
+
 
 @app.exception_handler(DomainError)
 async def domain_error_handler(request: Request, exc: DomainError):
@@ -672,13 +680,16 @@ def root():
     }
     if _STATIC_DIR:
         return FileResponse(_STATIC_DIR / "index.html", headers=no_cache_headers)
-    return JSONResponse({
-        "sistema": "NeuroSoft API",
-        "version": settings.api_version,
-        "estado": "operativo",
-        "docs": "/docs",
-        "redoc": "/redoc",
-    }, headers=no_cache_headers)
+    return JSONResponse(
+        {
+            "sistema": "NeuroSoft API",
+            "version": settings.api_version,
+            "estado": "operativo",
+            "docs": "/docs",
+            "redoc": "/redoc",
+        },
+        headers=no_cache_headers,
+    )
 
 
 @app.get("/index.html", tags=["Sistema"], include_in_schema=False)
@@ -723,6 +734,7 @@ def service_worker_js():
         "});\n"
     )
     from fastapi.responses import Response
+
     return Response(content=kill_switch_js, headers=no_cache_headers)
 
 
@@ -807,27 +819,24 @@ def health():
         from app.infrastructure.database.orm_models import (
             TokenBlacklistORM as _Bl,
         )
+
         _check = _SL()
         try:
             audit_count = _check.query(_func.count(_Audit.id)).scalar() or 0
             blacklist_count = _check.query(_func.count(_Bl.jti)).scalar() or 0
-            last_backup_orm = (
-                _check.query(_Backup)
-                .order_by(_Backup.fecha.desc())
-                .first()
-            )
+            last_backup_orm = _check.query(_Backup).order_by(_Backup.fecha.desc()).first()
             operational["audit_log_count"] = int(audit_count)
             operational["token_blacklist_count"] = int(blacklist_count)
             if last_backup_orm is not None:
                 operational["last_backup"] = {
-                    "fecha": last_backup_orm.fecha.isoformat()
-                    if last_backup_orm.fecha else None,
+                    "fecha": last_backup_orm.fecha.isoformat() if last_backup_orm.fecha else None,
                     "exitoso": bool(last_backup_orm.exitoso),
                     "tamano_bytes": int(last_backup_orm.tamano_bytes or 0),
                     "tipo": last_backup_orm.tipo,
                 }
                 # Avisar si el último backup tiene > 36h
                 from datetime import datetime as _dt
+
                 fecha = last_backup_orm.fecha
                 if fecha is not None:
                     if fecha.tzinfo is None:

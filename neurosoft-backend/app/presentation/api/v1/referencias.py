@@ -185,10 +185,10 @@ def list_referencias(
         q = q.filter(ReferenciaBibliograficaORM.categoria == categoria)
     total = q.count()
     rows = q.order_by(ReferenciaBibliograficaORM.anio.desc()).limit(limit).offset(offset).all()
-    return {"total": total, "referencias": [
-        {k: v for k, v in r.__dict__.items() if not k.startswith("_")}
-        for r in rows
-    ]}
+    return {
+        "total": total,
+        "referencias": [{k: v for k, v in r.__dict__.items() if not k.startswith("_")} for r in rows],
+    }
 
 
 @referencias_router.get("/search", summary="Buscar referencias por texto")
@@ -212,10 +212,10 @@ def search_referencias(
         .limit(limit)
         .all()
     )
-    return {"total": len(rows), "referencias": [
-        {k: v for k, v in r.__dict__.items() if not k.startswith("_")}
-        for r in rows
-    ]}
+    return {
+        "total": len(rows),
+        "referencias": [{k: v for k, v in r.__dict__.items() if not k.startswith("_")} for r in rows],
+    }
 
 
 @referencias_router.get("/{ref_id}", summary="Detalle de referencia")
@@ -247,6 +247,7 @@ def create_referencia(
 ):
     """Agrega una nueva referencia al catálogo. Requiere rol admin (validado por middleware)."""
     import uuid
+
     r = ReferenciaBibliograficaORM(
         id=str(uuid.uuid4()),
         tipo=tipo,

@@ -1,12 +1,9 @@
 """
 Tests para el módulo de implicaciones para la vida diaria.
 """
-import pytest
 
 from app.infrastructure.report_pro.implicaciones import (
     IMPLICACIONES_POR_DOMINIO,
-    Z_DEBIL,
-    Z_MUY_DEBIL,
     _normalizar_dominio,
     dominios_con_implicaciones,
     texto_implicaciones_para_familia,
@@ -102,9 +99,14 @@ class TestImplicaciones:
     def test_estructura_cada_dominio_tiene_campos_completos(self):
         """Todos los dominios canónicos deben tener ejemplos y estrategias."""
         canonicos = [
-            "Atención", "Memoria", "Lenguaje", "Funciones Ejecutivas",
-            "Razonamiento Perceptual", "Visoconstrucción",
-            "Velocidad de Procesamiento", "Comprensión Verbal",
+            "Atención",
+            "Memoria",
+            "Lenguaje",
+            "Funciones Ejecutivas",
+            "Razonamiento Perceptual",
+            "Visoconstrucción",
+            "Velocidad de Procesamiento",
+            "Comprensión Verbal",
             "Memoria de Trabajo",
         ]
         for dom in canonicos:

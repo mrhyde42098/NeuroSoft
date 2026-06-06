@@ -1,7 +1,7 @@
 """
 S3.2: Tests de los helpers para versión paciente del informe.
 """
-import pytest
+
 from app.infrastructure.report_pro.narrative import (
     MAPEO_LENGUAJE_CLARO,
     banda_a_lenguaje_claro,
@@ -88,23 +88,21 @@ def test_generar_resumen_paciente_sin_resultados_devuelve_texto_generico():
 
 
 def test_generar_resumen_paciente_recomendaciones_escolares():
-    resumen = generar_resumen_paciente(
-        [], paciente_nombre="X", recomendaciones=["Reforzar lectura en colegio"]
+    resumen = generar_resumen_paciente([], paciente_nombre="X", recomendaciones=["Reforzar lectura en colegio"])
+    assert (
+        "colegio" in resumen["que_recomendamos"].lower()
+        or "escuela" in resumen["que_recomendamos"].lower()
+        or "academia" in resumen["que_recomendamos"].lower()
     )
-    assert "colegio" in resumen["que_recomendamos"].lower() or "escuela" in resumen["que_recomendamos"].lower() or "academia" in resumen["que_recomendamos"].lower()
 
 
 def test_generar_resumen_paciente_recomendaciones_terapeuticas():
-    resumen = generar_resumen_paciente(
-        [], paciente_nombre="X", recomendaciones=["Iniciar terapia cognitiva"]
-    )
+    resumen = generar_resumen_paciente([], paciente_nombre="X", recomendaciones=["Iniciar terapia cognitiva"])
     assert "terapia" in resumen["que_recomendamos"].lower() or "sesiones" in resumen["que_recomendamos"].lower()
 
 
 def test_generar_resumen_paciente_recomendaciones_genericas():
-    resumen = generar_resumen_paciente(
-        [], paciente_nombre="X", recomendaciones=["Otra cosa rara xyz"]
-    )
+    resumen = generar_resumen_paciente([], paciente_nombre="X", recomendaciones=["Otra cosa rara xyz"])
     assert "Recomendación" in resumen["que_recomendamos"] or "psicólogo" in resumen["que_recomendamos"].lower()
 
 

@@ -22,6 +22,7 @@ Uso:
     backups = listar_backups()
     restaurar_backup(ruta, target_path=Path("data/neurosoft_restored.db"))
 """
+
 from __future__ import annotations
 
 import gzip
@@ -30,7 +31,7 @@ import json
 import logging
 import shutil
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app.core.config import settings
@@ -78,6 +79,7 @@ def _nombre_backup(ts: datetime | None = None) -> str:
 def _cifrar_y_empaquetar(plaintext: bytes, metadata: dict) -> bytes:
     """Cifra plaintext con Fernet y antepone header con metadata + sha256."""
     from app.infrastructure.crypto import encrypt
+
     # sha256 para verificación de integridad al restaurar
     sha = hashlib.sha256(plaintext).hexdigest()
     header = {
@@ -86,16 +88,20 @@ def _cifrar_y_empaquetar(plaintext: bytes, metadata: dict) -> bytes:
         "metadata": metadata,
     }
     cipher_b = encrypt(plaintext.decode("latin-1"))
-    payload = json.dumps({
-        "header": header,
-        "ciphertext": cipher_b,
-    }, ensure_ascii=False).encode("utf-8")
+    payload = json.dumps(
+        {
+            "header": header,
+            "ciphertext": cipher_b,
+        },
+        ensure_ascii=False,
+    ).encode("utf-8")
     return payload
 
 
 def _descifrar_y_verificar(payload: bytes) -> tuple[bytes, dict]:
     """Descifra payload y verifica sha256. Lanza ValueError si falla."""
     from app.infrastructure.crypto import decrypt
+
     obj = json.loads(payload.decode("utf-8"))
     header = obj.get("header") or {}
     cipher_b = obj.get("ciphertext") or ""
@@ -109,8 +115,7 @@ def _descifrar_y_verificar(payload: bytes) -> tuple[bytes, dict]:
     sha_actual = hashlib.sha256(plain_b).hexdigest()
     if sha_actual != sha_esperado:
         raise ValueError(
-            f"SHA-256 no coincide. Esperado: {sha_esperado[:12]}… "
-            f"actual: {sha_actual[:12]}… (backup corrupto)"
+            f"SHA-256 no coincide. Esperado: {sha_esperado[:12]}… actual: {sha_actual[:12]}… (backup corrupto)"
         )
     return plain_b, header
 
@@ -187,13 +192,15 @@ def listar_backups() -> list[BackupMetadata]:
                 ts = datetime.fromisoformat(ts_str)
             except ValueError:
                 ts = datetime.fromtimestamp(p.stat().st_mtime, tz=UTC)
-            out.append(BackupMetadata(
-                ruta=p,
-                timestamp=ts,
-                tamano_bytes=p.stat().st_size,
-                sha256_plaintext=header.get("sha256", ""),
-                notas=meta.get("notas"),
-            ))
+            out.append(
+                BackupMetadata(
+                    ruta=p,
+                    timestamp=ts,
+                    tamano_bytes=p.stat().st_size,
+                    sha256_plaintext=header.get("sha256", ""),
+                    notas=meta.get("notas"),
+                )
+            )
         except Exception as e:
             logger.warning("No se pudo leer backup %s: %s", p, e)
     return out
@@ -218,13 +225,10 @@ def eliminar_backups_viejos(
     # Diarios: los más recientes del último día
     hoy = ahora.date()
     diarios = [b for b in backups if b.timestamp.date() == hoy]
-    semanales = [
-        b for b in backups
-        if (ahora - b.timestamp).days <= 7 and b not in diarios
-    ]
+    semanales = [b for b in backups if (ahora - b.timestamp).days <= 7 and b not in diarios]
     # Conservar top N de cada categoría
-    mantener_diarios_set = set(id(b) for b in diarios[:mantener_diarios])
-    mantener_semanales_set = set(id(b) for b in semanales[:mantener_semanales])
+    mantener_diarios_set = {id(b) for b in diarios[:mantener_diarios]}
+    mantener_semanales_set = {id(b) for b in semanales[:mantener_semanales]}
     conservar = mantener_diarios_set | mantener_semanales_set
     eliminados = 0
     for b in backups:

@@ -4,6 +4,7 @@ Servicio autoritativo de mapeo CIE-10 → CIE-11 (backend).
 El frontend mantiene cie11Map.js como caché; este módulo es la fuente
 de verdad para persistencia, informes y futura transición RIPS.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,11 +25,7 @@ def _load_mapping() -> dict[str, dict[str, str]]:
         return {}
     with open(_DATA_PATH, encoding="utf-8") as f:
         raw = json.load(f)
-    return {
-        k.upper().replace(".", ""): v
-        for k, v in raw.items()
-        if not k.startswith("_") and isinstance(v, dict)
-    }
+    return {k.upper().replace(".", ""): v for k, v in raw.items() if not k.startswith("_") and isinstance(v, dict)}
 
 
 def map_cie10_to_cie11(codigo10: str | None) -> dict[str, str] | None:
@@ -61,7 +58,4 @@ def resolve_cie11_code(codigo10: str | None) -> str | None:
 def list_all_mappings() -> list[dict[str, Any]]:
     """Lista completa para inspección / sincronización."""
     table = _load_mapping()
-    return [
-        {"codigo10": k, **v}
-        for k, v in sorted(table.items())
-    ]
+    return [{"codigo10": k, **v} for k, v in sorted(table.items())]

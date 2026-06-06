@@ -40,11 +40,7 @@ def _to_response(paciente: Paciente) -> PatientResponseDTO:
     """Convierte Paciente → PatientResponseDTO con edad calculada."""
     age = AgeCalculator.calculate(paciente.fecha_nacimiento, paciente.fecha_atencion)
     years = age.years
-    poblacion = (
-        "infantil" if years < 18
-        else "adulto_joven" if years < 50
-        else "adulto_mayor"
-    )
+    poblacion = "infantil" if years < 18 else "adulto_joven" if years < 50 else "adulto_mayor"
     return PatientResponseDTO(
         id=str(paciente.id),
         numero_documento=paciente.numero_documento,
@@ -72,6 +68,7 @@ def _to_response(paciente: Paciente) -> PatientResponseDTO:
 # 1. REGISTRAR PACIENTE
 # ─────────────────────────────────────────────────────────────
 
+
 class RegisterPatientUseCase:
     """
     Registra un nuevo paciente.
@@ -86,9 +83,7 @@ class RegisterPatientUseCase:
 
     def execute(self, dto: PatientCreateDTO) -> PatientResponseDTO:
         # Verificar duplicado
-        existing = self._repo.find_by_document_and_date(
-            dto.numero_documento, dto.fecha_atencion
-        )
+        existing = self._repo.find_by_document_and_date(dto.numero_documento, dto.fecha_atencion)
         if existing:
             raise PatientAlreadyExistsError(dto.numero_documento, str(dto.fecha_atencion))
 
@@ -146,6 +141,7 @@ class RegisterPatientUseCase:
 # 2. ACTUALIZAR PACIENTE
 # ─────────────────────────────────────────────────────────────
 
+
 class UpdatePatientUseCase:
     def __init__(self, repo: PatientRepository):
         self._repo = repo
@@ -166,6 +162,7 @@ class UpdatePatientUseCase:
 # 3. OBTENER PACIENTE
 # ─────────────────────────────────────────────────────────────
 
+
 class GetPatientUseCase:
     def __init__(self, repo: PatientRepository):
         self._repo = repo
@@ -183,6 +180,7 @@ class GetPatientUseCase:
 # 4. BUSCAR PACIENTES
 # ─────────────────────────────────────────────────────────────
 
+
 class SearchPatientsUseCase:
     def __init__(self, repo: PatientRepository):
         self._repo = repo
@@ -196,7 +194,10 @@ class SearchPatientsUseCase:
         profesional_id: str | None = None,
     ) -> list[PatientResponseDTO]:
         pacientes = self._repo.search(
-            documento=documento, nombre=nombre, limit=limit, offset=offset,
+            documento=documento,
+            nombre=nombre,
+            limit=limit,
+            offset=offset,
             profesional_id=profesional_id,
         )
         return [_to_response(p) for p in pacientes]
@@ -205,6 +206,7 @@ class SearchPatientsUseCase:
 # ─────────────────────────────────────────────────────────────
 # 5. CALCULAR EDAD (UX del formulario, sin guardar)
 # ─────────────────────────────────────────────────────────────
+
 
 class CalculateAgeUseCase:
     """Sin dependencias — función pura envuelta en use case."""
@@ -217,11 +219,7 @@ class CalculateAgeUseCase:
         ref = fecha_referencia or date.today()
         age = AgeCalculator.calculate(fecha_nacimiento, ref)
         years = age.years
-        poblacion = (
-            "infantil" if years < 18
-            else "adulto_joven" if years < 50
-            else "adulto_mayor"
-        )
+        poblacion = "infantil" if years < 18 else "adulto_joven" if years < 50 else "adulto_mayor"
         return AgeResponseDTO(
             years=age.years,
             months=age.months,
@@ -239,6 +237,7 @@ class CalculateAgeUseCase:
 # 6. ARCHIVAR PACIENTE (soft delete)
 # ─────────────────────────────────────────────────────────────
 
+
 class ArchivePatientUseCase:
     def __init__(self, repo: PatientRepository):
         self._repo = repo
@@ -252,6 +251,7 @@ class ArchivePatientUseCase:
 # ─────────────────────────────────────────────────────────────
 # 7. PANEL DE PACIENTES (búsqueda avanzada + estadísticas)
 # ─────────────────────────────────────────────────────────────
+
 
 class PatientPanelUseCase:
     """
@@ -286,10 +286,14 @@ class PatientPanelUseCase:
 
         offset = (pagina - 1) * por_pagina
         orms, total = self._repo.search_panel(
-            q=q, sexo=sexo, poblacion=poblacion,
+            q=q,
+            sexo=sexo,
+            poblacion=poblacion,
             profesional_id=profesional_id,
-            fecha_desde=fecha_desde, fecha_hasta=fecha_hasta,
-            limit=por_pagina, offset=offset,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta,
+            limit=por_pagina,
+            offset=offset,
         )
 
         # Bulk load eval counts for all patients in this page
@@ -302,7 +306,7 @@ class PatientPanelUseCase:
             count_rows = (
                 self._db.query(
                     EvaluationORM.patient_id,
-                    func.count(EvaluationORM.id).label('cnt'),
+                    func.count(EvaluationORM.id).label("cnt"),
                 )
                 .filter(EvaluationORM.patient_id.in_(patient_ids))
                 .group_by(EvaluationORM.patient_id)
@@ -332,6 +336,7 @@ class PatientPanelUseCase:
         items = []
         for orm in orms:
             from app.core.utils import AgeCalculator
+
             age = AgeCalculator.calculate(orm.fecha_nacimiento)
             if age.years < 18:
                 pop = "infantil"
@@ -340,37 +345,44 @@ class PatientPanelUseCase:
             else:
                 pop = "adulto_mayor"
 
-            nombre = " ".join(filter(None, [
-                orm.primer_nombre, orm.segundo_nombre,
-                orm.primer_apellido, orm.segundo_apellido,
-            ]))
+            nombre = " ".join(
+                filter(
+                    None,
+                    [
+                        orm.primer_nombre,
+                        orm.segundo_nombre,
+                        orm.primer_apellido,
+                        orm.segundo_apellido,
+                    ],
+                )
+            )
 
-            items.append(PatientPanelItemDTO(
-                id=orm.id,
-                numero_documento=orm.numero_documento,
-                tipo_documento=orm.tipo_documento or "CC",
-                nombre_completo=nombre,
-                fecha_nacimiento=orm.fecha_nacimiento,
-                fecha_atencion=orm.fecha_atencion,
-                sexo=orm.sexo,
-                escolaridad=orm.escolaridad,
-                ciudad=orm.ciudad,
-                remite=orm.remite,
-                profesional_id=orm.profesional_id,
-                acompanante=orm.acompanante,
-                acompanante_relacion=getattr(orm, "acompanante_relacion", None),
-                acompanante_telefono=getattr(orm, "acompanante_telefono", None),
-                age_display=f"{age.years}a {age.months}m",
-                poblacion=pop,
-                total_evaluaciones=eval_counts.get(orm.id, 0),
-                ultima_evaluacion=(
-                    eval_latest[orm.id].isoformat()
-                    if orm.id in eval_latest and eval_latest[orm.id]
-                    else None
-                ),
-                ultimo_protocolo=eval_protocolo.get(orm.id),
-                etiquetas=_parse_etiquetas(getattr(orm, "etiquetas", None)),
-            ))
+            items.append(
+                PatientPanelItemDTO(
+                    id=orm.id,
+                    numero_documento=orm.numero_documento,
+                    tipo_documento=orm.tipo_documento or "CC",
+                    nombre_completo=nombre,
+                    fecha_nacimiento=orm.fecha_nacimiento,
+                    fecha_atencion=orm.fecha_atencion,
+                    sexo=orm.sexo,
+                    escolaridad=orm.escolaridad,
+                    ciudad=orm.ciudad,
+                    remite=orm.remite,
+                    profesional_id=orm.profesional_id,
+                    acompanante=orm.acompanante,
+                    acompanante_relacion=getattr(orm, "acompanante_relacion", None),
+                    acompanante_telefono=getattr(orm, "acompanante_telefono", None),
+                    age_display=f"{age.years}a {age.months}m",
+                    poblacion=pop,
+                    total_evaluaciones=eval_counts.get(orm.id, 0),
+                    ultima_evaluacion=(
+                        eval_latest[orm.id].isoformat() if orm.id in eval_latest and eval_latest[orm.id] else None
+                    ),
+                    ultimo_protocolo=eval_protocolo.get(orm.id),
+                    etiquetas=_parse_etiquetas(getattr(orm, "etiquetas", None)),
+                )
+            )
 
         return PatientPanelResponseDTO(
             total=total,
@@ -401,20 +413,17 @@ class PatientStatsUseCase:
 
         # Total de evaluaciones (filtrado por scope)
         q_eval = self._db.query(func.count(EvaluationORM.id))
-        q_sin  = self._db.query(func.count(EvaluationORM.id)).filter(
-            EvaluationORM.signed_at.is_(None)
-        )
+        q_sin = self._db.query(func.count(EvaluationORM.id)).filter(EvaluationORM.signed_at.is_(None))
         if profesional_id:
-            q_eval = q_eval.join(
-                PatientORM, PatientORM.id == EvaluationORM.patient_id
-            ).filter(PatientORM.profesional_id == profesional_id)
-            q_sin  = q_sin.join(
-                PatientORM, PatientORM.id == EvaluationORM.patient_id
-            ).filter(PatientORM.profesional_id == profesional_id)
+            q_eval = q_eval.join(PatientORM, PatientORM.id == EvaluationORM.patient_id).filter(
+                PatientORM.profesional_id == profesional_id
+            )
+            q_sin = q_sin.join(PatientORM, PatientORM.id == EvaluationORM.patient_id).filter(
+                PatientORM.profesional_id == profesional_id
+            )
         total_eval = q_eval.scalar() or 0
         sin_informe = q_sin.scalar() or 0
         stats["total_evaluaciones"] = total_eval
         stats["evaluaciones_sin_informe"] = sin_informe
 
-        return PatientStatsDTO(**{k: v for k, v in stats.items()
-                                  if k in PatientStatsDTO.model_fields})
+        return PatientStatsDTO(**{k: v for k, v in stats.items() if k in PatientStatsDTO.model_fields})

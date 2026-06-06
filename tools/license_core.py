@@ -296,6 +296,111 @@ def export_inventory_csv(path: str | Path, *, status: str | None = None) -> int:
     return len(rows)
 
 
+def export_inventory_xlsx(path: str | Path, *, status: str | None = None) -> int:
+    """Exporta inventario a Excel (.xlsx) con hoja Resumen + Inventario."""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Alignment, Font, PatternFill
+        from openpyxl.utils import get_column_letter
+    except ImportError as e:
+        raise RuntimeError("openpyxl no está instalado. Ejecuta: pip install openpyxl") from e
+
+    rows = inventory_filter(status=status)
+    st = inventory_stats()
+    wb = Workbook()
+
+    header_fill = PatternFill("solid", fgColor="0D9488")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    title_font = Font(bold=True, size=14, color="0D9488")
+    label_font = Font(bold=True, size=10)
+
+    # ── Hoja Resumen ──
+    ws = wb.active
+    ws.title = "Resumen"
+    ws["A1"] = "NeuroSoft — Inventario de licencias"
+    ws["A1"].font = title_font
+    ws["A2"] = f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    if status:
+        ws["A3"] = f"Filtro estado: {status}"
+    r = 5
+    for label, val in (
+        ("Total", st["total"]),
+        ("Disponibles", st["available"]),
+        ("Asignadas", st["assigned"]),
+        ("Revocadas", st["revoked"]),
+        ("Lotes", st["batches"]),
+    ):
+        ws.cell(row=r, column=1, value=label).font = label_font
+        ws.cell(row=r, column=2, value=val)
+        r += 1
+    r += 1
+    ws.cell(row=r, column=1, value="Por tipo (disp / total)").font = label_font
+    r += 1
+    for t, n in sorted(st.get("by_type", {}).items()):
+        det = st.get("by_type_detail", {}).get(t, {})
+        meta = TYPE_META.get(t, {})
+        ws.cell(row=r, column=1, value=meta.get("label", t))
+        ws.cell(row=r, column=2, value=det.get("available", 0))
+        ws.cell(row=r, column=3, value=n)
+        r += 1
+    ws.column_dimensions["A"].width = 28
+    ws.column_dimensions["B"].width = 14
+    ws.column_dimensions["C"].width = 10
+
+    # ── Hoja Inventario ──
+    ws2 = wb.create_sheet("Inventario")
+    cols = [
+        ("#", 6),
+        ("Estado", 12),
+        ("Tipo", 10),
+        ("Nombre", 28),
+        ("Email", 32),
+        ("Institución", 24),
+        ("Lote", 14),
+        ("Clave NSFT", 44),
+        ("Asignado a", 24),
+        ("Fecha asignación", 18),
+        ("Creada", 18),
+    ]
+    for ci, (title, _w) in enumerate(cols, 1):
+        cell = ws2.cell(row=1, column=ci, value=title)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+    status_fill = {
+        "available": PatternFill("solid", fgColor="D1FAE5"),
+        "assigned": PatternFill("solid", fgColor="FEF3C7"),
+        "revoked": PatternFill("solid", fgColor="FEE2E2"),
+    }
+    for i, row in enumerate(rows, 1):
+        vals = [
+            i,
+            row.get("status", ""),
+            TYPE_META.get(row.get("type", ""), {}).get("label", row.get("type", "")),
+            row.get("name", ""),
+            row.get("email", ""),
+            row.get("institution", ""),
+            row.get("batch", ""),
+            row.get("key", ""),
+            row.get("assigned_to", ""),
+            row.get("assigned_date", ""),
+            row.get("created", ""),
+        ]
+        for ci, val in enumerate(vals, 1):
+            c = ws2.cell(row=i + 1, column=ci, value=val)
+            if ci == 2:
+                c.fill = status_fill.get(str(val), PatternFill())
+            if ci == 8:
+                c.font = Font(name="Consolas", size=9)
+    for ci, (_, w) in enumerate(cols, 1):
+        ws2.column_dimensions[get_column_letter(ci)].width = w
+    ws2.freeze_panes = "A2"
+    ws2.auto_filter.ref = f"A1:{get_column_letter(len(cols))}{len(rows) + 1}"
+
+    wb.save(path)
+    return len(rows)
+
+
 def inventory_revoke(key: str) -> bool:
     return inventory_mark(key, "revoked")
 

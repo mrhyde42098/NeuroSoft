@@ -9,6 +9,7 @@ Cubre:
   • Registrar sesiones (clínico o paciente vía link público)
   • Generar y validar links públicos para tarea-casa
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 # Helpers
 # ═══════════════════════════════════════════════════════════════
 
+
 def _parse_json(raw: str | None) -> Any:
     if not raw:
         return None
@@ -38,71 +40,70 @@ def _parse_json(raw: str | None) -> Any:
 def _canonical_plan_payload(orm) -> str:
     """Payload determinístico para el hash de firma del plan."""
     payload = {
-        "id":                  orm.id,
-        "patient_id":          orm.patient_id,
-        "evaluation_id":       orm.evaluation_id,
-        "fecha_inicio":        orm.fecha_inicio.isoformat() if orm.fecha_inicio else None,
-        "fecha_fin_estimada":  orm.fecha_fin_estimada.isoformat() if orm.fecha_fin_estimada else None,
-        "frecuencia_semanal":  orm.frecuencia_semanal,
-        "objetivos":           orm.objetivos or "",
-        "dominios_json":       orm.dominios_json or "",
-        "actividades_json":    orm.actividades_json or "",
+        "id": orm.id,
+        "patient_id": orm.patient_id,
+        "evaluation_id": orm.evaluation_id,
+        "fecha_inicio": orm.fecha_inicio.isoformat() if orm.fecha_inicio else None,
+        "fecha_fin_estimada": orm.fecha_fin_estimada.isoformat() if orm.fecha_fin_estimada else None,
+        "frecuencia_semanal": orm.frecuencia_semanal,
+        "objetivos": orm.objetivos or "",
+        "dominios_json": orm.dominios_json or "",
+        "actividades_json": orm.actividades_json or "",
     }
     return json.dumps(payload, sort_keys=True, ensure_ascii=False)
 
 
 def _compute_plan_hash(orm) -> str:
-    return hashlib.sha256(
-        _canonical_plan_payload(orm).encode("utf-8")
-    ).hexdigest()
+    return hashlib.sha256(_canonical_plan_payload(orm).encode("utf-8")).hexdigest()
 
 
 def _orm_to_response(orm) -> dict[str, Any]:
     return {
-        "id":                 orm.id,
-        "patient_id":         orm.patient_id,
-        "evaluation_id":      orm.evaluation_id,
-        "profesional_id":     orm.profesional_id,
-        "fecha_inicio":       orm.fecha_inicio,
+        "id": orm.id,
+        "patient_id": orm.patient_id,
+        "evaluation_id": orm.evaluation_id,
+        "profesional_id": orm.profesional_id,
+        "fecha_inicio": orm.fecha_inicio,
         "fecha_fin_estimada": orm.fecha_fin_estimada,
         "frecuencia_semanal": orm.frecuencia_semanal,
-        "objetivos":          orm.objetivos,
-        "dominios":           _parse_json(orm.dominios_json) or [],
-        "actividades":        _parse_json(orm.actividades_json) or [],
-        "notas":              orm.notas,
-        "estado":             orm.estado,
-        "created_at":         orm.created_at,
-        "updated_at":         orm.updated_at,
-        "signed_at":          orm.signed_at,
-        "signed_by":          orm.signed_by,
-        "signed_by_label":    orm.signed_by_label,
-        "signature_sha256":   orm.signature_sha256,
+        "objetivos": orm.objetivos,
+        "dominios": _parse_json(orm.dominios_json) or [],
+        "actividades": _parse_json(orm.actividades_json) or [],
+        "notas": orm.notas,
+        "estado": orm.estado,
+        "created_at": orm.created_at,
+        "updated_at": orm.updated_at,
+        "signed_at": orm.signed_at,
+        "signed_by": orm.signed_by,
+        "signed_by_label": orm.signed_by_label,
+        "signature_sha256": orm.signature_sha256,
     }
 
 
 def _session_to_response(orm) -> dict[str, Any]:
     return {
-        "id":            orm.id,
-        "plan_id":       orm.plan_id,
-        "activity_id":   orm.activity_id,
+        "id": orm.id,
+        "plan_id": orm.plan_id,
+        "activity_id": orm.activity_id,
         "activity_slug": orm.activity_slug,
-        "patient_id":    orm.patient_id,
-        "ts_inicio":     orm.ts_inicio,
-        "ts_fin":        orm.ts_fin,
-        "duracion_seg":  orm.duracion_seg,
-        "score":         orm.score,
-        "aciertos":      orm.aciertos,
-        "errores":       orm.errores,
-        "parametros":    _parse_json(orm.parametros_json),
-        "resultado":     _parse_json(orm.resultado_json),
-        "modo":          orm.modo,
-        "origen_token":  orm.origen_token,
+        "patient_id": orm.patient_id,
+        "ts_inicio": orm.ts_inicio,
+        "ts_fin": orm.ts_fin,
+        "duracion_seg": orm.duracion_seg,
+        "score": orm.score,
+        "aciertos": orm.aciertos,
+        "errores": orm.errores,
+        "parametros": _parse_json(orm.parametros_json),
+        "resultado": _parse_json(orm.resultado_json),
+        "modo": orm.modo,
+        "origen_token": orm.origen_token,
     }
 
 
 # ═══════════════════════════════════════════════════════════════
 # CATÁLOGO DE ACTIVIDADES
 # ═══════════════════════════════════════════════════════════════
+
 
 class ListActivitiesUseCase:
     def __init__(self, session):
@@ -124,26 +125,30 @@ class ListActivitiesUseCase:
             RehabActivityCatalogORM.orden.asc(),
             RehabActivityCatalogORM.nombre.asc(),
         ).all()
-        return [{
-            "id":                 a.id,
-            "slug":               a.slug,
-            "nombre":             a.nombre,
-            "dominio":            a.dominio,
-            "dificultad_default": a.dificultad_default,
-            "duracion_min":       a.duracion_min,
-            "descripcion":        a.descripcion,
-            "instrucciones":      a.instrucciones,
-            "parametros_default": _parse_json(a.parametros_json),
-            "provider":           a.provider,
-            "external_url":       a.external_url,
-            "activo":             a.activo,
-            "orden":              a.orden,
-        } for a in items]
+        return [
+            {
+                "id": a.id,
+                "slug": a.slug,
+                "nombre": a.nombre,
+                "dominio": a.dominio,
+                "dificultad_default": a.dificultad_default,
+                "duracion_min": a.duracion_min,
+                "descripcion": a.descripcion,
+                "instrucciones": a.instrucciones,
+                "parametros_default": _parse_json(a.parametros_json),
+                "provider": a.provider,
+                "external_url": a.external_url,
+                "activo": a.activo,
+                "orden": a.orden,
+            }
+            for a in items
+        ]
 
 
 # ═══════════════════════════════════════════════════════════════
 # PLAN DE INTERVENCIÓN
 # ═══════════════════════════════════════════════════════════════
+
 
 class CreateRehabPlanUseCase:
     def __init__(self, session):
@@ -184,9 +189,11 @@ class GetRehabPlanUseCase:
 
     def by_id(self, plan_id: str) -> dict[str, Any]:
         from app.infrastructure.database.orm_models import RehabPlanORM
+
         orm = self._db.get(RehabPlanORM, plan_id)
         if orm is None:
             from app.core.exceptions import ApplicationError
+
             raise ApplicationError(
                 message=f"Plan '{plan_id}' no encontrado.",
                 code="REHAB_PLAN_NOT_FOUND",
@@ -196,11 +203,11 @@ class GetRehabPlanUseCase:
 
     def by_patient(self, patient_id: str, include_archived: bool = False):
         from app.infrastructure.database.orm_models import RehabPlanORM
+
         q = self._db.query(RehabPlanORM).filter_by(patient_id=patient_id)
         if not include_archived:
             q = q.filter(RehabPlanORM.archived_at.is_(None))
-        return [_orm_to_response(o) for o in
-                q.order_by(RehabPlanORM.created_at.desc()).all()]
+        return [_orm_to_response(o) for o in q.order_by(RehabPlanORM.created_at.desc()).all()]
 
 
 class UpdateRehabPlanUseCase:
@@ -228,7 +235,8 @@ class UpdateRehabPlanUseCase:
             non_state = {k: v for k, v in data.items() if k != "estado"}
             if non_state:
                 raise EvaluationAlreadySignedError(
-                    plan_id, signed_at=orm.signed_at.isoformat(),
+                    plan_id,
+                    signed_at=orm.signed_at.isoformat(),
                 )
 
         if "fecha_fin_estimada" in data:
@@ -286,7 +294,8 @@ class SignRehabPlanUseCase:
             )
         if orm.signed_at is not None:
             raise EvaluationAlreadySignedError(
-                plan_id, signed_at=orm.signed_at.isoformat(),
+                plan_id,
+                signed_at=orm.signed_at.isoformat(),
             )
 
         orm.signed_at = datetime.now(UTC)
@@ -314,6 +323,7 @@ class SignRehabPlanUseCase:
 # SESIONES
 # ═══════════════════════════════════════════════════════════════
 
+
 class CreateRehabSessionUseCase:
     def __init__(self, session):
         self._db = session
@@ -333,11 +343,7 @@ class CreateRehabSessionUseCase:
         if self._db.get(PatientORM, dto.patient_id) is None:
             raise PatientNotFoundError(dto.patient_id)
 
-        activity = (
-            self._db.query(RehabActivityCatalogORM)
-            .filter_by(slug=dto.activity_slug, activo=True)
-            .first()
-        )
+        activity = self._db.query(RehabActivityCatalogORM).filter_by(slug=dto.activity_slug, activo=True).first()
         if activity is None:
             raise ApplicationError(
                 message=f"Actividad '{dto.activity_slug}' no existe o está inactiva.",
@@ -389,6 +395,7 @@ class ListRehabSessionsUseCase:
         limit: int = 200,
     ) -> list[dict[str, Any]]:
         from app.infrastructure.database.orm_models import RehabSessionORM
+
         q = self._db.query(RehabSessionORM).filter_by(patient_id=patient_id)
         if plan_id:
             q = q.filter_by(plan_id=plan_id)
@@ -399,6 +406,7 @@ class ListRehabSessionsUseCase:
 # ═══════════════════════════════════════════════════════════════
 # LINKS PÚBLICOS PARA TAREA-CASA
 # ═══════════════════════════════════════════════════════════════
+
 
 class CreateRehabShareUseCase:
     def __init__(self, session):
@@ -441,14 +449,14 @@ class CreateRehabShareUseCase:
         self._db.add(link)
         self._db.flush()
         return {
-            "id":             link.id,
-            "token":          link.token,
-            "plan_id":        link.plan_id,
-            "patient_id":     link.patient_id,
-            "expires_at":     link.expires_at,
-            "revoked":        link.revoked,
+            "id": link.id,
+            "token": link.token,
+            "plan_id": link.plan_id,
+            "patient_id": link.patient_id,
+            "expires_at": link.expires_at,
+            "revoked": link.revoked,
             "sessions_count": link.sessions_count,
-            "public_url":     f"/shared/rehab/{link.token}",
+            "public_url": f"/shared/rehab/{link.token}",
         }
 
 
@@ -466,11 +474,7 @@ class GetPublicRehabPlanUseCase:
             RehabShareLinkORM,
         )
 
-        link = (
-            self._db.query(RehabShareLinkORM)
-            .filter_by(token=token, revoked=False)
-            .first()
-        )
+        link = self._db.query(RehabShareLinkORM).filter_by(token=token, revoked=False).first()
         if link is None:
             raise ApplicationError(
                 message="Link inválido o revocado.",
@@ -501,10 +505,10 @@ class GetPublicRehabPlanUseCase:
         first_name = patient.primer_nombre if patient else None
 
         return {
-            "plan_id":            plan.id,
+            "plan_id": plan.id,
             "patient_first_name": first_name,
-            "actividades":        _parse_json(plan.actividades_json) or [],
-            "expires_at":         link.expires_at,
+            "actividades": _parse_json(plan.actividades_json) or [],
+            "expires_at": link.expires_at,
         }
 
 
@@ -522,11 +526,7 @@ class SubmitPublicRehabResultUseCase:
             RehabShareLinkORM,
         )
 
-        link = (
-            self._db.query(RehabShareLinkORM)
-            .filter_by(token=token, revoked=False)
-            .first()
-        )
+        link = self._db.query(RehabShareLinkORM).filter_by(token=token, revoked=False).first()
         if link is None:
             raise ApplicationError(
                 message="Link inválido o revocado.",
@@ -544,11 +544,7 @@ class SubmitPublicRehabResultUseCase:
                 http_status=410,
             )
 
-        activity = (
-            self._db.query(RehabActivityCatalogORM)
-            .filter_by(slug=dto.activity_slug, activo=True)
-            .first()
-        )
+        activity = self._db.query(RehabActivityCatalogORM).filter_by(slug=dto.activity_slug, activo=True).first()
         if activity is None:
             raise ApplicationError(
                 message=f"Actividad '{dto.activity_slug}' no existe.",
@@ -596,11 +592,11 @@ class SubmitPublicRehabResultUseCase:
 
 DEFAULT_ACTIVITIES = [
     {
-        "slug":               "stroop",
-        "nombre":             "Stroop — Inhibición e interferencia",
-        "dominio":            "funciones_ejecutivas",
+        "slug": "stroop",
+        "nombre": "Stroop — Inhibición e interferencia",
+        "dominio": "funciones_ejecutivas",
         "dificultad_default": 2,
-        "duracion_min":       5,
+        "duracion_min": 5,
         "descripcion": (
             "Tarea clásica de Stroop: el paciente debe nombrar el COLOR "
             "de la tinta en que está escrita una palabra (ROJO, AZUL, "
@@ -613,15 +609,15 @@ DEFAULT_ACTIVITIES = [
             "minimizando errores."
         ),
         "parametros_default": {"trials": 30, "isi_ms": 1500, "congruency_ratio": 0.5},
-        "provider":           "internal",
-        "orden":              1,
+        "provider": "internal",
+        "orden": 1,
     },
     {
-        "slug":               "n_back",
-        "nombre":             "N-back visuoespacial",
-        "dominio":            "memoria_trabajo",
+        "slug": "n_back",
+        "nombre": "N-back visuoespacial",
+        "dominio": "memoria_trabajo",
         "dificultad_default": 2,
-        "duracion_min":       6,
+        "duracion_min": 6,
         "descripcion": (
             "Aparecerán cuadros iluminados en una grilla 3×3. El paciente "
             "debe presionar cuando la posición actual coincida con la "
@@ -633,15 +629,15 @@ DEFAULT_ACTIVITIES = [
             "tu desempeño."
         ),
         "parametros_default": {"n": 1, "trials": 20, "isi_ms": 2000},
-        "provider":           "internal",
-        "orden":              2,
+        "provider": "internal",
+        "orden": 2,
     },
     {
-        "slug":               "fluency_verbal",
-        "nombre":             "Fluencia verbal cronometrada",
-        "dominio":            "lenguaje",
+        "slug": "fluency_verbal",
+        "nombre": "Fluencia verbal cronometrada",
+        "dominio": "lenguaje",
         "dificultad_default": 1,
-        "duracion_min":       3,
+        "duracion_min": 3,
         "descripcion": (
             "El paciente escribe la mayor cantidad posible de palabras "
             "que cumplan un criterio (categoría semántica o letra inicial) "
@@ -652,15 +648,15 @@ DEFAULT_ACTIVITIES = [
             "cumplan el criterio, separadas por enter. Tienes 60 segundos."
         ),
         "parametros_default": {"duration_sec": 60, "criterio": "animales"},
-        "provider":           "internal",
-        "orden":              3,
+        "provider": "internal",
+        "orden": 3,
     },
     {
-        "slug":               "tachado",
-        "nombre":             "Tachado / Cancelación",
-        "dominio":            "atencion",
+        "slug": "tachado",
+        "nombre": "Tachado / Cancelación",
+        "dominio": "atencion",
         "dificultad_default": 1,
-        "duracion_min":       4,
+        "duracion_min": 4,
         "descripcion": (
             "El paciente debe identificar y marcar todos los estímulos "
             "objetivo (p. ej. la letra 'A') entre distractores en una "
@@ -671,15 +667,15 @@ DEFAULT_ACTIVITIES = [
             "a derecha y de arriba abajo, sin saltarte ninguna."
         ),
         "parametros_default": {"target": "A", "rows": 10, "cols": 15},
-        "provider":           "internal",
-        "orden":              4,
+        "provider": "internal",
+        "orden": 4,
     },
     {
-        "slug":               "corsi_forward",
-        "nombre":             "Cubos de Corsi — Directo",
-        "dominio":            "memoria_trabajo",
+        "slug": "corsi_forward",
+        "nombre": "Cubos de Corsi — Directo",
+        "dominio": "memoria_trabajo",
         "dificultad_default": 2,
-        "duracion_min":       5,
+        "duracion_min": 5,
         "descripcion": (
             "Test clásico de Corsi (1972) para memoria de trabajo "
             "visoespacial. Se iluminan cubos en secuencia y el paciente "
@@ -692,15 +688,15 @@ DEFAULT_ACTIVITIES = [
             "La secuencia comenzará con 2 cubos."
         ),
         "parametros_default": {"mode": "forward", "maxLen": 9},
-        "provider":           "internal",
-        "orden":              5,
+        "provider": "internal",
+        "orden": 5,
     },
     {
-        "slug":               "corsi_backward",
-        "nombre":             "Cubos de Corsi — Inverso",
-        "dominio":            "memoria_trabajo",
+        "slug": "corsi_backward",
+        "nombre": "Cubos de Corsi — Inverso",
+        "dominio": "memoria_trabajo",
         "dificultad_default": 3,
-        "duracion_min":       5,
+        "duracion_min": 5,
         "descripcion": (
             "Variante inversa del Corsi: el paciente reproduce la "
             "secuencia en ORDEN INVERSO. Mide manipulación activa en "
@@ -711,15 +707,15 @@ DEFAULT_ACTIVITIES = [
             "secuencia en ORDEN INVERSO (del último al primero)."
         ),
         "parametros_default": {"mode": "backward", "maxLen": 9},
-        "provider":           "internal",
-        "orden":              6,
+        "provider": "internal",
+        "orden": 6,
     },
     {
-        "slug":               "mental_rotation",
-        "nombre":             "Rotación Mental (visoespacial)",
-        "dominio":            "visoespacial",
+        "slug": "mental_rotation",
+        "nombre": "Rotación Mental (visoespacial)",
+        "dominio": "visoespacial",
         "dificultad_default": 2,
-        "duracion_min":       5,
+        "duracion_min": 5,
         "descripcion": (
             "Tarea de Shepard & Metzler (1971). El paciente debe "
             "identificar cuál de dos figuras es la misma rotada (vs su "
@@ -731,15 +727,15 @@ DEFAULT_ACTIVITIES = [
             "rotando). Escoja la igualada por rotación."
         ),
         "parametros_default": {"trials": 12},
-        "provider":           "internal",
-        "orden":              8,
+        "provider": "internal",
+        "orden": 8,
     },
     {
-        "slug":               "ekman_recognition",
-        "nombre":             "Reconocimiento de Emociones (Ekman)",
-        "dominio":            "cognicion_social",
+        "slug": "ekman_recognition",
+        "nombre": "Reconocimiento de Emociones (Ekman)",
+        "dominio": "cognicion_social",
         "dificultad_default": 1,
-        "duracion_min":       4,
+        "duracion_min": 4,
         "descripcion": (
             "Entrenamiento de cognición social. Se presenta una cara "
             "esquemática con una de las 6 emociones básicas (Ekman) y "
@@ -752,15 +748,15 @@ DEFAULT_ACTIVITIES = [
             "Sorpresa, Asco)."
         ),
         "parametros_default": {"trials": 12},
-        "provider":           "internal",
-        "orden":              9,
+        "provider": "internal",
+        "orden": 9,
     },
     {
-        "slug":               "spaced_retrieval",
-        "nombre":             "Recobro Espaciado (SRT)",
-        "dominio":            "memoria",
+        "slug": "spaced_retrieval",
+        "nombre": "Recobro Espaciado (SRT)",
+        "dominio": "memoria",
         "dificultad_default": 2,
-        "duracion_min":       15,
+        "duracion_min": 15,
         "descripcion": (
             "Spaced Retrieval Training (Bourgeois 1990) — gold standard "
             "para rehabilitación de memoria en demencia leve y TCL "
@@ -775,15 +771,15 @@ DEFAULT_ACTIVITIES = [
             "baja al previo correcto."
         ),
         "parametros_default": {"max_interval_min": 16},
-        "provider":           "internal",
-        "orden":              7,
+        "provider": "internal",
+        "orden": 7,
     },
     {
-        "slug":               "cpt",
-        "nombre":             "CPT — Atención Sostenida",
-        "dominio":            "atencion",
+        "slug": "cpt",
+        "nombre": "CPT — Atención Sostenida",
+        "dominio": "atencion",
         "dificultad_default": 2,
-        "duracion_min":       5,
+        "duracion_min": 5,
         "descripcion": (
             "Continuous Performance Task (CPT): letras aparecen a ritmo "
             "fijo y el paciente presiona solo cuando aparece la letra "
@@ -797,15 +793,15 @@ DEFAULT_ACTIVITIES = [
             "Mantén la atención durante toda la tarea."
         ),
         "parametros_default": {"trials": 30, "isi_ms": 1500, "target": "X", "target_ratio": 0.25},
-        "provider":           "internal",
-        "orden":              10,
+        "provider": "internal",
+        "orden": 10,
     },
     {
-        "slug":               "go_no_go",
-        "nombre":             "Go / No-Go Progresivo",
-        "dominio":            "atencion",
+        "slug": "go_no_go",
+        "nombre": "Go / No-Go Progresivo",
+        "dominio": "atencion",
         "dificultad_default": 2,
-        "duracion_min":       6,
+        "duracion_min": 6,
         "descripcion": (
             "Tarea clásica de inhibición de respuesta. Círculo verde → "
             "presionar (GO); círculo rojo → inhibir (NO-GO). "
@@ -814,20 +810,18 @@ DEFAULT_ACTIVITIES = [
             "Registra aciertos GO, omisiones y comisiones."
         ),
         "instrucciones": (
-            "Círculo VERDE: presiona rápido. "
-            "Círculo ROJO: no presiones. "
-            "La velocidad aumenta en cada bloque."
+            "Círculo VERDE: presiona rápido. Círculo ROJO: no presiones. La velocidad aumenta en cada bloque."
         ),
         "parametros_default": {"trials_per_block": 20},
-        "provider":           "internal",
-        "orden":              11,
+        "provider": "internal",
+        "orden": 11,
     },
     {
-        "slug":               "set_shifting",
-        "nombre":             "Clasificación flexible — WCST simple",
-        "dominio":            "funciones_ejecutivas",
+        "slug": "set_shifting",
+        "nombre": "Clasificación flexible — WCST simple",
+        "dominio": "funciones_ejecutivas",
         "dificultad_default": 3,
-        "duracion_min":       10,
+        "duracion_min": 10,
         "descripcion": (
             "Versión simplificada del Wisconsin Card Sorting Test (WCST). "
             "El paciente clasifica cartas por COLOR, FORMA o NÚMERO; la "
@@ -841,15 +835,15 @@ DEFAULT_ACTIVITIES = [
             "Clasifica por color, forma o cantidad de símbolos."
         ),
         "parametros_default": {"total_trials": 48, "trials_per_rule": 10},
-        "provider":           "internal",
-        "orden":              12,
+        "provider": "internal",
+        "orden": 12,
     },
     {
-        "slug":               "denominacion_claves",
-        "nombre":             "Denominación con jerarquía de claves",
-        "dominio":            "lenguaje",
+        "slug": "denominacion_claves",
+        "nombre": "Denominación con jerarquía de claves",
+        "dominio": "lenguaje",
         "dificultad_default": 2,
-        "duracion_min":       8,
+        "duracion_min": 8,
         "descripcion": (
             "Tarea de denominación confrontacional con sistema jerárquico "
             "de ayudas. Se presenta el estímulo y el clínico registra si "
@@ -863,15 +857,15 @@ DEFAULT_ACTIVITIES = [
             "y luego fonémica. Se registra el nivel de ayuda requerido."
         ),
         "parametros_default": {"items": []},
-        "provider":           "internal",
-        "orden":              13,
+        "provider": "internal",
+        "orden": 13,
     },
     {
-        "slug":               "tower_of_london",
-        "nombre":             "Torre de Londres — Planificación ejecutiva",
-        "dominio":            "ejecutiva",
+        "slug": "tower_of_london",
+        "nombre": "Torre de Londres — Planificación ejecutiva",
+        "dominio": "ejecutiva",
         "dificultad_default": 2,
-        "duracion_min":       10,
+        "duracion_min": 10,
         "descripcion": (
             "Tarea clásica de planificación ejecutiva y resolución de problemas. "
             "El paciente mueve discos entre tres postes para replicar un estado "
@@ -885,15 +879,15 @@ DEFAULT_ACTIVITIES = [
             "movimientos posible."
         ),
         "parametros_default": {"levels": 5},
-        "provider":           "internal",
-        "orden":              14,
+        "provider": "internal",
+        "orden": 14,
     },
     {
-        "slug":               "mente_ojos",
-        "nombre":             "Reading the Mind in the Eyes — Cognición social",
-        "dominio":            "cognicion_social",
+        "slug": "mente_ojos",
+        "nombre": "Reading the Mind in the Eyes — Cognición social",
+        "dominio": "cognicion_social",
         "dificultad_default": 2,
-        "duracion_min":       10,
+        "duracion_min": 10,
         "descripcion": (
             "Versión rehabilitación del paradigma de Baron-Cohen et al. (2001). "
             "El paciente observa imágenes de la región ocular y elige el estado "
@@ -906,15 +900,15 @@ DEFAULT_ACTIVITIES = [
             "No hay tiempo límite. Recibirá retroalimentación educativa."
         ),
         "parametros_default": {"n_items": 8},
-        "provider":           "internal",
-        "orden":              15,
+        "provider": "internal",
+        "orden": 15,
     },
     {
-        "slug":               "avd_dinero",
-        "nombre":             "Manejo de dinero — AVD cognitiva",
-        "dominio":            "avd",
+        "slug": "avd_dinero",
+        "nombre": "Manejo de dinero — AVD cognitiva",
+        "dominio": "avd",
         "dificultad_default": 2,
-        "duracion_min":       10,
+        "duracion_min": 10,
         "descripcion": (
             "Actividad de transferencia ecológica: situaciones reales de "
             "manejo de dinero (calcular vuelto, comparar precios y planificar "
@@ -927,8 +921,8 @@ DEFAULT_ACTIVITIES = [
             "Se le dará retroalimentación al finalizar."
         ),
         "parametros_default": {"scenarios": 5},
-        "provider":           "internal",
-        "orden":              16,
+        "provider": "internal",
+        "orden": 16,
     },
 ]
 
@@ -936,6 +930,7 @@ DEFAULT_ACTIVITIES = [
 # ═══════════════════════════════════════════════════════════════
 # EVOLUCIÓN LONGITUDINAL — gráfica por dominio cognitivo
 # ═══════════════════════════════════════════════════════════════
+
 
 class GetEvolutionUseCase:
     """
@@ -1001,9 +996,7 @@ class GetEvolutionUseCase:
             }
 
         # Agrupar por (dominio, semana ISO)
-        by_dom_week: dict[str, dict[str, list]] = defaultdict(
-            lambda: defaultdict(list)
-        )
+        by_dom_week: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
         for ts_ini, score, dominio in rows:
             iso_year, iso_week, _ = ts_ini.isocalendar()
             key = f"{iso_year}-W{iso_week:02d}"
@@ -1016,11 +1009,13 @@ class GetEvolutionUseCase:
                 scores = weeks[week_key]
                 # §C3-fix: guard explícito contra división por cero
                 avg = round(sum(scores) / len(scores), 1) if scores else 0.0
-                puntos.append({
-                    "semana": week_key,
-                    "score_avg": avg,
-                    "n": len(scores),
-                })
+                puntos.append(
+                    {
+                        "semana": week_key,
+                        "score_avg": avg,
+                        "n": len(scores),
+                    }
+                )
             out.append({"dominio": dominio, "puntos": puntos})
 
         return {
@@ -1036,6 +1031,7 @@ class GetEvolutionUseCase:
 # ═══════════════════════════════════════════════════════════════
 # ADHERENCIA — sesiones realizadas vs. esperadas
 # ═══════════════════════════════════════════════════════════════
+
 
 class GetAdherenceUseCase:
     """
@@ -1068,14 +1064,14 @@ class GetAdherenceUseCase:
         )
         if plan is None:
             return {
-                "has_plan":           False,
-                "patient_id":         patient_id,
-                "plan_id":            None,
+                "has_plan": False,
+                "patient_id": patient_id,
+                "plan_id": None,
                 "frecuencia_semanal": 0,
-                "semanas_activas":    0,
+                "semanas_activas": 0,
                 "sesiones_esperadas": 0,
                 "sesiones_realizadas": 0,
-                "adherencia_pct":     0,
+                "adherencia_pct": 0,
                 "esta_semana": {"realizadas": 0, "esperadas": 0},
             }
 
@@ -1090,6 +1086,7 @@ class GetAdherenceUseCase:
 
         # Sesiones realizadas en el rango
         from sqlalchemy import func as _f
+
         done = (
             self._db.query(_f.count(RehabSessionORM.id))
             .filter(RehabSessionORM.patient_id == patient_id)
@@ -1105,6 +1102,7 @@ class GetAdherenceUseCase:
         # ISO week de Python pueden diferir en los bordes de año.
         from datetime import datetime as _dt
         from datetime import time as _time
+
         monday = today - timedelta(days=today.weekday())
         monday_dt = _dt.combine(monday, _time.min)
         this_week = (
@@ -1117,17 +1115,17 @@ class GetAdherenceUseCase:
         )
 
         return {
-            "has_plan":            True,
-            "patient_id":          patient_id,
-            "plan_id":             plan.id,
-            "frecuencia_semanal":  plan.frecuencia_semanal,
-            "semanas_activas":     weeks,
-            "sesiones_esperadas":  expected,
+            "has_plan": True,
+            "patient_id": patient_id,
+            "plan_id": plan.id,
+            "frecuencia_semanal": plan.frecuencia_semanal,
+            "semanas_activas": weeks,
+            "sesiones_esperadas": expected,
             "sesiones_realizadas": int(done),
-            "adherencia_pct":      adherence_pct,
+            "adherencia_pct": adherence_pct,
             "esta_semana": {
                 "realizadas": int(this_week),
-                "esperadas":  plan.frecuencia_semanal,
+                "esperadas": plan.frecuencia_semanal,
             },
         }
 
@@ -1140,24 +1138,24 @@ class GetAdherenceUseCase:
 # Heurística simple para una primera versión; el clínico puede editar.
 _TEST_TO_DOMAIN = (
     # (substring del test_id, dominio)
-    ("Aten",        "atencion"),
-    ("Span",        "memoria_trabajo"),
-    ("RDD",         "memoria_trabajo"),
-    ("LN",          "memoria_trabajo"),
-    ("Mem",         "memoria"),
-    ("Recuer",      "memoria"),
-    ("Voc",         "lenguaje"),
-    ("Sem",         "lenguaje"),
-    ("Lenguaje",    "lenguaje"),
-    ("Cubo",        "visoespacial"),
-    ("Mat",         "visoespacial"),
-    ("FigInc",      "visoespacial"),
-    ("Cl",          "velocidad_procesamiento"),
-    ("BusSim",      "velocidad_procesamiento"),
-    ("Reg",         "velocidad_procesamiento"),
-    ("Com",         "funciones_ejecutivas"),
-    ("ConD",        "funciones_ejecutivas"),
-    ("Fluid",       "funciones_ejecutivas"),
+    ("Aten", "atencion"),
+    ("Span", "memoria_trabajo"),
+    ("RDD", "memoria_trabajo"),
+    ("LN", "memoria_trabajo"),
+    ("Mem", "memoria"),
+    ("Recuer", "memoria"),
+    ("Voc", "lenguaje"),
+    ("Sem", "lenguaje"),
+    ("Lenguaje", "lenguaje"),
+    ("Cubo", "visoespacial"),
+    ("Mat", "visoespacial"),
+    ("FigInc", "visoespacial"),
+    ("Cl", "velocidad_procesamiento"),
+    ("BusSim", "velocidad_procesamiento"),
+    ("Reg", "velocidad_procesamiento"),
+    ("Com", "funciones_ejecutivas"),
+    ("ConD", "funciones_ejecutivas"),
+    ("Fluid", "funciones_ejecutivas"),
 )
 
 
@@ -1207,10 +1205,7 @@ class SuggestPlanFromEvaluationUseCase:
                 z_num = float(z) if z is not None else None
             except (TypeError, ValueError):
                 z_num = None
-            es_bajo = (
-                interp in ("bajo", "deficitario", "muy bajo", "limite")
-                or (z_num is not None and z_num <= -1)
-            )
+            es_bajo = interp in ("bajo", "deficitario", "muy bajo", "limite") or (z_num is not None and z_num <= -1)
             if es_bajo:
                 bajos.append(r)
 
@@ -1233,20 +1228,22 @@ class SuggestPlanFromEvaluationUseCase:
                 .all()
             )
             for a in cat:
-                actividades.append({
-                    "slug":       a.slug,
-                    "nombre":     a.nombre,
-                    "dominio":    a.dominio,
-                    "dificultad": a.dificultad_default,
-                    "parametros": _parse_json(a.parametros_json) or {},
-                })
+                actividades.append(
+                    {
+                        "slug": a.slug,
+                        "nombre": a.nombre,
+                        "dominio": a.dominio,
+                        "dificultad": a.dificultad_default,
+                        "parametros": _parse_json(a.parametros_json) or {},
+                    }
+                )
 
         return {
-            "evaluation_id":      evaluation_id,
-            "patient_id":         ev.patient_id,
-            "tests_bajos":        len(bajos),
+            "evaluation_id": evaluation_id,
+            "patient_id": ev.patient_id,
+            "tests_bajos": len(bajos),
             "dominios_sugeridos": dominios_sugeridos,
-            "actividades":        actividades,
+            "actividades": actividades,
             "frecuencia_semanal_sugerida": 2 if not dominios_sugeridos else 3,
             "objetivos_sugerencia": _build_default_objectives(dominios_sugeridos),
         }
@@ -1257,12 +1254,12 @@ def _build_default_objectives(dominios: list[str]) -> str:
     if not dominios:
         return ""
     labels = {
-        "atencion":                "atención sostenida y selectiva",
-        "memoria":                 "memoria episódica verbal y visual",
-        "memoria_trabajo":         "memoria de trabajo y span atencional",
-        "funciones_ejecutivas":    "control inhibitorio, flexibilidad y planificación",
-        "lenguaje":                "fluidez y acceso lexical",
-        "visoespacial":            "análisis y síntesis visoperceptual",
+        "atencion": "atención sostenida y selectiva",
+        "memoria": "memoria episódica verbal y visual",
+        "memoria_trabajo": "memoria de trabajo y span atencional",
+        "funciones_ejecutivas": "control inhibitorio, flexibilidad y planificación",
+        "lenguaje": "fluidez y acceso lexical",
+        "visoespacial": "análisis y síntesis visoperceptual",
         "velocidad_procesamiento": "velocidad de procesamiento",
     }
     bullets = "; ".join(labels.get(d, d) for d in dominios)
@@ -1282,28 +1279,26 @@ def seed_activity_catalog(session) -> int:
 
     inserted = 0
     for spec in DEFAULT_ACTIVITIES:
-        exists = (
-            session.query(RehabActivityCatalogORM)
-            .filter_by(slug=spec["slug"])
-            .first()
-        )
+        exists = session.query(RehabActivityCatalogORM).filter_by(slug=spec["slug"]).first()
         if exists:
             continue
-        session.add(RehabActivityCatalogORM(
-            id=str(uuid.uuid4()),
-            slug=spec["slug"],
-            nombre=spec["nombre"],
-            dominio=spec["dominio"],
-            dificultad_default=spec["dificultad_default"],
-            duracion_min=spec["duracion_min"],
-            descripcion=spec["descripcion"],
-            instrucciones=spec["instrucciones"],
-            parametros_json=json.dumps(spec["parametros_default"], ensure_ascii=False),
-            provider=spec["provider"],
-            external_url=None,
-            activo=True,
-            orden=spec["orden"],
-        ))
+        session.add(
+            RehabActivityCatalogORM(
+                id=str(uuid.uuid4()),
+                slug=spec["slug"],
+                nombre=spec["nombre"],
+                dominio=spec["dominio"],
+                dificultad_default=spec["dificultad_default"],
+                duracion_min=spec["duracion_min"],
+                descripcion=spec["descripcion"],
+                instrucciones=spec["instrucciones"],
+                parametros_json=json.dumps(spec["parametros_default"], ensure_ascii=False),
+                provider=spec["provider"],
+                external_url=None,
+                activo=True,
+                orden=spec["orden"],
+            )
+        )
         inserted += 1
     if inserted > 0:
         session.commit()

@@ -1,7 +1,7 @@
 """
 S5.x — Tests del auditor de baremos (F7).
 """
-import json
+
 import subprocess
 import sys
 from pathlib import Path
@@ -22,7 +22,10 @@ class TestAuditScript:
             pytest.skip(f"BD_NEURO_MAESTRA.json no encontrada en {BAREMOS}")
         result = subprocess.run(
             [sys.executable, str(SCRIPT)],
-            capture_output=True, text=True, timeout=30, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            timeout=30,
+            encoding="utf-8",
         )
         assert result.returncode == 0, f"Falla: {result.stderr}"
         assert "# Auditoría" in result.stdout
@@ -35,7 +38,11 @@ class TestAuditScript:
     def test_baremos_path_invalido_falla(self):
         result = subprocess.run(
             [sys.executable, str(SCRIPT), "--baremos", "/nonexistent.json"],
-            capture_output=True, text=True, timeout=10, encoding="utf-8", errors="replace",
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
         )
         assert result.returncode != 0
         assert result.stderr is not None
@@ -46,7 +53,10 @@ class TestAuditScript:
             pytest.skip(f"BD_NEURO_MAESTRA.json no encontrada en {BAREMOS}")
         result = subprocess.run(
             [sys.executable, str(SCRIPT)],
-            capture_output=True, text=True, timeout=30, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            timeout=30,
+            encoding="utf-8",
         )
         md = result.stdout
         # Debe tener formato de tabla markdown
@@ -64,7 +74,10 @@ class TestAuditScript:
         # Correr auditoría
         result = subprocess.run(
             [sys.executable, str(SCRIPT), "--out", str(ROOT / "test_audit_tmp.md")],
-            capture_output=True, text=True, timeout=30, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            timeout=30,
+            encoding="utf-8",
         )
         assert result.returncode == 0
         # Verificar mtime no cambió
@@ -85,7 +98,10 @@ class TestAuditScript:
             pytest.skip(f"BD_NEURO_MAESTRA.json no encontrada en {BAREMOS}")
         result = subprocess.run(
             [sys.executable, str(SCRIPT)],
-            capture_output=True, text=True, timeout=30, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            timeout=30,
+            encoding="utf-8",
         )
         assert result.returncode == 0
         md = result.stdout
@@ -99,9 +115,7 @@ class TestAuditScript:
         adbeck_lines = [l for l in md.splitlines() if "`AdBeck`" in l]
         assert len(adbeck_lines) == 1
         adbeck_line = adbeck_lines[0]
-        assert "valor_maximo_atipico" not in adbeck_line, (
-            f"AdBeck sigue con anomalía tras F7.2: {adbeck_line}"
-        )
+        assert "valor_maximo_atipico" not in adbeck_line, f"AdBeck sigue con anomalía tras F7.2: {adbeck_line}"
 
     def test_f7_2_short_form_whitelist_no_marca_anomalia(self):
         """F7.2 — EscKertesz, EscLawton, EscYesavage, MMSE están en
@@ -111,7 +125,10 @@ class TestAuditScript:
             pytest.skip(f"BD_NEURO_MAESTRA.json no encontrada en {BAREMOS}")
         result = subprocess.run(
             [sys.executable, str(SCRIPT)],
-            capture_output=True, text=True, timeout=30, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            timeout=30,
+            encoding="utf-8",
         )
         assert result.returncode == 0
         md = result.stdout
@@ -123,8 +140,5 @@ class TestAuditScript:
         # Y la columna Anomalías de estos tests debe ser "—" (vacía)
         # (no debe decir "cobertura_baja" junto a ellos)
         for line in md.splitlines():
-            if "`EscKertesz`" in line or "`EscLawton`" in line or \
-               "`EscYesavage`" in line or "`MMSE`" in line:
-                assert "cobertura_baja" not in line, (
-                    f"short-form marcado como cobertura_baja: {line}"
-                )
+            if "`EscKertesz`" in line or "`EscLawton`" in line or "`EscYesavage`" in line or "`MMSE`" in line:
+                assert "cobertura_baja" not in line, f"short-form marcado como cobertura_baja: {line}"

@@ -14,17 +14,19 @@ Patrón:
   el frontend muestra un wizard de primer inicio que obliga a completar
   estos campos antes de poder generar informes.
 """
+
 from __future__ import annotations
 
 import json
 import os
 import sqlite3
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, fields
+from datetime import UTC
 from pathlib import Path
 from typing import Optional
 
 # Singleton lazy
-_INSTITUCION_CACHE: Optional["InstitucionConfig"] = None
+_INSTITUCION_CACHE: Optional[InstitucionConfig] = None
 
 
 @dataclass
@@ -58,7 +60,7 @@ class InstitucionConfig:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "InstitucionConfig":
+    def from_dict(cls, data: dict) -> InstitucionConfig:
         """Construye desde dict, ignorando claves desconocidas."""
         valid = {f.name for f in fields(cls)}
         return cls(**{k: v for k, v in data.items() if k in valid})
@@ -114,6 +116,7 @@ def _get_db_path() -> Path:
         return Path(env_path)
     try:
         from app.core.config import settings
+
         return Path(settings.db_path)
     except Exception:
         return Path("data/neurosoft.db")
@@ -137,9 +140,7 @@ def load_institucion_config() -> InstitucionConfig:
     try:
         with sqlite3.connect(str(db_path)) as conn:
             _ensure_table(conn)
-            row = conn.execute(
-                "SELECT data_json FROM institucion_config WHERE id = 1"
-            ).fetchone()
+            row = conn.execute("SELECT data_json FROM institucion_config WHERE id = 1").fetchone()
             if row is None:
                 cfg = InstitucionConfig()
             else:
@@ -158,15 +159,15 @@ def save_institucion_config(config: InstitucionConfig) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(str(db_path)) as conn:
         _ensure_table(conn)
-        from datetime import datetime, timezone
+        from datetime import datetime
+
         conn.execute(
             """INSERT INTO institucion_config (id, data_json, updated_at)
                VALUES (1, ?, ?)
                ON CONFLICT(id) DO UPDATE SET
                  data_json = excluded.data_json,
                  updated_at = excluded.updated_at""",
-            (json.dumps(config.to_dict(), ensure_ascii=False),
-             datetime.now(timezone.utc).isoformat()),
+            (json.dumps(config.to_dict(), ensure_ascii=False), datetime.now(UTC).isoformat()),
         )
         conn.commit()
     _INSTITUCION_CACHE = config

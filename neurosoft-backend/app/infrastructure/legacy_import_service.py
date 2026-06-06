@@ -19,6 +19,7 @@ Características:
 
 Dependencias: openpyxl (ya instalado por el módulo de exports).
 """
+
 from __future__ import annotations
 
 import json
@@ -48,9 +49,15 @@ class ImportReport:
     evoluciones_creadas: int = 0
     errores: list[dict[str, Any]] = field(default_factory=list)
     hojas_encontradas: list[str] = field(default_factory=list)
-    hojas_esperadas: list[str] = field(default_factory=lambda: [
-        "DBRecepcion", "DBHC", "DBObser", "DBScore", "DBETN",
-    ])
+    hojas_esperadas: list[str] = field(
+        default_factory=lambda: [
+            "DBRecepcion",
+            "DBHC",
+            "DBObser",
+            "DBScore",
+            "DBETN",
+        ]
+    )
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -61,7 +68,7 @@ class ImportReport:
             "observaciones_fusionadas": self.observaciones_fusionadas,
             "evaluaciones_creadas": self.evaluaciones_creadas,
             "evoluciones_creadas": self.evoluciones_creadas,
-            "errores": self.errores[:200],     # cap para no saturar respuesta
+            "errores": self.errores[:200],  # cap para no saturar respuesta
             "total_errores": len(self.errores),
             "hojas_encontradas": self.hojas_encontradas,
             "hojas_esperadas": self.hojas_esperadas,
@@ -165,9 +172,7 @@ def import_legacy_xlsm(
     try:
         from openpyxl import load_workbook
     except ImportError as e:
-        raise RuntimeError(
-            "openpyxl no está instalado. `pip install openpyxl`."
-        ) from e
+        raise RuntimeError("openpyxl no está instalado. `pip install openpyxl`.") from e
 
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -186,7 +191,7 @@ def import_legacy_xlsm(
     rep.hojas_encontradas = list(wb.sheetnames)
 
     # ── 1) DBRecepcion → PatientORM ──────────────────────────
-    doc_to_patient: dict[tuple[str, str], str] = {}   # (numero_documento, fecha_atencion) → patient_id
+    doc_to_patient: dict[tuple[str, str], str] = {}  # (numero_documento, fecha_atencion) → patient_id
     if "DBRecepcion" in wb.sheetnames:
         rows = _rows_as_dicts(wb["DBRecepcion"])
         for i, r in enumerate(rows, start=2):
@@ -256,9 +261,7 @@ def import_legacy_xlsm(
                 logger.exception("Error DBRecepcion fila %d", i)
 
     # Cache auxiliar: numero_documento → último patient_id (para hojas que no tienen fecha)
-    doc_last: dict[str, str] = {
-        nd: pid for (nd, _), pid in doc_to_patient.items()
-    }
+    doc_last: dict[str, str] = {nd: pid for (nd, _), pid in doc_to_patient.items()}
 
     def _resolve_patient(num_doc: str, fa: date | None) -> str | None:
         if not num_doc:
@@ -270,9 +273,7 @@ def import_legacy_xlsm(
         # Fallback: cualquier paciente con ese documento ya en BD
         if num_doc in doc_last:
             return doc_last[num_doc]
-        existing = (
-            db.query(PatientORM).filter(PatientORM.numero_documento == num_doc).first()
-        )
+        existing = db.query(PatientORM).filter(PatientORM.numero_documento == num_doc).first()
         if existing:
             doc_last[num_doc] = existing.id
             return existing.id
@@ -281,16 +282,50 @@ def import_legacy_xlsm(
     # ── 2) DBHC → ClinicalHistoryORM ─────────────────────────
     # Mapeo de columnas HC a atributos del ORM
     HC_FIELDS = [
-        "motivo_consulta", "edad_materna", "no_gestacion", "riesgos", "cual_riesgo",
-        "estres_prenatal", "gestacion", "semanas", "tipo_parto", "peso_gr", "talla_cm",
-        "condiciones_neonatales", "incubadora", "sosten_cefalico", "sedestacion",
-        "gateo", "marcha", "balbuceo", "primeras_palabras", "habla_claro",
-        "control_anual", "control_vesical", "tipo_estres_prenatal", "ucin",
-        "patologicos_medicos", "sensoriales_motores", "psiquiatricos", "farmacologicos",
-        "traumaticos", "quirurgicos", "toxicos", "alergicos", "terapeuticos",
-        "paraclinicos", "familiares", "vive_con", "abc", "escolar_laboral",
-        "cognitivo", "comportamiento_animo", "patron_sueno", "patron_alimentacion",
-        "plan_atencion", "impresion_diagnostica_hc",
+        "motivo_consulta",
+        "edad_materna",
+        "no_gestacion",
+        "riesgos",
+        "cual_riesgo",
+        "estres_prenatal",
+        "gestacion",
+        "semanas",
+        "tipo_parto",
+        "peso_gr",
+        "talla_cm",
+        "condiciones_neonatales",
+        "incubadora",
+        "sosten_cefalico",
+        "sedestacion",
+        "gateo",
+        "marcha",
+        "balbuceo",
+        "primeras_palabras",
+        "habla_claro",
+        "control_anual",
+        "control_vesical",
+        "tipo_estres_prenatal",
+        "ucin",
+        "patologicos_medicos",
+        "sensoriales_motores",
+        "psiquiatricos",
+        "farmacologicos",
+        "traumaticos",
+        "quirurgicos",
+        "toxicos",
+        "alergicos",
+        "terapeuticos",
+        "paraclinicos",
+        "familiares",
+        "vive_con",
+        "abc",
+        "escolar_laboral",
+        "cognitivo",
+        "comportamiento_animo",
+        "patron_sueno",
+        "patron_alimentacion",
+        "plan_atencion",
+        "impresion_diagnostica_hc",
     ]
     hc_by_key: dict[tuple[str, str], str] = {}  # (num_doc, fecha_iso) → hc_id
 
@@ -302,15 +337,15 @@ def import_legacy_xlsm(
                 fa = _d(_get(r, "fecha_atencion", "fecha"))
                 pid = _resolve_patient(num_doc, fa)
                 if not pid:
-                    rep.errores.append({"hoja": "DBHC", "fila": i,
-                                        "error": f"No se encontró paciente con doc={num_doc}"})
+                    rep.errores.append(
+                        {"hoja": "DBHC", "fila": i, "error": f"No se encontró paciente con doc={num_doc}"}
+                    )
                     continue
                 fa = fa or date.today()
                 # Idempotencia
                 existing = (
                     db.query(ClinicalHistoryORM)
-                    .filter(ClinicalHistoryORM.patient_id == pid,
-                            ClinicalHistoryORM.fecha_atencion == fa)
+                    .filter(ClinicalHistoryORM.patient_id == pid, ClinicalHistoryORM.fecha_atencion == fa)
                     .first()
                 )
                 if existing:
@@ -338,9 +373,17 @@ def import_legacy_xlsm(
 
     # ── 3) DBObser → ClinicalHistoryORM.obs_* ────────────────
     OBS_FIELDS = [
-        "obs_clinica_general", "obs_atencion", "obs_memoria", "obs_praxias_gnosias",
-        "obs_lenguaje", "obs_funciones_ejecutivas", "obs_emociones", "obs_ci",
-        "obs_impresion_dx", "obs_funcionalidad", "obs_recomendaciones",
+        "obs_clinica_general",
+        "obs_atencion",
+        "obs_memoria",
+        "obs_praxias_gnosias",
+        "obs_lenguaje",
+        "obs_funciones_ejecutivas",
+        "obs_emociones",
+        "obs_ci",
+        "obs_impresion_dx",
+        "obs_funcionalidad",
+        "obs_recomendaciones",
     ]
     if "DBObser" in wb.sheetnames:
         rows = _rows_as_dicts(wb["DBObser"])
@@ -350,8 +393,9 @@ def import_legacy_xlsm(
                 fa = _d(_get(r, "fecha_atencion", "fecha"))
                 pid = _resolve_patient(num_doc, fa)
                 if not pid:
-                    rep.errores.append({"hoja": "DBObser", "fila": i,
-                                        "error": f"No se encontró paciente con doc={num_doc}"})
+                    rep.errores.append(
+                        {"hoja": "DBObser", "fila": i, "error": f"No se encontró paciente con doc={num_doc}"}
+                    )
                     continue
                 fa = fa or date.today()
 
@@ -399,8 +443,7 @@ def import_legacy_xlsm(
             key = (num_doc, (fa or date.today()).isoformat())
             bucket = groups.setdefault(key, {})
             for k, v in r.items():
-                if k in ("numero_documento", "documento", "cedula",
-                         "fecha_atencion", "fecha", "fechaevaluacion"):
+                if k in ("numero_documento", "documento", "cedula", "fecha_atencion", "fecha", "fechaevaluacion"):
                     continue
                 if isinstance(v, (int, float)):
                     bucket[k] = v
@@ -412,8 +455,7 @@ def import_legacy_xlsm(
                 fa = date.fromisoformat(fecha_iso)
                 pid = _resolve_patient(num_doc, fa)
                 if not pid:
-                    rep.errores.append({"hoja": "DBScore",
-                                        "error": f"No se encontró paciente con doc={num_doc}"})
+                    rep.errores.append({"hoja": "DBScore", "error": f"No se encontró paciente con doc={num_doc}"})
                     continue
                 protocolo_val = _s(puntajes.pop("protocolo", "") or puntajes.pop("protocolo_id", ""))
 
@@ -443,8 +485,7 @@ def import_legacy_xlsm(
                 db.flush()
                 rep.evaluaciones_creadas += 1
             except Exception as e:  # noqa: BLE001
-                rep.errores.append({"hoja": "DBScore", "num_doc": num_doc,
-                                    "error": str(e)[:300]})
+                rep.errores.append({"hoja": "DBScore", "num_doc": num_doc, "error": str(e)[:300]})
                 logger.exception("Error DBScore doc=%s", num_doc)
 
     # ── 5) DBETN → EvolTerapiaORM ────────────────────────────
@@ -456,8 +497,9 @@ def import_legacy_xlsm(
                 fa_sesion = _d(_get(r, "fecha_sesion", "fechasesion", "fecha")) or date.today()
                 pid = _resolve_patient(num_doc, None)
                 if not pid:
-                    rep.errores.append({"hoja": "DBETN", "fila": i,
-                                        "error": f"No se encontró paciente con doc={num_doc}"})
+                    rep.errores.append(
+                        {"hoja": "DBETN", "fila": i, "error": f"No se encontró paciente con doc={num_doc}"}
+                    )
                     continue
                 ev = EvolTerapiaORM(
                     id=str(uuid.uuid4()),
@@ -487,13 +529,13 @@ def import_legacy_xlsm(
     except Exception as commit_err:  # noqa: BLE001
         db.rollback()
         logger.exception("Error en commit de import legacy — rollback aplicado")
-        rep.errores.append({"hoja": "GLOBAL", "fila": 0,
-                            "error": f"Commit fallido: {commit_err}"})
+        rep.errores.append({"hoja": "GLOBAL", "fila": 0, "error": f"Commit fallido: {commit_err}"})
     wb.close()
 
     # Auditoría de la operación global
     try:
         from app.infrastructure.audit import record_event
+
         record_event(
             db,
             action="import_legacy_xlsm",

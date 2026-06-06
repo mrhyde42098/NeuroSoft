@@ -1,6 +1,7 @@
 """
 Endpoints CIE-11 — mapeo dual CIE-10/CIE-11 (backend autoritativo).
 """
+
 from __future__ import annotations
 
 from typing import Any

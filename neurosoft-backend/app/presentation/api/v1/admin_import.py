@@ -10,6 +10,7 @@ POST /admin/import-legacy-xlsm
 
 Solo admin. Requiere openpyxl instalado en el servidor.
 """
+
 from __future__ import annotations
 
 import logging
@@ -71,9 +72,7 @@ async def import_legacy_xlsm(
         raise HTTPException(exc.status_code, str(exc))
 
     # Volcar a archivo temporal (openpyxl necesita ruta en disco en read_only)
-    tmp = tempfile.NamedTemporaryFile(
-        delete=False, suffix=Path(safe_name).suffix or ".xlsm"
-    )
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=Path(safe_name).suffix or ".xlsm")
     try:
         tmp.write(contenido)
         tmp.flush()

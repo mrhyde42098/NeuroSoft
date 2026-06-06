@@ -9,6 +9,7 @@ Cobertura:
   • Auth gate (401 sin token)
   • Contratos básicos autenticados
 """
+
 from __future__ import annotations
 
 import pytest
@@ -18,15 +19,20 @@ from fastapi.testclient import TestClient
 @pytest.fixture(scope="module")
 def client():
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
 
 @pytest.fixture(scope="module")
 def admin_token(client):
-    r = client.post("/api/v1/auth/login", json={
-        "username": "admin", "password": "neurosoft2025",
-    })
+    r = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": "admin",
+            "password": "neurosoft2025",
+        },
+    )
     if r.status_code == 401:
         pytest.skip("Admin password no es 'neurosoft2025' en este entorno")
     return r.json()["access_token"]
@@ -41,9 +47,9 @@ def _auth(t):
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.integration
 class TestBaremosRutas:
-
     def test_baremos_rutas_registradas(self, client):
         from app.main import app
+
         paths = {getattr(r, "path", "") for r in app.routes}
         assert "/api/v1/baremos/info" in paths
         assert "/api/v1/baremos/sources" in paths
@@ -83,9 +89,9 @@ class TestBaremosRutas:
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.integration
 class TestKpisRutas:
-
     def test_kpis_rutas_registradas(self, client):
         from app.main import app
+
         paths = {getattr(r, "path", "") for r in app.routes}
         assert "/api/v1/admin/kpis" in paths
         assert "/api/v1/admin/kpis/professional" in paths

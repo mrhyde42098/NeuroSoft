@@ -12,6 +12,7 @@ Cubre:
   2. Paciente sin evaluacion (vacio).
   3. Manejo de puntajes_brutos_json corrupto.
 """
+
 from __future__ import annotations
 
 import json
@@ -23,6 +24,7 @@ import pytest
 
 def _make_patient(db, edad_anos=70):
     from app.infrastructure.database.orm_models import PatientORM
+
     nacimiento = date(2025 - edad_anos, 1, 1)
     orm = PatientORM(
         id=str(uuid.uuid4()),
@@ -45,6 +47,7 @@ def _make_patient(db, edad_anos=70):
 
 def _make_grober_eval(db, patient_id, puntajes=None, resultados=None):
     from app.infrastructure.database.orm_models import EvaluationORM
+
     if puntajes is None:
         puntajes = {
             "ViGroberRLT": 5,
@@ -92,6 +95,7 @@ class TestGroberCurveEndpoint:
 
         # Inyectar la db en la dependencia get_session
         from app.infrastructure.database.engine import get_session
+
         app.dependency_overrides[get_session] = lambda: in_memory_db
 
         try:
@@ -125,6 +129,7 @@ class TestGroberCurveEndpoint:
     def test_json_corrupto_no_crashea(self, in_memory_db):
         """puntajes_brutos_json corrupto se maneja con dict vacio."""
         import json as _json
+
         # Simular el bloque try/except que parsea resultados_json
         eval_corrupto = "not-valid-json{{{"
         try:
@@ -137,15 +142,15 @@ class TestGroberCurveEndpoint:
     def test_grober_sequence_completa(self):
         """La secuencia Grober tiene exactamente 9 puntos."""
         GROBER_SEQUENCE = [
-            ("ViGroberRLT",    "LE1",  "Libre Ensayo 1"),
-            ("ViGroberLE2",    "LE2",  "Libre Ensayo 2"),
-            ("ViGroberLE3",    "LE3",  "Libre Ensayo 3"),
-            ("ViGroberML_Tot", "ML",   "Memoria Libre"),
-            ("ViGroberCE1",    "CE1",  "Clave Ensayo 1"),
-            ("ViGroberCE2",    "CE2",  "Clave Ensayo 2"),
-            ("ViGroberCE3",    "CE3",  "Clave Ensayo 3"),
-            ("ViGroberMC_Tot", "MC",   "Memoria por Claves"),
-            ("ViGroberRco",    "Rcto", "Reconocimiento"),
+            ("ViGroberRLT", "LE1", "Libre Ensayo 1"),
+            ("ViGroberLE2", "LE2", "Libre Ensayo 2"),
+            ("ViGroberLE3", "LE3", "Libre Ensayo 3"),
+            ("ViGroberML_Tot", "ML", "Memoria Libre"),
+            ("ViGroberCE1", "CE1", "Clave Ensayo 1"),
+            ("ViGroberCE2", "CE2", "Clave Ensayo 2"),
+            ("ViGroberCE3", "CE3", "Clave Ensayo 3"),
+            ("ViGroberMC_Tot", "MC", "Memoria por Claves"),
+            ("ViGroberRco", "Rcto", "Reconocimiento"),
         ]
         assert len(GROBER_SEQUENCE) == 9
         # Todas las abreviaturas deben ser distintas
@@ -160,8 +165,15 @@ class TestGroberControlValues:
     def test_control_values_son_crecientes(self):
         """La curva normativa Grober muestra aprendizaje (valores crecientes)."""
         GROBER_CONTROL = {
-            "LE1": 9, "LE2": 11, "LE3": 13, "ML": 13,
-            "CE1": 13, "CE2": 15, "CE3": 15, "MC": 15, "Rcto": 16
+            "LE1": 9,
+            "LE2": 11,
+            "LE3": 13,
+            "ML": 13,
+            "CE1": 13,
+            "CE2": 15,
+            "CE3": 15,
+            "MC": 15,
+            "Rcto": 16,
         }
         # Aprendizaje libre: LE1 < LE2 < LE3
         assert GROBER_CONTROL["LE1"] < GROBER_CONTROL["LE2"] < GROBER_CONTROL["LE3"]

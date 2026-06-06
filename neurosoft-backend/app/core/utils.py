@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 # AGE CALCULATOR
 # ============================================================
 
+
 @dataclass(frozen=True)
 class CronologicalAge:
     """
@@ -35,10 +36,11 @@ class CronologicalAge:
     La inmutabilidad garantiza que nadie modifica la edad
     durante el ciclo de vida de un request.
     """
+
     years: int
     months: int
     days: int
-    total_months: int          # years * 12 + months
+    total_months: int  # years * 12 + months
     birth_date: date
     reference_date: date
 
@@ -89,9 +91,7 @@ class AgeCalculator:
         ref = reference_date or date.today()
 
         if fn > ref:
-            raise ValueError(
-                f"La fecha de nacimiento {fn} es posterior a {ref}."
-            )
+            raise ValueError(f"La fecha de nacimiento {fn} es posterior a {ref}.")
 
         # Años completos
         years = ref.year - fn.year
@@ -157,13 +157,23 @@ class AgeCalculator:
 
 # Rangos etarios REALES del JSON colombiano (extraídos por ingeniería inversa)
 _WAIS_RANGES = [
-    (16, 19, "1619"), (20, 24, "2024"), (25, 34, "2534"),
-    (35, 54, "3554"), (55, 69, "5569"), (70, 99, "7000"),
+    (16, 19, "1619"),
+    (20, 24, "2024"),
+    (25, 34, "2534"),
+    (35, 54, "3554"),
+    (55, 69, "5569"),
+    (70, 99, "7000"),
 ]
 _AM_RANGES = [
-    (50, 56, "5056"), (57, 59, "5759"), (60, 62, "6062"),
-    (63, 65, "6365"), (66, 68, "6668"), (69, 71, "6971"),
-    (72, 74, "7274"), (75, 77, "7577"), (78, 80, "7880"),
+    (50, 56, "5056"),
+    (57, 59, "5759"),
+    (60, 62, "6062"),
+    (63, 65, "6365"),
+    (66, 68, "6668"),
+    (69, 71, "6971"),
+    (72, 74, "7274"),
+    (75, 77, "7577"),
+    (78, 80, "7880"),
     (81, 99, "8190"),
 ]
 _MONTH_BRACKETS = [(0, 3, "03"), (4, 7, "47"), (8, 11, "811")]
@@ -222,9 +232,7 @@ class BaremoKeyBuilder:
         return keys
 
     @classmethod
-    def find_in_baremo(
-        cls, baremo: dict, years: int, months: int, pd: int
-    ) -> tuple[str, object] | None:
+    def find_in_baremo(cls, baremo: dict, years: int, months: int, pd: int) -> tuple[str, object] | None:
         """Busca el PD en el baremo y retorna (llave_usada, valor) o None."""
         for k in cls.build_candidates(years, months, pd):
             if k in baremo:
@@ -235,15 +243,15 @@ class BaremoKeyBuilder:
     def max_age_covered_by_am_baremo(cls, baremo: dict) -> int:
         """
         Retorna la edad máxima (años) cubierta por el baremo de adulto mayor.
-        
+
         Útil para detectar cuándo un paciente tiene más años que el máximo
         disponible en el baremo y mostrar 'Sin norma disponible' en lugar
         de usar el fallback 5056 (que daría valores incorrectos).
-        
+
         Retorna 0 si el baremo no usa rangos AM.
         """
         max_age = 0
-        for (mn, mx, code) in _AM_RANGES:
+        for mn, mx, code in _AM_RANGES:
             if any(str(k).startswith(code) for k in baremo):
                 max_age = mx
         return max_age
@@ -258,7 +266,7 @@ class BaremoKeyBuilder:
         if max_covered == 0:
             return True  # No usa rangos AM, asumir OK
         min_covered = 999
-        for (mn, mx, code) in _AM_RANGES:
+        for mn, mx, code in _AM_RANGES:
             if any(str(k).startswith(code) for k in baremo):
                 min_covered = min(min_covered, mn)
                 break
@@ -301,11 +309,11 @@ class BaremoKeyBuilder:
 
 # Tabla de cortes extraída del nodo _meta de BD_NEURO_MAESTRA.json
 _CUTOFFS: dict[str, list[tuple]] = {
-    "escalar":    [(0, 4, "Bajo"), (5, 6, "Limítrofe"), (7, 12, "Promedio"), (13, 19, "Superior")],
-    "ci":         [(0, 69, "Bajo"), (70, 79, "Limítrofe"), (80, 119, "Promedio"), (120, 999, "Superior")],
-    "puntaje_t":  [(0, 29, "Bajo"), (30, 39, "Limítrofe"), (40, 59, "Promedio"), (60, 999, "Superior")],
-    "z_score":    [(-99, -2.01, "Bajo"), (-2.0, -1.01, "Limítrofe"), (-1.0, 0.99, "Promedio"), (1.0, 99, "Superior")],
-    "percentil":  [(0, 10, "Bajo"), (11, 24, "Limítrofe"), (25, 75, "Promedio"), (76, 100, "Superior")],
+    "escalar": [(0, 4, "Bajo"), (5, 6, "Limítrofe"), (7, 12, "Promedio"), (13, 19, "Superior")],
+    "ci": [(0, 69, "Bajo"), (70, 79, "Limítrofe"), (80, 119, "Promedio"), (120, 999, "Superior")],
+    "puntaje_t": [(0, 29, "Bajo"), (30, 39, "Limítrofe"), (40, 59, "Promedio"), (60, 999, "Superior")],
+    "z_score": [(-99, -2.01, "Bajo"), (-2.0, -1.01, "Limítrofe"), (-1.0, 0.99, "Promedio"), (1.0, 99, "Superior")],
+    "percentil": [(0, 10, "Bajo"), (11, 24, "Limítrofe"), (25, 75, "Promedio"), (76, 100, "Superior")],
 }
 
 
@@ -341,18 +349,24 @@ class ClinicalInterpreter:
             return None
         try:
             v = float(score)
-            if metric_type == "z_score":    return round(max(-4, min(4, v)), 2)
-            if metric_type == "escalar":    return round((v - 10) / 3, 2)
-            if metric_type == "ci":         return round((v - 100) / 15, 2)
-            if metric_type == "puntaje_t":  return round((v - 50) / 10, 2)
+            if metric_type == "z_score":
+                return round(max(-4, min(4, v)), 2)
+            if metric_type == "escalar":
+                return round((v - 10) / 3, 2)
+            if metric_type == "ci":
+                return round((v - 100) / 15, 2)
+            if metric_type == "puntaje_t":
+                return round((v - 50) / 10, 2)
             if metric_type == "percentil":
-                if v <= 0:   return -4.0
-                if v >= 100: return 4.0
+                if v <= 0:
+                    return -4.0
+                if v >= 100:
+                    return 4.0
                 p = v / 100.0
                 t = math.sqrt(-2 * math.log(min(p, 1 - p)))
                 c = [2.515517, 0.802853, 0.010328]
                 d_c = [1.432788, 0.189269, 0.001308]
-                z = t - (c[0] + c[1]*t + c[2]*t**2) / (1 + d_c[0]*t + d_c[1]*t**2 + d_c[2]*t**3)
+                z = t - (c[0] + c[1] * t + c[2] * t**2) / (1 + d_c[0] * t + d_c[1] * t**2 + d_c[2] * t**3)
                 return round(-z if p < 0.5 else z, 2)
         except (TypeError, ValueError, ZeroDivisionError):
             pass
@@ -367,17 +381,17 @@ class ClinicalInterpreter:
 _EDU_CODE_MAP: dict[str, str] = {
     # Códigos usados por ViTMTA, ViStP, ViRDD, etc. (baremos con rangos numéricos AM)
     # B = sin escolaridad formal o muy baja
-    "Analfabeta":               "B",
-    "Primaria Incompleta":      "B",
-    "Primaria Completa":        "S",
-    "Secundaria Incompleta":    "S",
-    "Secundaria Completa":      "S",
-    "Técnico":                  "S",
-    "Técnico/Tecnólogo":        "T",
+    "Analfabeta": "B",
+    "Primaria Incompleta": "B",
+    "Primaria Completa": "S",
+    "Secundaria Incompleta": "S",
+    "Secundaria Completa": "S",
+    "Técnico": "S",
+    "Técnico/Tecnólogo": "T",
     "Universitario incompleto": "U",
-    "Universitaria":            "U",
-    "Profesional":              "U",
-    "Postgrado":                "P",
+    "Universitaria": "U",
+    "Profesional": "U",
+    "Postgrado": "P",
 }
 
 # Neuronorma Colombia AM: ViDeno, ViSem usan P/S/U (no B/T/P)
@@ -385,17 +399,17 @@ _EDU_CODE_MAP: dict[str, str] = {
 # S = Secundaria (12-15 años)
 # U = Universitaria (16+ años)
 _EDU_CODE_NEURONORMA_AM: dict[str, str] = {
-    "Analfabeta":               "P",   # Baremo agrupa bajo escolaridad → P
-    "Primaria Incompleta":      "P",
-    "Primaria Completa":        "P",
-    "Secundaria Incompleta":    "S",
-    "Secundaria Completa":      "S",
-    "Técnico":                  "S",
-    "Técnico/Tecnólogo":        "S",
+    "Analfabeta": "P",  # Baremo agrupa bajo escolaridad → P
+    "Primaria Incompleta": "P",
+    "Primaria Completa": "P",
+    "Secundaria Incompleta": "S",
+    "Secundaria Completa": "S",
+    "Técnico": "S",
+    "Técnico/Tecnólogo": "S",
     "Universitario incompleto": "U",
-    "Universitaria":            "U",
-    "Profesional":              "U",
-    "Postgrado":                "U",
+    "Universitaria": "U",
+    "Profesional": "U",
+    "Postgrado": "U",
 }
 
 

@@ -12,6 +12,7 @@ Cubre:
   6. Submit de resultado vía link público (sin auth) y conteo de uso.
   7. Aislamiento entre pacientes.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -23,8 +24,10 @@ import pytest
 # Helpers
 # ─────────────────────────────────────────────────────────────
 
+
 def _make_patient(db, doc="REHAB001", first="Lucas"):
     from app.infrastructure.database.orm_models import PatientORM
+
     p = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -46,6 +49,7 @@ def _make_patient(db, doc="REHAB001", first="Lucas"):
 
 def _seed(db):
     from app.application.use_cases.rehab_use_cases import seed_activity_catalog
+
     seed_activity_catalog(db)
 
 
@@ -53,9 +57,9 @@ def _seed(db):
 # 1. CATÁLOGO
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestActivityCatalog:
-
     def test_seed_es_idempotente(self, in_memory_db):
         from app.application.use_cases.rehab_use_cases import seed_activity_catalog
         from app.infrastructure.database.orm_models import RehabActivityCatalogORM
@@ -77,6 +81,7 @@ class TestActivityCatalog:
             ListActivitiesUseCase,
             seed_activity_catalog,
         )
+
         seed_activity_catalog(in_memory_db)
         items = ListActivitiesUseCase(in_memory_db).execute()
         stroop = next(a for a in items if a["slug"] == "stroop")
@@ -89,6 +94,7 @@ class TestActivityCatalog:
             ListActivitiesUseCase,
             seed_activity_catalog,
         )
+
         seed_activity_catalog(in_memory_db)
         items = ListActivitiesUseCase(in_memory_db).execute(dominio="atencion")
         assert all(a["dominio"] == "atencion" for a in items)
@@ -99,9 +105,9 @@ class TestActivityCatalog:
 # 2. PLAN — CRUD
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestRehabPlan:
-
     def test_crear_plan_estado_borrador(self, in_memory_db):
         from app.application.dtos.rehab_dtos import RehabPlanCreateDTO
         from app.application.use_cases.rehab_use_cases import (
@@ -174,9 +180,9 @@ class TestRehabPlan:
 # 3. FIRMA del plan
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSignPlan:
-
     def test_firma_pasa_estado_a_activo(self, in_memory_db):
         from app.application.dtos.rehab_dtos import RehabPlanCreateDTO
         from app.application.use_cases.rehab_use_cases import (
@@ -192,7 +198,9 @@ class TestSignPlan:
         in_memory_db.commit()
 
         signed = SignRehabPlanUseCase(in_memory_db).execute(
-            plan["id"], actor_id="prof-1", actor_label="Dr. Test",
+            plan["id"],
+            actor_id="prof-1",
+            actor_label="Dr. Test",
         )
         in_memory_db.commit()
         assert signed["estado"] == "activo"
@@ -216,12 +224,16 @@ class TestSignPlan:
         in_memory_db.commit()
 
         SignRehabPlanUseCase(in_memory_db).execute(
-            plan["id"], actor_id="x", actor_label="y",
+            plan["id"],
+            actor_id="x",
+            actor_label="y",
         )
         in_memory_db.commit()
         with pytest.raises(EvaluationAlreadySignedError):
             SignRehabPlanUseCase(in_memory_db).execute(
-                plan["id"], actor_id="x", actor_label="y",
+                plan["id"],
+                actor_id="x",
+                actor_label="y",
             )
 
     def test_no_se_puede_editar_plan_firmado_salvo_estado(self, in_memory_db):
@@ -243,18 +255,22 @@ class TestSignPlan:
         )
         in_memory_db.commit()
         SignRehabPlanUseCase(in_memory_db).execute(
-            plan["id"], actor_id="x", actor_label="y",
+            plan["id"],
+            actor_id="x",
+            actor_label="y",
         )
         in_memory_db.commit()
 
         # Intentar cambiar objetivos: bloqueado
         with pytest.raises(EvaluationAlreadySignedError):
             UpdateRehabPlanUseCase(in_memory_db).execute(
-                plan["id"], RehabPlanUpdateDTO(objetivos="cambiado"),
+                plan["id"],
+                RehabPlanUpdateDTO(objetivos="cambiado"),
             )
         # Cambiar SOLO estado (pausado): sí permitido
         upd = UpdateRehabPlanUseCase(in_memory_db).execute(
-            plan["id"], RehabPlanUpdateDTO(estado="pausado"),
+            plan["id"],
+            RehabPlanUpdateDTO(estado="pausado"),
         )
         assert upd["estado"] == "pausado"
 
@@ -263,9 +279,9 @@ class TestSignPlan:
 # 4. SESIONES
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSesiones:
-
     def test_registrar_sesion_extrae_metricas(self, in_memory_db):
         from app.application.dtos.rehab_dtos import (
             RehabPlanCreateDTO,
@@ -341,15 +357,16 @@ class TestSesiones:
 # 5+6. LINK PÚBLICO + VIEWER PACIENTE
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestPublicShare:
-
     def _signed_plan(self, db):
         from app.application.dtos.rehab_dtos import RehabPlanCreateDTO
         from app.application.use_cases.rehab_use_cases import (
             CreateRehabPlanUseCase,
             SignRehabPlanUseCase,
         )
+
         _seed(db)
         p = _make_patient(db, doc="PUB001", first="María")
         db.commit()
@@ -362,7 +379,9 @@ class TestPublicShare:
         )
         db.commit()
         signed = SignRehabPlanUseCase(db).execute(
-            plan["id"], actor_id="prof", actor_label="Dr. Test",
+            plan["id"],
+            actor_id="prof",
+            actor_label="Dr. Test",
         )
         db.commit()
         return p, signed
@@ -439,11 +458,7 @@ class TestPublicShare:
         assert exc_info.value.http_status == 404
 
         # Forzar expiración
-        orm = (
-            in_memory_db.query(RehabShareLinkORM)
-            .filter_by(token=link["token"])
-            .first()
-        )
+        orm = in_memory_db.query(RehabShareLinkORM).filter_by(token=link["token"]).first()
         orm.expires_at = datetime.now(UTC) - timedelta(hours=1)
         in_memory_db.commit()
         with pytest.raises(ApplicationError) as exc_info:
@@ -484,11 +499,7 @@ class TestPublicShare:
         assert result["score"] == 75
 
         # Conteo del link debió incrementarse
-        orm = (
-            in_memory_db.query(RehabShareLinkORM)
-            .filter_by(token=link["token"])
-            .first()
-        )
+        orm = in_memory_db.query(RehabShareLinkORM).filter_by(token=link["token"]).first()
         assert orm.sessions_count == 1
         assert orm.last_used_at is not None
 
@@ -501,11 +512,12 @@ class TestPublicShare:
 # 7. EVOLUCIÓN
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestEvolution:
-
     def test_paciente_sin_sesiones_devuelve_estructura_vacia(self, in_memory_db):
         from app.application.use_cases.rehab_use_cases import GetEvolutionUseCase
+
         out = GetEvolutionUseCase(in_memory_db).execute("no-existe")
         assert out["dominios"] == []
         assert out["total_sesiones"] == 0
@@ -555,11 +567,12 @@ class TestEvolution:
 # 8. ADHERENCIA
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestAdherence:
-
     def test_paciente_sin_plan_has_plan_false(self, in_memory_db):
         from app.application.use_cases.rehab_use_cases import GetAdherenceUseCase
+
         p = _make_patient(in_memory_db, doc="ADH000")
         in_memory_db.commit()
         out = GetAdherenceUseCase(in_memory_db).execute(p.id)
@@ -614,9 +627,9 @@ class TestAdherence:
 # 9. SUGERENCIA DE PLAN
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSuggestPlan:
-
     def test_evaluacion_inexistente_lanza(self, in_memory_db):
         from app.application.use_cases.rehab_use_cases import (
             SuggestPlanFromEvaluationUseCase,
@@ -642,10 +655,12 @@ class TestSuggestPlan:
             protocolo="WISC-IV",
             fecha=date(2026, 3, 20),
             puntajes_brutos_json="{}",
-            resultados_json=_json.dumps([
-                {"test_id": "NiWiscDC", "interpretacion": "Promedio", "z_equivalente": 0.2},
-                {"test_id": "NiWiscVoc", "interpretacion": "Superior", "z_equivalente": 1.4},
-            ]),
+            resultados_json=_json.dumps(
+                [
+                    {"test_id": "NiWiscDC", "interpretacion": "Promedio", "z_equivalente": 0.2},
+                    {"test_id": "NiWiscVoc", "interpretacion": "Superior", "z_equivalente": 1.4},
+                ]
+            ),
             poblacion="infantil",
             edad_display="10a",
             pruebas_realizadas=2,
@@ -677,12 +692,14 @@ class TestSuggestPlan:
             protocolo="WISC-IV",
             fecha=date(2026, 3, 20),
             puntajes_brutos_json="{}",
-            resultados_json=_json.dumps([
-                # Tests con substring en _TEST_TO_DOMAIN
-                {"test_id": "NiWiscRDD", "interpretacion": "Bajo", "z_equivalente": -1.5},
-                {"test_id": "NiWiscCl", "interpretacion": "Deficitario", "z_equivalente": -2.1},
-                {"test_id": "NiWiscCom", "interpretacion": "Bajo", "z_equivalente": -1.2},
-            ]),
+            resultados_json=_json.dumps(
+                [
+                    # Tests con substring en _TEST_TO_DOMAIN
+                    {"test_id": "NiWiscRDD", "interpretacion": "Bajo", "z_equivalente": -1.5},
+                    {"test_id": "NiWiscCl", "interpretacion": "Deficitario", "z_equivalente": -2.1},
+                    {"test_id": "NiWiscCom", "interpretacion": "Bajo", "z_equivalente": -1.2},
+                ]
+            ),
             poblacion="infantil",
             edad_display="10a",
             pruebas_realizadas=3,
@@ -699,10 +716,7 @@ class TestSuggestPlan:
         assert len(out["dominios_sugeridos"]) > 0
         # debe haber actividades del catálogo en esos dominios
         assert len(out["actividades"]) > 0
-        assert all(
-            a["dominio"] in out["dominios_sugeridos"]
-            for a in out["actividades"]
-        )
+        assert all(a["dominio"] in out["dominios_sugeridos"] for a in out["actividades"])
         # objetivo sugerencia textual no vacío
         assert "Intervención" in out["objetivos_sugerencia"]
         # frecuencia sugerida ≥ 2

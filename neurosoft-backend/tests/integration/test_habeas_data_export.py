@@ -17,6 +17,7 @@ el sistema tiene sobre él. Esta suite verifica que `ExportPatientDataUseCase`:
   6. Omite la firma base64 de los consentimientos (datos pesados).
   7. Marca un evento `export` en la auditoría cuando se accede al endpoint.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -28,8 +29,10 @@ import pytest
 # Fixtures de datos
 # ─────────────────────────────────────────────────────────────
 
+
 def _new_patient(db, doc="EXP001"):
     from app.infrastructure.database.orm_models import PatientORM
+
     p = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -54,6 +57,7 @@ def _new_patient(db, doc="EXP001"):
 
 def _new_evaluation(db, patient_id, protocolo="WISC-IV"):
     from app.infrastructure.database.orm_models import EvaluationORM
+
     e = EvaluationORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
@@ -78,6 +82,7 @@ def _new_evaluation(db, patient_id, protocolo="WISC-IV"):
 
 def _new_clinical_history(db, patient_id, doc="EXP001"):
     from app.infrastructure.database.orm_models import ClinicalHistoryORM
+
     hc = ClinicalHistoryORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
@@ -96,9 +101,9 @@ def _new_clinical_history(db, patient_id, doc="EXP001"):
 # 1. ESTRUCTURA DEL EXPORT
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestExportEstructura:
-
     def test_paciente_inexistente_lanza(self, in_memory_db):
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
@@ -127,6 +132,7 @@ class TestExportEstructura:
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
         )
+
         p = _new_patient(in_memory_db, doc="MIN001")
         in_memory_db.commit()
 
@@ -148,13 +154,14 @@ class TestExportEstructura:
 # 2. CAMPOS JSON SE PARSEAN
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestExportParsing:
-
     def test_evaluacion_devuelve_puntajes_como_dict(self, in_memory_db):
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
         )
+
         p = _new_patient(in_memory_db, doc="PARSE001")
         e = _new_evaluation(in_memory_db, p.id)
         in_memory_db.commit()
@@ -179,6 +186,7 @@ class TestExportParsing:
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
         )
+
         p = _new_patient(in_memory_db, doc="DATE001")
         in_memory_db.commit()
 
@@ -192,9 +200,9 @@ class TestExportParsing:
 # 3. AISLAMIENTO ENTRE PACIENTES
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestExportAislamiento:
-
     def test_no_filtra_evaluaciones_de_otros(self, in_memory_db):
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
@@ -230,31 +238,33 @@ class TestExportAislamiento:
         alice = _new_patient(in_memory_db, doc="A1")
         bob = _new_patient(in_memory_db, doc="B1")
 
-        in_memory_db.add_all([
-            ObservationORM(
-                id=str(uuid.uuid4()),
-                patient_id=alice.id,
-                dominio="Atención",
-                texto="Atención preservada",
-                created_at="2026-03-20T10:00:00",
-                updated_at="2026-03-20T10:00:00",
-            ),
-            ObservationORM(
-                id=str(uuid.uuid4()),
-                patient_id=bob.id,
-                dominio="Memoria",
-                texto="Memoria afectada",
-                created_at="2026-03-20T10:00:00",
-                updated_at="2026-03-20T10:00:00",
-            ),
-            AppointmentORM(
-                id=str(uuid.uuid4()),
-                patient_id=alice.id,
-                fecha=date(2026, 4, 1),
-                hora_inicio="10:00",
-                tipo_cita="evaluacion",
-            ),
-        ])
+        in_memory_db.add_all(
+            [
+                ObservationORM(
+                    id=str(uuid.uuid4()),
+                    patient_id=alice.id,
+                    dominio="Atención",
+                    texto="Atención preservada",
+                    created_at="2026-03-20T10:00:00",
+                    updated_at="2026-03-20T10:00:00",
+                ),
+                ObservationORM(
+                    id=str(uuid.uuid4()),
+                    patient_id=bob.id,
+                    dominio="Memoria",
+                    texto="Memoria afectada",
+                    created_at="2026-03-20T10:00:00",
+                    updated_at="2026-03-20T10:00:00",
+                ),
+                AppointmentORM(
+                    id=str(uuid.uuid4()),
+                    patient_id=alice.id,
+                    fecha=date(2026, 4, 1),
+                    hora_inicio="10:00",
+                    tipo_cita="evaluacion",
+                ),
+            ]
+        )
         in_memory_db.commit()
 
         e_alice = ExportPatientDataUseCase(in_memory_db).execute(alice.id)
@@ -272,9 +282,9 @@ class TestExportAislamiento:
 # 4. PRIVACY — datos pesados se omiten
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestExportPrivacy:
-
     def test_firma_consentimiento_se_omite(self, in_memory_db):
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
@@ -311,9 +321,9 @@ class TestExportPrivacy:
 # 5. HISTORIA CLÍNICA + VERSIONES
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestExportHistoriaClinica:
-
     def test_hc_y_versiones_se_incluyen(self, in_memory_db):
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
@@ -324,24 +334,26 @@ class TestExportHistoriaClinica:
 
         p = _new_patient(in_memory_db, doc="HC001")
         hc = _new_clinical_history(in_memory_db, p.id, doc="HC001")
-        in_memory_db.add_all([
-            ClinicalHistoryVersionORM(
-                id=str(uuid.uuid4()),
-                hc_id=hc.id,
-                patient_id=p.id,
-                version_num=1,
-                snapshot_json='{"motivo_consulta": "viejo"}',
-                saved_by="user1",
-            ),
-            ClinicalHistoryVersionORM(
-                id=str(uuid.uuid4()),
-                hc_id=hc.id,
-                patient_id=p.id,
-                version_num=2,
-                snapshot_json='{"motivo_consulta": "nuevo"}',
-                saved_by="user1",
-            ),
-        ])
+        in_memory_db.add_all(
+            [
+                ClinicalHistoryVersionORM(
+                    id=str(uuid.uuid4()),
+                    hc_id=hc.id,
+                    patient_id=p.id,
+                    version_num=1,
+                    snapshot_json='{"motivo_consulta": "viejo"}',
+                    saved_by="user1",
+                ),
+                ClinicalHistoryVersionORM(
+                    id=str(uuid.uuid4()),
+                    hc_id=hc.id,
+                    patient_id=p.id,
+                    version_num=2,
+                    snapshot_json='{"motivo_consulta": "nuevo"}',
+                    saved_by="user1",
+                ),
+            ]
+        )
         in_memory_db.commit()
 
         out = ExportPatientDataUseCase(in_memory_db).execute(p.id)
@@ -361,9 +373,9 @@ class TestExportHistoriaClinica:
 # 6. TOTALES
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestExportTotales:
-
     def test_totales_coinciden_con_listas(self, in_memory_db):
         from app.application.use_cases.export_use_cases import (
             ExportPatientDataUseCase,
@@ -384,6 +396,7 @@ class TestExportTotales:
 # ═══════════════════════════════════════════════════════════════
 # 7. INTEGRACIÓN — endpoint completo (función directa)
 # ═══════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 class TestExportEndpoint:
@@ -437,9 +450,7 @@ class TestExportEndpoint:
 
         # Auditoría
         logs = (
-            in_memory_db.query(AuditLogORM)
-            .filter(AuditLogORM.action == "export", AuditLogORM.entity_id == p.id)
-            .all()
+            in_memory_db.query(AuditLogORM).filter(AuditLogORM.action == "export", AuditLogORM.entity_id == p.id).all()
         )
         assert len(logs) == 1
         assert logs[0].actor_id == "prof-99"
@@ -459,6 +470,11 @@ class TestExportEndpoint:
         req.state = MagicMock(user_id="prof-99", user_label="Dra. Test")
         req.client = MagicMock(host="127.0.0.1")
         req.headers = {}
+        user_mock = MagicMock()
+        user_mock.role = "admin"
+        user_mock.profesional_id = None
+        user_mock.id = "prof-99"
+        user_mock.username = "Dra. Test"
         uc = ExportPatientDataUseCase(in_memory_db)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -467,5 +483,6 @@ class TestExportEndpoint:
                 request=req,
                 uc=uc,
                 db=in_memory_db,
+                user=user_mock,
             )
         assert exc_info.value.status_code == 404

@@ -3,6 +3,7 @@ tests/unit/audit/test_monitor.py
 =================================
 Tests del monitor continuo del audit log.
 """
+
 from __future__ import annotations
 
 import json
@@ -14,6 +15,7 @@ import pytest
 
 def _make_patient(db, doc="MON001"):
     from app.infrastructure.database.orm_models import PatientORM
+
     orm = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -35,22 +37,27 @@ def _make_patient(db, doc="MON001"):
 def _make_eval_with_outlier(db, patient_id):
     """Crea una evaluación con un PD fuera del baremo."""
     from app.infrastructure.database.orm_models import EvaluationORM
+
     ev = EvaluationORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
         protocolo="Test",
         fecha=date.today(),
         puntajes_brutos_json='{"NiWiscDC": 999}',
-        resultados_json=json.dumps([{
-            "test_id": "NiWiscDC",
-            "test_nombre": "Test",
-            "puntaje_bruto": 999,
-            "puntaje_escalar": None,
-            "tipo_metrica": "escalar",
-            "interpretacion": "Sin baremo",
-            "dominio_cognitivo": "Test",
-            "metadata": {"out_of_baremo": True, "error": "PD=999 fuera del rango del baremo"},
-        }]),
+        resultados_json=json.dumps(
+            [
+                {
+                    "test_id": "NiWiscDC",
+                    "test_nombre": "Test",
+                    "puntaje_bruto": 999,
+                    "puntaje_escalar": None,
+                    "tipo_metrica": "escalar",
+                    "interpretacion": "Sin baremo",
+                    "dominio_cognitivo": "Test",
+                    "metadata": {"out_of_baremo": True, "error": "PD=999 fuera del rango del baremo"},
+                }
+            ]
+        ),
         poblacion="infantil",
         edad_display="10a",
         pruebas_realizadas=1,
@@ -65,13 +72,14 @@ def _make_eval_with_outlier(db, patient_id):
 
 def _make_stale_eval(db, patient_id, days_old=10):
     from app.infrastructure.database.orm_models import EvaluationORM
+
     ev = EvaluationORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
         protocolo="Test",
         fecha=date.today() - timedelta(days=days_old),
-        puntajes_brutos_json='{}',
-        resultados_json='[]',
+        puntajes_brutos_json="{}",
+        resultados_json="[]",
         poblacion="infantil",
         edad_display="10a",
         pruebas_realizadas=0,
@@ -88,11 +96,13 @@ def _make_stale_eval(db, patient_id, days_old=10):
 class TestAuditMonitor:
     def test_monitor_se_inicializa_sin_alertas(self):
         from app.infrastructure.audit.monitor import AuditMonitor
+
         m = AuditMonitor()
         assert m.alerts == []
 
     def test_check_baremo_outliers_detecta(self, in_memory_db):
         from app.infrastructure.audit.monitor import AuditMonitor
+
         p = _make_patient(in_memory_db, "MOUT01")
         _make_eval_with_outlier(in_memory_db, p.id)
         in_memory_db.commit()
@@ -104,6 +114,7 @@ class TestAuditMonitor:
 
     def test_check_stale_evaluations_detecta(self, in_memory_db):
         from app.infrastructure.audit.monitor import AuditMonitor
+
         p = _make_patient(in_memory_db, "MST01")
         _make_stale_eval(in_memory_db, p.id, days_old=15)
         in_memory_db.commit()
@@ -114,6 +125,7 @@ class TestAuditMonitor:
 
     def test_check_audit_log_volume_normal(self, in_memory_db):
         from app.infrastructure.audit.monitor import AuditMonitor
+
         m = AuditMonitor(db_session=in_memory_db)
         result = m.check_audit_log_volume()
         assert "events_last_24h" in result
@@ -122,6 +134,7 @@ class TestAuditMonitor:
 
     def test_run_all_checks_retorna_reporte_completo(self, in_memory_db):
         from app.infrastructure.audit.monitor import AuditMonitor
+
         p = _make_patient(in_memory_db, "MRUN01")
         _make_eval_with_outlier(in_memory_db, p.id)
         in_memory_db.commit()
@@ -136,6 +149,7 @@ class TestAuditMonitor:
 
     def test_summary_por_severidad(self):
         from app.infrastructure.audit.monitor import AuditMonitor
+
         m = AuditMonitor()
         m._add_alert("HIGH", "TEST", "msg1")
         m._add_alert("HIGH", "TEST", "msg2")

@@ -31,8 +31,8 @@ from app.core.upload_validation import (
 # sanitize_filename
 # ─────────────────────────────────────────────────────────────
 
-class TestSanitizeFilename:
 
+class TestSanitizeFilename:
     def test_basic_filename(self):
         assert sanitize_filename("archivo.db") == "archivo.db"
 
@@ -66,8 +66,8 @@ class TestSanitizeFilename:
 # validate_upload_bytes
 # ─────────────────────────────────────────────────────────────
 
-class TestValidateUploadBytes:
 
+class TestValidateUploadBytes:
     def test_happy_path_db(self):
         data = b"SQLite format 3\x00" + b"\x00" * 2000
         # No debe levantar
@@ -158,7 +158,6 @@ _JPEG_BYTES = b"\xff\xd8\xff" + b"\x00" * 80
 
 
 class TestValidateFirmaBase64:
-
     def test_valid_png(self):
         payload = base64.b64encode(_PNG_BYTES).decode("ascii")
         raw = validate_firma_base64(payload, max_bytes=1024)

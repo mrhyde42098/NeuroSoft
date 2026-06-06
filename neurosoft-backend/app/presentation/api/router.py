@@ -17,6 +17,7 @@ OpenAPI (Swagger /docs) salga ordenado por el flujo clínico:
   🛡️   Auditoría / Admin
   🔧  Configuración del sistema
 """
+
 from fastapi import APIRouter
 
 from app.presentation.api.v1.admin_import import admin_router
@@ -25,12 +26,14 @@ from app.presentation.api.v1.ai import ai_router
 
 # ── Agenda ───────────────────────────────────────────────────
 from app.presentation.api.v1.appointments import agenda_router
+from app.presentation.api.v1.aprender import aprender_router
 
 # ── Auditoría / Admin ────────────────────────────────────────
 from app.presentation.api.v1.audit import audit_router
 
 # ── Autenticación ─────────────────────────────────────────────
 from app.presentation.api.v1.auth import auth_router
+from app.presentation.api.v1.cie11 import cie11_router
 from app.presentation.api.v1.clinical_extras import (
     baterias_router,
     dcl_router,
@@ -39,7 +42,6 @@ from app.presentation.api.v1.clinical_extras import (
     rips_catalog_router,
     wisc_router,
 )
-from app.presentation.api.v1.cie11 import cie11_router
 from app.presentation.api.v1.clinical_history import (
     backup_router,
     cie10_router,
@@ -49,10 +51,9 @@ from app.presentation.api.v1.clinical_history import (
     guide_router,
     hc_router,
 )
-from app.presentation.api.v1.cups import cups_router
 from app.presentation.api.v1.companions import companions_router  # §M-7
-from app.presentation.api.v1.reservorio import router as reservorio_router  # Sprint D
 from app.presentation.api.v1.consentimientos import consentimientos_router
+from app.presentation.api.v1.cups import cups_router
 from app.presentation.api.v1.documents import (
     backup_router_new,
     evol_extra_router,
@@ -77,13 +78,13 @@ from app.presentation.api.v1.patients import router as patients_router
 
 # 📚 Referencias bibliográficas (§F2)
 from app.presentation.api.v1.referencias import referencias_router
-from app.presentation.api.v1.aprender import aprender_router
 
 # ── Rehabilitación 🆕 ─────────────────────────────────────────
 from app.presentation.api.v1.rehab import rehab_public_router, rehab_router
 
 # ── Reportes / Documentos ────────────────────────────────────
 from app.presentation.api.v1.reports import reports_router
+from app.presentation.api.v1.reservorio import router as reservorio_router  # Sprint D
 
 # ── Evaluación / Scoring ─────────────────────────────────────
 from app.presentation.api.v1.scores import observations_router, scores_router
@@ -177,15 +178,15 @@ api_v1_router.include_router(ai_router)
 # ✉️ Mensajería
 api_v1_router.include_router(email_send_router)
 api_v1_router.include_router(email_logs_router)
-api_v1_router.include_router(smtp_config_router)   # §QW-2 config SMTP
-api_v1_router.include_router(email_tpl_router)     # §QW-3 plantillas email
-api_v1_router.include_router(companions_router)    # §M-7 acompañantes
-api_v1_router.include_router(reservorio_router)   # Banco recomendaciones (Sprint D)
+api_v1_router.include_router(smtp_config_router)  # §QW-2 config SMTP
+api_v1_router.include_router(email_tpl_router)  # §QW-3 plantillas email
+api_v1_router.include_router(companions_router)  # §M-7 acompañantes
+api_v1_router.include_router(reservorio_router)  # Banco recomendaciones (Sprint D)
 
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(admin_router)
 
 # 🔧 Configuración del sistema
 api_v1_router.include_router(config_router)
-api_v1_router.include_router(errors_router)      # §crash-reports
-api_v1_router.include_router(update_router)     # §update-system
+api_v1_router.include_router(errors_router)  # §crash-reports
+api_v1_router.include_router(update_router)  # §update-system

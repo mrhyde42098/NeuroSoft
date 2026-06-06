@@ -39,6 +39,7 @@ from typing import Literal
 try:
     from pydantic import Field, field_validator
     from pydantic_settings import BaseSettings, SettingsConfigDict
+
     HAS_PYDANTIC = True
 except ImportError:
     HAS_PYDANTIC = False
@@ -68,9 +69,7 @@ def _user_data_dir() -> Path:
         elif sys.platform == "darwin":
             base = Path.home() / "Library" / "Application Support" / "NeuroSoft"
         else:
-            base = Path(
-                os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share")
-            ) / "NeuroSoft"
+            base = Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "NeuroSoft"
     else:
         base = _PROJECT_ROOT / "data"
     try:
@@ -84,6 +83,7 @@ _DATA_ROOT = _user_data_dir()
 
 
 if HAS_PYDANTIC:
+
     class Settings(BaseSettings):
         """
         Configuración completa de NeuroSoft.
@@ -129,16 +129,11 @@ if HAS_PYDANTIC:
         api_version: str = Field(default="2.0.0")
         api_title: str = Field(default="NeuroSoft API")
         api_description: str = Field(
-            default=(
-                "Motor de calificación neuropsicológica. "
-                "152 variables clínicas · 15 strategies · Colombia."
-            )
+            default=("Motor de calificación neuropsicológica. 152 variables clínicas · 15 strategies · Colombia.")
         )
 
         # ── Logging ──────────────────────────────────────────────────
-        log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
-            default="INFO"
-        )
+        log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(default="INFO")
 
         # ── CORS ─────────────────────────────────────────────────────
         cors_origins: list[str] = Field(
@@ -148,16 +143,16 @@ if HAS_PYDANTIC:
                 # default permisivo es mala higiene. Si el operador necesita
                 # otros orígenes, los declara explícitamente en .env vía
                 # NEUROSOFT_CORS_ORIGINS='["https://mi-dominio.com"]'.
-                "http://localhost:5173",   # Vite dev server
-                "http://localhost:8000",   # backend dev directo
-                "http://localhost:8765",   # launcher pywebview
+                "http://localhost:5173",  # Vite dev server
+                "http://localhost:8000",  # backend dev directo
+                "http://localhost:8765",  # launcher pywebview
                 "http://127.0.0.1:5173",
                 "http://127.0.0.1:8000",
                 "http://127.0.0.1:8765",
             ],
             description=(
-                'Lista JSON de orígenes permitidos. Default: localhost dev/8765. '
-                'Producción: declara explícitamente los dominios externos. '
+                "Lista JSON de orígenes permitidos. Default: localhost dev/8765. "
+                "Producción: declara explícitamente los dominios externos. "
                 '"*" desactiva credenciales (cookies/Authorization no se envían).'
             ),
         )
@@ -253,6 +248,7 @@ if HAS_PYDANTIC:
             path = Path(v)
             if not path.exists():
                 import warnings
+
                 warnings.warn(
                     f"BD_NEURO_MAESTRA.json no encontrado en: {path}. "
                     "El motor de baremos no estará disponible hasta copiarlo.",
@@ -274,12 +270,11 @@ if HAS_PYDANTIC:
             if not self.secret_key or self.secret_key == _DEFAULT_SECRET:
                 problems.append(
                     "NEUROSOFT_SECRET_KEY no configurada (o usa el valor de desarrollo). "
-                    "Genera una con: python -c \"import secrets; print(secrets.token_urlsafe(48))\""
+                    'Genera una con: python -c "import secrets; print(secrets.token_urlsafe(48))"'
                 )
             elif len(self.secret_key) < 32:
                 problems.append(
-                    f"NEUROSOFT_SECRET_KEY es demasiado corta ({len(self.secret_key)} chars); "
-                    "se requieren al menos 32."
+                    f"NEUROSOFT_SECRET_KEY es demasiado corta ({len(self.secret_key)} chars); se requieren al menos 32."
                 )
             if not self.admin_password:
                 problems.append(
@@ -287,9 +282,7 @@ if HAS_PYDANTIC:
                     "Define una contraseña inicial fuerte para el usuario admin."
                 )
             elif len(self.admin_password) < 8:
-                problems.append(
-                    "NEUROSOFT_ADMIN_PASSWORD demasiado corta (mínimo 8 caracteres)."
-                )
+                problems.append("NEUROSOFT_ADMIN_PASSWORD demasiado corta (mínimo 8 caracteres).")
             if "*" in self.cors_origins:
                 problems.append(
                     "cors_origins contiene '*' pero allow_credentials=True: combinación rechazada "
@@ -317,8 +310,12 @@ else:
         api_description = "Motor de calificación neuropsicológica."
         log_level = "INFO"
         cors_origins = [
-            "http://localhost:5173", "http://localhost:8000", "http://localhost:8765",
-            "http://127.0.0.1:5173", "http://127.0.0.1:8000", "http://127.0.0.1:8765",
+            "http://localhost:5173",
+            "http://localhost:8000",
+            "http://localhost:8765",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:8000",
+            "http://127.0.0.1:8765",
         ]
         enable_reports = True
         secret_key = ""

@@ -33,6 +33,7 @@ orjson>=3.10.0            # Parse rápido BD_NEURO_MAESTRA.json
 # ── Generación de informes ────────────────────────────────
 python-docx==1.1.2
 reportlab==4.2.0
+pypdf>=5.0.0              # Extracción de texto PDF (tests + validación informes)
 
 # ── Import legacy (.xlsm / .xlsx) ─────────────────────────
 openpyxl>=3.1.0

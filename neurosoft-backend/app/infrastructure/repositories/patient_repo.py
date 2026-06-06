@@ -72,8 +72,7 @@ class PatientRepository:
         logger.info("Paciente guardado: id=%s", paciente.id)
         return paciente
 
-    def soft_delete(self, patient_id: str, *, actor_id: str | None = None,
-                    reason: str | None = None) -> bool:
+    def soft_delete(self, patient_id: str, *, actor_id: str | None = None, reason: str | None = None) -> bool:
         """
         Archiva un paciente (Resolución 1995: la historia clínica NO se borra).
 
@@ -107,8 +106,7 @@ class PatientRepository:
         return True
 
     # Alias semánticamente más claro para uso clínico
-    def archive(self, patient_id: str, *, actor_id: str | None = None,
-                reason: str | None = None) -> bool:
+    def archive(self, patient_id: str, *, actor_id: str | None = None, reason: str | None = None) -> bool:
         return self.soft_delete(patient_id, actor_id=actor_id, reason=reason)
 
     # ─── Lectura ────────────────────────────────────────────
@@ -138,9 +136,7 @@ class PatientRepository:
         )
         return [self._to_entity(o) for o in orms]
 
-    def find_by_document_and_date(
-        self, numero_documento: str, fecha_atencion: date
-    ) -> Paciente | None:
+    def find_by_document_and_date(self, numero_documento: str, fecha_atencion: date) -> Paciente | None:
         """Verifica duplicado exacto (mismo doc + misma fecha)."""
         orm = (
             self._db.query(PatientORM)
@@ -287,11 +283,35 @@ class PatientRepository:
     def _update_orm(orm: PatientORM, p: Paciente) -> None:
         """Actualiza campos editables de un ORM existente."""
         campos = [
-            "primer_nombre","segundo_nombre","primer_apellido","segundo_apellido",
-            "sexo","estado_civil","telefono","correo","direccion","ciudad","localidad",
-            "estrato","escolaridad","lateralidad","ocupacion","acompanante","grupo_etnico",
-            "motivo_consulta","remite","eps","regimen","pais","orden_medica_no","discapacidad",
-            "codigo_rips","cups","finalidad_consulta","numero_sesiones","donante",
+            "primer_nombre",
+            "segundo_nombre",
+            "primer_apellido",
+            "segundo_apellido",
+            "sexo",
+            "estado_civil",
+            "telefono",
+            "correo",
+            "direccion",
+            "ciudad",
+            "localidad",
+            "estrato",
+            "escolaridad",
+            "lateralidad",
+            "ocupacion",
+            "acompanante",
+            "grupo_etnico",
+            "motivo_consulta",
+            "remite",
+            "eps",
+            "regimen",
+            "pais",
+            "orden_medica_no",
+            "discapacidad",
+            "codigo_rips",
+            "cups",
+            "finalidad_consulta",
+            "numero_sesiones",
+            "donante",
             "via_atencion",
         ]
         for c in campos:
@@ -347,7 +367,6 @@ class PatientRepository:
             is_active=bool(orm.is_active),
         )
 
-
     # ─── Panel de Pacientes ─────────────────────────────────
 
     def search_panel(
@@ -390,7 +409,7 @@ class PatientRepository:
                     )
                 )
 
-        if sexo in ('H', 'M'):
+        if sexo in ("H", "M"):
             base = base.filter(PatientORM.sexo == sexo)
 
         if profesional_id:
@@ -403,12 +422,12 @@ class PatientRepository:
             base = base.filter(PatientORM.fecha_atencion <= fecha_hasta)
 
         # Filtro de población (calculado por edad)
-        if poblacion == 'infantil':
+        if poblacion == "infantil":
             today = date_type.today()
             # < 18 años
             cutoff_18 = date_type(today.year - 18, today.month, today.day)
             base = base.filter(PatientORM.fecha_nacimiento > cutoff_18)
-        elif poblacion == 'adulto_joven':
+        elif poblacion == "adulto_joven":
             today = date_type.today()
             cutoff_18 = date_type(today.year - 18, today.month, today.day)
             cutoff_50 = date_type(today.year - 50, today.month, today.day)
@@ -416,15 +435,14 @@ class PatientRepository:
                 PatientORM.fecha_nacimiento <= cutoff_18,
                 PatientORM.fecha_nacimiento > cutoff_50,
             )
-        elif poblacion == 'adulto_mayor':
+        elif poblacion == "adulto_mayor":
             today = date_type.today()
             cutoff_50 = date_type(today.year - 50, today.month, today.day)
             base = base.filter(PatientORM.fecha_nacimiento <= cutoff_50)
 
         total = base.count()
         orms = (
-            base
-            .order_by(PatientORM.fecha_atencion.desc(), PatientORM.primer_apellido)
+            base.order_by(PatientORM.fecha_atencion.desc(), PatientORM.primer_apellido)
             .limit(limit)
             .offset(offset)
             .all()
@@ -469,10 +487,15 @@ class PatientRepository:
                 q = q.filter(PatientORM.profesional_id == profesional_id)
             return q
 
-        total = self._db.query(func.count(PatientORM.id)).filter(
-            PatientORM.is_active.is_(True),
-            *([PatientORM.profesional_id == profesional_id] if profesional_id else []),
-        ).scalar() or 0
+        total = (
+            self._db.query(func.count(PatientORM.id))
+            .filter(
+                PatientORM.is_active.is_(True),
+                *([PatientORM.profesional_id == profesional_id] if profesional_id else []),
+            )
+            .scalar()
+            or 0
+        )
 
         por_sexo_q = self._db.query(PatientORM.sexo, func.count(PatientORM.id)).filter(
             PatientORM.is_active.is_(True),
@@ -517,8 +540,8 @@ class PatientRepository:
 
         return {
             "total_pacientes": total,
-            "masculino": por_sexo.get('H', 0),
-            "femenino": por_sexo.get('M', 0),
+            "masculino": por_sexo.get("H", 0),
+            "femenino": por_sexo.get("M", 0),
             "atendidos_este_mes": este_mes,
             "atendidos_este_anio": este_anio,
             "infantil": infantil,

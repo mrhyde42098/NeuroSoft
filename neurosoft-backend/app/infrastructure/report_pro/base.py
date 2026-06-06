@@ -13,6 +13,7 @@ Decisiones de diseño:
 * Las variantes (Pro, Pediátrica, Medicolegal, Junta Médica, Inconcluso)
   heredan de esta clase y sobreescriben los métodos ``_build_*`` que necesiten.
 """
+
 from __future__ import annotations
 
 import base64
@@ -20,12 +21,10 @@ import io
 import logging
 
 from .charts import (
+    draw_bell_curve_with_ci,
     draw_ci_kpi_row,
     draw_discrepancies,
     draw_domain_radar,
-    draw_domain_traffic_light,
-    draw_normal_curve,
-    draw_bell_curve_with_ci,
     draw_z_profile,
 )
 from .helpers import (
@@ -39,11 +38,9 @@ from .helpers import (
     field_grid,
     info_box,
     measure_info_box,
-    measure_paragraph_height,
     section_subtitle,
     section_title,
     two_column_blocks,
-    two_column_layout,
 )
 from .narrative import (
     build_strengths_weaknesses,
@@ -53,7 +50,6 @@ from .narrative import (
 )
 from .theme import (
     ACCENT,
-    CREAM,
     FONT_SANS,
     FONT_SANS_BOLD,
     FONT_SANS_ITALIC,
@@ -70,11 +66,8 @@ from .theme import (
     SLATE,
     SLATE_LIGHT,
     SURFACE,
-    TEAL,
     TEAL_DARK,
-    TEAL_PALE,
     TYPE,
-    WHITE,
     ensure_fonts_registered,
     semantic_color_for_z,
 )
@@ -99,6 +92,7 @@ NORMOGRAMA_VERSION = "2026.06"
 # ──────────────────────────────────────────────────────────
 # Canvas con paginación X de Y (receta canónica ReportLab)
 # ──────────────────────────────────────────────────────────
+
 
 def _make_numbered_canvas_class(footer_drawer):
     """Subclase de Canvas que pospone el dibujo del footer hasta save()."""
@@ -130,6 +124,7 @@ def _make_numbered_canvas_class(footer_drawer):
 # ──────────────────────────────────────────────────────────
 # Generador base
 # ──────────────────────────────────────────────────────────
+
 
 class NeuroPDFGeneratorPro:
     """Generador base Pro. Las variantes sobreescriben ``_build_pages``."""
@@ -175,6 +170,7 @@ class NeuroPDFGeneratorPro:
         NumberedCanvas = _make_numbered_canvas_class(self._draw_footer_factory(data))
 
         from reportlab.lib.pagesizes import A4
+
         c = NumberedCanvas(buffer, pagesize=A4)
         brand = (data.institucion_nombre or "").strip() or clinical_brand()
         c.setTitle(f"Informe Neuropsicológico — {data.nombre_completo}")
@@ -254,7 +250,7 @@ class NeuroPDFGeneratorPro:
         """
         L = LAYOUT
         W, H, M = L.page_w, L.page_h, L.margin
-        x = M + 16          # columna de contenido (después de la spine)
+        x = M + 16  # columna de contenido (después de la spine)
         right = W - M
 
         # ── Spine: regla vertical de acento a toda la altura (firma) ──
@@ -267,28 +263,50 @@ class NeuroPDFGeneratorPro:
         if data.logo_base64:
             try:
                 from reportlab.lib.utils import ImageReader
+
                 img = ImageReader(io.BytesIO(base64.b64decode(data.logo_base64)))
                 c.drawImage(
-                    img, x, top - 34, width=34, height=34,
-                    preserveAspectRatio=True, mask="auto",
+                    img,
+                    x,
+                    top - 34,
+                    width=34,
+                    height=34,
+                    preserveAspectRatio=True,
+                    mask="auto",
                 )
                 tx = x + 44
             except Exception as e:
                 logger.debug("Logo portada no se pudo dibujar: %s", e)
         draw_text(
-            c, data.institucion_nombre or "Consultorio Neuropsicológico",
-            tx, top - 14, font_name=FONT_SERIF_BOLD, size=TYPE.title_h2, color=NAVY,
+            c,
+            data.institucion_nombre or "Consultorio Neuropsicológico",
+            tx,
+            top - 14,
+            font_name=FONT_SERIF_BOLD,
+            size=TYPE.title_h2,
+            color=NAVY,
         )
         sub = "   ·   ".join([s for s in (data.institucion_dir, data.institucion_tel) if s])
         if sub:
             draw_text(
-                c, sub, tx, top - 27,
-                font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
+                c,
+                sub,
+                tx,
+                top - 27,
+                font_name=FONT_SANS,
+                size=TYPE.caption,
+                color=SLATE,
             )
         if data.institucion_nit:
             draw_text(
-                c, f"NIT {data.institucion_nit}", right, top - 14,
-                font_name=FONT_SANS, size=TYPE.caption, color=SLATE, align="right",
+                c,
+                f"NIT {data.institucion_nit}",
+                right,
+                top - 14,
+                font_name=FONT_SANS,
+                size=TYPE.caption,
+                color=SLATE,
+                align="right",
             )
         mh_y = top - 40
         c.setStrokeColorRGB(*HAIRLINE)
@@ -300,53 +318,99 @@ class NeuroPDFGeneratorPro:
         c.setFillColorRGB(*ACCENT)
         c.rect(x, ty + 19, 34, 2.4, fill=1, stroke=0)
         draw_text(
-            c, "EVALUACIÓN NEUROPSICOLÓGICA", x, ty + 5,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=ACCENT,
+            c,
+            "EVALUACIÓN NEUROPSICOLÓGICA",
+            x,
+            ty + 5,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=ACCENT,
         )
         draw_text(
-            c, "Informe de Evaluación", x, ty - 28,
-            font_name=FONT_SERIF_BOLD, size=30, color=NAVY,
+            c,
+            "Informe de Evaluación",
+            x,
+            ty - 28,
+            font_name=FONT_SERIF_BOLD,
+            size=30,
+            color=NAVY,
         )
         draw_text(
-            c, "Neuropsicológica", x, ty - 60,
-            font_name=FONT_SERIF_BOLD, size=30, color=NAVY,
+            c,
+            "Neuropsicológica",
+            x,
+            ty - 60,
+            font_name=FONT_SERIF_BOLD,
+            size=30,
+            color=NAVY,
         )
         draw_text(
-            c, f"Variante {self.VARIANT_LABEL}", x, ty - 82,
-            font_name=FONT_SERIF_ITALIC, size=TYPE.body, color=SLATE,
+            c,
+            f"Variante {self.VARIANT_LABEL}",
+            x,
+            ty - 82,
+            font_name=FONT_SERIF_ITALIC,
+            size=TYPE.body,
+            color=SLATE,
         )
 
         # ── Panel del paciente (rejilla tabular con hairlines) ──
         panel_top = ty - 116
         draw_text(
-            c, "PACIENTE", x, panel_top,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=ACCENT,
+            c,
+            "PACIENTE",
+            x,
+            panel_top,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=ACCENT,
         )
         draw_text(
-            c, data.nombre_completo or "—", x, panel_top - 22,
-            font_name=FONT_SERIF_BOLD, size=TYPE.title_h1, color=NAVY,
+            c,
+            data.nombre_completo or "—",
+            x,
+            panel_top - 22,
+            font_name=FONT_SERIF_BOLD,
+            size=TYPE.title_h1,
+            color=NAVY,
         )
         rows = [
-            ("Documento", f"{data.tipo_documento or ''} {data.numero_documento or ''}".strip(),
-             "Fecha de nacimiento",
-             data.fecha_nacimiento.strftime("%d/%m/%Y") if data.fecha_nacimiento else "—"),
+            (
+                "Documento",
+                f"{data.tipo_documento or ''} {data.numero_documento or ''}".strip(),
+                "Fecha de nacimiento",
+                data.fecha_nacimiento.strftime("%d/%m/%Y") if data.fecha_nacimiento else "—",
+            ),
             ("Edad", data.edad_display, "Sexo", data.sexo),
             ("Escolaridad", data.escolaridad, "Lateralidad", data.lateralidad),
-            ("Fecha de evaluación",
-             data.fecha_atencion.strftime("%d/%m/%Y") if data.fecha_atencion else "—",
-             "Orden N°", data.orden_no),
+            (
+                "Fecha de evaluación",
+                data.fecha_atencion.strftime("%d/%m/%Y") if data.fecha_atencion else "—",
+                "Orden N°",
+                data.orden_no,
+            ),
         ]
         colw = (right - x) / 2
         ry = panel_top - 46
 
         def _cell(label: str, value: str, cx: float, cy: float) -> None:
             draw_text(
-                c, label.upper(), cx, cy,
-                font_name=FONT_SANS_BOLD, size=TYPE.micro, color=SLATE,
+                c,
+                label.upper(),
+                cx,
+                cy,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.micro,
+                color=SLATE,
             )
             draw_text(
-                c, str(value or "—"), cx, cy - 12,
-                font_name=FONT_SANS, size=TYPE.body, color=NAVY,
+                c,
+                str(value or "—"),
+                cx,
+                cy - 12,
+                font_name=FONT_SANS,
+                size=TYPE.body,
+                color=NAVY,
             )
 
         c.setStrokeColorRGB(*HAIRLINE)
@@ -369,21 +433,42 @@ class NeuroPDFGeneratorPro:
             c.setLineWidth(1.2)
             c.line(x, py + 30, x + 46, py + 30)
             draw_text(
-                c, "ELABORADO POR", x, py + 16,
-                font_name=FONT_SANS_BOLD, size=TYPE.micro, color=SLATE,
+                c,
+                "ELABORADO POR",
+                x,
+                py + 16,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.micro,
+                color=SLATE,
             )
             draw_text(
-                c, data.profesional_nombre, x, py,
-                font_name=FONT_SERIF_BOLD, size=TYPE.title_h2, color=NAVY,
+                c,
+                data.profesional_nombre,
+                x,
+                py,
+                font_name=FONT_SERIF_BOLD,
+                size=TYPE.title_h2,
+                color=NAVY,
             )
-            extra = " · ".join([s for s in (
-                data.profesional_titulo,
-                f"Reg. {data.profesional_registro}" if data.profesional_registro else "",
-            ) if s])
+            extra = " · ".join(
+                [
+                    s
+                    for s in (
+                        data.profesional_titulo,
+                        f"Reg. {data.profesional_registro}" if data.profesional_registro else "",
+                    )
+                    if s
+                ]
+            )
             if extra:
                 draw_text(
-                    c, extra, x, py - 14,
-                    font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
+                    c,
+                    extra,
+                    x,
+                    py - 14,
+                    font_name=FONT_SANS,
+                    size=TYPE.body_sm,
+                    color=SLATE,
                 )
 
         legal_y = M + 24
@@ -392,15 +477,24 @@ class NeuroPDFGeneratorPro:
         c.line(x, legal_y + 14, right, legal_y + 14)
         draw_text(
             c,
-            "Documento confidencial — Ley 1581 de 2012 (Habeas Data) · "
-            "Resolución 1995 de 1999 (Historia Clínica).",
-            x, legal_y, font_name=FONT_SANS, size=TYPE.micro, color=SLATE,
+            "Documento confidencial — Ley 1581 de 2012 (Habeas Data) · Resolución 1995 de 1999 (Historia Clínica).",
+            x,
+            legal_y,
+            font_name=FONT_SANS,
+            size=TYPE.micro,
+            color=SLATE,
         )
         eval_id = getattr(data, "eval_id", "") or ""
         if eval_id:
             draw_text(
-                c, f"ID {eval_id}", right, legal_y,
-                font_name=FONT_SANS, size=TYPE.micro, color=SLATE_LIGHT, align="right",
+                c,
+                f"ID {eval_id}",
+                right,
+                legal_y,
+                font_name=FONT_SANS,
+                size=TYPE.micro,
+                color=SLATE_LIGHT,
+                align="right",
             )
 
     # ──────────────────────────────────────────────────────────
@@ -418,11 +512,16 @@ class NeuroPDFGeneratorPro:
         if data.logo_base64:
             try:
                 from reportlab.lib.utils import ImageReader
+
                 img = ImageReader(io.BytesIO(base64.b64decode(data.logo_base64)))
                 c.drawImage(
-                    img, L.margin + 10, L.page_h - 42,
-                    width=22, height=22,
-                    preserveAspectRatio=True, mask="auto",
+                    img,
+                    L.margin + 10,
+                    L.page_h - 42,
+                    width=22,
+                    height=22,
+                    preserveAspectRatio=True,
+                    mask="auto",
                 )
                 text_x = L.margin + 40
             except Exception as _exc:
@@ -430,13 +529,22 @@ class NeuroPDFGeneratorPro:
                 # No es bloqueante para el informe, pero queda registro.
                 logger.warning("No se pudo dibujar el logo institucional en el header: %s", _exc)
         draw_text(
-            c, data.institucion_nombre[:55], text_x, L.page_h - 26,
-            font_name=FONT_SERIF_BOLD, size=TYPE.body_sm, color=NAVY,
+            c,
+            data.institucion_nombre[:55],
+            text_x,
+            L.page_h - 26,
+            font_name=FONT_SERIF_BOLD,
+            size=TYPE.body_sm,
+            color=NAVY,
         )
         draw_text(
-            c, self.VARIANT_SUBTITLE,
-            text_x, L.page_h - 36,
-            font_name=FONT_SANS_ITALIC, size=TYPE.micro + 0.5, color=SLATE,
+            c,
+            self.VARIANT_SUBTITLE,
+            text_x,
+            L.page_h - 36,
+            font_name=FONT_SANS_ITALIC,
+            size=TYPE.micro + 0.5,
+            color=SLATE,
         )
 
         # Línea funcional del informe: orden + fechas (centro)
@@ -450,15 +558,27 @@ class NeuroPDFGeneratorPro:
             meta_parts.append(f"Atención {data.fecha_atencion.strftime('%d/%m/%Y')}")
         if meta_parts:
             draw_text(
-                c, "  ·  ".join(meta_parts), L.page_w / 2, L.page_h - 26,
-                font_name=FONT_SANS, size=TYPE.micro, color=SLATE, align="center",
+                c,
+                "  ·  ".join(meta_parts),
+                L.page_w / 2,
+                L.page_h - 26,
+                font_name=FONT_SANS,
+                size=TYPE.micro,
+                color=SLATE,
+                align="center",
             )
 
         # Datos paciente (derecha)
         if data.nombre_completo:
             draw_text(
-                c, data.nombre_completo[:46], L.page_w - L.margin, L.page_h - 26,
-                font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=NAVY, align="right",
+                c,
+                data.nombre_completo[:46],
+                L.page_w - L.margin,
+                L.page_h - 26,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.body_sm,
+                color=NAVY,
+                align="right",
             )
             sub = []
             if data.tipo_documento and data.numero_documento:
@@ -467,8 +587,14 @@ class NeuroPDFGeneratorPro:
                 sub.append(data.fecha_atencion.strftime("%d/%m/%Y"))
             if sub:
                 draw_text(
-                    c, " · ".join(sub), L.page_w - L.margin, L.page_h - 36,
-                    font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE, align="right",
+                    c,
+                    " · ".join(sub),
+                    L.page_w - L.margin,
+                    L.page_h - 36,
+                    font_name=FONT_SANS,
+                    size=TYPE.micro + 0.5,
+                    color=SLATE,
+                    align="right",
                 )
 
         # Línea separadora
@@ -484,7 +610,7 @@ class NeuroPDFGeneratorPro:
 
     def _draw_footer_factory(self, data):
         """Devuelve una closure ``(c, page_num, total_pages) → None``."""
-        institucion = (data.institucion_nombre or "").strip() or "Consultorio"
+        (data.institucion_nombre or "").strip() or "Consultorio"
         eval_id = (getattr(data, "eval_id", "") or "")[:8]
 
         def _draw(c, page_num: int, total_pages: int) -> None:
@@ -495,27 +621,42 @@ class NeuroPDFGeneratorPro:
             # Hairline cálida
             c.setStrokeColorRGB(*HAIRLINE)
             c.setLineWidth(0.5)
-            c.line(L.margin, L.margin_bottom_footer - 8,
-                   L.page_w - L.margin, L.margin_bottom_footer - 8)
+            c.line(L.margin, L.margin_bottom_footer - 8, L.page_w - L.margin, L.margin_bottom_footer - 8)
             base_y = L.margin_bottom_footer - 20
             # Izquierda: variante (corto, sin colisión con el centro)
             draw_text(
-                c, f"Variante {self.VARIANT_LABEL}", L.margin, base_y,
-                font_name=FONT_SANS, size=TYPE.micro, color=SLATE,
+                c,
+                f"Variante {self.VARIANT_LABEL}",
+                L.margin,
+                base_y,
+                font_name=FONT_SANS,
+                size=TYPE.micro,
+                color=SLATE,
             )
             # Centro: cita legal + normograma
             draw_text(
-                c, f"Confidencial · Ley 1581/2012 · Res. 1995/1999 · Normograma {NORMOGRAMA_VERSION}",
-                L.page_w / 2, base_y,
-                font_name=FONT_SANS, size=TYPE.micro, color=SLATE_LIGHT, align="center",
+                c,
+                f"Confidencial · Ley 1581/2012 · Res. 1995/1999 · Normograma {NORMOGRAMA_VERSION}",
+                L.page_w / 2,
+                base_y,
+                font_name=FONT_SANS,
+                size=TYPE.micro,
+                color=SLATE_LIGHT,
+                align="center",
             )
             # Derecha: paginación + eval_id
             right = f"Página {page_num} de {total_pages}"
             if eval_id:
                 right += f"  ·  ID {eval_id}"
             draw_text(
-                c, right, L.page_w - L.margin, base_y,
-                font_name=FONT_SANS_BOLD, size=TYPE.micro, color=NAVY, align="right",
+                c,
+                right,
+                L.page_w - L.margin,
+                base_y,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.micro,
+                color=NAVY,
+                align="right",
             )
 
         return _draw
@@ -531,13 +672,17 @@ class NeuroPDFGeneratorPro:
         # Nombre completo en su propia fila ancha (legibilidad)
         y = field_grid(
             c,
-            [("Nombre completo", data.nombre_completo),
-             ("Documento", f"{data.tipo_documento or ''} {data.numero_documento or ''}".strip())],
-            L.margin, y, L.content_w, cols=2,
+            [
+                ("Nombre completo", data.nombre_completo),
+                ("Documento", f"{data.tipo_documento or ''} {data.numero_documento or ''}".strip()),
+            ],
+            L.margin,
+            y,
+            L.content_w,
+            cols=2,
         )
         items = [
-            ("Fecha de nacimiento",
-             data.fecha_nacimiento.strftime("%d/%m/%Y") if data.fecha_nacimiento else "—"),
+            ("Fecha de nacimiento", data.fecha_nacimiento.strftime("%d/%m/%Y") if data.fecha_nacimiento else "—"),
             ("Edad", data.edad_display),
             ("Sexo", data.sexo),
             ("Escolaridad", data.escolaridad),
@@ -548,8 +693,7 @@ class NeuroPDFGeneratorPro:
             ("Remite", data.remite),
             ("EPS / Asegurador", data.eps),
             ("Orden N°", data.orden_no),
-            ("Fecha de atención",
-             data.fecha_atencion.strftime("%d/%m/%Y") if data.fecha_atencion else "—"),
+            ("Fecha de atención", data.fecha_atencion.strftime("%d/%m/%Y") if data.fecha_atencion else "—"),
         ]
         y = field_grid(c, items, L.margin, y, L.content_w, cols=3)
         return y - 14
@@ -560,8 +704,13 @@ class NeuroPDFGeneratorPro:
         y = self._ensure_room(c, data, y, need=min(need, 260))
         y = section_title(c, "Motivo de Consulta", y)
         y = info_box(
-            c, "Motivo referido por el consultante", data.motivo_consulta,
-            L.margin, y, L.content_w, size=TYPE.body,
+            c,
+            "Motivo referido por el consultante",
+            data.motivo_consulta,
+            L.margin,
+            y,
+            L.content_w,
+            size=TYPE.body,
         )
         return y - 14
 
@@ -572,13 +721,15 @@ class NeuroPDFGeneratorPro:
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=110)
         y = section_title(
-            c, "Pruebas Aplicadas",
+            c,
+            "Pruebas Aplicadas",
             y,
             subtitle=f"Protocolo: {data.protocolo}",
         )
         rows = []
         for r in data.resultados:
             from .helpers import human_test_name
+
             nombre = human_test_name(
                 r.get("test_id", "") or "",
                 r.get("test_nombre", "") or "",
@@ -593,15 +744,22 @@ class NeuroPDFGeneratorPro:
             available = max(1, int((y - L.content_bottom - 30) // row_h))
             chunk, rows = rows[:available], rows[available:]
             y = draw_table(
-                c, ["Prueba", "Dominio", "Dur."], chunk, col_widths,
-                L.margin, y, row_h=row_h, size=TYPE.body_sm,
+                c,
+                ["Prueba", "Dominio", "Dur."],
+                chunk,
+                col_widths,
+                L.margin,
+                y,
+                row_h=row_h,
+                size=TYPE.body_sm,
             )
             if rows:
                 y = self._new_page(c, data)
         return y - 12
 
-    def _render_boxes(self, c, data, items, y: float, *, cols: int = 2,
-                      gap: float = 12.0, size: float = TYPE.body_sm) -> float:
+    def _render_boxes(
+        self, c, data, items, y: float, *, cols: int = 2, gap: float = 12.0, size: float = TYPE.body_sm
+    ) -> float:
         """Renderiza una lista de (etiqueta, valor) como ``info_box`` en columnas.
 
         Muestra TODAS las cajas aunque el valor esté vacío (placeholder), igual
@@ -612,7 +770,7 @@ class NeuroPDFGeneratorPro:
         # Procesar en filas de `cols` cajas; cada fila tiene la altura de su caja
         # más alta y se mantiene unida.
         for i in range(0, len(items), cols):
-            row = items[i:i + cols]
+            row = items[i : i + cols]
             heights = [measure_info_box(v, col_w, size=size) for _, v in row]
             row_h = max(heights) if heights else 30.0
             y = self._ensure_room(c, data, y, need=row_h + 8)
@@ -626,7 +784,6 @@ class NeuroPDFGeneratorPro:
         return y
 
     def _section_antecedentes(self, c, data, y: float) -> float:
-        L = LAYOUT
         antec = [
             ("Patológicos / Médicos", data.patologicos_medicos),
             ("Alérgicos", data.alergicos),
@@ -642,8 +799,10 @@ class NeuroPDFGeneratorPro:
         ]
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "Antecedentes Médicos",
-            y, subtitle="Historia clínica relevante — todas las áreas se consignan aunque no se reporten",
+            c,
+            "Antecedentes Médicos",
+            y,
+            subtitle="Historia clínica relevante — todas las áreas se consignan aunque no se reporten",
         )
         return self._render_boxes(c, data, antec, y, cols=2) - 4
 
@@ -659,7 +818,9 @@ class NeuroPDFGeneratorPro:
         ]
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "Historia Familiar, Social y Funcional", y,
+            c,
+            "Historia Familiar, Social y Funcional",
+            y,
         )
         return self._render_boxes(c, data, items, y, cols=2) - 4
 
@@ -671,6 +832,7 @@ class NeuroPDFGeneratorPro:
         leen 30 segundos del informe.
         """
         from .narrative import build_executive_summary
+
         L = LAYOUT
         if not data.resultados:
             return y
@@ -681,13 +843,21 @@ class NeuroPDFGeneratorPro:
         # El callout necesita ~80-120 pts según hallazgos.
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
-            c, "Resumen Ejecutivo",
-            y, subtitle="Pirámide invertida: conclusión, hallazgos, implicación",
+            c,
+            "Resumen Ejecutivo",
+            y,
+            subtitle="Pirámide invertida: conclusión, hallazgos, implicación",
         )
         # 1) Conclusión
         y = callout(
-            c, ej["conclusion"], L.margin, y, L.content_w,
-            accent=NAVY, fill=SURFACE, title="Conclusión",
+            c,
+            ej["conclusion"],
+            L.margin,
+            y,
+            L.content_w,
+            accent=NAVY,
+            fill=SURFACE,
+            title="Conclusión",
             size=TYPE.body,
         )
         y -= 6
@@ -702,8 +872,14 @@ class NeuroPDFGeneratorPro:
         # 3) Implicación
         y = self._ensure_room(c, data, y, need=60)
         y = callout(
-            c, ej["implicacion"], L.margin, y, L.content_w,
-            accent=SEMANTIC_LIMITE, fill=SURFACE, title="Implicación",
+            c,
+            ej["implicacion"],
+            L.margin,
+            y,
+            L.content_w,
+            accent=SEMANTIC_LIMITE,
+            fill=SURFACE,
+            title="Implicación",
             size=TYPE.body_sm,
         )
         return y - 6
@@ -713,12 +889,19 @@ class NeuroPDFGeneratorPro:
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "Observación Clínica",
-            y, subtitle="Apariencia, actitud y conducta durante la evaluación",
+            c,
+            "Observación Clínica",
+            y,
+            subtitle="Apariencia, actitud y conducta durante la evaluación",
         )
         y = info_box(
-            c, "Observación general", data.obs_clinica_general,
-            L.margin, y, L.content_w, size=TYPE.body,
+            c,
+            "Observación general",
+            data.obs_clinica_general,
+            L.margin,
+            y,
+            L.content_w,
+            size=TYPE.body,
         )
         return y - 14
 
@@ -741,20 +924,18 @@ class NeuroPDFGeneratorPro:
         ]
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
-            c, "Análisis por Dominio",
-            y, subtitle="Lectura clínica de cada dominio a partir de los puntajes",
+            c,
+            "Análisis por Dominio",
+            y,
+            subtitle="Lectura clínica de cada dominio a partir de los puntajes",
         )
         return self._render_boxes(c, data, dominios, y, cols=2, size=TYPE.body_sm) - 4
 
     def _chart_module_applicable(self, data, module_id: str) -> bool:
         if not data.resultados:
             return False
-        n_z = sum(
-            1 for r in data.resultados
-            if r.get("z_equivalente") is not None
-            and r.get("tipo_metrica") != "ci"
-        )
-        n_ci = sum(1 for r in data.resultados if r.get("tipo_metrica") == "ci")
+        n_z = sum(1 for r in data.resultados if r.get("z_equivalente") is not None and r.get("tipo_metrica") != "ci")
+        sum(1 for r in data.resultados if r.get("tipo_metrica") == "ci")
         if module_id == "kpi_discrepancies":
             return True
         if module_id == "z_profile":
@@ -763,9 +944,7 @@ class NeuroPDFGeneratorPro:
             return n_z >= 5
         if module_id == "radar":
             return n_z >= 2
-        if module_id == "score_table":
-            return True
-        return False
+        return module_id == "score_table"
 
     def _draw_chart_module(self, c, data, y: float, module_id: str) -> float:
         if module_id == "kpi_discrepancies":
@@ -795,8 +974,10 @@ class NeuroPDFGeneratorPro:
 
         y = self._ensure_room(c, data, y, need=240)
         y = section_title(
-            c, "Resultados Cuantitativos",
-            y, subtitle="Puntajes por prueba y perfil cognitivo del paciente",
+            c,
+            "Resultados Cuantitativos",
+            y,
+            subtitle="Puntajes por prueba y perfil cognitivo del paciente",
         )
 
         blocks_on_page = 0
@@ -820,14 +1001,18 @@ class NeuroPDFGeneratorPro:
     def _draw_score_table(self, c, data, resultados, y: float) -> float:
         L = LAYOUT
         col_widths = [
-            L.content_w * 0.38, L.content_w * 0.10, L.content_w * 0.12,
-            L.content_w * 0.10, L.content_w * 0.30,
+            L.content_w * 0.38,
+            L.content_w * 0.10,
+            L.content_w * 0.12,
+            L.content_w * 0.10,
+            L.content_w * 0.30,
         ]
         headers = ["Prueba", "PD", "Escalar/CI", "Z", "Interpretación"]
         rows = []
         row_colors = []
         for r in resultados:
             from .helpers import human_test_name
+
             nombre = human_test_name(
                 r.get("test_id", "") or "",
                 r.get("test_nombre", "") or "",
@@ -836,13 +1021,15 @@ class NeuroPDFGeneratorPro:
             esc = r.get("puntaje_escalar")
             z = r.get("z_equivalente")
             interp = str(r.get("interpretacion", "—"))
-            rows.append([
-                nombre,
-                str(int(pd)) if pd is not None else "—",
-                str(int(esc)) if esc is not None else "—",
-                f"{z:+.2f}" if z is not None else "—",
-                interp,
-            ])
+            rows.append(
+                [
+                    nombre,
+                    str(int(pd)) if pd is not None else "—",
+                    str(int(esc)) if esc is not None else "—",
+                    f"{z:+.2f}" if z is not None else "—",
+                    interp,
+                ]
+            )
             row_colors.append(semantic_color_for_z(z))
         # Paginación
         row_h = 16
@@ -851,8 +1038,14 @@ class NeuroPDFGeneratorPro:
             chunk, rows = rows[:available], rows[available:]
             colors_chunk, row_colors = row_colors[:available], row_colors[available:]
             y = draw_table(
-                c, headers, chunk, col_widths,
-                L.margin, y, row_h=row_h, size=TYPE.body_sm,
+                c,
+                headers,
+                chunk,
+                col_widths,
+                L.margin,
+                y,
+                row_h=row_h,
+                size=TYPE.body_sm,
                 row_colors=colors_chunk,
             )
             if rows:
@@ -874,16 +1067,27 @@ class NeuroPDFGeneratorPro:
 
         y = self._ensure_room(c, data, y, need=180)
         y = section_title(
-            c, "Síntesis Clínica Integradora",
-            y, subtitle="Lectura cuantitativa de los hallazgos",
+            c,
+            "Síntesis Clínica Integradora",
+            y,
+            subtitle="Lectura cuantitativa de los hallazgos",
         )
         for p in paragraphs:
             y = self._ensure_room(c, data, y, need=60)
-            y = draw_paragraph(
-                c, p, L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body, color=NAVY,
-                leading=TYPE.body * 1.45,
-            ) - 6
+            y = (
+                draw_paragraph(
+                    c,
+                    p,
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body,
+                    color=NAVY,
+                    leading=TYPE.body * 1.45,
+                )
+                - 6
+            )
 
         # Fortalezas / debilidades en dos columnas
         weak, strong = build_strengths_weaknesses(data.resultados)
@@ -894,13 +1098,13 @@ class NeuroPDFGeneratorPro:
             x_right = L.margin + col_w + 16
             y_w = y_s = y
             if weak:
-                y_w = block_header(c, "Áreas con desempeño disminuido", y_w,
-                                   color=SEMANTIC_DEFICIT, x=x_left)
+                y_w = block_header(c, "Áreas con desempeño disminuido", y_w, color=SEMANTIC_DEFICIT, x=x_left)
                 for item in weak[:6]:
                     y_w = bullet(c, item, x_left, y_w, col_w) - 2
             if strong:
-                y_s = block_header(c, "Áreas con desempeño preservado / superior",
-                                   y_s, color=SEMANTIC_SUPERIOR, x=x_right)
+                y_s = block_header(
+                    c, "Áreas con desempeño preservado / superior", y_s, color=SEMANTIC_SUPERIOR, x=x_right
+                )
                 for item in strong[:5]:
                     y_s = bullet(c, item, x_right, y_s, col_w) - 2
             y = min(y_w, y_s)
@@ -931,14 +1135,22 @@ class NeuroPDFGeneratorPro:
             return y
         y = self._ensure_room(c, data, y, need=380)
         y = section_title(
-            c, "Resumen para la Familia",
-            y, subtitle="Lenguaje sencillo para padres, cuidadores y paciente",
+            c,
+            "Resumen para la Familia",
+            y,
+            subtitle="Lenguaje sencillo para padres, cuidadores y paciente",
         )
         # ── Saludo ──
         if resumen.get("saludo"):
             y = callout(
-                c, resumen["saludo"], L.margin, y, L.content_w,
-                accent=SEMANTIC_PROMEDIO, fill=SURFACE, title="Saludo",
+                c,
+                resumen["saludo"],
+                L.margin,
+                y,
+                L.content_w,
+                accent=SEMANTIC_PROMEDIO,
+                fill=SURFACE,
+                title="Saludo",
                 size=TYPE.body_sm,
             )
             y -= 6
@@ -946,37 +1158,64 @@ class NeuroPDFGeneratorPro:
         if resumen.get("que_hicimos"):
             y = self._ensure_room(c, data, y, need=80)
             y = block_header(c, "¿Qué hicimos en la evaluación?", y)
-            y = draw_paragraph(
-                c, resumen["que_hicimos"], L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
-                leading=TYPE.body_sm * 1.45,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    resumen["que_hicimos"],
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body_sm,
+                    color=NAVY,
+                    leading=TYPE.body_sm * 1.45,
+                )
+                - 4
+            )
         # ── Qué encontramos ──
         if resumen.get("que_encontramos"):
             y = self._ensure_room(c, data, y, need=100)
             y = block_header(c, "¿Qué encontramos?", y)
-            y = draw_paragraph(
-                c, resumen["que_encontramos"], L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
-                leading=TYPE.body_sm * 1.45,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    resumen["que_encontramos"],
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body_sm,
+                    color=NAVY,
+                    leading=TYPE.body_sm * 1.45,
+                )
+                - 4
+            )
         # ── Implicaciones para la vida diaria (NUEVO) ──
         from .implicaciones import dominios_con_implicaciones
+
         implicaciones = dominios_con_implicaciones(data.resultados)
         if implicaciones:
             y = self._ensure_room(c, data, y, need=140)
             y = block_header(
-                c, "Implicaciones para la vida diaria", y,
+                c,
+                "Implicaciones para la vida diaria",
+                y,
                 color=SEMANTIC_LIMITE,
             )
-            y_intro = draw_paragraph(
-                c,
-                "Además de los puntajes, esto es lo que podría notarse en la "
-                "vida cotidiana:",
-                L.margin, y, L.content_w,
-                font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
-                leading=TYPE.body_sm * 1.4,
-            ) - 2
+            y_intro = (
+                draw_paragraph(
+                    c,
+                    "Además de los puntajes, esto es lo que podría notarse en la vida cotidiana:",
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SANS,
+                    size=TYPE.body_sm,
+                    color=SLATE,
+                    leading=TYPE.body_sm * 1.4,
+                )
+                - 2
+            )
             y = y_intro
             for impl in implicaciones[:4]:
                 y = self._ensure_room(c, data, y, need=80)
@@ -984,28 +1223,41 @@ class NeuroPDFGeneratorPro:
                 nivel = impl["nivel"]
                 color = SEMANTIC_DEFICIT if nivel == "severo" else SEMANTIC_LIMITE
                 y = block_header(
-                    c, f"{dom}  ·  {nivel}", y, color=color,
+                    c,
+                    f"{dom}  ·  {nivel}",
+                    y,
+                    color=color,
                 )
                 for ej in impl["ejemplos"][:3]:
                     y = self._ensure_room(c, data, y, need=28)
                     y = bullet(c, ej, L.margin, y - 2, L.content_w) - 1
                 # Estrategias condensadas en una línea
                 if impl["estrategias"]:
-                    estr_txt = "Apoyos sugeridos: " + " · ".join(
-                        impl["estrategias"][:2]
-                    )
+                    estr_txt = "Apoyos sugeridos: " + " · ".join(impl["estrategias"][:2])
                     y = self._ensure_room(c, data, y, need=24)
-                    y = draw_paragraph(
-                        c, estr_txt, L.margin + 8, y, L.content_w - 8,
-                        font_name=FONT_SANS, size=TYPE.caption, color=TEAL_DARK,
-                        leading=TYPE.caption * 1.35,
-                    ) - 4
+                    y = (
+                        draw_paragraph(
+                            c,
+                            estr_txt,
+                            L.margin + 8,
+                            y,
+                            L.content_w - 8,
+                            font_name=FONT_SANS,
+                            size=TYPE.caption,
+                            color=TEAL_DARK,
+                            leading=TYPE.caption * 1.35,
+                        )
+                        - 4
+                    )
             y -= 4
         # ── Fortalezas + Áreas de apoyo en dos columnas (helper corregido) ──
         y = self._ensure_room(c, data, y, need=140)
         y = two_column_blocks(
             c,
-            x=L.margin, y=y, width=L.content_w, gap=14,
+            x=L.margin,
+            y=y,
+            width=L.content_w,
+            gap=14,
             left_title="Fortalezas (lo que se hace bien)",
             left_color=SEMANTIC_SUPERIOR,
             left_items=resumen.get("fortalezas", []),
@@ -1019,11 +1271,20 @@ class NeuroPDFGeneratorPro:
         if resumen.get("que_recomendamos"):
             y = self._ensure_room(c, data, y, need=80)
             y = block_header(c, "¿Qué recomendamos?", y)
-            y = draw_paragraph(
-                c, resumen["que_recomendamos"], L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
-                leading=TYPE.body_sm * 1.45,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    resumen["que_recomendamos"],
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body_sm,
+                    color=NAVY,
+                    leading=TYPE.body_sm * 1.45,
+                )
+                - 4
+            )
         # ── FAQ ──
         if resumen.get("preguntas_frecuentes"):
             y = self._ensure_room(c, data, y, need=80)
@@ -1037,16 +1298,34 @@ class NeuroPDFGeneratorPro:
                     pregunta = str(faq[0]) if len(faq) > 0 else ""
                     respuesta = str(faq[1]) if len(faq) > 1 else ""
                 if pregunta and respuesta:
-                    y = draw_paragraph(
-                        c, pregunta, L.margin, y, L.content_w,
-                        font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=NAVY,
-                        leading=TYPE.body_sm * 1.4,
-                    ) - 2
-                    y = draw_paragraph(
-                        c, respuesta, L.margin + 14, y, L.content_w - 14,
-                        font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
-                        leading=TYPE.body_sm * 1.4,
-                    ) - 4
+                    y = (
+                        draw_paragraph(
+                            c,
+                            pregunta,
+                            L.margin,
+                            y,
+                            L.content_w,
+                            font_name=FONT_SANS_BOLD,
+                            size=TYPE.body_sm,
+                            color=NAVY,
+                            leading=TYPE.body_sm * 1.4,
+                        )
+                        - 2
+                    )
+                    y = (
+                        draw_paragraph(
+                            c,
+                            respuesta,
+                            L.margin + 14,
+                            y,
+                            L.content_w - 14,
+                            font_name=FONT_SANS,
+                            size=TYPE.body_sm,
+                            color=SLATE,
+                            leading=TYPE.body_sm * 1.4,
+                        )
+                        - 4
+                    )
         return y
 
     def _section_impresion(self, c, data, y: float) -> float:
@@ -1060,15 +1339,26 @@ class NeuroPDFGeneratorPro:
             if data.codigo_cie10_desc:
                 cie_text += f"  ·  {data.codigo_cie10_desc}"
             y = callout(
-                c, cie_text, L.margin, y, L.content_w,
-                accent=NAVY, fill=SURFACE, title="Diagnóstico codificado",
+                c,
+                cie_text,
+                L.margin,
+                y,
+                L.content_w,
+                accent=NAVY,
+                fill=SURFACE,
+                title="Diagnóstico codificado",
                 size=TYPE.body,
             )
             y -= 6
         # Texto verbatim del clínico (siempre se consigna el campo)
         y = info_box(
-            c, "Impresión diagnóstica del profesional", data.obs_impresion_dx,
-            L.margin, y, L.content_w, size=TYPE.body,
+            c,
+            "Impresión diagnóstica del profesional",
+            data.obs_impresion_dx,
+            L.margin,
+            y,
+            L.content_w,
+            size=TYPE.body,
             placeholder="Pendiente de diligenciar por el profesional.",
         )
         return y - 12
@@ -1080,19 +1370,24 @@ class NeuroPDFGeneratorPro:
         formato. Si el campo está vacío, se consigna el área igualmente.
         """
         L = LAYOUT
-        tiene_obs = bool(
-            data.obs_recomendaciones and data.obs_recomendaciones not in ("N/A", "")
-        )
+        tiene_obs = bool(data.obs_recomendaciones and data.obs_recomendaciones not in ("N/A", ""))
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
-            c, "Recomendaciones",
-            y, subtitle="Plan de manejo formulado por el profesional",
+            c,
+            "Recomendaciones",
+            y,
+            subtitle="Plan de manejo formulado por el profesional",
         )
 
         if not tiene_obs:
             y = info_box(
-                c, "Recomendaciones", "",
-                L.margin, y, L.content_w, size=TYPE.body,
+                c,
+                "Recomendaciones",
+                "",
+                L.margin,
+                y,
+                L.content_w,
+                size=TYPE.body,
                 placeholder="Pendiente de diligenciar por el profesional.",
             )
             return y - 12
@@ -1120,13 +1415,27 @@ class NeuroPDFGeneratorPro:
                     y = self._ensure_room(c, data, y, need=32)
                     color = priority_color.get(it["prioridad"], SLATE)
                     draw_text(
-                        c, "●", L.margin, y,
-                        font_name=FONT_SANS_BOLD, size=TYPE.body, color=color,
+                        c,
+                        "●",
+                        L.margin,
+                        y,
+                        font_name=FONT_SANS_BOLD,
+                        size=TYPE.body,
+                        color=color,
                     )
-                    y = draw_paragraph(
-                        c, it["texto"], L.margin + 14, y, L.content_w - 14,
-                        font_name=FONT_SANS, size=TYPE.body, color=NAVY,
-                    ) - 4
+                    y = (
+                        draw_paragraph(
+                            c,
+                            it["texto"],
+                            L.margin + 14,
+                            y,
+                            L.content_w - 14,
+                            font_name=FONT_SANS,
+                            size=TYPE.body,
+                            color=NAVY,
+                        )
+                        - 4
+                    )
                 y -= 6
         return y - 8
 
@@ -1135,45 +1444,72 @@ class NeuroPDFGeneratorPro:
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=240)
         y = section_title(
-            c, "Anexo — Definiciones Operativas",
-            y, subtitle="Convenciones interpretativas utilizadas en este informe",
+            c,
+            "Anexo — Definiciones Operativas",
+            y,
+            subtitle="Convenciones interpretativas utilizadas en este informe",
         )
         defs = [
-            ("Cociente Intelectual (CI)",
-             "Puntuación estándar con media 100 y desviación 15. CIT menor a 70 sugiere déficit; "
-             "70-79 limítrofe; 80-89 promedio bajo; 90-109 promedio; 110-119 promedio alto; "
-             "120-129 superior; ≥130 muy superior."),
-            ("Puntaje escalar (PE)",
-             "Subtests Wechsler — media 10, desviación 3. PE de 8-12 equivale al rango promedio."),
-            ("Puntuación Z",
-             "Desvío en unidades de desviación estándar respecto al grupo normativo. "
-             "Z = (PD − μ) / σ. Z ≤ −1 indica rendimiento bajo el promedio; Z ≤ −2 indica déficit clínico."),
-            ("Percentil",
-             "Porcentaje de la población normativa con desempeño igual o inferior al del paciente."),
-            ("Discrepancia significativa",
-             "Diferencia entre índices que excede el umbral de Wechsler. "
-             "Líneas críticas: p<.15 (·····) sugieren tendencia; p<.05 (─────) indican diferencia confiable."),
-            ("Reliable Change Index (RCI)",
-             "Jacobson-Truax. RCI > 1.96 indica cambio confiable (p<.05) entre evaluaciones repetidas. "
-             "Se reporta sólo en informes de seguimiento."),
+            (
+                "Cociente Intelectual (CI)",
+                "Puntuación estándar con media 100 y desviación 15. CIT menor a 70 sugiere déficit; "
+                "70-79 limítrofe; 80-89 promedio bajo; 90-109 promedio; 110-119 promedio alto; "
+                "120-129 superior; ≥130 muy superior.",
+            ),
+            (
+                "Puntaje escalar (PE)",
+                "Subtests Wechsler — media 10, desviación 3. PE de 8-12 equivale al rango promedio.",
+            ),
+            (
+                "Puntuación Z",
+                "Desvío en unidades de desviación estándar respecto al grupo normativo. "
+                "Z = (PD − μ) / σ. Z ≤ −1 indica rendimiento bajo el promedio; Z ≤ −2 indica déficit clínico.",
+            ),
+            ("Percentil", "Porcentaje de la población normativa con desempeño igual o inferior al del paciente."),
+            (
+                "Discrepancia significativa",
+                "Diferencia entre índices que excede el umbral de Wechsler. "
+                "Líneas críticas: p<.15 (·····) sugieren tendencia; p<.05 (─────) indican diferencia confiable.",
+            ),
+            (
+                "Reliable Change Index (RCI)",
+                "Jacobson-Truax. RCI > 1.96 indica cambio confiable (p<.05) entre evaluaciones repetidas. "
+                "Se reporta sólo en informes de seguimiento.",
+            ),
         ]
         for term, body in defs:
             y = self._ensure_room(c, data, y, need=44)
             draw_text(
-                c, term, L.margin, y,
-                font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=TEAL_DARK,
+                c,
+                term,
+                L.margin,
+                y,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.body_sm,
+                color=TEAL_DARK,
             )
             y -= 12
-            y = draw_paragraph(
-                c, body, L.margin + 6, y, L.content_w - 6,
-                font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
-            ) - 6
+            y = (
+                draw_paragraph(
+                    c,
+                    body,
+                    L.margin + 6,
+                    y,
+                    L.content_w - 6,
+                    font_name=FONT_SANS,
+                    size=TYPE.body_sm,
+                    color=SLATE,
+                )
+                - 6
+            )
 
         # ─── Glosario de términos técnicos ───
         y -= 4
         y = self._ensure_room(c, data, y, need=80)
         y = section_subtitle(
-            c, "Glosario: palabras técnicas que usamos", y,
+            c,
+            "Glosario: palabras técnicas que usamos",
+            y,
         )
         y = self._render_glosario_terminos(c, data, y)
         return y
@@ -1186,6 +1522,7 @@ class NeuroPDFGeneratorPro:
         """
         L = LAYOUT
         from .narrative import GLOSARIO_TERMINOS
+
         # Detectar qué términos aplica mencionar
         # Construir string de búsqueda con todos los datos relevantes del informe
         contenido = ""
@@ -1201,45 +1538,72 @@ class NeuroPDFGeneratorPro:
         items: list[tuple[str, str]] = []
         for term, desc in GLOSARIO_TERMINOS.items():
             clave = term.lower().split()[0]  # primer token
-            if clave in obligatorios or any(
-                tok in contenido for tok in (term.lower(), clave)
-            ):
+            if clave in obligatorios or any(tok in contenido for tok in (term.lower(), clave)):
                 items.append((term, desc))
             if len(items) >= 10:
                 break
         if not items:
             return y
-        y = draw_paragraph(
-            c,
-            "Definiciones operativas de los términos técnicos utilizados "
-            "en este informe.",
-            L.margin, y, L.content_w,
-            font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
-            leading=TYPE.caption * 1.4,
-        ) - 4
+        y = (
+            draw_paragraph(
+                c,
+                "Definiciones operativas de los términos técnicos utilizados en este informe.",
+                L.margin,
+                y,
+                L.content_w,
+                font_name=FONT_SANS,
+                size=TYPE.caption,
+                color=SLATE,
+                leading=TYPE.caption * 1.4,
+            )
+            - 4
+        )
         for term, desc in items:
             y = self._ensure_room(c, data, y, need=32)
             draw_text(
-                c, term, L.margin, y,
-                font_name=FONT_SANS_BOLD, size=TYPE.caption, color=TEAL_DARK,
+                c,
+                term,
+                L.margin,
+                y,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.caption,
+                color=TEAL_DARK,
             )
             y -= 11
-            y = draw_paragraph(
-                c, desc, L.margin + 6, y, L.content_w - 6,
-                font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
-                leading=TYPE.caption * 1.35,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    desc,
+                    L.margin + 6,
+                    y,
+                    L.content_w - 6,
+                    font_name=FONT_SANS,
+                    size=TYPE.caption,
+                    color=SLATE,
+                    leading=TYPE.caption * 1.35,
+                )
+                - 4
+            )
         return y
 
     def _section_firma(self, c, data, y: float) -> None:
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=180)
         y = divider(c, y)
-        y = draw_paragraph(
-            c, data.aviso_legal, L.margin, y, L.content_w,
-            font_name=FONT_SANS, size=TYPE.micro + 1, color=SLATE,
-            leading=8,
-        ) - 14
+        y = (
+            draw_paragraph(
+                c,
+                data.aviso_legal,
+                L.margin,
+                y,
+                L.content_w,
+                font_name=FONT_SANS,
+                size=TYPE.micro + 1,
+                color=SLATE,
+                leading=8,
+            )
+            - 14
+        )
 
         # §clinical-disclaimer-v2 (2026-05-18): cláusula estándar de
         # responsabilidad profesional. Antes solo aparecía cuando había uso
@@ -1248,12 +1612,22 @@ class NeuroPDFGeneratorPro:
         # como práctica clínica estándar, alineada con Ley 1090 art. 2 y 36
         # y Resolución 1995. No expone qué herramientas técnicas se usaron.
         from app.domain.clinical_engine.ai_prompts import AI_USAGE_DISCLAIMER
+
         y = self._ensure_room(c, data, y, need=60)
-        y = draw_paragraph(
-            c, AI_USAGE_DISCLAIMER, L.margin, y, L.content_w,
-            font_name=FONT_SANS, size=TYPE.micro + 1, color=SLATE,
-            leading=8,
-        ) - 14
+        y = (
+            draw_paragraph(
+                c,
+                AI_USAGE_DISCLAIMER,
+                L.margin,
+                y,
+                L.content_w,
+                font_name=FONT_SANS,
+                size=TYPE.micro + 1,
+                color=SLATE,
+                leading=8,
+            )
+            - 14
+        )
 
         firma_x = L.page_w - L.margin - 180
         firma_w = 180
@@ -1261,11 +1635,16 @@ class NeuroPDFGeneratorPro:
         if data.firma_base64:
             try:
                 from reportlab.lib.utils import ImageReader
+
                 img = ImageReader(io.BytesIO(base64.b64decode(data.firma_base64)))
                 c.drawImage(
-                    img, firma_x + 20, y - 38,
-                    width=140, height=40,
-                    preserveAspectRatio=True, mask="auto",
+                    img,
+                    firma_x + 20,
+                    y - 38,
+                    width=140,
+                    height=40,
+                    preserveAspectRatio=True,
+                    mask="auto",
                 )
             except Exception as _exc:
                 # §A4-fix: la firma escaneada del clínico falló al dibujarse.
@@ -1275,19 +1654,34 @@ class NeuroPDFGeneratorPro:
         c.setLineWidth(0.8)
         c.line(firma_x, y - 44, firma_x + firma_w, y - 44)
         draw_text(
-            c, data.profesional_nombre or "—",
-            firma_x + firma_w / 2, y - 56,
-            font_name=FONT_SERIF_BOLD, size=TYPE.body_sm, color=NAVY, align="center",
+            c,
+            data.profesional_nombre or "—",
+            firma_x + firma_w / 2,
+            y - 56,
+            font_name=FONT_SERIF_BOLD,
+            size=TYPE.body_sm,
+            color=NAVY,
+            align="center",
         )
         if data.profesional_titulo:
             draw_text(
-                c, data.profesional_titulo,
-                firma_x + firma_w / 2, y - 67,
-                font_name=FONT_SANS, size=TYPE.caption, color=SLATE, align="center",
+                c,
+                data.profesional_titulo,
+                firma_x + firma_w / 2,
+                y - 67,
+                font_name=FONT_SANS,
+                size=TYPE.caption,
+                color=SLATE,
+                align="center",
             )
         if data.profesional_registro:
             draw_text(
-                c, f"Registro Profesional: {data.profesional_registro}",
-                firma_x + firma_w / 2, y - 77,
-                font_name=FONT_SANS, size=TYPE.caption, color=SLATE, align="center",
+                c,
+                f"Registro Profesional: {data.profesional_registro}",
+                firma_x + firma_w / 2,
+                y - 77,
+                font_name=FONT_SANS,
+                size=TYPE.caption,
+                color=SLATE,
+                align="center",
             )

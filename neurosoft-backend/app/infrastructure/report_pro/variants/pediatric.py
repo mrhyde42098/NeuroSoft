@@ -12,6 +12,7 @@ Diferencias respecto a Pro:
 Las secciones específicas se activan si la HC trae texto coherente. Si no,
 se omiten silenciosamente y el informe se ve igual al Pro.
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro
@@ -76,9 +77,20 @@ class PediatricGenerator(NeuroPDFGeneratorPro):
         perinatal_text = ""
         pat = (data.patologicos_medicos or "").lower()
         prenatal_keywords = (
-            "embarazo", "gestación", "gestacion", "prenatal", "perinatal",
-            "parto", "cesárea", "cesarea", "prematurez", "prematuro",
-            "bajo peso", "hipoxia", "sufrimiento fetal", "ictericia neonatal",
+            "embarazo",
+            "gestación",
+            "gestacion",
+            "prenatal",
+            "perinatal",
+            "parto",
+            "cesárea",
+            "cesarea",
+            "prematurez",
+            "prematuro",
+            "bajo peso",
+            "hipoxia",
+            "sufrimiento fetal",
+            "ictericia neonatal",
         )
         if any(kw in pat for kw in prenatal_keywords):
             perinatal_text = data.patologicos_medicos
@@ -90,23 +102,33 @@ class PediatricGenerator(NeuroPDFGeneratorPro):
             ("Comportamiento y ánimo", data.comportamiento_animo),
             ("Antecedentes familiares", data.familiares),
         ]
-        bloques = [(lbl, val) for lbl, val in bloques
-                   if val and val not in ("N/A", "", "(-)", "-")]
+        bloques = [(lbl, val) for lbl, val in bloques if val and val not in ("N/A", "", "(-)", "-")]
         if not bloques:
             return y
 
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
-            c, "Historia del Desarrollo",
-            y, subtitle="Hitos relevantes en la trayectoria evolutiva",
+            c,
+            "Historia del Desarrollo",
+            y,
+            subtitle="Hitos relevantes en la trayectoria evolutiva",
         )
         for lbl, val in bloques:
             y = self._ensure_room(c, data, y, need=60)
             y = block_header(c, lbl, y)
-            y = draw_paragraph(
-                c, val, L.margin, y, L.content_w,
-                font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
-            ) - 6
+            y = (
+                draw_paragraph(
+                    c,
+                    val,
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SANS,
+                    size=TYPE.body_sm,
+                    color=SLATE,
+                )
+                - 6
+            )
         return y - 4
 
     # ──────────────────────────────────────────────────────────
@@ -117,20 +139,33 @@ class PediatricGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         # Usamos obs_emociones + obs_clinica_general como fuente heurística;
         # si existen palabras clave de juego/cooperación, lo destacamos.
-        full = " ".join([
-            str(data.obs_clinica_general or ""),
-            str(data.obs_emociones or ""),
-        ]).lower()
-        marcadores = ("juego", "coopera", "rapport", "contingen", "atención conjunta",
-                      "berrinche", "rabieta", "iniciativa", "imaginación")
+        full = " ".join(
+            [
+                str(data.obs_clinica_general or ""),
+                str(data.obs_emociones or ""),
+            ]
+        ).lower()
+        marcadores = (
+            "juego",
+            "coopera",
+            "rapport",
+            "contingen",
+            "atención conjunta",
+            "berrinche",
+            "rabieta",
+            "iniciativa",
+            "imaginación",
+        )
         has_marker = any(m in full for m in marcadores)
         if not has_marker:
             return y
 
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "Observación Conductual Pediátrica",
-            y, subtitle="Cooperación, juego e interacción durante la evaluación",
+            c,
+            "Observación Conductual Pediátrica",
+            y,
+            subtitle="Cooperación, juego e interacción durante la evaluación",
         )
         text = (
             "Durante la evaluación se atendió específicamente a la calidad del "
@@ -140,8 +175,13 @@ class PediatricGenerator(NeuroPDFGeneratorPro):
             "continuación junto con la observación clínica general."
         )
         y = callout(
-            c, text, L.margin, y, L.content_w,
-            accent=TEAL, fill=TEAL_PALE,
+            c,
+            text,
+            L.margin,
+            y,
+            L.content_w,
+            accent=TEAL,
+            fill=TEAL_PALE,
             title="Marco observacional pediátrico",
             size=TYPE.body_sm,
         )

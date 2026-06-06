@@ -62,6 +62,7 @@ router = APIRouter(prefix="/patients", tags=["Pacientes"])
 # Handlers de excepción → HTTP
 # ──────────────────────────────────────────────────────────────
 
+
 def _handle_domain_error(e: Exception):
     if isinstance(e, PatientAlreadyExistsError):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.to_dict())
@@ -87,6 +88,7 @@ def _scope_profesional_id(user) -> str | None:
 # ENDPOINTS
 # ──────────────────────────────────────────────────────────────
 
+
 @router.post(
     "/",
     response_model=PatientResponseDTO,
@@ -103,7 +105,7 @@ def _scope_profesional_id(user) -> str | None:
 def register_patient(
     dto: PatientCreateDTO,
     uc: RegisterPatientUC,
-    user=CurrentUser,
+    user: CurrentUser,
 ) -> PatientResponseDTO:
     # §S0.2: forzar que el paciente quede vinculado al profesional del user
     # (a menos que sea admin y esté reasignando explícitamente).
@@ -130,6 +132,7 @@ def age_preview(
     fecha_referencia: date | None = Query(default=None, description="Default: hoy"),
 ) -> AgeResponseDTO:
     from app.application.use_cases.patient_use_cases import CalculateAgeUseCase
+
     try:
         return CalculateAgeUseCase.execute(fecha_nacimiento, fecha_referencia)
     except ValueError as e:
@@ -147,12 +150,12 @@ def age_preview(
     ),
 )
 def search_patients(
+    uc: SearchPatientsUC,
+    user: CurrentUser,
     documento: str | None = Query(default=None),
     nombre: str | None = Query(default=None),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    uc: SearchPatientsUC = ...,
-    user=CurrentUser,
 ) -> list[PatientResponseDTO]:
     # §S0.2: si no es admin, filtra por su profesional_id
     scope = _scope_profesional_id(user)
@@ -189,7 +192,7 @@ from app.presentation.dependencies import PatientPanelUC, PatientStatsUC
 )
 def get_patient_panel(
     uc: PatientPanelUC,
-    user=CurrentUser,
+    user: CurrentUser,
     q: str | None = Query(default=None, description="Buscar por nombre o documento"),
     sexo: str | None = Query(default=None, description="H=Masculino, M=Femenino"),
     poblacion: str | None = Query(default=None, description="infantil | adulto_joven | adulto_mayor"),
@@ -200,16 +203,21 @@ def get_patient_panel(
     por_pagina: int = Query(default=25, ge=1, le=100, description="Resultados por página"),
 ) -> PatientPanelResponseDTO:
     from datetime import date
+
     fd = date.fromisoformat(fecha_desde) if fecha_desde else None
     fh = date.fromisoformat(fecha_hasta) if fecha_hasta else None
     # §S0.2: para no-admin, ignorar el `profesional_id` que mande el cliente
     # y forzar el suyo propio.
     scope = _scope_profesional_id(user)
     return uc.execute(
-        q=q, sexo=sexo, poblacion=poblacion,
+        q=q,
+        sexo=sexo,
+        poblacion=poblacion,
         profesional_id=scope,
-        fecha_desde=fd, fecha_hasta=fh,
-        pagina=pagina, por_pagina=por_pagina,
+        fecha_desde=fd,
+        fecha_hasta=fh,
+        pagina=pagina,
+        por_pagina=por_pagina,
     )
 
 
@@ -223,12 +231,13 @@ def get_patient_panel(
         "de su profesional_id."
     ),
 )
-def get_patient_stats(uc: PatientStatsUC, user=CurrentUser) -> PatientStatsDTO:
+def get_patient_stats(uc: PatientStatsUC, user: CurrentUser) -> PatientStatsDTO:
     scope = _scope_profesional_id(user)
     return uc.execute(profesional_id=scope)
 
 
 # ── PACIENTE POR ID (parameterized — must be AFTER /panel /stats) ──
+
 
 @router.get(
     "/{patient_id}",
@@ -239,7 +248,7 @@ def get_patient(
     patient_id: str,
     uc: GetPatientUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ) -> PatientResponseDTO:
     # §S0.2: verificar ownership antes de delegar al use case
     get_patient_for_user(patient_id, db, user)
@@ -259,7 +268,7 @@ def update_patient(
     dto: PatientUpdateDTO,
     uc: UpdatePatientUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ) -> PatientResponseDTO:
     # §S0.2: el DTO PatientUpdateDTO no expone `profesional_id` por diseño,
     # así que un no-admin no puede reasignarse un paciente vía PATCH. El
@@ -281,7 +290,7 @@ def archive_patient(
     patient_id: str,
     uc: ArchivePatientUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     get_patient_for_user(patient_id, db, user)
     try:
@@ -293,6 +302,7 @@ def archive_patient(
 # ──────────────────────────────────────────────────────────────
 # HABEAS DATA — Derecho de acceso (Ley 1581/2012, Art. 8)
 # ──────────────────────────────────────────────────────────────
+
 
 @router.get(
     "/{patient_id}/export",
@@ -321,7 +331,7 @@ def export_patient_data(
     request: Request,
     uc: ExportPatientUC,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     from app.infrastructure.audit import record_event
 

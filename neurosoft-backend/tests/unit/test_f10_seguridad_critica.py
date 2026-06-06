@@ -3,8 +3,8 @@ F10 — Verificación de que los 5 hallazgos críticos de seguridad (S0.x)
 están cerrados. Estos tests son READ-ONLY: solo verifican que el código
 NO ejecuta los kill-switches aunque las env vars estén activas.
 """
+
 import os
-import pytest
 from unittest.mock import patch
 
 
@@ -13,24 +13,25 @@ class TestKillSwitchesEliminados:
 
     def test_disable_auth_no_bypasea_auth(self):
         """Aunque NEUROSOFT_DISABLE_AUTH=1, el middleware debe seguir exigiendo Bearer."""
-        from app.main import app
         from fastapi.testclient import TestClient
+
+        from app.main import app
 
         client = TestClient(app)
         with patch.dict(os.environ, {"NEUROSOFT_DISABLE_AUTH": "1"}):
             # Llamar a /api/* sin token debe seguir retornando 401
             r = client.get("/api/v1/patients/panel")
-            assert r.status_code == 401, (
-                f"Kill-switch aún activo: retornó {r.status_code}, esperaba 401"
-            )
+            assert r.status_code == 401, f"Kill-switch aún activo: retornó {r.status_code}, esperaba 401"
             assert "Token" in r.json().get("detail", "")
 
     def test_reset_admin_password_no_se_aplica(self):
         """Aunque NEUROSOFT_RESET_ADMIN_PASSWORD=1, ensure_admin_exists no debe
         modificar la contraseña del admin."""
-        from app.infrastructure.auth.auth_service import UserRepository
         # Verificar que el código documenta la eliminación
         import inspect
+
+        from app.infrastructure.auth.auth_service import UserRepository
+
         src = inspect.getsource(UserRepository.ensure_admin_exists)
         assert "ELIMINADO" in src, "ensure_admin_exists debe documentar que el kill-switch fue eliminado"
         assert "NEUROSOFT_RESET_ADMIN_PASSWORD" in src
@@ -41,7 +42,9 @@ class TestRequireAdminEnUpdate:
 
     def test_update_endpoint_esta_protegido(self):
         import inspect
+
         from app.presentation.api.v1 import update
+
         src = inspect.getsource(update)
         assert "require_admin" in src or "current_user.role" in src, (
             "update.py debe usar require_admin o verificar current_user.role"
@@ -53,7 +56,9 @@ class TestAuditPHIFiltrado:
 
     def test_cambios_auditables_tiene_whitelist(self):
         import inspect
+
         from app.infrastructure.audit import listeners
+
         src = inspect.getsource(listeners)
         # Verificar que existe una whitelist/blacklist o hash de campos sensibles
         assert any(
@@ -78,7 +83,9 @@ class TestIDORPatients:
 
     def test_patients_usa_ownership_helper(self):
         import inspect
+
         from app.presentation.api.v1 import patients
+
         src = inspect.getsource(patients)
         assert any(
             helper in src
@@ -95,7 +102,9 @@ class TestJWTSecurity:
 
     def test_jwt_decode_usa_verify_exp_explicito(self):
         import inspect
+
         from app.infrastructure.auth import auth_service
+
         src = inspect.getsource(auth_service)
         assert "verify_exp" in src or "options" in src, (
             "auth_service debe usar verify_exp explícito o options={'verify_exp': True}"

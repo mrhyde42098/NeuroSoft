@@ -4,9 +4,10 @@ S2.5: Tests para los 7 principios narrativos y cláusulas legales colombianas.
 Los principios narrativos son una guía editorial para la redacción de
 informes clínicos. No son auto-aplicables, pero su API debe ser estable.
 """
+
 from app.infrastructure.report_pro.narrative import (
-    PRINCIPIOS_NARRATIVOS,
     CLAUSULAS_LEGALES,
+    PRINCIPIOS_NARRATIVOS,
     aplicar_principios_en_narrativa,
     clausula_legal,
 )

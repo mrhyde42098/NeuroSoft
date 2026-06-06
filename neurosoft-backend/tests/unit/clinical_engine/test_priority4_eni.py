@@ -28,7 +28,6 @@ población colombiana por el equipo de NeuroSoft.
 """
 
 
-
 class TestENICancelacion:
     """ENI - Pruebas de Cancelación (Atención)."""
 

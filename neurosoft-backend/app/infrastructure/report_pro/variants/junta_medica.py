@@ -11,6 +11,7 @@ Características:
 
 Pensada para impresión de 2 páginas que circulan en reuniones clínicas.
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro
@@ -72,21 +73,35 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         c.rect(L.margin, y - 40, L.content_w, 4, fill=1, stroke=0)
 
         from ..helpers import draw_text
+
         draw_text(
-            c, "DOCUMENTO PARA JUNTA MÉDICA", L.margin + 12, y - 18,
-            font_name=FONT_SERIF_BOLD, size=TYPE.title_h2, color=TEAL_PALE,
+            c,
+            "DOCUMENTO PARA JUNTA MÉDICA",
+            L.margin + 12,
+            y - 18,
+            font_name=FONT_SERIF_BOLD,
+            size=TYPE.title_h2,
+            color=TEAL_PALE,
         )
         draw_text(
-            c, "Síntesis ejecutiva — apto para discusión interdisciplinaria",
-            L.margin + 12, y - 30,
-            font_name=FONT_SANS, size=TYPE.caption, color=TEAL_PALE,
+            c,
+            "Síntesis ejecutiva — apto para discusión interdisciplinaria",
+            L.margin + 12,
+            y - 30,
+            font_name=FONT_SANS,
+            size=TYPE.caption,
+            color=TEAL_PALE,
         )
 
         if data.fecha_atencion:
             draw_text(
-                c, data.fecha_atencion.strftime("%d / %m / %Y"),
-                L.page_w - L.margin - 12, y - 22,
-                font_name=FONT_SANS_BOLD, size=TYPE.body, color=TEAL_PALE,
+                c,
+                data.fecha_atencion.strftime("%d / %m / %Y"),
+                L.page_w - L.margin - 12,
+                y - 22,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.body,
+                color=TEAL_PALE,
                 align="right",
             )
         return y - 50
@@ -95,6 +110,7 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         """Datos clave en una sola fila compacta."""
         L = LAYOUT
         from ..helpers import draw_text
+
         # Tarjeta horizontal compacta
         c.setFillColorRGB(*SURFACE)
         c.rect(L.margin, y - 50, L.content_w, 50, fill=1, stroke=0)
@@ -107,29 +123,42 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
 
         def _trio(label: str, value: str, x: float, y0: float) -> None:
             draw_text(
-                c, label.upper(), x, y0 - 10,
-                font_name=FONT_SANS_BOLD, size=TYPE.micro, color=SLATE,
+                c,
+                label.upper(),
+                x,
+                y0 - 10,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.micro,
+                color=SLATE,
             )
             draw_text(
-                c, str(value or "—"), x, y0 - 24,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+                c,
+                str(value or "—"),
+                x,
+                y0 - 24,
+                font_name=FONT_SERIF,
+                size=TYPE.body_sm,
+                color=NAVY,
             )
 
         _trio("PACIENTE", data.nombre_completo, L.margin + 8, y)
-        _trio("DOCUMENTO",
-              f"{data.tipo_documento} {data.numero_documento}",
-              L.margin + 8, y - 22)
+        _trio("DOCUMENTO", f"{data.tipo_documento} {data.numero_documento}", L.margin + 8, y - 22)
 
         _trio("EDAD", data.edad_display, L.margin + col_w + 8, y)
-        _trio("ESCOLARIDAD / OCUPACIÓN",
-              f"{data.escolaridad}  ·  {data.ocupacion or '—'}".strip(),
-              L.margin + col_w + 8, y - 22)
+        _trio(
+            "ESCOLARIDAD / OCUPACIÓN",
+            f"{data.escolaridad}  ·  {data.ocupacion or '—'}".strip(),
+            L.margin + col_w + 8,
+            y - 22,
+        )
 
-        _trio("PROTOCOLO", data.protocolo or "—",
-              L.margin + 2 * col_w + 8, y)
-        _trio("CIE-10",
-              (data.codigo_cie10 or "—") + (f"  ·  {data.codigo_cie10_desc[:24]}" if data.codigo_cie10_desc else ""),
-              L.margin + 2 * col_w + 8, y - 22)
+        _trio("PROTOCOLO", data.protocolo or "—", L.margin + 2 * col_w + 8, y)
+        _trio(
+            "CIE-10",
+            (data.codigo_cie10 or "—") + (f"  ·  {data.codigo_cie10_desc[:24]}" if data.codigo_cie10_desc else ""),
+            L.margin + 2 * col_w + 8,
+            y - 22,
+        )
 
         return y - 60
 
@@ -139,12 +168,20 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=70)
         y = section_title(
-            c, "Motivo de Interconsulta",
-            y, subtitle="Pregunta clínica que motiva la presentación",
+            c,
+            "Motivo de Interconsulta",
+            y,
+            subtitle="Pregunta clínica que motiva la presentación",
         )
         y = draw_paragraph(
-            c, data.motivo_consulta, L.margin, y, L.content_w,
-            font_name=FONT_SERIF, size=TYPE.body, color=NAVY,
+            c,
+            data.motivo_consulta,
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SERIF,
+            size=TYPE.body,
+            color=NAVY,
             leading=TYPE.body * 1.4,
         )
         return y - 10
@@ -155,8 +192,10 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=180)
         y = section_title(
-            c, "Resultados Clave",
-            y, subtitle="Síntesis cuantitativa",
+            c,
+            "Resultados Clave",
+            y,
+            subtitle="Síntesis cuantitativa",
         )
         # KPIs (CI compuestos)
         n_ci = sum(1 for r in data.resultados if r.get("tipo_metrica") == "ci")
@@ -171,11 +210,20 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
         )
         for p in paras[:2]:  # máximo 2 párrafos
             y = self._ensure_room(c, data, y, need=50)
-            y = draw_paragraph(
-                c, p, L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
-                leading=TYPE.body_sm * 1.5,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    p,
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body_sm,
+                    color=NAVY,
+                    leading=TYPE.body_sm * 1.5,
+                )
+                - 4
+            )
 
         # Lista breve de fortalezas/debilidades
         weak, strong = build_strengths_weaknesses(data.resultados)
@@ -186,13 +234,11 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
             x_right = L.margin + col_w + 16
             y_w = y_s = y
             if weak:
-                y_w = block_header(c, "Debilidades", y_w,
-                                   color=SEMANTIC_DEFICIT, x=x_left)
+                y_w = block_header(c, "Debilidades", y_w, color=SEMANTIC_DEFICIT, x=x_left)
                 for item in weak[:4]:
                     y_w = bullet(c, item, x_left, y_w, col_w) - 2
             if strong:
-                y_s = block_header(c, "Fortalezas", y_s,
-                                   color=SEMANTIC_SUPERIOR, x=x_right)
+                y_s = block_header(c, "Fortalezas", y_s, color=SEMANTIC_SUPERIOR, x=x_right)
                 for item in strong[:3]:
                     y_s = bullet(c, item, x_right, y_s, col_w) - 2
             y = min(y_w, y_s)
@@ -206,8 +252,10 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
             return y
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "Hipótesis Diagnóstica y Preguntas a la Junta",
-            y, subtitle="Síntesis interpretativa",
+            c,
+            "Hipótesis Diagnóstica y Preguntas a la Junta",
+            y,
+            subtitle="Síntesis interpretativa",
         )
         # CIE-10
         if data.codigo_cie10:
@@ -215,15 +263,30 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
             if data.codigo_cie10_desc:
                 cie_text += f"  ·  {data.codigo_cie10_desc}"
             y = callout(
-                c, cie_text, L.margin, y, L.content_w,
-                accent=NAVY, fill=SURFACE,
-                title="Diagnóstico tentativo", size=TYPE.body_sm,
+                c,
+                cie_text,
+                L.margin,
+                y,
+                L.content_w,
+                accent=NAVY,
+                fill=SURFACE,
+                title="Diagnóstico tentativo",
+                size=TYPE.body_sm,
             )
             y -= 4
         if has_dx:
-            y = draw_paragraph(
-                c, data.obs_impresion_dx, L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
-                leading=TYPE.body_sm * 1.5,
-            ) - 6
+            y = (
+                draw_paragraph(
+                    c,
+                    data.obs_impresion_dx,
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body_sm,
+                    color=NAVY,
+                    leading=TYPE.body_sm * 1.5,
+                )
+                - 6
+            )
         return y - 4

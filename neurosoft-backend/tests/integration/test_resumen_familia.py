@@ -3,8 +3,8 @@ Sprint D — Verificación de la sección "Resumen para la Familia" en PDF.
 Previene regresión: la sección plain-language debe estar presente en
 las variantes pro, pediatric y medicolegal, y ausente en junta_medica.
 """
+
 import io
-import pytest
 from datetime import date
 
 from app.infrastructure.report_pro import generate_pro_pdf

@@ -14,6 +14,7 @@ Rutas:
   GET /api/v1/baremos/info        → metadata + estadísticas del baremo cargado
   GET /api/v1/baremos/sources     → lista de fuentes normativas declaradas
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -27,6 +28,7 @@ def _loader():
     """Obtiene el singleton del loader sin importar al toplevel
     (lazy import para no romper tests que no cargan baremos)."""
     from app.domain.clinical_engine.baremos_loader import BaremosLoader
+
     return BaremosLoader.instance()
 
 
@@ -54,6 +56,7 @@ def get_baremos_info() -> dict[str, Any]:
         by_pop[pop] = by_pop.get(pop, 0) + 1
 
     from app.domain.clinical_engine.baremos_overlays import get_overlays_for_settings
+
     overlays = get_overlays_for_settings()
 
     return {
@@ -62,14 +65,11 @@ def get_baremos_info() -> dict[str, Any]:
         "path": str(loader._baremo_path) if loader._baremo_path else None,  # noqa: SLF001
         "total_pruebas": len(loader._index),  # noqa: SLF001
         "pruebas_por_poblacion": by_pop,
-        "meta": {
-            k: v for k, v in meta.items()
-            if k not in ("baterias",) and not k.startswith("_")
-        },
+        "meta": {k: v for k, v in meta.items() if k not in ("baterias",) and not k.startswith("_")},
         "interpretaciones": {
-            "escalar":  meta.get("interpretacion_escalar"),
-            "ci":       meta.get("interpretacion_ci"),
-            "t":        meta.get("interpretacion_t"),
+            "escalar": meta.get("interpretacion_escalar"),
+            "ci": meta.get("interpretacion_ci"),
+            "t": meta.get("interpretacion_t"),
         },
         "overlays_disponibles": overlays,
         "overlay_count": len(overlays),
@@ -122,15 +122,17 @@ def list_pruebas() -> dict[str, Any]:
             n_baremos = len(prueba.baremos or {})
         except Exception:
             n_baremos = 0
-        catalogo.append({
-            "id": prueba.id,
-            "nombre": prueba.nombre,
-            "poblacion": prueba.poblacion,
-            "tipo_calculo": prueba.tipo_calculo,
-            "tipo_metrica": prueba.tipo_metrica,
-            "n_baremos": n_baremos,
-            "fuente_estimada": _fuente(prueba.id, prueba.nombre, prueba.poblacion),
-        })
+        catalogo.append(
+            {
+                "id": prueba.id,
+                "nombre": prueba.nombre,
+                "poblacion": prueba.poblacion,
+                "tipo_calculo": prueba.tipo_calculo,
+                "tipo_metrica": prueba.tipo_metrica,
+                "n_baremos": n_baremos,
+                "fuente_estimada": _fuente(prueba.id, prueba.nombre, prueba.poblacion),
+            }
+        )
 
     # Ordenamos: por población (infantil → joven → mayor) y luego nombre
     pop_order = {"infantil": 0, "adulto_joven": 1, "adulto_mayor": 2}
@@ -139,7 +141,7 @@ def list_pruebas() -> dict[str, Any]:
     return {
         "total": len(catalogo),
         "por_poblacion": {
-            "infantil":     sum(1 for r in catalogo if r["poblacion"] == "infantil"),
+            "infantil": sum(1 for r in catalogo if r["poblacion"] == "infantil"),
             "adulto_joven": sum(1 for r in catalogo if r["poblacion"] == "adulto_joven"),
             "adulto_mayor": sum(1 for r in catalogo if r["poblacion"] == "adulto_mayor"),
         },
@@ -159,6 +161,7 @@ def list_pruebas() -> dict[str, Any]:
 )
 def get_overlays_list() -> list[dict[str, Any]]:
     from app.domain.clinical_engine.baremos_overlays import get_overlays_for_settings
+
     return get_overlays_for_settings()
 
 
@@ -203,7 +206,8 @@ def get_baremo_sources() -> list[dict[str, Any]]:
             "nombre": "Neuronorma Colombia",
             "autores": "Peña-Casanova J., Montañés P. et al.",
             "anio": 2021,
-            "edad_min": 50, "edad_max": 90,
+            "edad_min": 50,
+            "edad_max": 90,
             "pruebas_cubiertas": [
                 "Boston Naming Test (BNT)",
                 "FCSRT — Free and Cued Selective Reminding",
@@ -225,10 +229,17 @@ def get_baremo_sources() -> list[dict[str, Any]]:
             "nombre": "Arango-Lasprilla & Rivera (LATAM)",
             "autores": "Arango-Lasprilla J.C., Rivera D. et al.",
             "anio": 2015,
-            "edad_min": 18, "edad_max": 90,
+            "edad_min": 18,
+            "edad_max": 90,
             "pruebas_cubiertas": [
-                "HVLT-R", "BVMT-R", "Rey-Osterrieth", "Stroop",
-                "M-WCST", "TMT", "BTA", "Fluidez fonológica/semántica",
+                "HVLT-R",
+                "BVMT-R",
+                "Rey-Osterrieth",
+                "Stroop",
+                "M-WCST",
+                "TMT",
+                "BTA",
+                "Fluidez fonológica/semántica",
                 "BNT (forma corta)",
             ],
             "cita": "Arango-Lasprilla, Rivera et al. *Commonly used Neuropsychological Tests for Spanish Speakers*. NeuroRehabilitation 2015.",
@@ -239,12 +250,20 @@ def get_baremo_sources() -> list[dict[str, Any]]:
             "nombre": "ENI-2 — Evaluación Neuropsicológica Infantil",
             "autores": "Matute E., Rosselli M., Ardila A., Ostrosky-Solís F.",
             "anio": 2013,
-            "edad_min": 5, "edad_max": 16,
+            "edad_min": 5,
+            "edad_max": 16,
             "pruebas_cubiertas": [
-                "Atención", "Habilidades constructivas",
-                "Codificación de memoria", "Habilidades perceptuales",
-                "Lenguaje", "Lectura", "Escritura", "Aritmética",
-                "Habilidades espaciales", "Conceptos", "Funciones ejecutivas",
+                "Atención",
+                "Habilidades constructivas",
+                "Codificación de memoria",
+                "Habilidades perceptuales",
+                "Lenguaje",
+                "Lectura",
+                "Escritura",
+                "Aritmética",
+                "Habilidades espaciales",
+                "Conceptos",
+                "Funciones ejecutivas",
             ],
             "cita": "Matute, Rosselli, Ardila, Ostrosky-Solís. ENI-2. Manual Moderno 2013.",
         },
@@ -253,7 +272,8 @@ def get_baremo_sources() -> list[dict[str, Any]]:
             "nombre": "WISC-IV — Versión colombiana",
             "autores": "Wechsler D. (adaptación Pearson)",
             "anio": 2003,
-            "edad_min": 6, "edad_max": 16,
+            "edad_min": 6,
+            "edad_max": 16,
             "pruebas_cubiertas": [
                 "15 subtests WISC-IV + Formas Cortas Sattler 2010",
             ],
@@ -264,7 +284,8 @@ def get_baremo_sources() -> list[dict[str, Any]]:
             "nombre": "WAIS-III — Versión colombiana",
             "autores": "Wechsler D. (adaptación Pearson)",
             "anio": 1999,
-            "edad_min": 17, "edad_max": 89,
+            "edad_min": 17,
+            "edad_max": 89,
             "pruebas_cubiertas": ["13 subtests WAIS-III"],
             "cita": "Pearson Clinical. WAIS-III adaptación al español.",
         },
@@ -273,7 +294,8 @@ def get_baremo_sources() -> list[dict[str, Any]]:
             "nombre": "MoCA-S — Validación Bogotá",
             "autores": "Pedraza O.L. et al.",
             "anio": 2016,
-            "edad_min": 60, "edad_max": 90,
+            "edad_min": 60,
+            "edad_max": 90,
             "cortes": "≤20 sugiere DCL; ≤17 sugiere demencia leve (ajustar por escolaridad)",
             "cita": "Pedraza et al. *Confiabilidad, validez de criterio y discriminante del MoCA*. Acta Médica Colombiana 2016.",
         },

@@ -12,6 +12,7 @@ Complementan `report_service.py` (PDF) con formatos editables:
 Ambos usan `ReportData` como entrada, reutilizando la construcción que ya
 hace `build_report_data_from_db`.
 """
+
 from __future__ import annotations
 
 import base64
@@ -29,6 +30,7 @@ logger = logging.getLogger(__name__)
 # DOCX — Informe editable en Word
 # ═══════════════════════════════════════════════════════════════
 
+
 def generate_report_docx(data: ReportData) -> bytes:
     """
     Genera el informe completo en formato Word (.docx).
@@ -39,9 +41,7 @@ def generate_report_docx(data: ReportData) -> bytes:
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         from docx.shared import Cm, Pt, RGBColor
     except ImportError as e:
-        raise RuntimeError(
-            "python-docx no está instalado. Ejecuta: pip install python-docx"
-        ) from e
+        raise RuntimeError("python-docx no está instalado. Ejecuta: pip install python-docx") from e
 
     doc = Document()
 
@@ -96,21 +96,21 @@ def generate_report_docx(data: ReportData) -> bytes:
     fecha_at = _fmt_date(data.fecha_atencion)
     fecha_nac = _fmt_date(data.fecha_nacimiento)
     pairs = [
-        ("Nombre completo",     data.nombre_completo),
-        ("Documento",           f"{data.tipo_documento} {data.numero_documento}"),
+        ("Nombre completo", data.nombre_completo),
+        ("Documento", f"{data.tipo_documento} {data.numero_documento}"),
         ("Fecha de nacimiento", fecha_nac),
-        ("Edad",                data.edad_display),
-        ("Sexo",                data.sexo),
-        ("Lateralidad",         data.lateralidad),
-        ("Escolaridad",         data.escolaridad),
-        ("Ocupación",           data.ocupacion),
-        ("Ciudad",              data.ciudad),
-        ("EPS",                 data.eps),
-        ("Acompañante",         data.acompanante),
-        ("Remitido por",        data.remite),
-        ("Orden médica",        data.orden_no),
-        ("Fecha de atención",   fecha_at),
-        ("Protocolo aplicado",  data.protocolo),
+        ("Edad", data.edad_display),
+        ("Sexo", data.sexo),
+        ("Lateralidad", data.lateralidad),
+        ("Escolaridad", data.escolaridad),
+        ("Ocupación", data.ocupacion),
+        ("Ciudad", data.ciudad),
+        ("EPS", data.eps),
+        ("Acompañante", data.acompanante),
+        ("Remitido por", data.remite),
+        ("Orden médica", data.orden_no),
+        ("Fecha de atención", fecha_at),
+        ("Protocolo aplicado", data.protocolo),
     ]
     _key_value_table(doc, pairs)
 
@@ -121,17 +121,17 @@ def generate_report_docx(data: ReportData) -> bytes:
 
     # ── Antecedentes ──
     antec_pairs = [
-        ("Patológicos / Médicos",    data.patologicos_medicos),
-        ("Sensoriales / Motores",    data.sensoriales_motores),
-        ("Psiquiátricos",            data.psiquiatricos),
-        ("Farmacológicos",           data.farmacologicos),
-        ("Traumáticos",              data.traumaticos),
-        ("Quirúrgicos",              data.quirurgicos),
-        ("Tóxicos",                  data.toxicos),
-        ("Alérgicos",                data.alergicos),
-        ("Terapéuticos previos",     data.terapeuticos),
-        ("Paraclínicos",             data.paraclinicos),
-        ("Familiares",               data.familiares),
+        ("Patológicos / Médicos", data.patologicos_medicos),
+        ("Sensoriales / Motores", data.sensoriales_motores),
+        ("Psiquiátricos", data.psiquiatricos),
+        ("Farmacológicos", data.farmacologicos),
+        ("Traumáticos", data.traumaticos),
+        ("Quirúrgicos", data.quirurgicos),
+        ("Tóxicos", data.toxicos),
+        ("Alérgicos", data.alergicos),
+        ("Terapéuticos previos", data.terapeuticos),
+        ("Paraclínicos", data.paraclinicos),
+        ("Familiares", data.familiares),
     ]
     antec_nonempty = [(k, v) for k, v in antec_pairs if v]
     if antec_nonempty:
@@ -140,12 +140,12 @@ def generate_report_docx(data: ReportData) -> bytes:
 
     # ── Funcionalidad / contexto ──
     func_pairs = [
-        ("¿Con quién vive?",           data.vive_con),
-        ("Actividades básicas",        data.abc),
+        ("¿Con quién vive?", data.vive_con),
+        ("Actividades básicas", data.abc),
         ("Contexto escolar / laboral", data.escolar_laboral),
-        ("Patrón de sueño",            data.patron_sueno),
-        ("Patrón de alimentación",     data.patron_alimentacion),
-        ("Comportamiento y ánimo",     data.comportamiento_animo),
+        ("Patrón de sueño", data.patron_sueno),
+        ("Patrón de alimentación", data.patron_alimentacion),
+        ("Comportamiento y ánimo", data.comportamiento_animo),
     ]
     func_nonempty = [(k, v) for k, v in func_pairs if v]
     if func_nonempty:
@@ -154,15 +154,15 @@ def generate_report_docx(data: ReportData) -> bytes:
 
     # ── Observación clínica por dominios ──
     obs_pairs = [
-        ("Apariencia y conducta",         data.obs_clinica_general),
-        ("Atención y concentración",      data.obs_atencion),
-        ("Memoria",                       data.obs_memoria),
-        ("Praxias y gnosias",             data.obs_praxias_gnosias),
-        ("Lenguaje",                      data.obs_lenguaje),
-        ("Funciones ejecutivas",          data.obs_funciones_ejecutivas),
-        ("Socioemocional",                data.obs_emociones),
-        ("Cociente intelectual",          data.obs_ci),
-        ("Funcionalidad global",          data.obs_funcionalidad),
+        ("Apariencia y conducta", data.obs_clinica_general),
+        ("Atención y concentración", data.obs_atencion),
+        ("Memoria", data.obs_memoria),
+        ("Praxias y gnosias", data.obs_praxias_gnosias),
+        ("Lenguaje", data.obs_lenguaje),
+        ("Funciones ejecutivas", data.obs_funciones_ejecutivas),
+        ("Socioemocional", data.obs_emociones),
+        ("Cociente intelectual", data.obs_ci),
+        ("Funcionalidad global", data.obs_funcionalidad),
     ]
     obs_nonempty = [(k, v) for k, v in obs_pairs if v]
     if obs_nonempty:
@@ -231,9 +231,7 @@ def generate_report_docx(data: ReportData) -> bytes:
     # Pie generado
     footer_p = doc.add_paragraph()
     footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    fr = footer_p.add_run(
-        f"Generado por NeuroSoft · {datetime.now().strftime('%d/%m/%Y %H:%M')}"
-    )
+    fr = footer_p.add_run(f"Generado por NeuroSoft · {datetime.now().strftime('%d/%m/%Y %H:%M')}")
     fr.font.size = Pt(7.5)
     fr.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
 
@@ -245,9 +243,11 @@ def generate_report_docx(data: ReportData) -> bytes:
 
 # ───────────── DOCX helpers ─────────────
 
+
 def _section_heading(doc, text: str, color) -> None:
     """Título de sección con línea inferior tipo 'ruler'."""
     from docx.shared import Pt
+
     p = doc.add_paragraph()
     run = p.add_run(text)
     run.bold = True
@@ -263,6 +263,7 @@ def _section_heading(doc, text: str, color) -> None:
 def _key_value_table(doc, pairs: list[tuple]) -> None:
     """Tabla key/value sin bordes, 2 columnas."""
     from docx.shared import Cm, Pt
+
     if not pairs:
         return
     tbl = doc.add_table(rows=len(pairs), cols=2)
@@ -303,6 +304,7 @@ def _results_table(doc, resultados: list[dict]) -> None:
         r.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
 
     for i, res in enumerate(resultados, start=1):
+
         def _fmt(x):
             if x is None:
                 return "—"
@@ -328,6 +330,7 @@ def _results_table(doc, resultados: list[dict]) -> None:
 # XLSX — Hoja de puntajes
 # ═══════════════════════════════════════════════════════════════
 
+
 def generate_evaluation_xlsx(data: ReportData) -> bytes:
     """
     Genera un XLSX con dos hojas:
@@ -339,9 +342,7 @@ def generate_evaluation_xlsx(data: ReportData) -> bytes:
         from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
         from openpyxl.utils import get_column_letter
     except ImportError as e:
-        raise RuntimeError(
-            "openpyxl no está instalado. Ejecuta: pip install openpyxl"
-        ) from e
+        raise RuntimeError("openpyxl no está instalado. Ejecuta: pip install openpyxl") from e
 
     wb = Workbook()
 
@@ -351,8 +352,7 @@ def generate_evaluation_xlsx(data: ReportData) -> bytes:
     label_font = Font(bold=True, size=10)
     value_font = Font(size=10)
     border_side = Side(style="thin", color="CCCCCC")
-    thin_border = Border(left=border_side, right=border_side,
-                         top=border_side, bottom=border_side)
+    thin_border = Border(left=border_side, right=border_side, top=border_side, bottom=border_side)
     center = Alignment(horizontal="center", vertical="center")
     left = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
@@ -369,24 +369,24 @@ def generate_evaluation_xlsx(data: ReportData) -> bytes:
     ws.merge_cells("A2:B2")
 
     pairs = [
-        ("Nombre completo",     data.nombre_completo),
-        ("Documento",           f"{data.tipo_documento} {data.numero_documento}"),
+        ("Nombre completo", data.nombre_completo),
+        ("Documento", f"{data.tipo_documento} {data.numero_documento}"),
         ("Fecha de nacimiento", _fmt_date(data.fecha_nacimiento)),
-        ("Edad",                data.edad_display),
-        ("Sexo",                data.sexo),
-        ("Lateralidad",         data.lateralidad),
-        ("Escolaridad",         data.escolaridad),
-        ("Ocupación",           data.ocupacion),
-        ("Ciudad",              data.ciudad),
-        ("EPS",                 data.eps),
-        ("Remitido por",        data.remite),
-        ("Orden médica",        data.orden_no),
-        ("Fecha de atención",   _fmt_date(data.fecha_atencion)),
-        ("Protocolo",           data.protocolo),
-        ("Motivo de consulta",  data.motivo_consulta),
+        ("Edad", data.edad_display),
+        ("Sexo", data.sexo),
+        ("Lateralidad", data.lateralidad),
+        ("Escolaridad", data.escolaridad),
+        ("Ocupación", data.ocupacion),
+        ("Ciudad", data.ciudad),
+        ("EPS", data.eps),
+        ("Remitido por", data.remite),
+        ("Orden médica", data.orden_no),
+        ("Fecha de atención", _fmt_date(data.fecha_atencion)),
+        ("Protocolo", data.protocolo),
+        ("Motivo de consulta", data.motivo_consulta),
         ("Impresión diagnóstica", data.obs_impresion_dx),
-        ("Recomendaciones",     data.obs_recomendaciones),
-        ("Profesional",         data.profesional_nombre),
+        ("Recomendaciones", data.obs_recomendaciones),
+        ("Profesional", data.profesional_nombre),
         ("Registro profesional", data.profesional_registro),
     ]
     row = 4
@@ -405,9 +405,15 @@ def generate_evaluation_xlsx(data: ReportData) -> bytes:
     ws2 = wb.create_sheet(title="Puntajes")
 
     headers = [
-        "Test ID", "Prueba", "Dominio", "PD (Puntaje Directo)",
-        "PE (Escalar)", "Z equivalente", "Tipo métrica",
-        "Interpretación", "Llave baremo",
+        "Test ID",
+        "Prueba",
+        "Dominio",
+        "PD (Puntaje Directo)",
+        "PE (Escalar)",
+        "Z equivalente",
+        "Tipo métrica",
+        "Interpretación",
+        "Llave baremo",
     ]
     for j, h in enumerate(headers, start=1):
         cell = ws2.cell(row=1, column=j, value=h)
@@ -455,6 +461,7 @@ def generate_evaluation_xlsx(data: ReportData) -> bytes:
 # ═══════════════════════════════════════════════════════════════
 # Helpers de formato
 # ═══════════════════════════════════════════════════════════════
+
 
 def _fmt_date(d: Any | None) -> str:
     if d is None:

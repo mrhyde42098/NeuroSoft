@@ -13,6 +13,7 @@ Diseño:
     • No lanza excepciones al caller — el código que usa esto debe
       considerar None como "no descifrable / volver a configurar".
 """
+
 from __future__ import annotations
 
 import base64
@@ -32,6 +33,7 @@ def _get_fernet() -> Fernet:
     if _fernet_cache is not None:
         return _fernet_cache
     from app.core.config import settings
+
     secret = (settings.secret_key or "neurosoft-default-key-change-me-please").encode("utf-8")
     # Fernet requiere clave 32 bytes urlsafe-b64
     digest = hashlib.sha256(secret).digest()

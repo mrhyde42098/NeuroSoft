@@ -39,6 +39,7 @@ from pathlib import Path
 # Excepciones
 # ─────────────────────────────────────────────────────────────
 
+
 class UploadValidationError(Exception):
     """Error genérico de validación de upload. HTTP 422."""
 
@@ -61,6 +62,7 @@ class UploadInvalidError(UploadValidationError):
 # Firmas de archivo (magic bytes)
 # ─────────────────────────────────────────────────────────────
 
+
 @dataclass(frozen=True)
 class MagicSignature:
     """
@@ -68,6 +70,7 @@ class MagicSignature:
     `offset` permite verificar firmas que no empiezan en el byte 0
     (raro pero necesario para algunos formatos).
     """
+
     name: str
     prefix: bytes
     offset: int = 0
@@ -76,7 +79,7 @@ class MagicSignature:
         end = self.offset + len(self.prefix)
         if len(data) < end:
             return False
-        return data[self.offset:end] == self.prefix
+        return data[self.offset : end] == self.prefix
 
 
 # Catálogo de firmas para los formatos que aceptamos.
@@ -107,6 +110,7 @@ OOXML_SIGNATURES: tuple[MagicSignature, ...] = (SIG_ZIP, SIG_ZIP_EMPTY)
 # Helpers
 # ─────────────────────────────────────────────────────────────
 
+
 def sanitize_filename(filename: str | None) -> str:
     """
     Devuelve sólo el basename, sin separadores ni `..`. Protege
@@ -129,6 +133,7 @@ def _matches_any(data: bytes, sigs: Iterable[MagicSignature]) -> bool:
 # ─────────────────────────────────────────────────────────────
 # Validador público
 # ─────────────────────────────────────────────────────────────
+
 
 def validate_upload_bytes(
     data: bytes,
@@ -164,38 +169,31 @@ def validate_upload_bytes(
     size = len(data)
 
     if size < min_bytes:
-        raise UploadInvalidError(
-            f"El {label} parece estar vacío o corrupto ({size} bytes)."
-        )
+        raise UploadInvalidError(f"El {label} parece estar vacío o corrupto ({size} bytes).")
     if size > max_bytes:
         mb = max_bytes / (1024 * 1024)
-        raise UploadTooLargeError(
-            f"El {label} excede el tamaño máximo permitido ({mb:.0f} MB)."
-        )
+        raise UploadTooLargeError(f"El {label} excede el tamaño máximo permitido ({mb:.0f} MB).")
 
     # Extensión
     if allowed_extensions:
         name = (filename or "").lower()
         exts = tuple(e.lower() for e in allowed_extensions)
         if not any(name.endswith(e) for e in exts):
-            raise UploadInvalidError(
-                f"Extensión no permitida para {label}. "
-                f"Aceptadas: {', '.join(exts)}."
-            )
+            raise UploadInvalidError(f"Extensión no permitida para {label}. Aceptadas: {', '.join(exts)}.")
 
     # Magic bytes
     if allowed_signatures:
         if not _matches_any(data, allowed_signatures):
             expected = ", ".join(s.name for s in allowed_signatures)
             raise UploadInvalidError(
-                f"El contenido del {label} no coincide con ningún formato "
-                f"válido (esperado: {expected})."
+                f"El contenido del {label} no coincide con ningún formato válido (esperado: {expected})."
             )
 
 
 # ─────────────────────────────────────────────────────────────
 # Validador específico para firma base64
 # ─────────────────────────────────────────────────────────────
+
 
 def validate_firma_base64(
     b64_payload: str,
@@ -222,9 +220,7 @@ def validate_firma_base64(
     # Rechazar explícitamente SVG (aun camuflado como data:image/svg+xml)
     header_lower = payload[:64].lower()
     if "svg" in header_lower:
-        raise UploadInvalidError(
-            "Firmas en formato SVG no están permitidas por razones de seguridad."
-        )
+        raise UploadInvalidError("Firmas en formato SVG no están permitidas por razones de seguridad.")
 
     # Quitar el prefijo data URI si existe
     if "," in payload and payload.startswith("data:"):
@@ -239,13 +235,9 @@ def validate_firma_base64(
         raise UploadInvalidError("La firma está vacía o corrupta.")
     if len(raw) > max_bytes:
         kb = max_bytes // 1024
-        raise UploadTooLargeError(
-            f"La firma excede el tamaño máximo permitido ({kb} KB)."
-        )
+        raise UploadTooLargeError(f"La firma excede el tamaño máximo permitido ({kb} KB).")
 
     if not _matches_any(raw, IMAGE_SIGNATURES):
-        raise UploadInvalidError(
-            "La firma debe ser una imagen PNG, JPEG o GIF válida."
-        )
+        raise UploadInvalidError("La firma debe ser una imagen PNG, JPEG o GIF válida.")
 
     return raw

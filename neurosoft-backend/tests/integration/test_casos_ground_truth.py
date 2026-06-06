@@ -18,6 +18,7 @@ Para regenerar fixtures tras un cambio intencional:
     venv/Scripts/python docs/casos-clinicos/validar_casos.py
     # luego: re-correr el script que generó fixtures (ver §P2 sprint mayo 2026)
 """
+
 from __future__ import annotations
 
 import json
@@ -50,8 +51,10 @@ def test_caso_ground_truth(fixture):
     fn = date.fromisoformat(fixture["fecha_nacimiento"])
     fe = date.fromisoformat(fixture["fecha_evaluacion"])
     ctx = PatientContext.from_demographics(
-        birth_date=fn, evaluation_date=fe,
-        sexo=fixture["sexo"], escolaridad=fixture["escolaridad"],
+        birth_date=fn,
+        evaluation_date=fe,
+        sexo=fixture["sexo"],
+        escolaridad=fixture["escolaridad"],
     )
 
     result = engine.score(

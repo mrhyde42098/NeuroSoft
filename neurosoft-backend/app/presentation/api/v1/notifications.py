@@ -15,6 +15,7 @@ El estado "leída" se persiste en localStorage del frontend
 (timestamp del último check). El backend no almacena ese estado para
 evitar añadir tablas en una iteración inicial.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
@@ -144,10 +145,7 @@ def adherence_summary(db: DbSession, dias: int = Query(14, ge=7, le=90)) -> dict
 
     cutoff = datetime.now(UTC) - timedelta(days=dias)
     planes = (
-        db.query(RehabPlanORM)
-        .filter(RehabPlanORM.estado == "activo")
-        .filter(RehabPlanORM.signed_at.isnot(None))
-        .all()
+        db.query(RehabPlanORM).filter(RehabPlanORM.estado == "activo").filter(RehabPlanORM.signed_at.isnot(None)).all()
     )
     rows: list[dict[str, Any]] = []
     for plan in planes:
@@ -155,23 +153,26 @@ def adherence_summary(db: DbSession, dias: int = Query(14, ge=7, le=90)) -> dict
             db.query(func.count(RehabSessionORM.id))
             .filter(RehabSessionORM.plan_id == plan.id)
             .filter(RehabSessionORM.created_at >= cutoff)
-            .scalar() or 0
+            .scalar()
+            or 0
         )
         esperadas = (plan.frecuencia_semanal or 2) * (dias / 7)
         pct = int(round(min(1.5, (sesiones / esperadas if esperadas else 0)) * 100))
         pac = db.get(PatientORM, plan.patient_id) if plan.patient_id else None
-        rows.append({
-            "plan_id": plan.id,
-            "patient_id": plan.patient_id,
-            "paciente_nombre": (
-                getattr(pac, "nombre_completo", None)
-                or (f"{pac.primer_nombre or ''} {pac.primer_apellido or ''}".strip() if pac else "—")
-            ),
-            "sesiones": int(sesiones),
-            "esperadas": round(esperadas, 1),
-            "adherencia_pct": pct,
-            "estado": "verde" if pct >= 80 else "amarillo" if pct >= 50 else "rojo",
-        })
+        rows.append(
+            {
+                "plan_id": plan.id,
+                "patient_id": plan.patient_id,
+                "paciente_nombre": (
+                    getattr(pac, "nombre_completo", None)
+                    or (f"{pac.primer_nombre or ''} {pac.primer_apellido or ''}".strip() if pac else "—")
+                ),
+                "sesiones": int(sesiones),
+                "esperadas": round(esperadas, 1),
+                "adherencia_pct": pct,
+                "estado": "verde" if pct >= 80 else "amarillo" if pct >= 50 else "rojo",
+            }
+        )
     rows.sort(key=lambda r: r["adherencia_pct"])
     return {
         "periodo_dias": dias,

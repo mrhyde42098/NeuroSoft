@@ -11,6 +11,7 @@ Cobertura de los 3 huecos operativos cerrados:
 Solo smoke tests de contratos (auth, rutas, shape de respuesta). La lógica
 SMTP no se ejercita (requeriría servidor real).
 """
+
 from __future__ import annotations
 
 import pytest
@@ -20,6 +21,7 @@ from fastapi.testclient import TestClient
 @pytest.fixture(scope="module")
 def client():
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -29,13 +31,13 @@ def client():
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.integration
 class TestAdminImportLegacyXlsm:
-
     def test_sin_token_401(self, client):
         r = client.post("/api/v1/admin/import-legacy-xlsm")
         assert r.status_code == 401
 
     def test_ruta_registrada(self, client):
         from app.main import app
+
         paths = {getattr(r, "path", "") for r in app.routes}
         assert "/api/v1/admin/import-legacy-xlsm" in paths
 
@@ -45,7 +47,6 @@ class TestAdminImportLegacyXlsm:
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.integration
 class TestEmailEndpoints:
-
     def test_send_email_sin_token_401(self, client):
         r = client.post(
             "/api/v1/reports/any-id/send-email",
@@ -63,6 +64,7 @@ class TestEmailEndpoints:
 
     def test_rutas_registradas(self, client):
         from app.main import app
+
         paths = {getattr(r, "path", "") for r in app.routes}
         esperadas = {
             "/api/v1/reports/{eval_id}/send-email",
@@ -78,13 +80,13 @@ class TestEmailEndpoints:
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.integration
 class TestRipsExport:
-
     def test_sin_token_401(self, client):
         r = client.get("/api/v1/rips/export?desde=2026-01-01&hasta=2026-01-31")
         assert r.status_code == 401
 
     def test_ruta_registrada(self, client):
         from app.main import app
+
         paths = {getattr(r, "path", "") for r in app.routes}
         assert "/api/v1/rips/export" in paths
 
@@ -94,7 +96,6 @@ class TestRipsExport:
 # ─────────────────────────────────────────────────────────────
 @pytest.mark.integration
 class TestGeneradoresUnitarios:
-
     def test_rips_monthly_txt_vacio_retorna_tres_archivos(self):
         """Rango sin evaluaciones → los 3 archivos existen con headers."""
         from datetime import date
@@ -124,23 +125,32 @@ class TestGeneradoresUnitarios:
     def test_email_service_reporta_no_configurado(self):
         """Sin SMTP_HOST configurado, is_configured() es False."""
         from app.infrastructure.email_service import is_configured
+
         # En entorno test no hay NEUROSOFT_SMTP_HOST seteado
         assert is_configured() in (True, False)  # tolerante — solo contrato
 
     def test_email_log_tabla_existe(self):
         """EmailLogORM debe estar declarada y registrada en metadata."""
         from app.infrastructure.database.orm_models import EmailLogORM
+
         assert EmailLogORM.__tablename__ == "email_logs"
         cols = {c.name for c in EmailLogORM.__table__.columns}
         for required in {
-            "id", "ts", "actor_id", "recipient_to", "subject",
-            "status", "tipo", "error_message",
+            "id",
+            "ts",
+            "actor_id",
+            "recipient_to",
+            "subject",
+            "status",
+            "tipo",
+            "error_message",
         }:
             assert required in cols, f"Falta columna {required} en email_logs"
 
     def test_legacy_import_template_context(self):
         """Chequeo de que el servicio legacy_import importa sin romper."""
         from app.infrastructure import legacy_import_service
+
         # Debe exponer la función principal y el dataclass de reporte
         assert hasattr(legacy_import_service, "import_legacy_xlsm")
         assert hasattr(legacy_import_service, "ImportReport")

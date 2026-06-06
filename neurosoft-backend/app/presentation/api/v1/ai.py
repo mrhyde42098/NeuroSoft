@@ -101,7 +101,7 @@ class ChatResponseDTO(BaseModel):
 
 class ImproveTextDTO(BaseModel):
     text: str
-    task: str = "style"     # 'style' | 'grammar' | 'summarize' | 'clinical_review'
+    task: str = "style"  # 'style' | 'grammar' | 'summarize' | 'clinical_review'
     tone: str = "clinical"  # 'clinical' | 'friendly' | 'technical'
     # Inyecta reglas de estilo institucional (bottom-up, DIS-, no-conserva).
     # Alias `institutional_style` para nuevos clientes.
@@ -111,7 +111,7 @@ class ImproveTextDTO(BaseModel):
 
 
 class NarrateDTO(BaseModel):
-    dominio: str          # 'atencion', 'memoria', 'lenguaje', 'ffee', 'visoespacial'
+    dominio: str  # 'atencion', 'memoria', 'lenguaje', 'ffee', 'visoespacial'
     paciente_edad: str | None = None
     resultados: list[dict[str, Any]]  # [{test: str, z: float, interpretacion: str}...]
     # Inyecta reglas de estilo institucional en el system prompt.
@@ -125,7 +125,7 @@ class NarrateDTO(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════
 
 _PHI_PATTERNS = [
-    (re.compile(r"\b\d{6,12}\b"), "[DOCUMENTO]"),            # cédulas, TI, etc.
+    (re.compile(r"\b\d{6,12}\b"), "[DOCUMENTO]"),  # cédulas, TI, etc.
     (re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b"), "[FECHA]"),
     (re.compile(r"\b\d{4}-\d{2}-\d{2}\b"), "[FECHA]"),
     (re.compile(r"[\w\.\-]+@[\w\-]+\.\w+"), "[EMAIL]"),
@@ -146,6 +146,7 @@ def sanitize_clinical_input(text: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════
 # Config: get / save
 # ═══════════════════════════════════════════════════════════════════════
+
 
 def _get_user_config(db, user_id: str) -> AIConfigORM:
     cfg = db.query(AIConfigORM).filter_by(user_id=user_id).first()
@@ -179,14 +180,14 @@ def save_ai_config(dto: AIConfigDTO, request: Request, db: DbSession):
     if dto.provider not in VALID_PROVIDERS:
         raise HTTPException(422, detail=f"Proveedor inválido. Usa {VALID_PROVIDERS}")
     cfg = _get_user_config(db, user_id)
-    cfg.provider     = dto.provider
-    if dto.api_key is not None:            # None → no tocar (permite actualizar sin reenviar key)
+    cfg.provider = dto.provider
+    if dto.api_key is not None:  # None → no tocar (permite actualizar sin reenviar key)
         cfg.api_key = dto.api_key.strip() or None
-    cfg.model        = dto.model or DEFAULT_MODELS.get(dto.provider, "")
-    cfg.ollama_url   = dto.ollama_url
+    cfg.model = dto.model or DEFAULT_MODELS.get(dto.provider, "")
+    cfg.ollama_url = dto.ollama_url
     cfg.openai_base_url = (dto.openai_base_url or "").strip() or None
-    cfg.temperature  = max(0, min(100, dto.temperature))
-    cfg.max_tokens   = max(64, min(8192, dto.max_tokens))
+    cfg.temperature = max(0, min(100, dto.temperature))
+    cfg.max_tokens = max(64, min(8192, dto.max_tokens))
     cfg.enable_cloud = dto.enable_cloud
     db.commit()
     return get_ai_config(request, db)
@@ -195,6 +196,7 @@ def save_ai_config(dto: AIConfigDTO, request: Request, db: DbSession):
 # ═══════════════════════════════════════════════════════════════════════
 # Backends por proveedor
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class AIProviderError(Exception):
     pass
@@ -220,8 +222,11 @@ def _build_system(
         return base
     try:
         from app.domain.data.informe_style_guide_ins import build_ins_style_suffix
+
         suffix = build_ins_style_suffix(
-            is_pediatric=is_pediatric, test=test, dominios=dominios,
+            is_pediatric=is_pediatric,
+            test=test,
+            dominios=dominios,
         )
         return base + "\n\n" + suffix
     except Exception as e:  # noqa: BLE001
@@ -284,8 +289,9 @@ async def _call_claude(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> Ch
     return ChatResponseDTO(provider="claude", model=model, content=text, usage=data.get("usage"))
 
 
-async def _call_openai(cfg: AIConfigORM, req: ChatRequestDTO, system: str,
-                       provider_name: str = "openai") -> ChatResponseDTO:
+async def _call_openai(
+    cfg: AIConfigORM, req: ChatRequestDTO, system: str, provider_name: str = "openai"
+) -> ChatResponseDTO:
     """Llama a OpenAI o a cualquier endpoint OpenAI-compatible.
 
     Para ``provider_name == "medgemma"`` se usa ``cfg.openai_base_url``
@@ -340,13 +346,17 @@ async def _call_ollama(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> Ch
         async with httpx.AsyncClient(timeout=120) as client:
             r = await client.post(url, json=body)
     except (httpx.ConnectError, httpx.ConnectTimeout):
-        raise AIProviderError("Ollama no está corriendo. Instálalo desde https://ollama.com y ejecuta `ollama run llama3.1:8b`.")
+        raise AIProviderError(
+            "Ollama no está corriendo. Instálalo desde https://ollama.com y ejecuta `ollama run llama3.1:8b`."
+        )
     if r.status_code >= 400:
         raise AIProviderError(f"Ollama {r.status_code}: {r.text[:300]}")
     data = r.json()
     text = data.get("message", {}).get("content", "")
     return ChatResponseDTO(
-        provider="ollama", model=model, content=text,
+        provider="ollama",
+        model=model,
+        content=text,
         usage={k: data.get(k) for k in ("prompt_eval_count", "eval_count")},
     )
 
@@ -359,24 +369,34 @@ async def _dispatch(cfg: AIConfigORM, req: ChatRequestDTO, system: str, override
             # Si el usuario tiene key pero provider=auto, asumimos gemini por defecto
             # a menos que el model string identifique otro
             m = (cfg.model or "").lower()
-            if "claude" in m:   provider = "claude"
-            elif "gpt"  in m:   provider = "openai"
-            else:               provider = "gemini"
+            if "claude" in m:
+                provider = "claude"
+            elif "gpt" in m:
+                provider = "openai"
+            else:
+                provider = "gemini"
         else:
             provider = "ollama"
 
-    if provider == "gemini":  return await _call_gemini(cfg, req, system)
-    if provider == "claude":  return await _call_claude(cfg, req, system)
-    if provider == "openai":  return await _call_openai(cfg, req, system)
-    if provider == "medgemma": return await _call_openai(cfg, req, system, provider_name="medgemma")
-    if provider == "openrouter": return await _call_openai(cfg, req, system, provider_name="openrouter")
-    if provider == "ollama":  return await _call_ollama(cfg, req, system)
+    if provider == "gemini":
+        return await _call_gemini(cfg, req, system)
+    if provider == "claude":
+        return await _call_claude(cfg, req, system)
+    if provider == "openai":
+        return await _call_openai(cfg, req, system)
+    if provider == "medgemma":
+        return await _call_openai(cfg, req, system, provider_name="medgemma")
+    if provider == "openrouter":
+        return await _call_openai(cfg, req, system, provider_name="openrouter")
+    if provider == "ollama":
+        return await _call_ollama(cfg, req, system)
     raise AIProviderError(f"Proveedor no soportado: {provider}")
 
 
 # ═══════════════════════════════════════════════════════════════════════
 # Endpoints de chat
 # ═══════════════════════════════════════════════════════════════════════
+
 
 @ai_router.post("/chat", response_model=ChatResponseDTO)
 async def chat(dto: ChatRequestDTO, request: Request, db: DbSession):
@@ -388,8 +408,10 @@ async def chat(dto: ChatRequestDTO, request: Request, db: DbSession):
     if target_provider != "ollama":
         dto = ChatRequestDTO(
             messages=[ChatMessageDTO(role=m.role, content=sanitize_clinical_input(m.content)) for m in dto.messages],
-            system=dto.system, temperature=dto.temperature,
-            max_tokens=dto.max_tokens, provider_override=dto.provider_override,
+            system=dto.system,
+            temperature=dto.temperature,
+            max_tokens=dto.max_tokens,
+            provider_override=dto.provider_override,
         )
     try:
         return await _dispatch(cfg, dto, system, dto.provider_override)
@@ -409,9 +431,9 @@ async def improve(dto: ImproveTextDTO, request: Request, db: DbSession):
     user_id = getattr(request.state, "user_id", "default")
     cfg = _get_user_config(db, user_id)
     task_prompts = {
-        "style":           "Revisa el siguiente texto de informe neuropsicológico. Mejora redacción, cohesión y estilo manteniendo EXACTAMENTE el mismo contenido clínico y los mismos términos técnicos. No inventes datos. Devuelve solo el texto corregido, sin preámbulos.",
-        "grammar":         "Corrige gramática, ortografía y puntuación del siguiente texto sin cambiar su contenido. Devuelve solo el texto corregido.",
-        "summarize":       "Resume el siguiente texto clínico en máximo 4 frases manteniendo los datos esenciales.",
+        "style": "Revisa el siguiente texto de informe neuropsicológico. Mejora redacción, cohesión y estilo manteniendo EXACTAMENTE el mismo contenido clínico y los mismos términos técnicos. No inventes datos. Devuelve solo el texto corregido, sin preámbulos.",
+        "grammar": "Corrige gramática, ortografía y puntuación del siguiente texto sin cambiar su contenido. Devuelve solo el texto corregido.",
+        "summarize": "Resume el siguiente texto clínico en máximo 4 frases manteniendo los datos esenciales.",
         "clinical_review": "Actúa como neuropsicólogo senior. Revisa el siguiente fragmento de informe y señala: (1) afirmaciones que no se sustentan en los datos presentados, (2) términos imprecisos, (3) sugerencias de mejora. No modifiques el texto — solo listado de observaciones.",
     }
     instruction = task_prompts.get(dto.task, task_prompts["style"])
@@ -441,17 +463,16 @@ async def narrate(dto: NarrateDTO, request: Request, db: DbSession):
     user_id = getattr(request.state, "user_id", "default")
     cfg = _get_user_config(db, user_id)
     dom_label = {
-        "atencion":      "atención y concentración",
-        "memoria":       "memoria",
-        "lenguaje":      "lenguaje",
-        "ffee":          "funciones ejecutivas",
-        "visoespacial":  "habilidades visoespaciales y visoconstructivas",
-        "praxias":       "praxias y gnosias",
+        "atencion": "atención y concentración",
+        "memoria": "memoria",
+        "lenguaje": "lenguaje",
+        "ffee": "funciones ejecutivas",
+        "visoespacial": "habilidades visoespaciales y visoconstructivas",
+        "praxias": "praxias y gnosias",
         "cognicion_social": "cognición social",
     }.get(dto.dominio, dto.dominio)
     datos = "\n".join(
-        f"- {r.get('test', '?')}: Z={r.get('z', '?')}, {r.get('interpretacion', '?')}"
-        for r in dto.resultados[:20]
+        f"- {r.get('test', '?')}: Z={r.get('z', '?')}, {r.get('interpretacion', '?')}" for r in dto.resultados[:20]
     )
     edad = f" (paciente: {dto.paciente_edad})" if dto.paciente_edad else ""
     user_msg = (
@@ -478,6 +499,7 @@ async def narrate(dto: NarrateDTO, request: Request, db: DbSession):
 # Prompts especializados clínicos (§ai-prompts 2026-05-18)
 # ═══════════════════════════════════════════════════════════════════════
 
+
 @ai_router.get("/prompts", summary="Lista los prompts especializados disponibles")
 def ai_list_prompts():
     """
@@ -490,6 +512,7 @@ def ai_list_prompts():
     formato de salida estructurado y disclaimers automáticos.
     """
     from app.domain.clinical_engine.ai_prompts import AI_USAGE_DISCLAIMER, list_prompts
+
     return {
         "prompts": list_prompts(),
         "disclaimer": AI_USAGE_DISCLAIMER,
@@ -498,13 +521,17 @@ def ai_list_prompts():
 
 class SpecializedRequestDTO(BaseModel):
     """Petición a un prompt especializado."""
+
     prompt_id: str
     variables: dict[str, Any]
     provider_override: str | None = None
 
 
-@ai_router.post("/specialized", response_model=ChatResponseDTO,
-                summary="Invoca un prompt especializado (con sanitización PHI y log)")
+@ai_router.post(
+    "/specialized",
+    response_model=ChatResponseDTO,
+    summary="Invoca un prompt especializado (con sanitización PHI y log)",
+)
 async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSession):
     """
     Ejecuta un prompt especializado de la biblioteca clínica.
@@ -524,10 +551,7 @@ async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSes
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    safe_vars = {
-        k: (sanitize_clinical_input(v) if isinstance(v, str) else v)
-        for k, v in req.variables.items()
-    }
+    safe_vars = {k: (sanitize_clinical_input(v) if isinstance(v, str) else v) for k, v in req.variables.items()}
     try:
         user_msg = format_user_message(req.prompt_id, **safe_vars)
     except KeyError as e:
@@ -561,12 +585,19 @@ async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSes
         # Persistimos el fallo aún así, para diagnóstico.
         try:
             _persist_ai_log(
-                db, user_id, req.prompt_id, "/specialized",
-                provider=None, model=None,
-                input_length=len(user_msg), output_length=0,
+                db,
+                user_id,
+                req.prompt_id,
+                "/specialized",
+                provider=None,
+                model=None,
+                input_length=len(user_msg),
+                output_length=0,
                 duration_ms=int((time.monotonic() - t0) * 1000),
-                tokens_in=None, tokens_out=None,
-                success=False, error_message=error_message,
+                tokens_in=None,
+                tokens_out=None,
+                success=False,
+                error_message=error_message,
             )
         except Exception:
             pass
@@ -579,32 +610,57 @@ async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSes
     tokens_out = resp.usage.get("output_tokens") if resp.usage else None
     try:
         _persist_ai_log(
-            db, user_id, req.prompt_id, "/specialized",
-            provider=resp.provider, model=resp.model,
-            input_length=len(user_msg), output_length=len(out_content),
+            db,
+            user_id,
+            req.prompt_id,
+            "/specialized",
+            provider=resp.provider,
+            model=resp.model,
+            input_length=len(user_msg),
+            output_length=len(out_content),
             duration_ms=duration_ms,
-            tokens_in=tokens_in, tokens_out=tokens_out,
-            success=success, error_message=None,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            success=success,
+            error_message=None,
         )
     except Exception as exc:
         # No bloqueamos la respuesta si el log falla — solo loggeamos.
         logger.warning("No se pudo persistir AI log: %s", exc)
 
     logger.info(
-        "AI specialized — user=%s prompt=%s provider=%s model=%s "
-        "in=%d out=%d dur=%dms",
-        user_id, req.prompt_id, resp.provider, resp.model,
-        len(user_msg), len(out_content), duration_ms,
+        "AI specialized — user=%s prompt=%s provider=%s model=%s in=%d out=%d dur=%dms",
+        user_id,
+        req.prompt_id,
+        resp.provider,
+        resp.model,
+        len(user_msg),
+        len(out_content),
+        duration_ms,
     )
 
     return resp
 
 
-def _persist_ai_log(db, user_id, prompt_id, endpoint, *,
-                    provider, model, input_length, output_length,
-                    duration_ms, tokens_in, tokens_out,
-                    success, error_message,
-                    patient_id=None, evaluation_id=None, session_id=None):
+def _persist_ai_log(
+    db,
+    user_id,
+    prompt_id,
+    endpoint,
+    *,
+    provider,
+    model,
+    input_length,
+    output_length,
+    duration_ms,
+    tokens_in,
+    tokens_out,
+    success,
+    error_message,
+    patient_id=None,
+    evaluation_id=None,
+    session_id=None,
+):
     """Crea una fila en `ai_logs`. No lanza — siempre best-effort."""
     import uuid as _uuid
 
@@ -635,6 +691,7 @@ def _persist_ai_log(db, user_id, prompt_id, endpoint, *,
 # ═══════════════════════════════════════════════════════════════════════
 # Health + detección de Ollama local
 # ═══════════════════════════════════════════════════════════════════════
+
 
 @ai_router.get("/health")
 async def ai_health(request: Request, db: DbSession):
@@ -669,8 +726,12 @@ async def ollama_status(request: Request, db: DbSession):
         s = socket.create_connection((host, int(port)), timeout=2)
         s.close()
     except OSError:
-        return {"installed": False, "running": False, "url": url,
-                "hint": "Instala Ollama desde https://ollama.com/download y reinicia NeuroSoft."}
+        return {
+            "installed": False,
+            "running": False,
+            "url": url,
+            "hint": "Instala Ollama desde https://ollama.com/download y reinicia NeuroSoft.",
+        }
     try:
         async with httpx.AsyncClient(timeout=5) as client:
             r = await client.get(url + "/api/tags")
@@ -678,8 +739,11 @@ async def ollama_status(request: Request, db: DbSession):
         models = [m["name"] for m in data.get("models", [])]
         suggested = DEFAULT_MODELS["ollama"]
         return {
-            "installed": True, "running": True, "url": url,
-            "models": models, "suggested": suggested,
+            "installed": True,
+            "running": True,
+            "url": url,
+            "models": models,
+            "suggested": suggested,
             "suggested_installed": suggested in models,
         }
     except Exception as e:
@@ -713,6 +777,7 @@ async def ollama_pull_stream(dto: PullModelDTO, request: Request, db: DbSession)
     JSON con `{status, completed, total}` por chunk (formato nativo de Ollama).
     """
     from fastapi.responses import StreamingResponse
+
     user_id = getattr(request.state, "user_id", "default")
     cfg = _get_user_config(db, user_id)
     url = (cfg.ollama_url or "http://127.0.0.1:11434").rstrip("/") + "/api/pull"
@@ -745,6 +810,7 @@ async def ollama_autosetup(request: Request, db: DbSession):
     import asyncio
     import subprocess
     import sys as _sys
+
     user_id = getattr(request.state, "user_id", "default")
     cfg = _get_user_config(db, user_id)
     url = (cfg.ollama_url or "http://127.0.0.1:11434").rstrip("/")
@@ -753,7 +819,12 @@ async def ollama_autosetup(request: Request, db: DbSession):
         async with httpx.AsyncClient(timeout=3.0) as client:
             r = await client.get(url + "/api/tags")
             if r.status_code < 400:
-                return {"installed": True, "running": True, "installer_launched": False, "suggested_model": DEFAULT_MODELS["ollama"]}
+                return {
+                    "installed": True,
+                    "running": True,
+                    "installer_launched": False,
+                    "suggested_model": DEFAULT_MODELS["ollama"],
+                }
     except Exception:
         pass
     # Paso 2: lanzar installer bundleado si aplica
@@ -764,12 +835,18 @@ async def ollama_autosetup(request: Request, db: DbSession):
             try:
                 subprocess.Popen(
                     [str(p), "/SILENT", "/NORESTART"],
-                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                     creationflags=0x00000008,
                 )
                 launched = True
             except Exception as e:  # noqa: BLE001
-                return {"installed": False, "running": False, "installer_launched": False, "detail": f"No se pudo lanzar installer: {e}"}
+                return {
+                    "installed": False,
+                    "running": False,
+                    "installer_launched": False,
+                    "detail": f"No se pudo lanzar installer: {e}",
+                }
     # Paso 3: esperar hasta 120 s a que el servicio responda
     running = False
     for _ in range(40):
@@ -803,6 +880,7 @@ def _bundled_ollama_path() -> Path | None:
     """
     import sys
     from pathlib import Path
+
     candidates = []
     # 1. Junto al .exe principal (PyInstaller frozen) → ruta de Inno Setup
     if getattr(sys, "frozen", False):
@@ -845,6 +923,7 @@ async def ollama_install(request: Request):
     """
     import subprocess
     import sys as _sys
+
     if _sys.platform != "win32":
         raise HTTPException(400, "La instalación automática sólo está soportada en Windows.")
     p = _bundled_ollama_path()
@@ -855,7 +934,8 @@ async def ollama_install(request: Request):
         # /SILENT = instalación silenciosa de Inno Setup (Ollama usa Inno).
         subprocess.Popen(
             [str(p), "/SILENT", "/NORESTART"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             creationflags=0x00000008,  # DETACHED_PROCESS
         )
         logger.info("ollama_install launched pid=? path=%s", p)

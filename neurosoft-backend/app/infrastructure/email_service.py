@@ -17,6 +17,7 @@ Seguridad:
     - No registra la contraseña SMTP en el log (solo host+user).
     - Trunca `body_preview` a 4000 chars para no saturar la BD.
 """
+
 from __future__ import annotations
 
 import json
@@ -108,7 +109,7 @@ class Attachment:
 class SendResult:
     ok: bool
     log_id: str
-    status: str                 # 'sent' | 'failed'
+    status: str  # 'sent' | 'failed'
     error: str | None = None
     recipient_to: str = ""
     subject: str = ""
@@ -144,9 +145,11 @@ class TemplateContext:
 
 def render_template(tpl: str, ctx: TemplateContext) -> str:
     """Renderiza placeholders {xxx}. Tolerante: ignora keys faltantes."""
+
     class _SafeDict(dict):
         def __missing__(self, key):
             return "{" + key + "}"
+
     try:
         return tpl.format_map(_SafeDict(ctx.as_dict()))
     except Exception as e:  # noqa: BLE001
@@ -185,6 +188,7 @@ def get_effective_smtp_config(db=None) -> dict:
         try:
             from app.infrastructure.crypto import decrypt
             from app.infrastructure.database.orm_models import ConfigSmtpORM
+
             row = db.get(ConfigSmtpORM, "1")
             if row is not None and row.activo and (row.host or "").strip():
                 cfg["host"] = row.host or cfg["host"]
@@ -245,36 +249,50 @@ def send_email(
 
     if not to_clean:
         _persist_log(
-            db, log_id=log_id, tipo=tipo, status="failed",
-            error="Sin destinatarios", subject=subject,
-            recipient_to="", recipient_cc=", ".join(cc_clean),
+            db,
+            log_id=log_id,
+            tipo=tipo,
+            status="failed",
+            error="Sin destinatarios",
+            subject=subject,
+            recipient_to="",
+            recipient_cc=", ".join(cc_clean),
             recipient_bcc=", ".join(bcc_clean),
-            body_preview=body, attachments=attachments or [],
-            actor_id=actor_id, actor_label=actor_label,
-            patient_id=patient_id, evaluation_id=evaluation_id,
+            body_preview=body,
+            attachments=attachments or [],
+            actor_id=actor_id,
+            actor_label=actor_label,
+            patient_id=patient_id,
+            evaluation_id=evaluation_id,
             documento_id=documento_id,
         )
-        return SendResult(ok=False, log_id=log_id, status="failed",
-                          error="Sin destinatarios", subject=subject)
+        return SendResult(ok=False, log_id=log_id, status="failed", error="Sin destinatarios", subject=subject)
 
     # §QW-2: usar config efectiva (BD si existe, env vars como fallback)
     cfg = get_effective_smtp_config(db)
     if not (cfg["host"] and cfg["user"]):
         msg = "SMTP no configurado (Ajustes → Comunicaciones, o NEUROSOFT_SMTP_*)."
         _persist_log(
-            db, log_id=log_id, tipo=tipo, status="failed",
-            error=msg, subject=subject,
+            db,
+            log_id=log_id,
+            tipo=tipo,
+            status="failed",
+            error=msg,
+            subject=subject,
             recipient_to=", ".join(to_clean),
             recipient_cc=", ".join(cc_clean),
             recipient_bcc=", ".join(bcc_clean),
-            body_preview=body, attachments=attachments or [],
-            actor_id=actor_id, actor_label=actor_label,
-            patient_id=patient_id, evaluation_id=evaluation_id,
+            body_preview=body,
+            attachments=attachments or [],
+            actor_id=actor_id,
+            actor_label=actor_label,
+            patient_id=patient_id,
+            evaluation_id=evaluation_id,
             documento_id=documento_id,
         )
-        return SendResult(ok=False, log_id=log_id, status="failed",
-                          error=msg, recipient_to=", ".join(to_clean),
-                          subject=subject)
+        return SendResult(
+            ok=False, log_id=log_id, status="failed", error=msg, recipient_to=", ".join(to_clean), subject=subject
+        )
 
     # Construir mensaje
     msg = EmailMessage()
@@ -327,36 +345,56 @@ def send_email(
                 s.send_message(msg, from_addr=from_addr, to_addrs=all_rcpts)
 
         _persist_log(
-            db, log_id=log_id, tipo=tipo, status="sent",
-            error=None, subject=msg["Subject"],
+            db,
+            log_id=log_id,
+            tipo=tipo,
+            status="sent",
+            error=None,
+            subject=msg["Subject"],
             recipient_to=", ".join(to_clean),
             recipient_cc=", ".join(cc_clean),
             recipient_bcc=", ".join(bcc_clean),
-            body_preview=body, attachments=attachments or [],
-            actor_id=actor_id, actor_label=actor_label,
-            patient_id=patient_id, evaluation_id=evaluation_id,
+            body_preview=body,
+            attachments=attachments or [],
+            actor_id=actor_id,
+            actor_label=actor_label,
+            patient_id=patient_id,
+            evaluation_id=evaluation_id,
             documento_id=documento_id,
-            smtp_host_override=cfg["host"], smtp_user_override=cfg["user"],
+            smtp_host_override=cfg["host"],
+            smtp_user_override=cfg["user"],
         )
-        return SendResult(ok=True, log_id=log_id, status="sent",
-                          recipient_to=", ".join(to_clean), subject=msg["Subject"])
+        return SendResult(
+            ok=True, log_id=log_id, status="sent", recipient_to=", ".join(to_clean), subject=msg["Subject"]
+        )
     except Exception as e:  # noqa: BLE001
         logger.exception("Error enviando correo")
         _persist_log(
-            db, log_id=log_id, tipo=tipo, status="failed",
-            error=str(e)[:480], subject=msg["Subject"],
+            db,
+            log_id=log_id,
+            tipo=tipo,
+            status="failed",
+            error=str(e)[:480],
+            subject=msg["Subject"],
             recipient_to=", ".join(to_clean),
             recipient_cc=", ".join(cc_clean),
             recipient_bcc=", ".join(bcc_clean),
-            body_preview=body, attachments=attachments or [],
-            actor_id=actor_id, actor_label=actor_label,
-            patient_id=patient_id, evaluation_id=evaluation_id,
+            body_preview=body,
+            attachments=attachments or [],
+            actor_id=actor_id,
+            actor_label=actor_label,
+            patient_id=patient_id,
+            evaluation_id=evaluation_id,
             documento_id=documento_id,
         )
-        return SendResult(ok=False, log_id=log_id, status="failed",
-                          error=str(e)[:480],
-                          recipient_to=", ".join(to_clean),
-                          subject=msg["Subject"])
+        return SendResult(
+            ok=False,
+            log_id=log_id,
+            status="failed",
+            error=str(e)[:480],
+            recipient_to=", ".join(to_clean),
+            subject=msg["Subject"],
+        )
 
 
 def _persist_log(
@@ -397,10 +435,11 @@ def _persist_log(
             subject=(subject or "")[:400],
             body_preview=(body_preview or "")[:4000] or None,
             attachments_json=json.dumps(
-                [{"filename": a.filename, "size": len(a.content or b"")}
-                 for a in attachments],
+                [{"filename": a.filename, "size": len(a.content or b"")} for a in attachments],
                 ensure_ascii=False,
-            ) if attachments else None,
+            )
+            if attachments
+            else None,
             status=status,
             error_message=(error or "")[:500] or None,
             smtp_host=((smtp_host_override or getattr(settings, "smtp_host", "")) or "")[:120] or None,

@@ -48,21 +48,21 @@ class ScoringStrategyFactory:
 
     # Registro: tipo_calculo → instancia de strategy (singleton por tipo)
     _REGISTRY: dict[str, IScoringStrategy] = {
-        "rango_puntaje":            RangoPuntajeStrategy(),
-        "wais_range":               WaisRangeStrategy(),
-        "desconocido":              DesconocidoStrategy(),
-        "z_score":                  ZScoreStrategy(),
-        "z_score_multiple":         ZScoreMultipleStrategy(),
-        "puntaje_directo_a_t":      PuntajeDirectoATStrategy(),
-        "puntaje_doble_resultado":  PuntajeDoblResultadoStrategy(),
-        "suma_a_indice":            SumaAIndiceStrategy(),
-        "escolaridad_pc50":         EscolaridadPC50Strategy(),
-        "puntaje":                  PuntajeDirectoStrategy(),
-        "clasificacion_fija":       ClasificacionFijaStrategy(),
-        "edad_sexo":                EdadSexoStrategy(),
-        "ajuste":                   AjusteStroopStrategy(),
-        "comparativo":              ComparativoStrategy(),
-        "baremo_pe":                BaremoPEStrategy(),
+        "rango_puntaje": RangoPuntajeStrategy(),
+        "wais_range": WaisRangeStrategy(),
+        "desconocido": DesconocidoStrategy(),
+        "z_score": ZScoreStrategy(),
+        "z_score_multiple": ZScoreMultipleStrategy(),
+        "puntaje_directo_a_t": PuntajeDirectoATStrategy(),
+        "puntaje_doble_resultado": PuntajeDoblResultadoStrategy(),
+        "suma_a_indice": SumaAIndiceStrategy(),
+        "escolaridad_pc50": EscolaridadPC50Strategy(),
+        "puntaje": PuntajeDirectoStrategy(),
+        "clasificacion_fija": ClasificacionFijaStrategy(),
+        "edad_sexo": EdadSexoStrategy(),
+        "ajuste": AjusteStroopStrategy(),
+        "comparativo": ComparativoStrategy(),
+        "baremo_pe": BaremoPEStrategy(),
     }
 
     # Fallback para tipos no registrados (evita que el motor explote)
@@ -80,8 +80,7 @@ class ScoringStrategyFactory:
         strategy = cls._REGISTRY.get(tipo_calculo)
         if strategy is None:
             logger.warning(
-                "tipo_calculo='%s' no tiene strategy registrada. "
-                "Usando RangoPuntajeStrategy como fallback.",
+                "tipo_calculo='%s' no tiene strategy registrada. Usando RangoPuntajeStrategy como fallback.",
                 tipo_calculo,
             )
             return cls._FALLBACK

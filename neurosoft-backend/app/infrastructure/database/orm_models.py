@@ -2,6 +2,7 @@
 app/infrastructure/database/orm_models.py — NeuroSoft v3 COMPLETO
 Todas las tablas del sistema. Ver docstring completo en el archivo fuente.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -10,6 +11,8 @@ from datetime import UTC, datetime
 def _utc_now():
     """Timezone-aware UTC now — reemplaza _utc_now (deprecado 3.12)."""
     return datetime.now(UTC)
+
+
 from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 
@@ -83,6 +86,7 @@ class PatientORM(Base):
 
 class ClinicalHistoryORM(Base):
     """Historia Clínica completa — FormHC (DBHC 47 campos) + FormObsClinNPS (DBObser 11 campos)."""
+
     __tablename__ = "clinical_histories"
     __table_args__ = (UniqueConstraint("patient_id", "fecha_atencion", name="uq_hc_visit"),)
     id = Column(String(36), primary_key=True)
@@ -164,57 +168,60 @@ class ClinicalHistoryVersionORM(Base):
     Histórico de cambios en la Historia Clínica.
     Cada vez que se hace upsert, la versión anterior se guarda aquí.
     """
+
     __tablename__ = "clinical_history_versions"
-    id            = Column(String(36), primary_key=True)
-    hc_id         = Column(String(36), ForeignKey("clinical_histories.id"), nullable=False, index=True)
-    patient_id    = Column(String(36), nullable=False, index=True)
-    version_num   = Column(Integer, nullable=False)
-    snapshot_json = Column(Text, nullable=False)   # HC completa serializada en JSON
-    saved_by      = Column(String(100))            # username quien guardó
-    saved_at      = Column(DateTime, default=_utc_now, nullable=False)
+    id = Column(String(36), primary_key=True)
+    hc_id = Column(String(36), ForeignKey("clinical_histories.id"), nullable=False, index=True)
+    patient_id = Column(String(36), nullable=False, index=True)
+    version_num = Column(Integer, nullable=False)
+    snapshot_json = Column(Text, nullable=False)  # HC completa serializada en JSON
+    saved_by = Column(String(100))  # username quien guardó
+    saved_at = Column(DateTime, default=_utc_now, nullable=False)
     hc = relationship("ClinicalHistoryORM", foreign_keys=[hc_id])
 
 
 class EvaluationORM(Base):
     """Sesión de evaluación con puntajes brutos y resultados calculados en JSON."""
+
     __tablename__ = "evaluations"
-    id                   = Column(String(36), primary_key=True)
-    patient_id           = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    protocolo            = Column(String(200), index=True)
-    fecha                = Column(Date, nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    protocolo = Column(String(200), index=True)
+    fecha = Column(Date, nullable=False, index=True)
     # Scoring data
-    puntajes_brutos_json = Column(Text)      # {test_id: pd}
-    resultados_json      = Column(Text)      # List[ResultadoPrueba serializado]
+    puntajes_brutos_json = Column(Text)  # {test_id: pd}
+    resultados_json = Column(Text)  # List[ResultadoPrueba serializado]
     # Metadata del engine
-    poblacion            = Column(String(30))
-    edad_display         = Column(String(30))
-    pruebas_realizadas   = Column(Integer, default=0)
-    pruebas_sin_dato     = Column(Integer, default=0)
-    advertencias_json    = Column(Text)      # List[str]
-    puntos_debiles_json  = Column(Text)      # List[str] (test_nombres)
-    puntos_fuertes_json  = Column(Text)      # List[str]
+    poblacion = Column(String(30))
+    edad_display = Column(String(30))
+    pruebas_realizadas = Column(Integer, default=0)
+    pruebas_sin_dato = Column(Integer, default=0)
+    advertencias_json = Column(Text)  # List[str]
+    puntos_debiles_json = Column(Text)  # List[str] (test_nombres)
+    puntos_fuertes_json = Column(Text)  # List[str]
     # Trazabilidad clínica: versión del baremo con la que se calificó
-    baremo_version       = Column(String(30))   # ej. "BD_NEURO_MAESTRA-2025"
-    baremo_checksum      = Column(String(64))   # hash SHA-256 del archivo baremo
-    informe_inconcluso_cat  = Column(String(80), nullable=True)
+    baremo_version = Column(String(30))  # ej. "BD_NEURO_MAESTRA-2025"
+    baremo_checksum = Column(String(64))  # hash SHA-256 del archivo baremo
+    informe_inconcluso_cat = Column(String(80), nullable=True)
     informe_inconcluso_nota = Column(Text, nullable=True)
     # Control de versiones: solo el último registro de cada protocolo tiene is_latest=True
-    is_latest            = Column(Boolean, default=True, nullable=False, index=True)
-    created_at           = Column(DateTime, default=_utc_now, nullable=False)
+    is_latest = Column(Boolean, default=True, nullable=False, index=True)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
     # ── Workflow de firma clínica (Res. 2654/2019 MinSalud: telesalud) ─────
     # Una evaluación firmada NO debe poder re-calcularse ni editarse: es el
     # equivalente digital de la firma manuscrita al cerrar la historia clínica.
     # Mientras `signed_at is None`, la evaluación está en "borrador" y el
     # clínico puede recalcular. Tras firmar, queda bloqueada.
-    signed_at            = Column(DateTime, nullable=True, index=True)
-    signed_by            = Column(String(36), nullable=True)    # user_id del clínico
-    signed_by_label      = Column(String(150), nullable=True)   # nombre_completo en el momento de firmar
-    signature_sha256     = Column(String(64), nullable=True)    # hash del payload firmado (integridad)
+    signed_at = Column(DateTime, nullable=True, index=True)
+    signed_by = Column(String(36), nullable=True)  # user_id del clínico
+    signed_by_label = Column(String(150), nullable=True)  # nombre_completo en el momento de firmar
+    signature_sha256 = Column(String(64), nullable=True)  # hash del payload firmado (integridad)
     patient = relationship("PatientORM", back_populates="evaluations")
 
 
 class EvolTerapiaORM(Base):
     """Evolución Terapia NPs (FormObsClinNPS2 / DBETN)."""
+
     __tablename__ = "evolucion_terapia"
     id = Column(String(36), primary_key=True)
     patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
@@ -239,6 +246,7 @@ class EvolTerapiaORM(Base):
 
 class ProfessionalORM(Base):
     """Profesionales evaluadores. Administrado desde Configuración."""
+
     __tablename__ = "professionals"
     id = Column(String(36), primary_key=True)
     nombre_completo = Column(String(150), nullable=False)
@@ -247,7 +255,7 @@ class ProfessionalORM(Base):
     registro_profesional = Column(String(50))
     firma_base64 = Column(Text)
     sello_base64 = Column(Text)
-    foto_base64  = Column(Text)  # avatar / foto profesional (base64 PNG/JPEG)
+    foto_base64 = Column(Text)  # avatar / foto profesional (base64 PNG/JPEG)
     email = Column(String(100))
     activo = Column(Boolean, default=True)
     created_at = Column(DateTime, default=_utc_now)
@@ -257,6 +265,7 @@ class ProfessionalORM(Base):
 
 class ConfigInstitucionORM(Base):
     """Datos de la institución. Singleton id='1'."""
+
     __tablename__ = "config_institucion"
     id = Column(String(10), primary_key=True, default="1")
     nombre = Column(String(200), default="")
@@ -272,6 +281,7 @@ class ConfigInstitucionORM(Base):
 
 class ConfigPrefsInformeORM(Base):
     """Preferencias visuales del informe. Singleton id='1'."""
+
     __tablename__ = "config_prefs_informe"
     id = Column(String(10), primary_key=True, default="1")
     fuente_cuerpo = Column(String(50), default="Calibri")
@@ -286,13 +296,16 @@ class ConfigPrefsInformeORM(Base):
     incluir_tabla_puntajes = Column(Boolean, default=True)
     formato_fecha = Column(String(20), default="DD/MM/YYYY")
     pie_pagina = Column(String(500), default="")
-    nota_pie_informe = Column(Text, default=(
-        "El diagnóstico aquí presentado se realiza a partir del perfil neuropsicológico "
-        "analizado en la evaluación y es válido con la información presentada y reportada "
-        "durante la consulta. El diagnóstico final se dará en el contexto de un análisis "
-        "multidisciplinar, en particular, por parte del médico tratante. Lo anterior en "
-        "acato del artículo 233 y 237 del Código de Procedimiento Civil Colombiano."
-    ))
+    nota_pie_informe = Column(
+        Text,
+        default=(
+            "El diagnóstico aquí presentado se realiza a partir del perfil neuropsicológico "
+            "analizado en la evaluación y es válido con la información presentada y reportada "
+            "durante la consulta. El diagnóstico final se dará en el contexto de un análisis "
+            "multidisciplinar, en particular, por parte del médico tratante. Lo anterior en "
+            "acato del artículo 233 y 237 del Código de Procedimiento Civil Colombiano."
+        ),
+    )
     updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
@@ -304,21 +317,22 @@ class CompanionORM(Base):
     paciente para: contacto directo, autorización para responder escalas
     proxy (CDI-padres, SNAP-IV, GADS, etc.), trazabilidad legal.
     """
+
     __tablename__ = "companions"
-    id                = Column(String(36), primary_key=True)
-    patient_id        = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    nombre_completo   = Column(String(200), nullable=False)
-    relacion          = Column(String(50))   # madre|padre|hermano|conyuge|hijo|cuidador|tutor|otro
-    documento         = Column(String(30))
-    telefono          = Column(String(50))
-    email             = Column(String(100))
-    autoriza_escalas  = Column(Boolean, default=False)  # ¿puede responder escalas proxy?
-    autoriza_contacto = Column(Boolean, default=True)   # ¿se le puede contactar por recordatorios?
-    es_principal      = Column(Boolean, default=False)  # acompañante "principal" de este paciente
-    notas             = Column(Text)
-    created_at        = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at        = Column(DateTime, default=_utc_now, onupdate=_utc_now)
-    patient           = relationship("PatientORM", foreign_keys=[patient_id])
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    nombre_completo = Column(String(200), nullable=False)
+    relacion = Column(String(50))  # madre|padre|hermano|conyuge|hijo|cuidador|tutor|otro
+    documento = Column(String(30))
+    telefono = Column(String(50))
+    email = Column(String(100))
+    autoriza_escalas = Column(Boolean, default=False)  # ¿puede responder escalas proxy?
+    autoriza_contacto = Column(Boolean, default=True)  # ¿se le puede contactar por recordatorios?
+    es_principal = Column(Boolean, default=False)  # acompañante "principal" de este paciente
+    notas = Column(Text)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    patient = relationship("PatientORM", foreign_keys=[patient_id])
 
 
 class ConfigSmtpORM(Base):
@@ -329,22 +343,23 @@ class ConfigSmtpORM(Base):
     Si la fila NO existe, el sistema usa las variables de entorno NEUROSOFT_SMTP_*.
     Si existe, los valores de la fila TIENEN PRECEDENCIA sobre el env (override en runtime).
     """
+
     __tablename__ = "config_smtp"
-    id              = Column(String(10), primary_key=True, default="1")
-    host            = Column(String(120), default="")
-    port            = Column(Integer, default=587)
-    user            = Column(String(120), default="")
-    password_enc    = Column(Text)  # Fernet encrypted; NULL si no se guardó
-    from_addr       = Column(String(120), default="")
-    from_name       = Column(String(120), default="NeuroSoft")
-    use_tls         = Column(Boolean, default=True)
-    use_ssl         = Column(Boolean, default=False)
-    timeout_s       = Column(Integer, default=30)
-    activo          = Column(Boolean, default=True)
-    ultima_prueba   = Column(DateTime)  # cuándo se probó la última vez
+    id = Column(String(10), primary_key=True, default="1")
+    host = Column(String(120), default="")
+    port = Column(Integer, default=587)
+    user = Column(String(120), default="")
+    password_enc = Column(Text)  # Fernet encrypted; NULL si no se guardó
+    from_addr = Column(String(120), default="")
+    from_name = Column(String(120), default="NeuroSoft")
+    use_tls = Column(Boolean, default=True)
+    use_ssl = Column(Boolean, default=False)
+    timeout_s = Column(Integer, default=30)
+    activo = Column(Boolean, default=True)
+    ultima_prueba = Column(DateTime)  # cuándo se probó la última vez
     ultima_prueba_ok = Column(Boolean)  # resultado de la última prueba
     ultima_prueba_msg = Column(String(500))
-    updated_at      = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
 class ConfigEmailTemplateORM(Base):
@@ -355,17 +370,19 @@ class ConfigEmailTemplateORM(Base):
     Si no hay fila para un tipo, se usa DEFAULT_TEMPLATES del email_service.
     Variables disponibles: {patient_nombre}, {patient_doc}, {fecha}, {profesional}, {institucion}.
     """
+
     __tablename__ = "config_email_templates"
-    id              = Column(String(10), primary_key=True)
-    tipo            = Column(String(30), nullable=False, unique=True, index=True)
-    subject         = Column(String(400), default="")
-    body            = Column(Text, default="")
-    activo          = Column(Boolean, default=True)
-    updated_at      = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    id = Column(String(10), primary_key=True)
+    tipo = Column(String(30), nullable=False, unique=True, index=True)
+    subject = Column(String(400), default="")
+    body = Column(Text, default="")
+    activo = Column(Boolean, default=True)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
 class DocumentoEmitidoORM(Base):
     """Registro de documentos generados: informes, comprobantes, recetarios, RIPS."""
+
     __tablename__ = "documentos_emitidos"
     id = Column(String(36), primary_key=True)
     patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
@@ -383,6 +400,7 @@ class DocumentoEmitidoORM(Base):
 
 class BackupRegistroORM(Base):
     """Historial de backups."""
+
     __tablename__ = "backup_registros"
     id = Column(String(36), primary_key=True)
     fecha = Column(DateTime, default=_utc_now, nullable=False)
@@ -400,18 +418,19 @@ class UserORM(Base):
     Usuario del sistema — para autenticación multi-profesional.
     Roles: admin | profesional | viewer
     """
+
     __tablename__ = "users"
-    id               = Column(String(36), primary_key=True)
-    username         = Column(String(50), unique=True, nullable=False, index=True)
-    hashed_password  = Column(String(200), nullable=False)
-    nombre_completo  = Column(String(150), nullable=False)
-    role             = Column(String(20), nullable=False, default="profesional")
+    id = Column(String(36), primary_key=True)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(200), nullable=False)
+    nombre_completo = Column(String(150), nullable=False)
+    role = Column(String(20), nullable=False, default="profesional")
     # Vinculación opcional con tabla professionals
-    profesional_id   = Column(String(36), ForeignKey("professionals.id"), nullable=True)
-    is_active        = Column(Boolean, default=True, nullable=False)
-    created_at       = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at       = Column(DateTime, default=_utc_now, onupdate=_utc_now)
-    professional     = relationship("ProfessionalORM", foreign_keys=[profesional_id])
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    professional = relationship("ProfessionalORM", foreign_keys=[profesional_id])
 
 
 class AppointmentORM(Base):
@@ -419,33 +438,34 @@ class AppointmentORM(Base):
     Agenda de citas del consultorio.
     Una cita puede estar: programada | confirmada | atendida | cancelada | no_asistio
     """
+
     __tablename__ = "appointments"
-    id               = Column(String(36), primary_key=True)
-    patient_id       = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    profesional_id   = Column(String(36), ForeignKey("professionals.id"), nullable=True)
-    fecha            = Column(Date, nullable=False, index=True)
-    hora_inicio      = Column(String(5), nullable=False)   # "HH:MM"
-    hora_fin         = Column(String(5))                   # "HH:MM"
-    tipo_cita        = Column(String(50), default="evaluacion")
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True)
+    fecha = Column(Date, nullable=False, index=True)
+    hora_inicio = Column(String(5), nullable=False)  # "HH:MM"
+    hora_fin = Column(String(5))  # "HH:MM"
+    tipo_cita = Column(String(50), default="evaluacion")
     # tipos: evaluacion | devolucion | terapia | seguimiento | otro
-    motivo           = Column(Text)
-    estado           = Column(String(20), default="programada", index=True)
+    motivo = Column(Text)
+    estado = Column(String(20), default="programada", index=True)
     # estados: programada | confirmada | atendida | cancelada | no_asistio
-    notas_internas   = Column(Text)    # Notas del profesional (no visibles al paciente)
+    notas_internas = Column(Text)  # Notas del profesional (no visibles al paciente)
     recordatorio_env = Column(Boolean, default=False)  # ¿Se envió recordatorio?
-    eps              = Column(String(100))
-    regimen          = Column(String(40))
-    autorizacion_no  = Column(String(50))
-    cups             = Column(String(20))
-    modalidad        = Column(String(30))
-    discapacidad     = Column(String(100))
+    eps = Column(String(100))
+    regimen = Column(String(40))
+    autorizacion_no = Column(String(50))
+    cups = Column(String(20))
+    modalidad = Column(String(30))
+    discapacidad = Column(String(100))
     contacto_telefono = Column(String(20))
-    contacto_correo  = Column(String(100))
-    created_at       = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at       = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    contacto_correo = Column(String(100))
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
     # Relaciones
-    patient          = relationship("PatientORM", foreign_keys=[patient_id])
-    profesional      = relationship("ProfessionalORM", foreign_keys=[profesional_id])
+    patient = relationship("PatientORM", foreign_keys=[patient_id])
+    profesional = relationship("ProfessionalORM", foreign_keys=[profesional_id])
 
 
 class ObservationORM(Base):
@@ -453,19 +473,18 @@ class ObservationORM(Base):
     Observaciones clínicas por dominio cognitivo.
     Un registro por (patient_id, evaluation_id, dominio).
     """
+
     __tablename__ = "observations"
-    __table_args__ = (
-        UniqueConstraint("patient_id", "evaluation_id", "dominio", name="uq_obs_domain"),
-    )
-    id              = Column(String(36), primary_key=True)
-    patient_id      = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    evaluation_id   = Column(String(36), ForeignKey("evaluations.id"), nullable=True, index=True)
-    dominio         = Column(String(60), nullable=False)
-    texto           = Column(Text, nullable=False)
-    created_at      = Column(String(50), nullable=False)
-    updated_at      = Column(String(50), nullable=False)
+    __table_args__ = (UniqueConstraint("patient_id", "evaluation_id", "dominio", name="uq_obs_domain"),)
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    evaluation_id = Column(String(36), ForeignKey("evaluations.id"), nullable=True, index=True)
+    dominio = Column(String(60), nullable=False)
+    texto = Column(Text, nullable=False)
+    created_at = Column(String(50), nullable=False)
+    updated_at = Column(String(50), nullable=False)
     # Relaciones
-    patient         = relationship("PatientORM", foreign_keys=[patient_id])
+    patient = relationship("PatientORM", foreign_keys=[patient_id])
 
 
 class EstimuloORM(Base):
@@ -477,19 +496,20 @@ class EstimuloORM(Base):
     tipo: "imagen" | "lista_palabras" | "audio" | "otro".
     contenido_base64: el recurso serializado (data URL).
     """
+
     __tablename__ = "estimulos"
-    id                = Column(String(36), primary_key=True)
-    test_id           = Column(String(80), nullable=False, index=True)
-    item_id           = Column(String(40), nullable=True, index=True)
-    nombre            = Column(String(120), nullable=False)
-    tipo              = Column(String(20), default="imagen")
-    mime_type         = Column(String(60))
-    contenido_base64  = Column(Text)  # data URL o base64 crudo
-    descripcion       = Column(Text)
-    orden             = Column(Integer, default=0)
-    activo            = Column(Boolean, default=True, index=True)
-    created_at        = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at        = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    id = Column(String(36), primary_key=True)
+    test_id = Column(String(80), nullable=False, index=True)
+    item_id = Column(String(40), nullable=True, index=True)
+    nombre = Column(String(120), nullable=False)
+    tipo = Column(String(20), default="imagen")
+    mime_type = Column(String(60))
+    contenido_base64 = Column(Text)  # data URL o base64 crudo
+    descripcion = Column(Text)
+    orden = Column(Integer, default=0)
+    activo = Column(Boolean, default=True, index=True)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
 class InformeInconclusoORM(Base):
@@ -501,25 +521,26 @@ class InformeInconclusoORM(Base):
         evaluacion_incompleta, evaluacion_reciente, cancelado_paciente).
     estado: 'abierto' | 'resuelto' | 'cerrado'.
     """
+
     __tablename__ = "informes_inconclusos"
-    id               = Column(String(36), primary_key=True)
-    patient_id       = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    evaluation_id    = Column(String(36), ForeignKey("evaluations.id"), nullable=True, index=True)
-    profesional_id   = Column(String(36), ForeignKey("professionals.id"), nullable=True)
-    motivo_id        = Column(String(60), nullable=False)
-    motivo_titulo    = Column(String(200))
-    descripcion      = Column(Text)
-    accion_sugerida  = Column(Text)
-    plazo_dias       = Column(Integer, default=15)
-    fecha_creacion   = Column(Date, nullable=False)
-    fecha_limite     = Column(Date)
-    estado           = Column(String(20), default="abierto", index=True)
-    resuelto_en      = Column(Date)
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    evaluation_id = Column(String(36), ForeignKey("evaluations.id"), nullable=True, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True)
+    motivo_id = Column(String(60), nullable=False)
+    motivo_titulo = Column(String(200))
+    descripcion = Column(Text)
+    accion_sugerida = Column(Text)
+    plazo_dias = Column(Integer, default=15)
+    fecha_creacion = Column(Date, nullable=False)
+    fecha_limite = Column(Date)
+    estado = Column(String(20), default="abierto", index=True)
+    resuelto_en = Column(Date)
     notas_resolucion = Column(Text)
-    created_at       = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at       = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
     # Relaciones
-    patient          = relationship("PatientORM", foreign_keys=[patient_id])
+    patient = relationship("PatientORM", foreign_keys=[patient_id])
 
 
 class ConsentimientoORM(Base):
@@ -534,25 +555,26 @@ class ConsentimientoORM(Base):
     aceptado: booleano explícito (True cuando el paciente firma).
     firma_base64: imagen PNG de la firma dibujada o escaneada.
     """
+
     __tablename__ = "consentimientos"
-    id                 = Column(String(36), primary_key=True)
-    patient_id         = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    profesional_id     = Column(String(36), ForeignKey("professionals.id"), nullable=True)
-    tipo               = Column(String(40), nullable=False, index=True)
-    version_texto      = Column(String(20), default="1.0")
-    texto_completo     = Column(Text)
-    aceptado           = Column(Boolean, default=False, nullable=False)
-    firma_base64       = Column(Text)
-    nombre_firmante    = Column(String(200))
-    relacion_firmante  = Column(String(60))
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True)
+    tipo = Column(String(40), nullable=False, index=True)
+    version_texto = Column(String(20), default="1.0")
+    texto_completo = Column(Text)
+    aceptado = Column(Boolean, default=False, nullable=False)
+    firma_base64 = Column(Text)
+    nombre_firmante = Column(String(200))
+    relacion_firmante = Column(String(60))
     documento_firmante = Column(String(30))
-    ip_registro        = Column(String(45))
-    dispositivo        = Column(String(200))
-    fecha_firma        = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    fecha_revocado     = Column(DateTime)
-    motivo_revocado    = Column(Text)
-    created_at         = Column(DateTime, default=_utc_now, nullable=False)
-    patient            = relationship("PatientORM", foreign_keys=[patient_id])
+    ip_registro = Column(String(45))
+    dispositivo = Column(String(200))
+    fecha_firma = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    fecha_revocado = Column(DateTime)
+    motivo_revocado = Column(Text)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    patient = relationship("PatientORM", foreign_keys=[patient_id])
 
 
 class AuditLogORM(Base):
@@ -567,21 +589,22 @@ class AuditLogORM(Base):
         'backup'|'restore'|'view_sensitive'.
     changes: snapshot JSON del diff (campos modificados).
     """
+
     __tablename__ = "audit_log"
-    id          = Column(Integer, primary_key=True, autoincrement=True)
-    ts          = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    actor_id    = Column(String(36), index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ts = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    actor_id = Column(String(36), index=True)
     actor_label = Column(String(120))
-    action      = Column(String(40), nullable=False, index=True)
+    action = Column(String(40), nullable=False, index=True)
     entity_type = Column(String(40), nullable=False, index=True)
-    entity_id   = Column(String(36), index=True)
-    summary     = Column(String(300))
-    changes     = Column(Text)
-    ip          = Column(String(45))
-    user_agent  = Column(String(400))
+    entity_id = Column(String(36), index=True)
+    summary = Column(String(300))
+    changes = Column(Text)
+    ip = Column(String(45))
+    user_agent = Column(String(400))
     # Trazabilidad por request: correlaciona este asiento con los logs
     # del proceso (X-Request-ID) y otros asientos del mismo request.
-    request_id  = Column(String(64), index=True)
+    request_id = Column(String(64), index=True)
 
 
 class AIConfigORM(Base):
@@ -599,19 +622,20 @@ class AIConfigORM(Base):
              claude-3-5-sonnet-20241022, llama3.1:8b).
     ollama_url: URL de Ollama local (por defecto http://127.0.0.1:11434).
     """
+
     __tablename__ = "ai_config"
-    user_id      = Column(String(36), primary_key=True)
-    provider     = Column(String(20), default="auto", nullable=False)
-    api_key      = Column(Text)                    # opcional si provider=ollama
-    model        = Column(String(80))
-    ollama_url   = Column(String(200), default="http://127.0.0.1:11434")
+    user_id = Column(String(36), primary_key=True)
+    provider = Column(String(20), default="auto", nullable=False)
+    api_key = Column(Text)  # opcional si provider=ollama
+    model = Column(String(80))
+    ollama_url = Column(String(200), default="http://127.0.0.1:11434")
     # Endpoint OpenAI-compatible para proveedores en línea como MedGemma
     # (OpenRouter, Hugging Face TGI, Vertex proxy, etc.). Vacío = OpenAI oficial.
     openai_base_url = Column(String(300))
-    temperature  = Column(Integer, default=70)     # /100 → 0.70
-    max_tokens   = Column(Integer, default=1024)
-    enable_cloud = Column(Boolean, default=True)   # si False → forzar Ollama
-    updated_at   = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    temperature = Column(Integer, default=70)  # /100 → 0.70
+    max_tokens = Column(Integer, default=1024)
+    enable_cloud = Column(Boolean, default=True)  # si False → forzar Ollama
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
 class SharedReportORM(Base):
@@ -626,19 +650,20 @@ class SharedReportORM(Base):
     password_hash: opcional — si se pone, el viewer pide contraseña.
     scope: qué mostrar ('summary' | 'full' | 'iq_only').
     """
+
     __tablename__ = "shared_reports"
-    id              = Column(String(36), primary_key=True)
-    token           = Column(String(64), unique=True, nullable=False, index=True)
-    evaluation_id   = Column(String(36), nullable=False, index=True)
-    patient_id      = Column(String(36), nullable=False, index=True)
-    created_by      = Column(String(36), nullable=False)
-    scope           = Column(String(20), default="summary")
-    password_hash   = Column(String(200))  # bcrypt, opcional
-    expires_at      = Column(DateTime, nullable=False, index=True)
-    revoked         = Column(Boolean, default=False, index=True)
-    viewed_count    = Column(Integer, default=0)
-    last_viewed_at  = Column(DateTime)
-    created_at      = Column(DateTime, default=_utc_now, nullable=False)
+    id = Column(String(36), primary_key=True)
+    token = Column(String(64), unique=True, nullable=False, index=True)
+    evaluation_id = Column(String(36), nullable=False, index=True)
+    patient_id = Column(String(36), nullable=False, index=True)
+    created_by = Column(String(36), nullable=False)
+    scope = Column(String(20), default="summary")
+    password_hash = Column(String(200))  # bcrypt, opcional
+    expires_at = Column(DateTime, nullable=False, index=True)
+    revoked = Column(Boolean, default=False, index=True)
+    viewed_count = Column(Integer, default=0)
+    last_viewed_at = Column(DateTime)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
 
 
 class RehabActivityCatalogORM(Base):
@@ -653,23 +678,24 @@ class RehabActivityCatalogORM(Base):
       - 'ecognitiva' → enlace externo (iframe o ventana nueva)
       - 'manual'     → solo registro administrativo (papel y lápiz)
     """
+
     __tablename__ = "rehab_activity_catalog"
-    id                = Column(String(36), primary_key=True)
-    slug              = Column(String(60), unique=True, nullable=False, index=True)
-    nombre            = Column(String(200), nullable=False)
-    dominio           = Column(String(60), nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    slug = Column(String(60), unique=True, nullable=False, index=True)
+    nombre = Column(String(200), nullable=False)
+    dominio = Column(String(60), nullable=False, index=True)
     # dominios: atencion | memoria | funciones_ejecutivas | lenguaje |
     #           visoespacial | velocidad_procesamiento | memoria_trabajo
     dificultad_default = Column(Integer, default=1)  # 1=fácil, 5=difícil
-    duracion_min       = Column(Integer, default=10)
-    descripcion        = Column(Text)
-    instrucciones      = Column(Text)
-    parametros_json    = Column(Text)         # JSON: parámetros por defecto
-    provider           = Column(String(20), default="internal", nullable=False)
-    external_url       = Column(String(500))  # solo si provider != 'internal'
-    activo             = Column(Boolean, default=True, nullable=False, index=True)
-    orden              = Column(Integer, default=0)
-    created_at         = Column(DateTime, default=_utc_now, nullable=False)
+    duracion_min = Column(Integer, default=10)
+    descripcion = Column(Text)
+    instrucciones = Column(Text)
+    parametros_json = Column(Text)  # JSON: parámetros por defecto
+    provider = Column(String(20), default="internal", nullable=False)
+    external_url = Column(String(500))  # solo si provider != 'internal'
+    activo = Column(Boolean, default=True, nullable=False, index=True)
+    orden = Column(Integer, default=0)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
 
 
 class RehabPlanORM(Base):
@@ -686,33 +712,31 @@ class RehabPlanORM(Base):
     (mismo patrón que EvaluationORM): tras firmar, hash SHA-256 del
     payload se guarda y el plan queda inmutable.
     """
+
     __tablename__ = "rehab_plans"
-    id                  = Column(String(36), primary_key=True)
-    patient_id          = Column(String(36), ForeignKey("patients.id"),
-                                 nullable=False, index=True)
-    evaluation_id       = Column(String(36), nullable=True, index=True)
-    profesional_id      = Column(String(36), ForeignKey("professionals.id"),
-                                 nullable=True)
-    fecha_inicio        = Column(Date, nullable=False)
-    fecha_fin_estimada  = Column(Date, nullable=True)
-    frecuencia_semanal  = Column(Integer, default=2)
-    objetivos           = Column(Text)         # texto libre del clínico
-    dominios_json       = Column(Text)         # List[str] dominios objetivo
-    actividades_json    = Column(Text)         # List[{slug, dificultad, parametros}]
-    notas               = Column(Text)
-    estado              = Column(String(20), default="activo",
-                                 nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    evaluation_id = Column(String(36), nullable=True, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True)
+    fecha_inicio = Column(Date, nullable=False)
+    fecha_fin_estimada = Column(Date, nullable=True)
+    frecuencia_semanal = Column(Integer, default=2)
+    objetivos = Column(Text)  # texto libre del clínico
+    dominios_json = Column(Text)  # List[str] dominios objetivo
+    actividades_json = Column(Text)  # List[{slug, dificultad, parametros}]
+    notas = Column(Text)
+    estado = Column(String(20), default="activo", nullable=False, index=True)
     # estados: borrador | activo | pausado | finalizado | archivado
-    created_at          = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at          = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
     # ── Workflow de firma ─────────────────────────────────
-    signed_at           = Column(DateTime, nullable=True, index=True)
-    signed_by           = Column(String(36), nullable=True)
-    signed_by_label     = Column(String(150), nullable=True)
-    signature_sha256    = Column(String(64), nullable=True)
+    signed_at = Column(DateTime, nullable=True, index=True)
+    signed_by = Column(String(36), nullable=True)
+    signed_by_label = Column(String(150), nullable=True)
+    signature_sha256 = Column(String(64), nullable=True)
     # Soft-delete
-    archived_at         = Column(DateTime, nullable=True, index=True)
-    archived_by         = Column(String(36), nullable=True)
+    archived_at = Column(DateTime, nullable=True, index=True)
+    archived_by = Column(String(36), nullable=True)
 
 
 class RehabSessionORM(Base):
@@ -728,29 +752,25 @@ class RehabSessionORM(Base):
       - 'tarea_casa'   → paciente solo en casa (asíncrono)
       - 'telerehab'    → videollamada en vivo
     """
+
     __tablename__ = "rehab_sessions"
-    id              = Column(String(36), primary_key=True)
-    plan_id         = Column(String(36), ForeignKey("rehab_plans.id"),
-                             nullable=True, index=True)
-    activity_id     = Column(String(36), ForeignKey("rehab_activity_catalog.id"),
-                             nullable=False, index=True)
-    activity_slug   = Column(String(60), nullable=False, index=True)
-    patient_id      = Column(String(36), ForeignKey("patients.id"),
-                             nullable=False, index=True)
-    ts_inicio       = Column(DateTime, default=_utc_now,
-                             nullable=False, index=True)
-    ts_fin          = Column(DateTime, nullable=True)
-    duracion_seg    = Column(Integer, nullable=True)
-    parametros_json = Column(Text)         # parámetros con los que se ejecutó
-    resultado_json  = Column(Text)         # score, aciertos, errores, RT, etc.
-    score           = Column(Integer, nullable=True, index=True)
-    aciertos        = Column(Integer, nullable=True)
-    errores         = Column(Integer, nullable=True)
-    modo            = Column(String(20), default="en_consulta",
-                             nullable=False, index=True)
-    origen_token    = Column(String(64), nullable=True)
-    notas_clinico   = Column(Text)
-    created_at      = Column(DateTime, default=_utc_now, nullable=False)
+    id = Column(String(36), primary_key=True)
+    plan_id = Column(String(36), ForeignKey("rehab_plans.id"), nullable=True, index=True)
+    activity_id = Column(String(36), ForeignKey("rehab_activity_catalog.id"), nullable=False, index=True)
+    activity_slug = Column(String(60), nullable=False, index=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    ts_inicio = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    ts_fin = Column(DateTime, nullable=True)
+    duracion_seg = Column(Integer, nullable=True)
+    parametros_json = Column(Text)  # parámetros con los que se ejecutó
+    resultado_json = Column(Text)  # score, aciertos, errores, RT, etc.
+    score = Column(Integer, nullable=True, index=True)
+    aciertos = Column(Integer, nullable=True)
+    errores = Column(Integer, nullable=True)
+    modo = Column(String(20), default="en_consulta", nullable=False, index=True)
+    origen_token = Column(String(64), nullable=True)
+    notas_clinico = Column(Text)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
 
 
 class RehabShareLinkORM(Base):
@@ -761,17 +781,18 @@ class RehabShareLinkORM(Base):
     Patrón análogo a SharedReportORM (telemedicina) — pero apunta a un
     plan de rehabilitación, no a un informe.
     """
+
     __tablename__ = "rehab_share_links"
-    id              = Column(String(36), primary_key=True)
-    token           = Column(String(64), unique=True, nullable=False, index=True)
-    plan_id         = Column(String(36), nullable=False, index=True)
-    patient_id      = Column(String(36), nullable=False, index=True)
-    created_by      = Column(String(36), nullable=False)
-    expires_at      = Column(DateTime, nullable=False, index=True)
-    revoked         = Column(Boolean, default=False, index=True)
-    sessions_count  = Column(Integer, default=0)
-    last_used_at    = Column(DateTime)
-    created_at      = Column(DateTime, default=_utc_now, nullable=False)
+    id = Column(String(36), primary_key=True)
+    token = Column(String(64), unique=True, nullable=False, index=True)
+    plan_id = Column(String(36), nullable=False, index=True)
+    patient_id = Column(String(36), nullable=False, index=True)
+    created_by = Column(String(36), nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    revoked = Column(Boolean, default=False, index=True)
+    sessions_count = Column(Integer, default=0)
+    last_used_at = Column(DateTime)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
 
 
 class TokenBlacklistORM(Base):
@@ -787,12 +808,13 @@ class TokenBlacklistORM(Base):
 
     reason: 'logout' | 'password_change' | 'admin_revoked' | 'compromised'
     """
+
     __tablename__ = "token_blacklist"
-    jti         = Column(String(64), primary_key=True)
-    user_id     = Column(String(36), nullable=False, index=True)
-    revoked_at  = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    expires_at  = Column(DateTime, nullable=False, index=True)
-    reason      = Column(String(40), default="logout", nullable=False)
+    jti = Column(String(64), primary_key=True)
+    user_id = Column(String(36), nullable=False, index=True)
+    revoked_at = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    reason = Column(String(40), default="logout", nullable=False)
 
 
 class EmailLogORM(Base):
@@ -805,25 +827,26 @@ class EmailLogORM(Base):
     status: 'sent' | 'failed'
     tipo:   'informe' | 'evolucion' | 'remision' | 'rips' | 'otro'
     """
+
     __tablename__ = "email_logs"
-    id                = Column(String(36), primary_key=True)
-    ts                = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    actor_id          = Column(String(36), index=True)
-    actor_label       = Column(String(120))
-    patient_id        = Column(String(36), ForeignKey("patients.id"), nullable=True, index=True)
-    evaluation_id     = Column(String(36), nullable=True, index=True)
-    documento_id      = Column(String(36), nullable=True, index=True)
-    tipo              = Column(String(30), default="informe", nullable=False, index=True)
-    recipient_to      = Column(String(500), nullable=False)
-    recipient_cc      = Column(String(500))
-    recipient_bcc     = Column(String(500))
-    subject           = Column(String(400), nullable=False)
-    body_preview      = Column(Text)
-    attachments_json  = Column(Text)   # List[{"filename": ..., "size": N}]
-    status            = Column(String(20), default="sent", nullable=False, index=True)
-    error_message     = Column(String(500))
-    smtp_host         = Column(String(120))
-    smtp_user         = Column(String(120))
+    id = Column(String(36), primary_key=True)
+    ts = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    actor_id = Column(String(36), index=True)
+    actor_label = Column(String(120))
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=True, index=True)
+    evaluation_id = Column(String(36), nullable=True, index=True)
+    documento_id = Column(String(36), nullable=True, index=True)
+    tipo = Column(String(30), default="informe", nullable=False, index=True)
+    recipient_to = Column(String(500), nullable=False)
+    recipient_cc = Column(String(500))
+    recipient_bcc = Column(String(500))
+    subject = Column(String(400), nullable=False)
+    body_preview = Column(Text)
+    attachments_json = Column(Text)  # List[{"filename": ..., "size": N}]
+    status = Column(String(20), default="sent", nullable=False, index=True)
+    error_message = Column(String(500))
+    smtp_host = Column(String(120))
+    smtp_user = Column(String(120))
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -844,25 +867,28 @@ class TherapyPlanORM(Base):
     Un paciente puede tener varios planes a lo largo del tiempo (uno
     activo por proceso). Se cierra al alta, abandono o derivación.
     """
+
     __tablename__ = "therapy_plans"
-    id                       = Column(String(36), primary_key=True)
-    patient_id               = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    profesional_id           = Column(String(36), ForeignKey("professionals.id"), nullable=True, index=True)
-    enfoque_principal        = Column(String(40))  # cbt|sistemica|psicoanalitica|humanistica|emdr|act|mindfulness|logoterapia|gestalt|otro
-    diagnostico_principal    = Column(String(20))  # código CIE-10
-    diagnostico_secundario   = Column(String(20))
-    codigo_cie11             = Column(String(15), nullable=True)
-    motivo_consulta          = Column(Text)
-    duracion_estimada_sesiones = Column(Integer)   # sesiones estimadas por el clínico
-    fecha_inicio             = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    fecha_revision           = Column(DateTime)    # próxima revisión del plan
-    fecha_cierre             = Column(DateTime)
-    motivo_cierre            = Column(String(40))  # alta|abandono|derivacion|cambio_terapeuta
-    nota_cierre              = Column(Text)
-    estado                   = Column(String(20), default="activo", nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True, index=True)
+    enfoque_principal = Column(
+        String(40)
+    )  # cbt|sistemica|psicoanalitica|humanistica|emdr|act|mindfulness|logoterapia|gestalt|otro
+    diagnostico_principal = Column(String(20))  # código CIE-10
+    diagnostico_secundario = Column(String(20))
+    codigo_cie11 = Column(String(15), nullable=True)
+    motivo_consulta = Column(Text)
+    duracion_estimada_sesiones = Column(Integer)  # sesiones estimadas por el clínico
+    fecha_inicio = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    fecha_revision = Column(DateTime)  # próxima revisión del plan
+    fecha_cierre = Column(DateTime)
+    motivo_cierre = Column(String(40))  # alta|abandono|derivacion|cambio_terapeuta
+    nota_cierre = Column(Text)
+    estado = Column(String(20), default="activo", nullable=False, index=True)
     # activo | pausado | cerrado
-    created_at               = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at               = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
 class TherapyObjectiveORM(Base):
@@ -870,19 +896,20 @@ class TherapyObjectiveORM(Base):
     Objetivo terapéutico SMART asociado a un plan. Los objetivos se
     trabajan a lo largo de sesiones y permiten medir progreso.
     """
+
     __tablename__ = "therapy_objectives"
-    id                  = Column(String(36), primary_key=True)
-    plan_id             = Column(String(36), ForeignKey("therapy_plans.id"), nullable=False, index=True)
-    descripcion         = Column(Text, nullable=False)
-    criterios_medibles  = Column(Text)  # cómo se sabe que se cumple
-    fecha_inicio        = Column(DateTime, default=_utc_now, nullable=False)
-    fecha_meta          = Column(DateTime)
-    estado              = Column(String(20), default="activo", nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    plan_id = Column(String(36), ForeignKey("therapy_plans.id"), nullable=False, index=True)
+    descripcion = Column(Text, nullable=False)
+    criterios_medibles = Column(Text)  # cómo se sabe que se cumple
+    fecha_inicio = Column(DateTime, default=_utc_now, nullable=False)
+    fecha_meta = Column(DateTime)
+    estado = Column(String(20), default="activo", nullable=False, index=True)
     # activo | cumplido | modificado | abandonado
-    progreso_pct        = Column(Integer, default=0)  # 0-100
-    orden               = Column(Integer, default=0)  # para mostrar ordenados
-    created_at          = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at          = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    progreso_pct = Column(Integer, default=0)  # 0-100
+    orden = Column(Integer, default=0)  # para mostrar ordenados
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
 
 
 class TherapySessionORM(Base):
@@ -891,40 +918,41 @@ class TherapySessionORM(Base):
     Assessment/Plan), modalidad, riesgo suicida, alianza terapéutica
     auto-reportada y estado emocional inicio/fin.
     """
+
     __tablename__ = "therapy_sessions"
-    id                     = Column(String(36), primary_key=True)
-    plan_id                = Column(String(36), ForeignKey("therapy_plans.id"), nullable=True, index=True)
-    patient_id             = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    profesional_id         = Column(String(36), ForeignKey("professionals.id"), nullable=True, index=True)
-    fecha                  = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    duracion_min           = Column(Integer, default=50)
-    modalidad              = Column(String(20), default="presencial", nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    plan_id = Column(String(36), ForeignKey("therapy_plans.id"), nullable=True, index=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True, index=True)
+    fecha = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    duracion_min = Column(Integer, default=50)
+    modalidad = Column(String(20), default="presencial", nullable=False, index=True)
     # presencial | telepsicologia | telefonica
-    enfoque_sesion         = Column(String(40))  # puede sobrescribir el del plan en sesiones específicas
+    enfoque_sesion = Column(String(40))  # puede sobrescribir el del plan en sesiones específicas
     # ─── Notas SOAP ────────────────────────────────────────────
-    soap_subjetivo         = Column(Text)  # S: lo que el paciente reporta
-    soap_objetivo          = Column(Text)  # O: lo que el clínico observa
-    soap_analisis          = Column(Text)  # A: interpretación clínica
-    soap_plan              = Column(Text)  # P: próximos pasos
+    soap_subjetivo = Column(Text)  # S: lo que el paciente reporta
+    soap_objetivo = Column(Text)  # O: lo que el clínico observa
+    soap_analisis = Column(Text)  # A: interpretación clínica
+    soap_plan = Column(Text)  # P: próximos pasos
     # ─── Métricas de sesión ────────────────────────────────────
-    objetivos_trabajados   = Column(Text)  # JSON list[objective_id]
-    tareas_asignadas       = Column(Text)  # texto libre o JSON
-    medicacion_actual      = Column(Text)  # cambios reportados
-    riesgo_suicida         = Column(String(30), default="ninguno", index=True)
+    objetivos_trabajados = Column(Text)  # JSON list[objective_id]
+    tareas_asignadas = Column(Text)  # texto libre o JSON
+    medicacion_actual = Column(Text)  # cambios reportados
+    riesgo_suicida = Column(String(30), default="ninguno", index=True)
     # ninguno | ideacion_pasiva | ideacion_activa | plan | intento_reciente
-    riesgo_observaciones   = Column(Text)
-    alianza_terapeutica    = Column(Integer)  # 1-5, auto-reportada por el clínico
-    estado_emocional_ini   = Column(Integer)  # 0-10 reportado por el paciente al inicio
-    estado_emocional_fin   = Column(Integer)  # 0-10 al cierre
+    riesgo_observaciones = Column(Text)
+    alianza_terapeutica = Column(Integer)  # 1-5, auto-reportada por el clínico
+    estado_emocional_ini = Column(Integer)  # 0-10 reportado por el paciente al inicio
+    estado_emocional_fin = Column(Integer)  # 0-10 al cierre
     # ─── Firma ────────────────────────────────────────────────
-    locked_at              = Column(DateTime)         # firma terapéutica (no editable después)
-    locked_by              = Column(String(36))
-    signature_sha256       = Column(String(64))       # hash del contenido al firmar
+    locked_at = Column(DateTime)  # firma terapéutica (no editable después)
+    locked_by = Column(String(36))
+    signature_sha256 = Column(String(64))  # hash del contenido al firmar
     # ─── Auditoría ───────────────────────────────────────────
-    created_at             = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at             = Column(DateTime, default=_utc_now, onupdate=_utc_now)
-    archived_at            = Column(DateTime)
-    archived_reason        = Column(Text)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    archived_at = Column(DateTime)
+    archived_reason = Column(Text)
 
 
 class RiskAssessmentORM(Base):
@@ -933,25 +961,26 @@ class RiskAssessmentORM(Base):
     guarda separada para trazabilidad longitudinal del riesgo a lo largo
     del tratamiento. Crítico por implicaciones legales y clínicas.
     """
+
     __tablename__ = "risk_assessments"
-    id                     = Column(String(36), primary_key=True)
-    patient_id             = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    session_id             = Column(String(36), ForeignKey("therapy_sessions.id"), nullable=True, index=True)
-    profesional_id         = Column(String(36), ForeignKey("professionals.id"), nullable=True)
-    fecha                  = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    instrumento            = Column(String(30), default="c_ssrs")  # c_ssrs | sad_persons | clinical_judgment
-    nivel                  = Column(String(20), nullable=False, index=True)
+    id = Column(String(36), primary_key=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    session_id = Column(String(36), ForeignKey("therapy_sessions.id"), nullable=True, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True)
+    fecha = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    instrumento = Column(String(30), default="c_ssrs")  # c_ssrs | sad_persons | clinical_judgment
+    nivel = Column(String(20), nullable=False, index=True)
     # ninguno | leve | moderado | alto | inminente
-    ideacion_suicida       = Column(Boolean, default=False)
-    ideacion_con_plan      = Column(Boolean, default=False)
-    intento_previo         = Column(Boolean, default=False)
-    intento_reciente_30d   = Column(Boolean, default=False)
-    factores_protectores   = Column(Text)
-    factores_riesgo        = Column(Text)
-    plan_seguridad         = Column(Text)
-    derivacion_emergencia  = Column(Boolean, default=False)
-    nota_clinica           = Column(Text)
-    created_at             = Column(DateTime, default=_utc_now, nullable=False)
+    ideacion_suicida = Column(Boolean, default=False)
+    ideacion_con_plan = Column(Boolean, default=False)
+    intento_previo = Column(Boolean, default=False)
+    intento_reciente_30d = Column(Boolean, default=False)
+    factores_protectores = Column(Text)
+    factores_riesgo = Column(Text)
+    plan_seguridad = Column(Text)
+    derivacion_emergencia = Column(Boolean, default=False)
+    nota_clinica = Column(Text)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
 
 
 class TherapyTaskORM(Base):
@@ -972,36 +1001,37 @@ class TherapyTaskORM(Base):
       - psicoeducacion         (lectura/video con preguntas)
       - libre                  (texto libre)
     """
+
     __tablename__ = "therapy_tasks"
-    id                = Column(String(36), primary_key=True)
-    plan_id           = Column(String(36), ForeignKey("therapy_plans.id"), nullable=True, index=True)
-    patient_id        = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    session_id        = Column(String(36), ForeignKey("therapy_sessions.id"), nullable=True, index=True)
-    profesional_id    = Column(String(36), ForeignKey("professionals.id"), nullable=True, index=True)
+    id = Column(String(36), primary_key=True)
+    plan_id = Column(String(36), ForeignKey("therapy_plans.id"), nullable=True, index=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
+    session_id = Column(String(36), ForeignKey("therapy_sessions.id"), nullable=True, index=True)
+    profesional_id = Column(String(36), ForeignKey("professionals.id"), nullable=True, index=True)
     # ─── Definición de la tarea ─────────────────────────────────
-    tipo              = Column(String(30), nullable=False, default="libre", index=True)
-    titulo            = Column(String(120), nullable=False)
-    descripcion       = Column(Text)            # instrucciones detalladas
-    objetivo_id       = Column(String(36), ForeignKey("therapy_objectives.id"), nullable=True)
+    tipo = Column(String(30), nullable=False, default="libre", index=True)
+    titulo = Column(String(120), nullable=False)
+    descripcion = Column(Text)  # instrucciones detalladas
+    objetivo_id = Column(String(36), ForeignKey("therapy_objectives.id"), nullable=True)
     # ─── Calendario ─────────────────────────────────────────────
-    fecha_asignacion  = Column(DateTime, default=_utc_now, nullable=False, index=True)
-    fecha_limite      = Column(DateTime)
-    frecuencia        = Column(String(20))      # diaria | varias_semana | semanal | unica
+    fecha_asignacion = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    fecha_limite = Column(DateTime)
+    frecuencia = Column(String(20))  # diaria | varias_semana | semanal | unica
     # ─── Estado y entrega ───────────────────────────────────────
-    estado            = Column(String(20), default="pendiente", nullable=False, index=True)
+    estado = Column(String(20), default="pendiente", nullable=False, index=True)
     # pendiente | en_progreso | completada | parcial | omitida
-    completada_en     = Column(DateTime)
-    respuesta         = Column(Text)            # texto del paciente / autorregistro
-    adherencia_pct    = Column(Integer)         # 0-100 cuántas instancias cumplió
-    dificultad_pct    = Column(Integer)         # 0-100 reportado por paciente
-    utilidad_pct      = Column(Integer)         # 0-100 reportado por paciente
+    completada_en = Column(DateTime)
+    respuesta = Column(Text)  # texto del paciente / autorregistro
+    adherencia_pct = Column(Integer)  # 0-100 cuántas instancias cumplió
+    dificultad_pct = Column(Integer)  # 0-100 reportado por paciente
+    utilidad_pct = Column(Integer)  # 0-100 reportado por paciente
     # ─── Revisión por el clínico ────────────────────────────────
-    revisada_en       = Column(DateTime)
-    nota_clinico      = Column(Text)
+    revisada_en = Column(DateTime)
+    nota_clinico = Column(Text)
     # ─── Auditoría ──────────────────────────────────────────────
-    created_at        = Column(DateTime, default=_utc_now, nullable=False)
-    updated_at        = Column(DateTime, default=_utc_now, onupdate=_utc_now)
-    archived_at       = Column(DateTime)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+    archived_at = Column(DateTime)
 
 
 class AILogORM(Base):
@@ -1017,57 +1047,60 @@ class AILogORM(Base):
     Si en una auditoría posterior se detecta que la IA generó algo
     cuestionable en un informe, se puede rastrear cuándo se usó qué prompt.
     """
+
     __tablename__ = "ai_logs"
-    id                = Column(String(36), primary_key=True)
-    user_id           = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
-    patient_id        = Column(String(36), ForeignKey("patients.id"), nullable=True, index=True)
-    evaluation_id     = Column(String(36), nullable=True, index=True)
-    session_id        = Column(String(36), nullable=True, index=True)
+    id = Column(String(36), primary_key=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=True, index=True)
+    evaluation_id = Column(String(36), nullable=True, index=True)
+    session_id = Column(String(36), nullable=True, index=True)
     # ─── Qué se invocó ──────────────────────────────────────────
-    prompt_id         = Column(String(60), nullable=False, index=True)
+    prompt_id = Column(String(60), nullable=False, index=True)
     # mejorar_observacion_clinica | sugerir_dx_dsm5 | explicar_discrepancia |
     # redactar_recomendaciones | narrativa_integradora | revisar_pediatrico |
     # improve | narrate | chat
-    endpoint          = Column(String(40))   # "/specialized" | "/improve" | "/narrate" | "/chat"
+    endpoint = Column(String(40))  # "/specialized" | "/improve" | "/narrate" | "/chat"
     # ─── Proveedor / modelo usado ───────────────────────────────
-    provider          = Column(String(20))   # gemini | claude | openai | ollama
-    model             = Column(String(60))
+    provider = Column(String(20))  # gemini | claude | openai | ollama
+    model = Column(String(60))
     # ─── Métricas (sin contenido) ───────────────────────────────
-    input_length      = Column(Integer)
-    output_length     = Column(Integer)
-    duration_ms       = Column(Integer)
-    tokens_in         = Column(Integer)
-    tokens_out        = Column(Integer)
+    input_length = Column(Integer)
+    output_length = Column(Integer)
+    duration_ms = Column(Integer)
+    tokens_in = Column(Integer)
+    tokens_out = Column(Integer)
     # ─── Estado ────────────────────────────────────────────────
-    success           = Column(Boolean, default=True, nullable=False)
-    error_message     = Column(Text)
+    success = Column(Boolean, default=True, nullable=False)
+    error_message = Column(Text)
     # Si el output se aplicó al informe (clínico aceptó la sugerencia).
     applied_to_report = Column(Boolean, default=False)
     # ─── Auditoría ──────────────────────────────────────────────
-    created_at        = Column(DateTime, default=_utc_now, nullable=False, index=True)
+    created_at = Column(DateTime, default=_utc_now, nullable=False, index=True)
 
 
 # ═════════════════════════════════════════════════════════════════
 # §F2 — Referencias bibliográficas (Sistema de documentación)
 # ═════════════════════════════════════════════════════════════════
 
+
 class ReferenciaBibliograficaORM(Base):
     """Catálogo de referencias bibliográficas verificadas."""
+
     __tablename__ = "referencias_bibliograficas"
 
-    id               = Column(String(36), primary_key=True)
-    tipo             = Column(String(20), nullable=False)  # libro, articulo, manual, guia, ley, escala, protocolo
-    autores          = Column(String(300), nullable=False)
-    titulo           = Column(String(500), nullable=False)
-    anio             = Column(Integer, nullable=False)
-    journal          = Column(String(200))
-    doi              = Column(String(100))
-    isbn             = Column(String(30))
-    url              = Column(String(500))
-    cita_apa         = Column(String(800))
-    disciplina       = Column(String(30), nullable=False)  # neuropsicologia, psicologia_clinica, ambas
-    categoria        = Column(String(50))
-    tags             = Column(Text)  # JSON array de strings
-    resumen          = Column(Text)
-    nivel_evidencia  = Column(String(5))   # A, B, C, D (APA Division 12)
-    created_at       = Column(DateTime, default=_utc_now, nullable=False)
+    id = Column(String(36), primary_key=True)
+    tipo = Column(String(20), nullable=False)  # libro, articulo, manual, guia, ley, escala, protocolo
+    autores = Column(String(300), nullable=False)
+    titulo = Column(String(500), nullable=False)
+    anio = Column(Integer, nullable=False)
+    journal = Column(String(200))
+    doi = Column(String(100))
+    isbn = Column(String(30))
+    url = Column(String(500))
+    cita_apa = Column(String(800))
+    disciplina = Column(String(30), nullable=False)  # neuropsicologia, psicologia_clinica, ambas
+    categoria = Column(String(50))
+    tags = Column(Text)  # JSON array de strings
+    resumen = Column(Text)
+    nivel_evidencia = Column(String(5))  # A, B, C, D (APA Division 12)
+    created_at = Column(DateTime, default=_utc_now, nullable=False)

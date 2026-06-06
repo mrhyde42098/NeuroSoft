@@ -13,6 +13,7 @@ Referencias:
   - Flanagan & Kaufman, 2009. Essentials of WISC-IV Assessment.
   - Sattler, 2010. Assessment of Children: Cognitive Foundations, 5th ed.
 """
+
 from __future__ import annotations
 
 import json
@@ -42,12 +43,12 @@ class IndexPairDiff:
 
 @dataclass
 class DiscrepancyResult:
-    indices: dict                        # {"ICV": v, "IRP": v, "IMT": v, "IVP": v}
+    indices: dict  # {"ICV": v, "IRP": v, "IMT": v, "IVP": v}
     max_diff: int
     pairs: list[IndexPairDiff]
     has_discrepancy: bool
     cit_reliable: bool
-    recommended_alternative: str | None   # "ICG" | "ICC" | None
+    recommended_alternative: str | None  # "ICG" | "ICC" | None
     recommendation_reason: str
     icg_recommended: bool
     icc_recommended: bool
@@ -59,10 +60,7 @@ class DiscrepancyResult:
             "max_diff": self.max_diff,
             "threshold_points": DISCREPANCY_THRESHOLD_POINTS,
             "threshold_sd": DISCREPANCY_THRESHOLD_SD,
-            "pairs": [
-                {"a": p.a, "b": p.b, "diff": p.diff, "significant": p.significant}
-                for p in self.pairs
-            ],
+            "pairs": [{"a": p.a, "b": p.b, "diff": p.diff, "significant": p.significant} for p in self.pairs],
             "has_discrepancy": self.has_discrepancy,
             "cit_reliable": self.cit_reliable,
             "recommended_alternative": self.recommended_alternative,
@@ -113,10 +111,14 @@ def detect_discrepancy(
         for j in range(i + 1, len(keys)):
             a, b = keys[i], keys[j]
             d = int(abs(vals[a] - vals[b]))
-            pairs.append(IndexPairDiff(
-                a=a, b=b, diff=d,
-                significant=d >= DISCREPANCY_THRESHOLD_POINTS,
-            ))
+            pairs.append(
+                IndexPairDiff(
+                    a=a,
+                    b=b,
+                    diff=d,
+                    significant=d >= DISCREPANCY_THRESHOLD_POINTS,
+                )
+            )
 
     max_diff = max(p.diff for p in pairs) if pairs else 0
     has_disc = max_diff >= DISCREPANCY_THRESHOLD_POINTS
@@ -170,10 +172,7 @@ def detect_discrepancy(
                 "Se requiere análisis individualizado de cada índice y de las "
                 "funciones cognitivas evaluadas por cada uno."
             )
-            notes.append(
-                "Reporte el desempeño por índice por separado y evite una "
-                "puntuación global única."
-            )
+            notes.append("Reporte el desempeño por índice por separado y evite una puntuación global única.")
 
     return DiscrepancyResult(
         indices=idx,
@@ -192,6 +191,7 @@ def detect_discrepancy(
 # ─────────────────────────────────────────────────────────────
 # Forma Corta Sattler 2010 — CIT estimado
 # ─────────────────────────────────────────────────────────────
+
 
 @lru_cache(maxsize=1)
 def _load_forma_corta_table() -> dict:
@@ -216,20 +216,25 @@ def estimate_cit_forma_corta(suma_escalares: int, forma: int = 1) -> dict:
     lo, hi = data["min_suma"], data["max_suma"]
     s = int(suma_escalares)
     if s < lo or s > hi:
-        raise ValueError(
-            f"suma_escalares fuera de rango: {s}. Válido: [{lo}, {hi}]."
-        )
+        raise ValueError(f"suma_escalares fuera de rango: {s}. Válido: [{lo}, {hi}].")
     row = data["table"][str(s)]
     cit = row[f"forma{forma}"]
 
     # Clasificación clínica estándar (Wechsler)
-    if   cit >= 130: interpret = "Muy Superior"
-    elif cit >= 120: interpret = "Superior"
-    elif cit >= 110: interpret = "Medio Alto"
-    elif cit >= 90:  interpret = "Medio"
-    elif cit >= 80:  interpret = "Medio Bajo"
-    elif cit >= 70:  interpret = "Limítrofe"
-    else:            interpret = "Extremadamente Bajo"
+    if cit >= 130:
+        interpret = "Muy Superior"
+    elif cit >= 120:
+        interpret = "Superior"
+    elif cit >= 110:
+        interpret = "Medio Alto"
+    elif cit >= 90:
+        interpret = "Medio"
+    elif cit >= 80:
+        interpret = "Medio Bajo"
+    elif cit >= 70:
+        interpret = "Limítrofe"
+    else:
+        interpret = "Extremadamente Bajo"
 
     return {
         "suma_escalares": s,

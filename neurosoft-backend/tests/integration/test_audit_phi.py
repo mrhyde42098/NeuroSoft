@@ -13,6 +13,7 @@ Verifica que:
   - El mismo valor en hash produce el mismo sha256:xxxx (estabilidad
     para correlación forense entre runs).
 """
+
 from __future__ import annotations
 
 import json
@@ -31,6 +32,7 @@ def in_memory_db():
     """BD en memoria con esquema completo (mismo que conftest pero aislado)."""
     from sqlalchemy import create_engine as sa_engine
     from sqlalchemy.orm import sessionmaker
+
     from app.infrastructure.database.orm_models import Base
 
     engine_mem = sa_engine(
@@ -47,6 +49,7 @@ def in_memory_db():
 
 def _make_patient(**overrides) -> object:
     from app.infrastructure.database.orm_models import PatientORM
+
     base = dict(
         id=str(uuid.uuid4()),
         tipo_documento="CC",
@@ -79,9 +82,9 @@ def _make_patient(**overrides) -> object:
 
 @pytest.mark.integration
 class TestAuditSnapshotVerbatim:
-
     def test_campos_no_PHI_se_loguean_tal_cual(self, in_memory_db):
         from app.infrastructure.audit.listeners import _snapshot
+
         p = _make_patient()
         snap = _snapshot(p)
         # Verbatim: metadata que debe aparecer cruda
@@ -96,34 +99,41 @@ class TestAuditSnapshotVerbatim:
 
     def test_campos_PHI_se_hashean(self, in_memory_db):
         from app.infrastructure.audit.listeners import _snapshot
+
         p = _make_patient()
         snap = _snapshot(p)
         # Hash: PHI se reemplaza con sha256:xxxxxxxxxxxx
-        for phi_field in ("primer_nombre", "primer_apellido", "telefono",
-                          "correo", "direccion", "motivo_consulta"):
+        for phi_field in ("primer_nombre", "primer_apellido", "telefono", "correo", "direccion", "motivo_consulta"):
             assert phi_field in snap
             v = snap[phi_field]
-            assert isinstance(v, str) and v.startswith("sha256:"), (
-                f"{phi_field} = {v!r} (esperado sha256:xxxx)"
-            )
+            assert isinstance(v, str) and v.startswith("sha256:"), f"{phi_field} = {v!r} (esperado sha256:xxxx)"
 
     def test_campos_SKIP_no_aparecen(self, in_memory_db):
-        from app.infrastructure.audit.listeners import _snapshot
         # Patient no tiene firma_base64, pero igual validamos la clasificacion
         from app.infrastructure.audit.listeners import _classify
-        for skip_field in ("firma_base64", "sello_base64", "foto_base64",
-                           "contenido_base64", "hashed_password",
-                           "firma", "firma_digital", "tokens"):
+
+        for skip_field in (
+            "firma_base64",
+            "sello_base64",
+            "foto_base64",
+            "contenido_base64",
+            "hashed_password",
+            "firma",
+            "firma_digital",
+            "tokens",
+        ):
             assert _classify(skip_field) == "skip", skip_field
 
     def test_campos_con_sufijo_base64_se_skipean(self, in_memory_db):
         """Cualquier *_base64 cae en SKIP sin estar explícito en la lista."""
         from app.infrastructure.audit.listeners import _classify
+
         for f in ("custom_base64", "otro_base64", "imagen_base64"):
             assert _classify(f) == "skip", f
 
     def test_hash_es_estable_entre_llamadas(self, in_memory_db):
         from app.infrastructure.audit.listeners import _hash_phi
+
         # Mismo input → mismo hash (clave para correlación forense)
         assert _hash_phi("Juan") == _hash_phi("Juan")
         assert _hash_phi("Juan") != _hash_phi("Pedro")
@@ -140,9 +150,9 @@ class TestAuditSnapshotVerbatim:
 
 @pytest.mark.integration
 class TestAuditLabel:
-
     def test_label_de_paciente_no_contiene_nombre(self, in_memory_db):
         from app.infrastructure.audit.listeners import _label
+
         p = _make_patient(primer_nombre="Juan", primer_apellido="Pérez")
         lbl = _label(p)
         assert "Juan" not in lbl
@@ -153,6 +163,7 @@ class TestAuditLabel:
     def test_label_de_evaluacion_solo_id(self, in_memory_db):
         from app.infrastructure.audit.listeners import _label
         from app.infrastructure.database.orm_models import EvaluationORM
+
         e = EvaluationORM(id=str(uuid.uuid4()))
         lbl = _label(e)
         assert "Evaluación" in lbl
@@ -166,9 +177,9 @@ class TestAuditLabel:
 
 @pytest.mark.integration
 class TestAuditListenerIntegration:
-
     def test_create_paciente_inserta_audit_sin_PHI_en_summary(
-        self, in_memory_db,
+        self,
+        in_memory_db,
     ):
         from app.infrastructure.audit import record_event
         from app.infrastructure.database.orm_models import AuditLogORM
@@ -179,7 +190,7 @@ class TestAuditListenerIntegration:
             action="create",
             entity_type="patient",
             entity_id=p.id,
-            summary=f"CREATE Paciente: Juan Perez",
+            summary="CREATE Paciente: Juan Perez",
             commit=True,
         )
         row = in_memory_db.query(AuditLogORM).filter_by(entity_id=p.id).first()
@@ -188,6 +199,7 @@ class TestAuditListenerIntegration:
         # caller. Pero el _label automatico NO lo haria.
         # Verificamos que el listener (no record_event) genera summary sin PHI:
         from app.infrastructure.audit.listeners import _label
+
         auto = _label(p)
         assert "SECRETO" not in auto
 
@@ -196,7 +208,7 @@ class TestAuditListenerIntegration:
         Simula un flush con un paciente modificado y verifica que el diff
         en audit_log.changes tiene PHI hasheado.
         """
-        from app.infrastructure.audit.listeners import _safe_value, _classify
+        from app.infrastructure.audit.listeners import _classify, _safe_value
 
         # Carga el dict con valores crudos
         old_val = "Juan"
@@ -225,7 +237,7 @@ class TestAuditListenerEnd2End:
     """
 
     def test_patch_telefono_registra_hash_no_valor(self, in_memory_db):
-        from app.infrastructure.audit.listeners import _label, register_audit_listeners
+        from app.infrastructure.audit.listeners import register_audit_listeners
         from app.infrastructure.database.orm_models import AuditLogORM
 
         register_audit_listeners()
@@ -272,11 +284,7 @@ class TestAuditListenerEnd2End:
         in_memory_db.add(p)
         in_memory_db.commit()
 
-        row = (
-            in_memory_db.query(AuditLogORM)
-            .filter_by(entity_id=p.id, entity_type="patient", action="create")
-            .first()
-        )
+        row = in_memory_db.query(AuditLogORM).filter_by(entity_id=p.id, entity_type="patient", action="create").first()
         assert row is not None
         # El summary NO debe contener el nombre real
         assert "ANDREA" not in (row.summary or "")

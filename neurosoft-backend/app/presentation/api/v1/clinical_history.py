@@ -76,14 +76,17 @@ def _handle(e: Exception):
 hc_router = APIRouter(prefix="/clinical-history", tags=["Historia Clínica"])
 
 
-@hc_router.post("/", response_model=ClinicalHistoryResponseDTO,
-                status_code=status.HTTP_201_CREATED,
-                summary="Crear o actualizar Historia Clínica",
-                description="Upsert completo de la HC. Las 4 pestañas + observaciones clínicas.")
+@hc_router.post(
+    "/",
+    response_model=ClinicalHistoryResponseDTO,
+    status_code=status.HTTP_201_CREATED,
+    summary="Crear o actualizar Historia Clínica",
+    description="Upsert completo de la HC. Las 4 pestañas + observaciones clínicas.",
+)
 def upsert_clinical_history(
     dto: ClinicalHistoryUpsertDTO,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -92,27 +95,32 @@ def upsert_clinical_history(
         _handle(e)
 
 
-@hc_router.get("/{patient_id}", response_model=Optional[ClinicalHistoryResponseDTO],
-               summary="Obtener Historia Clínica de un paciente")
+@hc_router.get(
+    "/{patient_id}",
+    response_model=Optional[ClinicalHistoryResponseDTO],
+    summary="Obtener Historia Clínica de un paciente",
+)
 def get_clinical_history(
     patient_id: str,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(patient_id, db, user)
     return GetClinicalHistoryUseCase(db).by_patient(patient_id)
 
 
-@hc_router.get("/{patient_id}/pdf",
-               summary="§QW-4 Generar PDF de la Historia Clínica completa",
-               description=(
-                   "Genera un PDF imprimible con la HC + datos sociodemográficos del paciente. "
-                   "No requiere evaluación previa — útil para EPS/IPS que piden HC sola."
-               ))
+@hc_router.get(
+    "/{patient_id}/pdf",
+    summary="§QW-4 Generar PDF de la Historia Clínica completa",
+    description=(
+        "Genera un PDF imprimible con la HC + datos sociodemográficos del paciente. "
+        "No requiere evaluación previa — útil para EPS/IPS que piden HC sola."
+    ),
+)
 def generate_hc_pdf(
     patient_id: str,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     """§QW-4: PDF de HC sola (sin evaluación). ReportLab inline."""
     from fastapi.responses import Response
@@ -125,19 +133,23 @@ def generate_hc_pdf(
     from app.infrastructure.hc_pdf_service import generate_clinical_history_pdf
 
     pat = get_patient_for_user(patient_id, db, user)
-    hc = (db.query(ClinicalHistoryORM)
-          .filter(ClinicalHistoryORM.patient_id == patient_id)
-          .order_by(ClinicalHistoryORM.fecha_atencion.desc())
-          .first())
+    hc = (
+        db.query(ClinicalHistoryORM)
+        .filter(ClinicalHistoryORM.patient_id == patient_id)
+        .order_by(ClinicalHistoryORM.fecha_atencion.desc())
+        .first()
+    )
     inst = db.query(ConfigInstitucionORM).first()
     prof = db.get(ProfessionalORM, pat.profesional_id) if pat.profesional_id else None
 
     pdf_bytes = generate_clinical_history_pdf(
-        patient=pat, clinical_history=hc, institucion=inst, profesional=prof,
+        patient=pat,
+        clinical_history=hc,
+        institucion=inst,
+        profesional=prof,
     )
     filename = (
-        f"HistoriaClinica_{(pat.primer_apellido or '').strip()}"
-        f"_{pat.numero_documento or patient_id[:8]}.pdf"
+        f"HistoriaClinica_{(pat.primer_apellido or '').strip()}_{pat.numero_documento or patient_id[:8]}.pdf"
     ).replace(" ", "_")
     return Response(
         content=pdf_bytes,
@@ -146,27 +158,26 @@ def generate_hc_pdf(
     )
 
 
-@hc_router.get("/{patient_id}/interpretation",
-               summary="Sugerencias de interpretación por dominio cognitivo",
-               description=(
-                   "Analiza los resultados de la última evaluación y devuelve: "
-                   "perfiles por dominio, texto sugerido, datos de la gráfica Z y resumen de CI."
-               ))
+@hc_router.get(
+    "/{patient_id}/interpretation",
+    summary="Sugerencias de interpretación por dominio cognitivo",
+    description=(
+        "Analiza los resultados de la última evaluación y devuelve: "
+        "perfiles por dominio, texto sugerido, datos de la gráfica Z y resumen de CI."
+    ),
+)
 def get_interpretation_suggestions(
     patient_id: str,
+    user: CurrentUser,
     evaluation_id: str | None = Query(default=None),
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     from app.infrastructure.database.orm_models import EvaluationORM
 
     get_patient_for_user(patient_id, db, user)
 
     if not evaluation_id:
-        ev = (db.query(EvaluationORM)
-              .filter_by(patient_id=patient_id)
-              .order_by(EvaluationORM.created_at.desc())
-              .first())
+        ev = db.query(EvaluationORM).filter_by(patient_id=patient_id).order_by(EvaluationORM.created_at.desc()).first()
         if not ev:
             return {"profiles": [], "z_chart": [], "ci_summary": None}
         evaluation_id = ev.id
@@ -181,13 +192,13 @@ def get_interpretation_suggestions(
 evol_router = APIRouter(prefix="/evolucion", tags=["Evolución Terapia NPs"])
 
 
-@evol_router.post("/", response_model=EvolTerapiaResponseDTO,
-                  status_code=201,
-                  summary="Registrar sesión de evolución terapéutica")
+@evol_router.post(
+    "/", response_model=EvolTerapiaResponseDTO, status_code=201, summary="Registrar sesión de evolución terapéutica"
+)
 def create_evolucion(
     dto: EvolTerapiaCreateDTO,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -196,12 +207,13 @@ def create_evolucion(
         _handle(e)
 
 
-@evol_router.get("/{patient_id}", response_model=list[EvolTerapiaResponseDTO],
-                 summary="Historial de sesiones de un paciente")
+@evol_router.get(
+    "/{patient_id}", response_model=list[EvolTerapiaResponseDTO], summary="Historial de sesiones de un paciente"
+)
 def get_evolucion(
     patient_id: str,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(patient_id, db, user)
     return GetEvolTerapiaUseCase(db).by_patient(patient_id)
@@ -214,15 +226,16 @@ def get_evolucion(
 guide_router = APIRouter(prefix="/test-guide", tags=["Guía de Pruebas"])
 
 
-@guide_router.get("/protocols",
-                  summary="Protocolos clínicos disponibles",
-                  description="Lista los 19 protocolos del sistema con sus pruebas asociadas.")
+@guide_router.get(
+    "/protocols",
+    summary="Protocolos clínicos disponibles",
+    description="Lista los 19 protocolos del sistema con sus pruebas asociadas.",
+)
 def list_protocols():
     return PROTOCOLOS_DISPONIBLES
 
 
-@guide_router.get("/protocols/{protocol_id}",
-                  summary="Pruebas de un protocolo en orden de administración")
+@guide_router.get("/protocols/{protocol_id}", summary="Pruebas de un protocolo en orden de administración")
 def get_protocol(
     protocol_id: str,
     include_optional: bool = Query(default=False),
@@ -233,9 +246,13 @@ def get_protocol(
 
     # Map protocol id to protocol_principal name
     id_to_name = {
-        "wisc_ci": "WISC-IV", "wisc_perfil": "WISC-IV", "wisc_tea": "WISC-IV",
-        "kabc_ci": "KABC-II", "ead": "EAD",
-        "wais_ci": "WAIS-III", "wais_perfil_adulto": "WAIS-III",
+        "wisc_ci": "WISC-IV",
+        "wisc_perfil": "WISC-IV",
+        "wisc_tea": "WISC-IV",
+        "kabc_ci": "KABC-II",
+        "ead": "EAD",
+        "wais_ci": "WAIS-III",
+        "wais_perfil_adulto": "WAIS-III",
         "adulto_mayor": "Adulto Mayor",
     }
     protocol_name = id_to_name.get(protocol_id, "WISC-IV")
@@ -262,12 +279,11 @@ def get_protocol(
                 "es_opcional": t.es_opcional,
             }
             for t in tests
-        ]
+        ],
     }
 
 
-@guide_router.get("/tests/{test_id}",
-                  summary="Información de administración de una prueba")
+@guide_router.get("/tests/{test_id}", summary="Información de administración de una prueba")
 def get_test_info(test_id: str):
     info = TEST_GUIDE.get(test_id)
     if not info:
@@ -292,9 +308,11 @@ def get_test_info(test_id: str):
 cie10_router = APIRouter(prefix="/cie10", tags=["CIE-10"])
 
 
-@cie10_router.get("/",
-                  summary="Catálogo CIE-10 neuropsicología",
-                  description="Todos los códigos CIE-10 relevantes para neuropsicología.")
+@cie10_router.get(
+    "/",
+    summary="Catálogo CIE-10 neuropsicología",
+    description="Todos los códigos CIE-10 relevantes para neuropsicología.",
+)
 def list_cie10(
     buscar: str | None = Query(default=None, description="Filtrar por código o descripción"),
     categoria: str | None = Query(default=None, description="Filtrar por rango (ej. F00-F09, F80-F89, G30-G32)"),
@@ -306,18 +324,17 @@ def list_cie10(
         data = [c for c in data if str(c.get("categoria", "")).upper() == cat]
     if buscar:
         b = buscar.strip().upper()
-        data = [
-            c for c in data
-            if b in c["codigo"].upper() or b in c["descripcion"].upper()
-        ]
+        data = [c for c in data if b in c["codigo"].upper() or b in c["descripcion"].upper()]
     # Ordenar por código (estable y predecible)
     data = sorted(data, key=lambda c: c["codigo"])
     return data[:limit]
 
 
-@cie10_router.get("/categorias",
-                  summary="Categorías/rangos CIE-10",
-                  description="Agrupaciones CIE-10 (ej. F00-F09 → Trastornos orgánicos…)")
+@cie10_router.get(
+    "/categorias",
+    summary="Categorías/rangos CIE-10",
+    description="Agrupaciones CIE-10 (ej. F00-F09 → Trastornos orgánicos…)",
+)
 def list_cie10_categorias():
     cats = get_cie10_categorias()
     return [{"rango": k, "nombre": v} for k, v in cats.items()]
@@ -330,8 +347,7 @@ def list_cie10_categorias():
 config_router = APIRouter(prefix="/config", tags=["Configuración"])
 
 
-@config_router.get("/", response_model=ConfigCompleteResponseDTO,
-                   summary="Obtener configuración completa del sistema")
+@config_router.get("/", response_model=ConfigCompleteResponseDTO, summary="Obtener configuración completa del sistema")
 def get_config(db: Session = Depends(get_session)):
     return GetConfigUseCase(db).execute()
 
@@ -349,8 +365,7 @@ def get_branding(db: Session = Depends(get_session)):
     }
 
 
-@config_router.put("/institucion", response_model=ConfigInstitucionDTO,
-                   summary="Actualizar datos de la institución")
+@config_router.put("/institucion", response_model=ConfigInstitucionDTO, summary="Actualizar datos de la institución")
 def update_institucion(
     dto: ConfigInstitucionDTO,
     db: Session = Depends(get_session),
@@ -359,8 +374,9 @@ def update_institucion(
     return UpdateConfigInstitucionUseCase(db).execute(dto)
 
 
-@config_router.put("/prefs-informe", response_model=ConfigPrefsInformeDTO,
-                   summary="Actualizar preferencias visuales del informe")
+@config_router.put(
+    "/prefs-informe", response_model=ConfigPrefsInformeDTO, summary="Actualizar preferencias visuales del informe"
+)
 def update_prefs(
     dto: ConfigPrefsInformeDTO,
     db: Session = Depends(get_session),
@@ -369,14 +385,16 @@ def update_prefs(
     return UpdateConfigPrefsUseCase(db).execute(dto)
 
 
-@config_router.get("/profesionales", response_model=list[ProfessionalResponseDTO],
-                   summary="Listar todos los profesionales")
+@config_router.get(
+    "/profesionales", response_model=list[ProfessionalResponseDTO], summary="Listar todos los profesionales"
+)
 def list_professionals(db: Session = Depends(get_session)):
     return ManageProfessionalUseCase(db).list_all()
 
 
-@config_router.post("/profesionales", response_model=ProfessionalResponseDTO,
-                    status_code=201, summary="Agregar profesional")
+@config_router.post(
+    "/profesionales", response_model=ProfessionalResponseDTO, status_code=201, summary="Agregar profesional"
+)
 def create_professional(
     dto: ProfessionalCreateDTO,
     db: Session = Depends(get_session),
@@ -385,8 +403,11 @@ def create_professional(
     return ManageProfessionalUseCase(db).create(dto)
 
 
-@config_router.put("/profesionales/{prof_id}", response_model=ProfessionalResponseDTO,
-                   summary="Actualizar datos de un profesional (incl. firma)")
+@config_router.put(
+    "/profesionales/{prof_id}",
+    response_model=ProfessionalResponseDTO,
+    summary="Actualizar datos de un profesional (incl. firma)",
+)
 def update_professional(
     prof_id: str,
     dto: ProfessionalCreateDTO,
@@ -399,8 +420,7 @@ def update_professional(
         raise HTTPException(404, detail=e.to_dict())
 
 
-@config_router.delete("/profesionales/{prof_id}", status_code=204,
-                       summary="Desactivar profesional")
+@config_router.delete("/profesionales/{prof_id}", status_code=204, summary="Desactivar profesional")
 def deactivate_professional(
     prof_id: str,
     db: Session = Depends(get_session),
@@ -416,10 +436,12 @@ def deactivate_professional(
 backup_router = APIRouter(prefix="/backup", tags=["Backup"])
 
 
-@backup_router.post("/", response_model=BackupResponseDTO,
-                    summary="Generar backup manual de la base de datos",
-                    description="Copia el archivo SQLite a un directorio de backup. "
-                                "Equivalente al botón BackUp del sistema VBA.")
+@backup_router.post(
+    "/",
+    response_model=BackupResponseDTO,
+    summary="Generar backup manual de la base de datos",
+    description="Copia el archivo SQLite a un directorio de backup. Equivalente al botón BackUp del sistema VBA.",
+)
 def create_backup(
     dto: BackupRequestDTO,
     db: Session = Depends(get_session),
@@ -431,8 +453,7 @@ def create_backup(
         raise HTTPException(500, detail=e.to_dict())
 
 
-@backup_router.get("/", response_model=list[BackupResponseDTO],
-                   summary="Historial de backups")
+@backup_router.get("/", response_model=list[BackupResponseDTO], summary="Historial de backups")
 def list_backups(
     db: Session = Depends(get_session),
     admin=Depends(require_admin),
@@ -447,13 +468,16 @@ def list_backups(
 docs_router = APIRouter(prefix="/documents", tags=["Documentos"])
 
 
-@docs_router.post("/comprobante-asistencia", response_model=DocumentoResponseDTO,
-                  status_code=201,
-                  summary="Generar comprobante de asistencia a cita")
+@docs_router.post(
+    "/comprobante-asistencia",
+    response_model=DocumentoResponseDTO,
+    status_code=201,
+    summary="Generar comprobante de asistencia a cita",
+)
 def comprobante_asistencia(
     dto: ComprobanteAsistenciaDTO,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -462,13 +486,16 @@ def comprobante_asistencia(
         _handle(e)
 
 
-@docs_router.post("/remision", response_model=DocumentoResponseDTO,
-                  status_code=201,
-                  summary="Generar formulario de remisión/interconsulta")
+@docs_router.post(
+    "/remision",
+    response_model=DocumentoResponseDTO,
+    status_code=201,
+    summary="Generar formulario de remisión/interconsulta",
+)
 def remision(
     dto: RemisionDTO,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(dto.patient_id, db, user)
     try:
@@ -477,21 +504,28 @@ def remision(
         _handle(e)
 
 
-@docs_router.get("/{patient_id}",
-                 summary="Documentos generados para un paciente")
+@docs_router.get("/{patient_id}", summary="Documentos generados para un paciente")
 def list_documents(
     patient_id: str,
+    user: CurrentUser,
     db: Session = Depends(get_session),
-    user=CurrentUser,
 ):
     get_patient_for_user(patient_id, db, user)
     from app.infrastructure.database.orm_models import DocumentoEmitidoORM
-    docs = (db.query(DocumentoEmitidoORM)
-            .filter_by(patient_id=patient_id)
-            .order_by(DocumentoEmitidoORM.fecha_emision.desc())
-            .all())
+
+    docs = (
+        db.query(DocumentoEmitidoORM)
+        .filter_by(patient_id=patient_id)
+        .order_by(DocumentoEmitidoORM.fecha_emision.desc())
+        .all()
+    )
     return [
-        {"id": d.id, "tipo": d.tipo_documento, "titulo": d.titulo,
-         "formato": d.formato, "fecha": d.fecha_emision.isoformat()}
+        {
+            "id": d.id,
+            "tipo": d.tipo_documento,
+            "titulo": d.titulo,
+            "formato": d.formato,
+            "fecha": d.fecha_emision.isoformat(),
+        }
         for d in docs
     ]

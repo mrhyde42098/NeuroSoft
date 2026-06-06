@@ -28,9 +28,11 @@ BAREMOS_PATH = ROOT / "data" / "BD_NEURO_MAESTRA.json"
 # BAREMOS + ENGINE (session-scoped — cargan una sola vez)
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.fixture(scope="session")
 def loader():
     from app.domain.clinical_engine.baremos_loader import BaremosLoader
+
     BaremosLoader.reset()
     if not BAREMOS_PATH.exists():
         pytest.skip("BD_NEURO_MAESTRA.json no encontrado en data/")
@@ -40,12 +42,14 @@ def loader():
 @pytest.fixture(scope="session")
 def engine(loader):
     from app.domain.clinical_engine.engine import ClinicalEngine
+
     return ClinicalEngine(loader=loader)
 
 
 # ─────────────────────────────────────────────────────────────
 # BD EN MEMORIA para tests de integración
 # ─────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def in_memory_db():
@@ -74,6 +78,7 @@ def _reset_rate_limiter():
     Resetea ambos antes de cada test.
     """
     import importlib
+
     main_mod = importlib.import_module("app.main")
     auth_mod = importlib.import_module("app.presentation.api.v1.auth")
     with main_mod._RL_LOCK:
@@ -86,10 +91,12 @@ def _reset_rate_limiter():
 # CONTEXTOS DE PACIENTE
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def ctx_infantil_10():
     """Niño 10 años exactos, Primaria Incompleta, Masculino."""
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(2016, 3, 20),
         evaluation_date=date(2026, 3, 20),
@@ -102,6 +109,7 @@ def ctx_infantil_10():
 def ctx_infantil_7():
     """Niño 7 años 6 meses, Primaria Incompleta, Masculino."""
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(2018, 9, 20),
         evaluation_date=date(2026, 3, 20),
@@ -114,6 +122,7 @@ def ctx_infantil_7():
 def ctx_infantil_16_11m():
     """Jesús Alejandro — 16a 11m, Secundaria Incompleta, M."""
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(2008, 5, 30),
         evaluation_date=date(2025, 5, 15),
@@ -126,6 +135,7 @@ def ctx_infantil_16_11m():
 def ctx_adulto_28():
     """Adulto joven 28 años, Profesional, Masculino."""
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(1998, 1, 15),
         evaluation_date=date(2026, 3, 20),
@@ -138,6 +148,7 @@ def ctx_adulto_28():
 def ctx_adulto_mayor_80():
     """Blanca Edilma — 80a 5m, Primaria Incompleta, F."""
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(1945, 1, 1),
         evaluation_date=date(2025, 6, 3),
@@ -150,6 +161,7 @@ def ctx_adulto_mayor_80():
 def ctx_adulto_mayor_65():
     """Adulto mayor 65 años, Analfabeta, Femenino."""
     from app.domain.clinical_engine.engine import PatientContext
+
     return PatientContext.from_demographics(
         birth_date=date(1961, 3, 20),
         evaluation_date=date(2026, 3, 20),

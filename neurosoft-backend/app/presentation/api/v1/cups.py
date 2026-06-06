@@ -1,6 +1,7 @@
 """
 Catálogo CUPS psicología / neuropsicología (subconjunto semilla).
 """
+
 from __future__ import annotations
 
 import json
@@ -37,11 +38,7 @@ def list_cups_psicologia(
         items = [c for c in items if str(c.get("tipo", "")).lower() == t]
     if buscar:
         b = buscar.strip().upper()
-        items = [
-            c for c in items
-            if b in str(c.get("codigo", "")).upper()
-            or b in str(c.get("nombre", "")).upper()
-        ]
+        items = [c for c in items if b in str(c.get("codigo", "")).upper() or b in str(c.get("nombre", "")).upper()]
     meta = {}
     try:
         with open(_DATA_PATH, encoding="utf-8") as f:

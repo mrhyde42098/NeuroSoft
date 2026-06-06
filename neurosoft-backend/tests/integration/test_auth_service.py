@@ -3,6 +3,7 @@ tests/integration/test_auth_service.py
 ========================================
 Tests de integración para el servicio de autenticación.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -10,9 +11,9 @@ import pytest
 
 @pytest.mark.integration
 class TestAuthService:
-
     def test_create_user_and_authenticate(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
 
         user = repo.create(
@@ -33,6 +34,7 @@ class TestAuthService:
 
     def test_authenticate_wrong_password(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
 
         repo.create(
@@ -47,12 +49,14 @@ class TestAuthService:
 
     def test_authenticate_nonexistent_user(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
         result = repo.authenticate("noexisto", "pass1234")
         assert result is None
 
     def test_hash_is_bcrypt(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
         user = repo.create(
             username="hashtest",
@@ -62,12 +66,11 @@ class TestAuthService:
         in_memory_db.commit()
 
         # bcrypt hashes start with $2b$ or $2a$
-        assert user.hashed_password.startswith("$2"), (
-            f"Hash no parece bcrypt: {user.hashed_password[:10]}"
-        )
+        assert user.hashed_password.startswith("$2"), f"Hash no parece bcrypt: {user.hashed_password[:10]}"
 
     def test_duplicate_user_raises(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
 
         repo.create(username="dupl", password_plain="pass1234", nombre_completo="Dup")
@@ -78,6 +81,7 @@ class TestAuthService:
 
     def test_update_password(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
 
         user = repo.create(
@@ -97,6 +101,7 @@ class TestAuthService:
 
     def test_deactivate_user(self, in_memory_db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(in_memory_db)
 
         user = repo.create(

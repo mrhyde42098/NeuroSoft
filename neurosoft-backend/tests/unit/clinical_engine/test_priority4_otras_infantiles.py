@@ -21,7 +21,6 @@ Fuentes:
 """
 
 
-
 class TestOtrasPruebasInfantiles:
     """Otras pruebas infantiles de PRIORIDAD 4."""
 

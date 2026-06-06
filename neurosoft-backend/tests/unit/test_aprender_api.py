@@ -1,4 +1,5 @@
 """Tests para API Centro de Aprendizaje (/api/v1/aprender/)."""
+
 from __future__ import annotations
 
 import pytest

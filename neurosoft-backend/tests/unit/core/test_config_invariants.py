@@ -16,6 +16,7 @@ Estos tests evitan que una regresión futura deje la app arrancando con
 configuración débil en producción (regresión clásica: quitar el check por
 accidente al refactorizar config).
 """
+
 from __future__ import annotations
 
 import importlib
@@ -30,6 +31,7 @@ STRONG_PASSWORD = "correct-horse-battery-staple"
 def _fresh_settings():
     """Fuerza reimport de settings con las variables de entorno actuales."""
     import app.core.config as cfg
+
     importlib.reload(cfg)
     return cfg.Settings()
 
@@ -44,7 +46,6 @@ def _set_env(monkeypatch, **kwargs):
 
 @pytest.mark.unit
 class TestProductionInvariants:
-
     def test_dev_no_aborta_aunque_falte_secret(self, monkeypatch):
         _set_env(
             monkeypatch,

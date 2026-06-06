@@ -5,6 +5,7 @@ Helpers de bajo nivel para dibujar en ReportLab canvas con la tipografía Pro.
 
 Diseñados para componer secciones sin acoplarse a una variante concreta.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -16,7 +17,6 @@ from .theme import (
     FONT_SANS,
     FONT_SANS_BOLD,
     FONT_SANS_ITALIC,
-    FONT_SERIF,
     FONT_SERIF_BOLD,
     FONT_SERIF_ITALIC,
     HAIRLINE,
@@ -36,6 +36,7 @@ from .theme import (
 # ──────────────────────────────────────────────────────────
 # Texto: medición y wrap
 # ──────────────────────────────────────────────────────────
+
 
 def char_width(font_name: str, size: float) -> float:
     """Ancho aproximado en puntos por carácter para un tipo + tamaño dados.
@@ -215,7 +216,11 @@ def draw_paragraph(
 
 
 def measure_paragraph_height(
-    text: str, w: float, *, font_name: str = FONT_SANS, size: float = TYPE.body,
+    text: str,
+    w: float,
+    *,
+    font_name: str = FONT_SANS,
+    size: float = TYPE.body,
     leading: float | None = None,
 ) -> float:
     """Altura total en puntos que ocuparía un párrafo si se dibujara."""
@@ -230,6 +235,7 @@ def measure_paragraph_height(
 # ──────────────────────────────────────────────────────────
 # Bandas, separadores, viñetas
 # ──────────────────────────────────────────────────────────
+
 
 def section_title(
     c,
@@ -258,14 +264,24 @@ def section_title(
     # Título en serif, caja mixta (respeta el casing que envía el caller)
     size_t = TYPE.title_h1 - 2.0  # ~16 pt — refinado, no monumental
     draw_text(
-        c, title, L.margin, y - size_t,
-        font_name=FONT_SERIF_BOLD, size=size_t, color=NAVY,
+        c,
+        title,
+        L.margin,
+        y - size_t,
+        font_name=FONT_SERIF_BOLD,
+        size=size_t,
+        color=NAVY,
     )
     y -= size_t + 5
     if subtitle:
         draw_text(
-            c, subtitle, L.margin, y - TYPE.caption,
-            font_name=FONT_SERIF_ITALIC, size=TYPE.caption + 0.5, color=SLATE,
+            c,
+            subtitle,
+            L.margin,
+            y - TYPE.caption,
+            font_name=FONT_SERIF_ITALIC,
+            size=TYPE.caption + 0.5,
+            color=SLATE,
         )
         y -= TYPE.caption + 7
     else:
@@ -281,8 +297,13 @@ def section_subtitle(c, title: str, y: float) -> float:
     """Subtítulo H2 con underline sutil."""
     L = LAYOUT
     draw_text(
-        c, title, L.margin, y - TYPE.title_h2,
-        font_name=FONT_SERIF_BOLD, size=TYPE.title_h2, color=NAVY,
+        c,
+        title,
+        L.margin,
+        y - TYPE.title_h2,
+        font_name=FONT_SERIF_BOLD,
+        size=TYPE.title_h2,
+        color=NAVY,
     )
     y -= TYPE.title_h2 + 2
     c.setStrokeColorRGB(*TEAL)
@@ -315,14 +336,24 @@ def chart_title(
     L = LAYOUT
     # Eyebrow: nombre del gráfico en sans-bold, caja mixta, ancla discreta
     draw_text(
-        c, title, L.margin, y - 8,
-        font_name=FONT_SANS_BOLD, size=TYPE.body + 0.5, color=NAVY,
+        c,
+        title,
+        L.margin,
+        y - 8,
+        font_name=FONT_SANS_BOLD,
+        size=TYPE.body + 0.5,
+        color=NAVY,
     )
     y -= 13
     if note:
         draw_text(
-            c, note, L.margin, y - 7,
-            font_name=FONT_SANS_ITALIC, size=TYPE.micro + 0.5, color=SLATE,
+            c,
+            note,
+            L.margin,
+            y - 7,
+            font_name=FONT_SANS_ITALIC,
+            size=TYPE.micro + 0.5,
+            color=SLATE,
         )
         y -= 10
     return y - 2
@@ -417,7 +448,12 @@ def human_test_name(test_id: str, test_nombre: str | None = None) -> str:
 
 
 def block_header(
-    c, title: str, y: float, *, color=TEAL_DARK, x: float | None = None,
+    c,
+    title: str,
+    y: float,
+    *,
+    color=TEAL_DARK,
+    x: float | None = None,
 ) -> float:
     """Encabezado H3 para bloques cortos (label de campo, dominio...).
 
@@ -430,8 +466,13 @@ def block_header(
     """
     L = LAYOUT
     draw_text(
-        c, title, x if x is not None else L.margin, y,
-        font_name=FONT_SANS_BOLD, size=TYPE.title_h3, color=color,
+        c,
+        title,
+        x if x is not None else L.margin,
+        y,
+        font_name=FONT_SANS_BOLD,
+        size=TYPE.title_h3,
+        color=color,
     )
     return y - TYPE.title_h3 - 2
 
@@ -445,14 +486,27 @@ def divider(c, y: float, *, color=SLATE_LIGHT, weight: float = 0.4) -> float:
 
 
 def bullet(
-    c, text: str, x: float, y: float, w: float,
-    *, marker: str = "•", indent: float = 12.0, size: float = TYPE.body_sm,
+    c,
+    text: str,
+    x: float,
+    y: float,
+    w: float,
+    *,
+    marker: str = "•",
+    indent: float = 12.0,
+    size: float = TYPE.body_sm,
 ) -> float:
     """Viñeta con texto wrapping. Retorna nuevo y."""
     draw_text(c, marker, x, y, font_name=FONT_SANS_BOLD, size=size, color=TEAL_DARK)
     return draw_paragraph(
-        c, text, x + indent, y, w - indent,
-        font_name=FONT_SANS, size=size, color=SLATE,
+        c,
+        text,
+        x + indent,
+        y,
+        w - indent,
+        font_name=FONT_SANS,
+        size=size,
+        color=SLATE,
     )
 
 
@@ -477,13 +531,24 @@ def field_pair(
     label_text = f"{label}:"
     label_text = _truncate_to_width(label_text, FONT_SANS_BOLD, size, label_w)
     draw_text(
-        c, label_text, x, y,
-        font_name=FONT_SANS_BOLD, size=size, color=NAVY,
+        c,
+        label_text,
+        x,
+        y,
+        font_name=FONT_SANS_BOLD,
+        size=size,
+        color=NAVY,
     )
     val = value if value not in (None, "", "N/A") else "—"
     val_str = _truncate_to_width(str(val), FONT_SANS, size, value_w)
     draw_text(
-        c, val_str, x + label_w, y, font_name=FONT_SANS, size=size, color=SLATE,
+        c,
+        val_str,
+        x + label_w,
+        y,
+        font_name=FONT_SANS,
+        size=size,
+        color=SLATE,
     )
     return y - size * 1.8
 
@@ -491,6 +556,7 @@ def field_pair(
 # ──────────────────────────────────────────────────────────
 # Paginación
 # ──────────────────────────────────────────────────────────
+
 
 def new_page_if_needed(c, y: float, *, need: float = 80.0) -> tuple[float, bool]:
     """Si no queda espacio para ``need`` puntos, salta de página.
@@ -507,6 +573,7 @@ def new_page_if_needed(c, y: float, *, need: float = 80.0) -> tuple[float, bool]
 # ──────────────────────────────────────────────────────────
 # Cajas decorativas
 # ──────────────────────────────────────────────────────────
+
 
 def callout(
     c,
@@ -538,8 +605,13 @@ def callout(
     inner_y = y - padding
     if title:
         draw_text(
-            c, title, x + padding + 4, inner_y - TYPE.title_h3,
-            font_name=FONT_SANS_BOLD, size=TYPE.title_h3, color=NAVY,
+            c,
+            title,
+            x + padding + 4,
+            inner_y - TYPE.title_h3,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.title_h3,
+            color=NAVY,
         )
         inner_y -= title_h
     c.setFillColorRGB(*NAVY)
@@ -598,14 +670,24 @@ def field_grid(
         cx = x + cc * col_w
         cy = y - r * row_h
         draw_text(
-            c, label.upper(), cx + pad, cy - pad - TYPE.caption + 2,
-            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=ACCENT,
+            c,
+            label.upper(),
+            cx + pad,
+            cy - pad - TYPE.caption + 2,
+            font_name=FONT_SANS_BOLD,
+            size=TYPE.caption,
+            color=ACCENT,
         )
         val = value if (value and str(value).strip() and str(value) not in ("N/A", "")) else placeholder
         val_str = _truncate_to_width(str(val), FONT_SANS, size, col_w - 2 * pad)
         draw_text(
-            c, val_str, cx + pad, cy - row_h + pad + 2,
-            font_name=FONT_SANS, size=size, color=NAVY,
+            c,
+            val_str,
+            cx + pad,
+            cy - row_h + pad + 2,
+            font_name=FONT_SANS,
+            size=size,
+            color=NAVY,
         )
     return y - grid_h
 
@@ -669,8 +751,13 @@ def info_box(
 
     # Etiqueta (eyebrow)
     draw_text(
-        c, label.upper(), x + pad, y - pad - TYPE.caption + 2,
-        font_name=FONT_SANS_BOLD, size=TYPE.caption, color=accent,
+        c,
+        label.upper(),
+        x + pad,
+        y - pad - TYPE.caption + 2,
+        font_name=FONT_SANS_BOLD,
+        size=TYPE.caption,
+        color=accent,
     )
     # Valor
     cy = y - pad - label_h - size
@@ -715,13 +802,25 @@ def kpi_card(
     label_max_w = w - 12
     label_text = _truncate_to_width(label, FONT_SANS_BOLD, TYPE.caption, label_max_w)
     draw_text(
-        c, label_text, x + w / 2, y - 14,
-        font_name=FONT_SANS_BOLD, size=TYPE.caption, color=accent, align="center",
+        c,
+        label_text,
+        x + w / 2,
+        y - 14,
+        font_name=FONT_SANS_BOLD,
+        size=TYPE.caption,
+        color=accent,
+        align="center",
     )
     # Value grande
     draw_text(
-        c, value, x + w / 2, y - 36,
-        font_name=FONT_SERIF_BOLD, size=20, color=NAVY, align="center",
+        c,
+        value,
+        x + w / 2,
+        y - 36,
+        font_name=FONT_SERIF_BOLD,
+        size=20,
+        color=NAVY,
+        align="center",
     )
     # Interpretación: bajar de tamaño si no cabe
     inter_max_w = w - 12
@@ -732,14 +831,21 @@ def kpi_card(
         inter_size = TYPE.micro
         inter_text = _truncate_to_width(interpretation, FONT_SANS, inter_size, inter_max_w)
     draw_text(
-        c, inter_text, x + w / 2, y - h + 8,
-        font_name=FONT_SANS, size=inter_size, color=SLATE, align="center",
+        c,
+        inter_text,
+        x + w / 2,
+        y - h + 8,
+        font_name=FONT_SANS,
+        size=inter_size,
+        color=SLATE,
+        align="center",
     )
 
 
 # ──────────────────────────────────────────────────────────
 # Tablas simples (alternancia + colores)
 # ──────────────────────────────────────────────────────────
+
 
 def draw_table(
     c,
@@ -771,8 +877,13 @@ def draw_table(
         header_max_w = cw - 8
         h_trunc = _truncate_to_width(h_text, FONT_SANS_BOLD, size, header_max_w)
         draw_text(
-            c, h_trunc, cx + 4, y - row_h + 4,
-            font_name=FONT_SANS_BOLD, size=size, color=header_text_color,
+            c,
+            h_trunc,
+            cx + 4,
+            y - row_h + 4,
+            font_name=FONT_SANS_BOLD,
+            size=size,
+            color=header_text_color,
         )
         cx += cw
     y -= row_h
@@ -789,8 +900,13 @@ def draw_table(
             cell_max_w = cw - 8
             cell_text = _truncate_to_width(str(val), FONT_SANS, size, cell_max_w)
             draw_text(
-                c, cell_text, cx + 4, y - row_h + 4,
-                font_name=FONT_SANS, size=size, color=text_color,
+                c,
+                cell_text,
+                cx + 4,
+                y - row_h + 4,
+                font_name=FONT_SANS,
+                size=size,
+                color=text_color,
             )
             cx += cw
         y -= row_h
@@ -835,10 +951,12 @@ def two_column_blocks(
     # hay que reenvolver para que el orden coincida.
     if ensure_room_fn is not None:
         import inspect
+
         try:
             sig = inspect.signature(ensure_room_fn)
-            n_params = len([p for p in sig.parameters.values()
-                            if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)])
+            n_params = len(
+                [p for p in sig.parameters.values() if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+            )
         except (TypeError, ValueError):
             n_params = 3
         if n_params >= 4:
@@ -848,7 +966,8 @@ def two_column_blocks(
             if data_arg is not None:
                 # Bound method: self ya está bound, así que pasamos
                 # (c, data, y, need) directamente.
-                ensure = lambda c, y, need, _f=ensure_room_fn, _d=data_arg: _f(c, _d, y, need)
+                def ensure(c, y, need, _f=ensure_room_fn, _d=data_arg):
+                    return _f(c, _d, y, need)
             else:
                 # Función suelta con (c, data, y, need) — el caller
                 # probablemente olvidó pasar self. Como fallback, usamos
@@ -857,15 +976,24 @@ def two_column_blocks(
         else:
             ensure = ensure_room_fn
     else:
-        ensure = lambda c, y, need: y
+
+        def ensure(c, y, need):
+            return y
+
     y_left = y
     y_right = y
     y_left = ensure(c, y_left, 40)
     y_left = block_header(c, left_title, y_left, color=left_color, x=x_left)
     if not left_items:
         y_left = draw_paragraph(
-            c, "—", x_left, y_left - 4, col_w,
-            font_name=FONT_SANS, size=TYPE.caption, color=SLATE_LIGHT,
+            c,
+            "—",
+            x_left,
+            y_left - 4,
+            col_w,
+            font_name=FONT_SANS,
+            size=TYPE.caption,
+            color=SLATE_LIGHT,
             leading=TYPE.caption * 1.4,
         )
     else:
@@ -876,8 +1004,14 @@ def two_column_blocks(
     y_right = block_header(c, right_title, y_right, color=right_color, x=x_right)
     if not right_items:
         y_right = draw_paragraph(
-            c, "—", x_right, y_right - 4, col_w,
-            font_name=FONT_SANS, size=TYPE.caption, color=SLATE_LIGHT,
+            c,
+            "—",
+            x_right,
+            y_right - 4,
+            col_w,
+            font_name=FONT_SANS,
+            size=TYPE.caption,
+            color=SLATE_LIGHT,
             leading=TYPE.caption * 1.4,
         )
     else:
@@ -912,12 +1046,24 @@ def two_column_layout(
     value_w = column_w - label_w - 4
     for lbl, val in left:
         y_left = field_pair(
-            c, lbl, val, x, y_left,
-            label_w=label_w, value_w=value_w, size=size,
+            c,
+            lbl,
+            val,
+            x,
+            y_left,
+            label_w=label_w,
+            value_w=value_w,
+            size=size,
         )
     for lbl, val in right:
         y_right = field_pair(
-            c, lbl, val, x + column_w + gap, y_right,
-            label_w=label_w, value_w=value_w, size=size,
+            c,
+            lbl,
+            val,
+            x + column_w + gap,
+            y_right,
+            label_w=label_w,
+            value_w=value_w,
+            size=size,
         )
     return min(y_left, y_right)

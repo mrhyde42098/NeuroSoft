@@ -37,108 +37,113 @@ agenda_router = APIRouter(prefix="/agenda", tags=["Agenda y Citas"])
 # ─────────────────────────────────────────────────────────────
 
 ESTADOS_VALIDOS = ("programada", "confirmada", "atendida", "cancelada", "no_asistio")
-TIPOS_VALIDOS   = ("evaluacion", "devolucion", "terapia", "seguimiento", "otro")
+TIPOS_VALIDOS = ("evaluacion", "devolucion", "terapia", "seguimiento", "otro")
 
 
 class AppointmentCreateDTO(BaseModel):
-    patient_id:     str
+    patient_id: str
     profesional_id: str | None = None
-    fecha:          date
-    hora_inicio:    str  = Field(..., pattern=r"^\d{2}:\d{2}$")
-    hora_fin:       str | None = Field(default=None, pattern=r"^\d{2}:\d{2}$")
-    tipo_cita:      str  = Field(default="evaluacion")
-    motivo:         str | None = None
+    fecha: date
+    hora_inicio: str = Field(..., pattern=r"^\d{2}:\d{2}$")
+    hora_fin: str | None = Field(default=None, pattern=r"^\d{2}:\d{2}$")
+    tipo_cita: str = Field(default="evaluacion")
+    motivo: str | None = None
     notas_internas: str | None = None
-    eps:            str | None = None
-    regimen:        str | None = None
+    eps: str | None = None
+    regimen: str | None = None
     autorizacion_no: str | None = None
-    cups:           str | None = None
-    modalidad:      str | None = Field(default="presencial")
-    discapacidad:   str | None = None
+    cups: str | None = None
+    modalidad: str | None = Field(default="presencial")
+    discapacidad: str | None = None
     contacto_telefono: str | None = None
-    contacto_correo:   str | None = None
+    contacto_correo: str | None = None
 
     model_config = {
-        "json_schema_extra": {"example": {
-            "patient_id": "uuid-del-paciente",
-            "fecha": "2025-06-10",
-            "hora_inicio": "09:00",
-            "hora_fin": "10:00",
-            "tipo_cita": "evaluacion",
-            "motivo": "Evaluación neuropsicológica WISC-IV",
-        }}
+        "json_schema_extra": {
+            "example": {
+                "patient_id": "uuid-del-paciente",
+                "fecha": "2025-06-10",
+                "hora_inicio": "09:00",
+                "hora_fin": "10:00",
+                "tipo_cita": "evaluacion",
+                "motivo": "Evaluación neuropsicológica WISC-IV",
+            }
+        }
     }
 
 
 class AppointmentUpdateDTO(BaseModel):
     """Actualización parcial — solo envía los campos a cambiar."""
-    fecha:          date | None = None
-    hora_inicio:    str | None  = None
-    hora_fin:       str | None  = None
-    tipo_cita:      str | None  = None
-    motivo:         str | None  = None
-    estado:         str | None  = None
-    notas_internas: str | None  = None
-    profesional_id: str | None  = None
-    eps:            str | None = None
-    regimen:        str | None = None
+
+    fecha: date | None = None
+    hora_inicio: str | None = None
+    hora_fin: str | None = None
+    tipo_cita: str | None = None
+    motivo: str | None = None
+    estado: str | None = None
+    notas_internas: str | None = None
+    profesional_id: str | None = None
+    eps: str | None = None
+    regimen: str | None = None
     autorizacion_no: str | None = None
-    cups:           str | None = None
-    modalidad:      str | None = None
-    discapacidad:   str | None = None
+    cups: str | None = None
+    modalidad: str | None = None
+    discapacidad: str | None = None
     contacto_telefono: str | None = None
-    contacto_correo:   str | None = None
+    contacto_correo: str | None = None
 
 
 class PatientMiniDTO(BaseModel):
-    id:              str
+    id: str
     nombre_completo: str
     numero_documento: str
-    edad_display:    str
+    edad_display: str
 
     model_config = {"from_attributes": True}
 
 
 class AppointmentResponseDTO(BaseModel):
-    id:              str
-    patient_id:      str
-    profesional_id:  str | None
-    fecha:           date
-    hora_inicio:     str
-    hora_fin:        str | None
-    tipo_cita:       str
-    motivo:          str | None
-    estado:          str
-    notas_internas:  str | None
-    eps:             str | None = None
-    regimen:         str | None = None
+    id: str
+    patient_id: str
+    profesional_id: str | None
+    fecha: date
+    hora_inicio: str
+    hora_fin: str | None
+    tipo_cita: str
+    motivo: str | None
+    estado: str
+    notas_internas: str | None
+    eps: str | None = None
+    regimen: str | None = None
     autorizacion_no: str | None = None
-    cups:            str | None = None
-    modalidad:       str | None = None
-    discapacidad:    str | None = None
+    cups: str | None = None
+    modalidad: str | None = None
+    discapacidad: str | None = None
     contacto_telefono: str | None = None
-    contacto_correo:   str | None = None
-    created_at:      str
-    updated_at:      str | None
+    contacto_correo: str | None = None
+    created_at: str
+    updated_at: str | None
     # Datos del paciente embebidos para el calendario
     paciente_nombre: str | None = None
-    paciente_doc:    str | None = None
+    paciente_doc: str | None = None
     profesional_nombre: str | None = None
 
 
 class AgendaDayDTO(BaseModel):
     """Un día del calendario con sus citas."""
-    fecha:      date
-    citas:      list[AppointmentResponseDTO]
-    total:      int
+
+    fecha: date
+    citas: list[AppointmentResponseDTO]
+    total: int
 
 
 class AgendaStatsDTO(BaseModel):
     """Estadísticas rápidas de la agenda."""
-    hoy:         int
+
+    hoy: int
     esta_semana: int
-    este_mes:    int
-    pendientes:  int   # programadas + confirmadas futuras
+    este_mes: int
+    pendientes: int  # programadas + confirmadas futuras
     atendidas_mes: int
 
 
@@ -146,17 +151,25 @@ class AgendaStatsDTO(BaseModel):
 # Use Cases (inline — módulo pequeño)
 # ─────────────────────────────────────────────────────────────
 
+
 def _orm_to_dto(orm) -> AppointmentResponseDTO:
     paciente_nombre = None
-    paciente_doc    = None
-    prof_nombre     = None
+    paciente_doc = None
+    prof_nombre = None
 
     if orm.patient:
         p = orm.patient
-        paciente_nombre = " ".join(filter(None, [
-            p.primer_nombre, p.segundo_nombre,
-            p.primer_apellido, p.segundo_apellido,
-        ]))
+        paciente_nombre = " ".join(
+            filter(
+                None,
+                [
+                    p.primer_nombre,
+                    p.segundo_nombre,
+                    p.primer_apellido,
+                    p.segundo_apellido,
+                ],
+            )
+        )
         paciente_doc = p.numero_documento
 
     if orm.profesional:
@@ -191,6 +204,7 @@ def _orm_to_dto(orm) -> AppointmentResponseDTO:
 
 def _get_or_404(db: Session, cita_id: str):
     from app.infrastructure.database.orm_models import AppointmentORM
+
     orm = db.get(AppointmentORM, cita_id)
     if orm is None:
         raise HTTPException(status_code=404, detail=f"Cita '{cita_id}' no encontrada.")
@@ -200,6 +214,7 @@ def _get_or_404(db: Session, cita_id: str):
 # ─────────────────────────────────────────────────────────────
 # ENDPOINTS
 # ─────────────────────────────────────────────────────────────
+
 
 @agenda_router.post(
     "/",
@@ -217,8 +232,7 @@ def create_appointment(dto: AppointmentCreateDTO, db: DbSession):
         raise HTTPException(status_code=404, detail="Paciente no encontrado.")
 
     if dto.tipo_cita not in TIPOS_VALIDOS:
-        raise HTTPException(status_code=422,
-            detail=f"tipo_cita inválido. Válidos: {TIPOS_VALIDOS}")
+        raise HTTPException(status_code=422, detail=f"tipo_cita inválido. Válidos: {TIPOS_VALIDOS}")
 
     orm = AppointmentORM(
         id=str(uuid.uuid4()),
@@ -264,8 +278,7 @@ def get_today(
     hoy = date.today()
     q = (
         db.query(AppointmentORM)
-        .options(joinedload(AppointmentORM.patient),
-                 joinedload(AppointmentORM.profesional))
+        .options(joinedload(AppointmentORM.patient), joinedload(AppointmentORM.profesional))
         .filter(AppointmentORM.fecha == hoy)
     )
     if profesional_id:
@@ -295,8 +308,7 @@ def get_week(
 
     q = (
         db.query(AppointmentORM)
-        .options(joinedload(AppointmentORM.patient),
-                 joinedload(AppointmentORM.profesional))
+        .options(joinedload(AppointmentORM.patient), joinedload(AppointmentORM.profesional))
         .filter(
             AppointmentORM.fecha >= inicio,
             AppointmentORM.fecha <= fin,
@@ -316,10 +328,7 @@ def get_week(
         if c.fecha in dias:
             dias[c.fecha].append(_orm_to_dto(c))
 
-    return [
-        AgendaDayDTO(fecha=dia, citas=items, total=len(items))
-        for dia, items in sorted(dias.items())
-    ]
+    return [AgendaDayDTO(fecha=dia, citas=items, total=len(items)) for dia, items in sorted(dias.items())]
 
 
 @agenda_router.get(
@@ -344,36 +353,38 @@ def get_agenda_stats(
             q = q.filter(AppointmentORM.profesional_id == profesional_id)
         return q
 
-    hoy_count = _base(
-        db.query(func.count(AppointmentORM.id))
-        .filter(AppointmentORM.fecha == hoy)
-    ).scalar() or 0
+    hoy_count = _base(db.query(func.count(AppointmentORM.id)).filter(AppointmentORM.fecha == hoy)).scalar() or 0
 
-    semana_count = _base(
-        db.query(func.count(AppointmentORM.id))
-        .filter(AppointmentORM.fecha >= hoy, AppointmentORM.fecha <= semana_fin)
-    ).scalar() or 0
+    semana_count = (
+        _base(
+            db.query(func.count(AppointmentORM.id)).filter(
+                AppointmentORM.fecha >= hoy, AppointmentORM.fecha <= semana_fin
+            )
+        ).scalar()
+        or 0
+    )
 
-    mes_count = _base(
-        db.query(func.count(AppointmentORM.id))
-        .filter(AppointmentORM.fecha >= mes_inicio)
-    ).scalar() or 0
+    mes_count = _base(db.query(func.count(AppointmentORM.id)).filter(AppointmentORM.fecha >= mes_inicio)).scalar() or 0
 
-    pendientes = _base(
-        db.query(func.count(AppointmentORM.id))
-        .filter(
-            AppointmentORM.fecha >= hoy,
-            AppointmentORM.estado.in_(["programada", "confirmada"]),
-        )
-    ).scalar() or 0
+    pendientes = (
+        _base(
+            db.query(func.count(AppointmentORM.id)).filter(
+                AppointmentORM.fecha >= hoy,
+                AppointmentORM.estado.in_(["programada", "confirmada"]),
+            )
+        ).scalar()
+        or 0
+    )
 
-    atendidas_mes = _base(
-        db.query(func.count(AppointmentORM.id))
-        .filter(
-            AppointmentORM.fecha >= mes_inicio,
-            AppointmentORM.estado == "atendida",
-        )
-    ).scalar() or 0
+    atendidas_mes = (
+        _base(
+            db.query(func.count(AppointmentORM.id)).filter(
+                AppointmentORM.fecha >= mes_inicio,
+                AppointmentORM.estado == "atendida",
+            )
+        ).scalar()
+        or 0
+    )
 
     return AgendaStatsDTO(
         hoy=hoy_count,
@@ -403,11 +414,7 @@ def list_appointments(
 
     from app.infrastructure.database.orm_models import AppointmentORM
 
-    q = (
-        db.query(AppointmentORM)
-        .options(joinedload(AppointmentORM.patient),
-                 joinedload(AppointmentORM.profesional))
-    )
+    q = db.query(AppointmentORM).options(joinedload(AppointmentORM.patient), joinedload(AppointmentORM.profesional))
     if fecha_desde:
         q = q.filter(AppointmentORM.fecha >= date.fromisoformat(fecha_desde))
     if fecha_hasta:
@@ -419,10 +426,7 @@ def list_appointments(
     if profesional_id:
         q = q.filter(AppointmentORM.profesional_id == profesional_id)
 
-    citas = (
-        q.order_by(AppointmentORM.fecha.desc(), AppointmentORM.hora_inicio)
-        .limit(limit).offset(offset).all()
-    )
+    citas = q.order_by(AppointmentORM.fecha.desc(), AppointmentORM.hora_inicio).limit(limit).offset(offset).all()
     return [_orm_to_dto(c) for c in citas]
 
 
@@ -442,8 +446,7 @@ def get_patient_appointments(
 
     q = (
         db.query(AppointmentORM)
-        .options(joinedload(AppointmentORM.patient),
-                 joinedload(AppointmentORM.profesional))
+        .options(joinedload(AppointmentORM.patient), joinedload(AppointmentORM.profesional))
         .filter(AppointmentORM.patient_id == patient_id)
     )
     if solo_futuras:
@@ -462,10 +465,10 @@ def get_appointment(cita_id: str, db: DbSession):
     from sqlalchemy.orm import joinedload
 
     from app.infrastructure.database.orm_models import AppointmentORM
+
     orm = (
         db.query(AppointmentORM)
-        .options(joinedload(AppointmentORM.patient),
-                 joinedload(AppointmentORM.profesional))
+        .options(joinedload(AppointmentORM.patient), joinedload(AppointmentORM.profesional))
         .filter(AppointmentORM.id == cita_id)
         .first()
     )
@@ -489,16 +492,27 @@ def update_appointment(cita_id: str, dto: AppointmentUpdateDTO, db: DbSession):
         raise HTTPException(status_code=404, detail="Cita no encontrada.")
 
     if dto.estado and dto.estado not in ESTADOS_VALIDOS:
-        raise HTTPException(status_code=422,
-            detail=f"estado inválido. Válidos: {ESTADOS_VALIDOS}")
+        raise HTTPException(status_code=422, detail=f"estado inválido. Válidos: {ESTADOS_VALIDOS}")
     if dto.tipo_cita and dto.tipo_cita not in TIPOS_VALIDOS:
-        raise HTTPException(status_code=422,
-            detail=f"tipo_cita inválido. Válidos: {TIPOS_VALIDOS}")
+        raise HTTPException(status_code=422, detail=f"tipo_cita inválido. Válidos: {TIPOS_VALIDOS}")
 
     fields = [
-        "fecha", "hora_inicio", "hora_fin", "tipo_cita", "motivo", "estado",
-        "notas_internas", "profesional_id", "eps", "regimen", "autorizacion_no",
-        "cups", "modalidad", "discapacidad", "contacto_telefono", "contacto_correo",
+        "fecha",
+        "hora_inicio",
+        "hora_fin",
+        "tipo_cita",
+        "motivo",
+        "estado",
+        "notas_internas",
+        "profesional_id",
+        "eps",
+        "regimen",
+        "autorizacion_no",
+        "cups",
+        "modalidad",
+        "discapacidad",
+        "contacto_telefono",
+        "contacto_correo",
     ]
     for field in fields:
         val = getattr(dto, field, None)
@@ -510,8 +524,7 @@ def update_appointment(cita_id: str, dto: AppointmentUpdateDTO, db: DbSession):
     # Reload with joins
     orm2 = (
         db.query(AppointmentORM)
-        .options(joinedload(AppointmentORM.patient),
-                 joinedload(AppointmentORM.profesional))
+        .options(joinedload(AppointmentORM.patient), joinedload(AppointmentORM.profesional))
         .filter(AppointmentORM.id == cita_id)
         .first()
     )
@@ -525,6 +538,7 @@ def update_appointment(cita_id: str, dto: AppointmentUpdateDTO, db: DbSession):
 )
 def delete_appointment(cita_id: str, db: DbSession):
     from app.infrastructure.database.orm_models import AppointmentORM
+
     orm = db.get(AppointmentORM, cita_id)
     if orm is None:
         raise HTTPException(status_code=404, detail="Cita no encontrada.")

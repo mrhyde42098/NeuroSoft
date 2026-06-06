@@ -13,6 +13,7 @@ Combina:
 
 La salida es JSON-safe; alimenta tanto el generador de PDF como el front.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -48,67 +49,67 @@ def _grupo_reservorio(edad: int | None) -> str | None:
 CIE10_TO_CUADRO: dict[str, dict[str, str]] = {
     # Infantil
     "infantil": {
-        "F900":  "tdah",
-        "F901":  "tdah",
-        "F840":  "dislexia",          # aprox — TEA sin clave dedicada → discapacidad_cognitiva/dislexia si aplica
-        "F810":  "dislexia",
-        "F811":  "dislexia",
-        "F812":  "dislexia",
-        "F819":  "dislexia",
-        "F800":  "disfasia",
-        "F801":  "disfasia",
-        "F802":  "disfasia",
-        "F809":  "disfasia",
-        "F820":  "trastornos_espaciales_motores",
-        "F700":  "discapacidad_cognitiva",
-        "F710":  "discapacidad_cognitiva",
-        "F720":  "discapacidad_cognitiva",
-        "F730":  "discapacidad_cognitiva",
-        "F799":  "discapacidad_cognitiva",
-        "F930":  "ansiedad",
-        "F931":  "ansiedad",
-        "F932":  "ansiedad",
-        "F910":  "conducta",
-        "F913":  "conducta",
-        "F318":  "tab_infantil",
-        "F319":  "tab_infantil",
+        "F900": "tdah",
+        "F901": "tdah",
+        "F840": "dislexia",  # aprox — TEA sin clave dedicada → discapacidad_cognitiva/dislexia si aplica
+        "F810": "dislexia",
+        "F811": "dislexia",
+        "F812": "dislexia",
+        "F819": "dislexia",
+        "F800": "disfasia",
+        "F801": "disfasia",
+        "F802": "disfasia",
+        "F809": "disfasia",
+        "F820": "trastornos_espaciales_motores",
+        "F700": "discapacidad_cognitiva",
+        "F710": "discapacidad_cognitiva",
+        "F720": "discapacidad_cognitiva",
+        "F730": "discapacidad_cognitiva",
+        "F799": "discapacidad_cognitiva",
+        "F930": "ansiedad",
+        "F931": "ansiedad",
+        "F932": "ansiedad",
+        "F910": "conducta",
+        "F913": "conducta",
+        "F318": "tab_infantil",
+        "F319": "tab_infantil",
     },
     # Adulto
     "adulto": {
-        "F320":  "depresion_ansiedad_tdah",
-        "F321":  "depresion_ansiedad_tdah",
-        "F322":  "depresion_ansiedad_tdah",
-        "F329":  "depresion_ansiedad_tdah",
-        "F410":  "depresion_ansiedad_tdah",
-        "F411":  "depresion_ansiedad_tdah",
-        "F900":  "depresion_ansiedad_tdah",
-        "G20X":  "trastornos_motores_adulto",
-        "G122":  "trastornos_motores_adulto",
-        "G35X":  "trastornos_motores_adulto",
-        "S069":  "tce",
-        "I639":  "riesgo_vascular",
-        "I10X":  "riesgo_vascular",
-        "E119":  "riesgo_vascular",
-        "F700":  "discapacidad_intelectual_adulto",
-        "F710":  "discapacidad_intelectual_adulto",
-        "F720":  "discapacidad_intelectual_adulto",
-        "F730":  "discapacidad_intelectual_adulto",
+        "F320": "depresion_ansiedad_tdah",
+        "F321": "depresion_ansiedad_tdah",
+        "F322": "depresion_ansiedad_tdah",
+        "F329": "depresion_ansiedad_tdah",
+        "F410": "depresion_ansiedad_tdah",
+        "F411": "depresion_ansiedad_tdah",
+        "F900": "depresion_ansiedad_tdah",
+        "G20X": "trastornos_motores_adulto",
+        "G122": "trastornos_motores_adulto",
+        "G35X": "trastornos_motores_adulto",
+        "S069": "tce",
+        "I639": "riesgo_vascular",
+        "I10X": "riesgo_vascular",
+        "E119": "riesgo_vascular",
+        "F700": "discapacidad_intelectual_adulto",
+        "F710": "discapacidad_intelectual_adulto",
+        "F720": "discapacidad_intelectual_adulto",
+        "F730": "discapacidad_intelectual_adulto",
     },
     # Adulto mayor
     "adulto_mayor": {
-        "F067":  "dcl_amnesico",
-        "F000":  "demencia_alzheimer",
-        "F001":  "demencia_alzheimer",
-        "F002":  "demencia_alzheimer",
-        "F010":  "demencia_vascular",
-        "F011":  "demencia_vascular",
-        "F012":  "demencia_vascular",
-        "F013":  "demencia_vascular",
-        "F018":  "demencia_vascular",
-        "F019":  "demencia_vascular",
-        "G311":  "ftd",
-        "F021":  "ftd",
-        "F03X":  "generales",
+        "F067": "dcl_amnesico",
+        "F000": "demencia_alzheimer",
+        "F001": "demencia_alzheimer",
+        "F002": "demencia_alzheimer",
+        "F010": "demencia_vascular",
+        "F011": "demencia_vascular",
+        "F012": "demencia_vascular",
+        "F013": "demencia_vascular",
+        "F018": "demencia_vascular",
+        "F019": "demencia_vascular",
+        "G311": "ftd",
+        "F021": "ftd",
+        "F03X": "generales",
     },
 }
 
@@ -126,17 +127,16 @@ def _condicion_bateria(discapacidad: str | None) -> str | None:
     if not discapacidad:
         return None
     import unicodedata
+
     # Quita tildes para que "visión"/"vision" y "física"/"fisica" matcheen igual
     d_norm = "".join(
-        c for c in unicodedata.normalize("NFD", discapacidad.lower().strip())
-        if unicodedata.category(c) != "Mn"
+        c for c in unicodedata.normalize("NFD", discapacidad.lower().strip()) if unicodedata.category(c) != "Mn"
     )
     if not d_norm or d_norm in ("n/a", "ninguna", "sin discapacidad"):
         return None
 
     audit = "auditiv" in d_norm or "sord" in d_norm or "hipoacu" in d_norm
-    vis   = ("visual" in d_norm or "vision" in d_norm or "cegu" in d_norm
-             or "cieg" in d_norm or "baja vision" in d_norm)
+    vis = "visual" in d_norm or "vision" in d_norm or "cegu" in d_norm or "cieg" in d_norm or "baja vision" in d_norm
 
     if audit and vis:
         return "visual_auditiva"
@@ -169,7 +169,7 @@ def _extraer_indice(resultados: list, nombres: list) -> int | None:
     """Busca un índice CI en la lista de resultados por nombre o test_id."""
     for r in resultados:
         nombre_p = (r.get("nombre_prueba") or "").lower()
-        test_id  = (r.get("test_id") or "").lower()
+        test_id = (r.get("test_id") or "").lower()
         for n in nombres:
             if n.lower() in nombre_p or n.lower() in test_id:
                 val = r.get("puntaje_escalar")
@@ -207,84 +207,103 @@ def detectar_patrones_cognitivos(
         crist = (ICV + IRP) / 2
         brecha = crist - ejec
         if ejec < 90 and crist >= 90 and brecha >= 15:
-            patrones.append({
-                "tipo": "TDAH / Déficit atencional-ejecutivo",
-                "nivel": "alto" if brecha >= 25 else "moderado",
-                "indices": {"ICV": ICV, "IRP": IRP, "IMT": IMT, "IVP": IVP},
-                "brecha": round(brecha, 1),
-                "notas": [
-                    f"Cristalizado (ICV+IRP)/2={round(crist,1)} vs Ejecutivo (IMT+IVP)/2={round(ejec,1)}",
-                    f"Brecha de {round(brecha,1)} pts — significativa clínicamente (umbral ≥15 pts).",
-                ],
-                "sugerencia": "Completar con SNAP-IV (padres/maestros) o ASRS (adultos). Historia de síntomas en múltiples entornos.",
-            })
+            patrones.append(
+                {
+                    "tipo": "TDAH / Déficit atencional-ejecutivo",
+                    "nivel": "alto" if brecha >= 25 else "moderado",
+                    "indices": {"ICV": ICV, "IRP": IRP, "IMT": IMT, "IVP": IVP},
+                    "brecha": round(brecha, 1),
+                    "notas": [
+                        f"Cristalizado (ICV+IRP)/2={round(crist, 1)} vs Ejecutivo (IMT+IVP)/2={round(ejec, 1)}",
+                        f"Brecha de {round(brecha, 1)} pts — significativa clínicamente (umbral ≥15 pts).",
+                    ],
+                    "sugerencia": "Completar con SNAP-IV (padres/maestros) o ASRS (adultos). Historia de síntomas en múltiples entornos.",
+                }
+            )
 
     # 2. TCL / CDHS — IVP selectivo muy bajo
     if all(v is not None for v in [ICV, IRP, IMT, IVP]):
         media_otros = (ICV + IRP + IMT) / 3
         dif = media_otros - IVP
         if IVP < 85 and dif >= 20 and ICV >= 90:
-            patrones.append({
-                "tipo": "Tempo Cognitivo Lento / CDHS",
-                "nivel": "alto" if dif >= 30 else "moderado",
-                "indices": {"ICV": ICV, "IRP": IRP, "IMT": IMT, "IVP": IVP},
-                "diferencia_ivp": round(dif, 1),
-                "notas": [
-                    f"IVP={IVP} vs media otros índices={round(media_otros,1)} (dif={round(dif,1)} pts).",
-                    "ICV preservado: lenguaje intacto — apoya enlentecimiento selectivo.",
-                    "Patrón compatible con Barkley (2012): CDHS/CDS.",
-                ],
-                "sugerencia": "Evaluar síntomas de ensoñación, pasividad, lentitud. Diferenciar de ansiedad y trastorno del sueño.",
-            })
+            patrones.append(
+                {
+                    "tipo": "Tempo Cognitivo Lento / CDHS",
+                    "nivel": "alto" if dif >= 30 else "moderado",
+                    "indices": {"ICV": ICV, "IRP": IRP, "IMT": IMT, "IVP": IVP},
+                    "diferencia_ivp": round(dif, 1),
+                    "notas": [
+                        f"IVP={IVP} vs media otros índices={round(media_otros, 1)} (dif={round(dif, 1)} pts).",
+                        "ICV preservado: lenguaje intacto — apoya enlentecimiento selectivo.",
+                        "Patrón compatible con Barkley (2012): CDHS/CDS.",
+                    ],
+                    "sugerencia": "Evaluar síntomas de ensoñación, pasividad, lentitud. Diferenciar de ansiedad y trastorno del sueño.",
+                }
+            )
 
     # 3. Discapacidad Intelectual
     if CIT is not None and CIT < 70:
-        patrones.append({
-            "tipo": "Posible Discapacidad Intelectual",
-            "nivel": "alto" if CIT < 55 else "moderado",
-            "indices": {"CIT": CIT},
-            "notas": [
-                f"CI Total = {CIT} — por debajo del umbral de DI (DSM-5: ~65-75).",
-                "Requiere segunda prueba de inteligencia + evaluación de conducta adaptativa.",
-            ],
-            "sugerencia": "Aplicar Vineland-3 o ABAS-3 para conducta adaptativa. No diagnosticar solo por CI.",
-        })
+        patrones.append(
+            {
+                "tipo": "Posible Discapacidad Intelectual",
+                "nivel": "alto" if CIT < 55 else "moderado",
+                "indices": {"CIT": CIT},
+                "notas": [
+                    f"CI Total = {CIT} — por debajo del umbral de DI (DSM-5: ~65-75).",
+                    "Requiere segunda prueba de inteligencia + evaluación de conducta adaptativa.",
+                ],
+                "sugerencia": "Aplicar Vineland-3 o ABAS-3 para conducta adaptativa. No diagnosticar solo por CI.",
+            }
+        )
 
     # 4. DCL / Demencia — adulto mayor con múltiples índices bajos
     if edad is not None and edad >= 55:
         afectados = len([v for v in disponibles if v < 85])
         if afectados >= 2:
-            patrones.append({
-                "tipo": "Deterioro Cognitivo Leve (DCL) — multi-dominio" if afectados >= 3
-                        else "Deterioro cognitivo leve — verificar",
-                "nivel": "alto" if afectados >= 3 else "moderado",
-                "indices": {k: v for k, v in
-                            zip(["ICV","IRP","IMT","IVP"], [ICV,IRP,IMT,IVP]) if v is not None},
-                "notas": [
-                    f"Edad {edad} años — zona de riesgo para DCL/demencia.",
-                    f"{afectados} de {len(disponibles)} índices < 85.",
-                    "Descartar: depresión, hipotiroidismo, déficit B12/folato, medicación.",
-                ],
-                "sugerencia": "GDS-15 + FAQ + MoCA si no aplicado. Neuroimagen y laboratorios. Seguimiento 6-12 meses.",
-            })
+            patrones.append(
+                {
+                    "tipo": "Deterioro Cognitivo Leve (DCL) — multi-dominio"
+                    if afectados >= 3
+                    else "Deterioro cognitivo leve — verificar",
+                    "nivel": "alto" if afectados >= 3 else "moderado",
+                    "indices": {
+                        k: v for k, v in zip(["ICV", "IRP", "IMT", "IVP"], [ICV, IRP, IMT, IVP]) if v is not None
+                    },
+                    "notas": [
+                        f"Edad {edad} años — zona de riesgo para DCL/demencia.",
+                        f"{afectados} de {len(disponibles)} índices < 85.",
+                        "Descartar: depresión, hipotiroidismo, déficit B12/folato, medicación.",
+                    ],
+                    "sugerencia": "GDS-15 + FAQ + MoCA si no aplicado. Neuroimagen y laboratorios. Seguimiento 6-12 meses.",
+                }
+            )
 
     # 5. Secuela neurológica — velocidad + ejecutivo sin DI
-    if (IVP is not None and IVP < 85 and IMT is not None and IMT < 85
-            and CIT is not None and CIT >= 70
-            and (edad is None or edad < 55)):
-        maximo_cristalizado = max(v for v in [ICV, IRP] if v is not None) if any(
-            v is not None for v in [ICV, IRP]) else None
+    if (
+        IVP is not None
+        and IVP < 85
+        and IMT is not None
+        and IMT < 85
+        and CIT is not None
+        and CIT >= 70
+        and (edad is None or edad < 55)
+    ):
+        maximo_cristalizado = (
+            max(v for v in [ICV, IRP] if v is not None) if any(v is not None for v in [ICV, IRP]) else None
+        )
         if maximo_cristalizado and maximo_cristalizado - IVP >= 20:
-            patrones.append({
-                "tipo": "Posible secuela neurológica (TCE / ACV / tóxico)",
-                "nivel": "moderado",
-                "indices": {"IVP": IVP, "IMT": IMT},
-                "notas": [
-                    f"IVP={IVP} + IMT={IMT} afectados con cristalizado relativamente preservado.",
-                    "Patrón compatible con TCE, secuela vascular o exposición tóxica.",
-                ],
-                "sugerencia": "Evaluar antecedentes. Pruebas complementarias: PASAT, SDMT, TMT-B. Neuroimagen.",
-            })
+            patrones.append(
+                {
+                    "tipo": "Posible secuela neurológica (TCE / ACV / tóxico)",
+                    "nivel": "moderado",
+                    "indices": {"IVP": IVP, "IMT": IMT},
+                    "notas": [
+                        f"IVP={IVP} + IMT={IMT} afectados con cristalizado relativamente preservado.",
+                        "Patrón compatible con TCE, secuela vascular o exposición tóxica.",
+                    ],
+                    "sugerencia": "Evaluar antecedentes. Pruebas complementarias: PASAT, SDMT, TMT-B. Neuroimagen.",
+                }
+            )
 
     return patrones
 
@@ -294,43 +313,49 @@ def detectar_patrones_cognitivos(
 # ─────────────────────────────────────────────────────────────
 CIE10_TCL_MAP = {
     # TCL / CDHS no tiene código CIE-10 propio — se mapea a TDAH
-    "F90.0": "tdah", "F90.1": "tdah", "F90.8": "tempo_cognitivo_lento",
+    "F90.0": "tdah",
+    "F90.1": "tdah",
+    "F90.8": "tempo_cognitivo_lento",
     # Demencia con síntomas neuropsiquiátricos
-    "F06.7": "dcl_amnesico", "F00.0": "demencia_alzheimer",
-    "F01.0": "demencia_vascular", "F02.0": "ftd",
+    "F06.7": "dcl_amnesico",
+    "F00.0": "demencia_alzheimer",
+    "F01.0": "demencia_vascular",
+    "F02.0": "ftd",
     # TCE
-    "S06.9": "tce", "S06.3": "tce",
+    "S06.9": "tce",
+    "S06.3": "tce",
 }
+
 
 # ─────────────────────────────────────────────────────────────
 # DTO de salida
 # ─────────────────────────────────────────────────────────────
 @dataclass
 class EnrichmentResult:
-    patient_id:          str
-    eval_id:             str
-    edad:                int | None
-    grupo_etario:        str | None
-    cie10:               str | None
-    cuadro_detectado:    str | None
-    recomendaciones:     list[str]         = field(default_factory=list)
-    bateria_sugerida:    dict | None    = None
-    advertencias:        list[str]         = field(default_factory=list)
-    notas:               list[str]         = field(default_factory=list)
-    patrones_cognitivos: list[dict]        = field(default_factory=list)
+    patient_id: str
+    eval_id: str
+    edad: int | None
+    grupo_etario: str | None
+    cie10: str | None
+    cuadro_detectado: str | None
+    recomendaciones: list[str] = field(default_factory=list)
+    bateria_sugerida: dict | None = None
+    advertencias: list[str] = field(default_factory=list)
+    notas: list[str] = field(default_factory=list)
+    patrones_cognitivos: list[dict] = field(default_factory=list)
 
     def as_dict(self) -> dict:
         return {
-            "patient_id":         self.patient_id,
-            "eval_id":            self.eval_id,
-            "edad":               self.edad,
-            "grupo_etario":       self.grupo_etario,
-            "cie10":              self.cie10,
-            "cuadro_detectado":   self.cuadro_detectado,
-            "recomendaciones":    self.recomendaciones,
-            "bateria_sugerida":   self.bateria_sugerida,
-            "advertencias":       self.advertencias,
-            "notas":              self.notas,
+            "patient_id": self.patient_id,
+            "eval_id": self.eval_id,
+            "edad": self.edad,
+            "grupo_etario": self.grupo_etario,
+            "cie10": self.cie10,
+            "cuadro_detectado": self.cuadro_detectado,
+            "recomendaciones": self.recomendaciones,
+            "bateria_sugerida": self.bateria_sugerida,
+            "advertencias": self.advertencias,
+            "notas": self.notas,
             "patrones_cognitivos": self.patrones_cognitivos,
         }
 
@@ -386,8 +411,7 @@ def build_report_enrichment(
                         cuadro = cuadro or "dcl_amnesico"
                     elif "discapacidad" in primer_tipo:
                         cuadro = cuadro or (
-                            "discapacidad_cognitiva" if grupo == "infantil"
-                            else "discapacidad_intelectual_adulto"
+                            "discapacidad_cognitiva" if grupo == "infantil" else "discapacidad_intelectual_adulto"
                         )
         except Exception as e:
             advertencias.append(f"Error en detección de patrones cognitivos: {e}")
@@ -397,12 +421,14 @@ def build_report_enrichment(
     if grupo and cuadro:
         try:
             from app.presentation.api.v1.clinical_extras import _load_reservorio
+
             data = _load_reservorio()
             grupo_data = data["grupos"].get(grupo, {})
             cuadro_data = grupo_data.get("cuadros", {}).get(cuadro, {})
             recs = list(cuadro_data.get("recomendaciones", []))
             if recs:
                 from app.core.branding import clinical_brand
+
                 notas.append(
                     f"Recomendaciones extraídas del reservorio {clinical_brand()} "
                     f"({grupo} / {cuadro_data.get('label', cuadro)})."
@@ -411,8 +437,7 @@ def build_report_enrichment(
             advertencias.append(f"No se pudo cargar el reservorio: {e}")
     elif grupo:
         notas.append(
-            "No se encontró cuadro clínico mapeado para el CIE-10 registrado; "
-            "se omiten recomendaciones automáticas."
+            "No se encontró cuadro clínico mapeado para el CIE-10 registrado; se omiten recomendaciones automáticas."
         )
 
     # ── Batería alterna ──
@@ -422,21 +447,20 @@ def build_report_enrichment(
     if cond and grupo_bat:
         try:
             from app.presentation.api.v1.clinical_extras import _load_baterias_catalog
+
             cat = _load_baterias_catalog()
             cond_data = cat["conditions"].get(cond)
             if cond_data and grupo_bat in cond_data.get("batteries", {}):
                 bat_sugerida = {
-                    "condicion":       cond,
+                    "condicion": cond,
                     "condicion_label": cond_data["label"],
-                    "grupo":           grupo_bat,
-                    "general_notes":   cond_data.get("general_notes", []),
-                    "battery":         cond_data["batteries"][grupo_bat],
+                    "grupo": grupo_bat,
+                    "general_notes": cond_data.get("general_notes", []),
+                    "battery": cond_data["batteries"][grupo_bat],
                 }
                 from app.core.branding import clinical_brand
-                notas.append(
-                    f"Se sugiere batería alterna {clinical_brand()} para {cond_data['label']} "
-                    f"({grupo_bat})."
-                )
+
+                notas.append(f"Se sugiere batería alterna {clinical_brand()} para {cond_data['label']} ({grupo_bat}).")
         except Exception as e:
             advertencias.append(f"No se pudo cargar baterías alternas: {e}")
 

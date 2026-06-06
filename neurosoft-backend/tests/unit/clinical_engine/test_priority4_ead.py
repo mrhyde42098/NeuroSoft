@@ -16,7 +16,6 @@ desarrollo infantil en programas de crecimiento y desarrollo en Colombia.
 """
 
 
-
 class TestEADDesarrolloInfantil:
     """Escala Abreviada de Desarrollo (EAD-3) - Colombia."""
 

@@ -1,9 +1,10 @@
 """
 F9.3 — Verificación de metadatos PDF/A, variantes y bloque legal.
 """
-import io
-import pytest
+
 from datetime import date
+
+import pytest
 
 from app.infrastructure.report_pro import generate_pro_pdf
 from app.infrastructure.report_service import ReportData
@@ -36,9 +37,7 @@ class TestMetadatosPDFA:
         assert pdf.startswith(b"%PDF-")
 
     def test_pdf_incluye_metadatos_keywords_cie10(self):
-        data = _build_data(
-            profesional_nombre="Ps. Test", eval_id="eval-abcdefgh", codigo_cie10="F90.0"
-        )
+        data = _build_data(profesional_nombre="Ps. Test", eval_id="eval-abcdefgh", codigo_cie10="F90.0")
         pdf = generate_pro_pdf(data, template="pro")
         # ReportLab inyecta Keywords en el stream del PDF
         assert b"Keywords" in pdf
@@ -46,7 +45,7 @@ class TestMetadatosPDFA:
         assert b"eval-abc" in pdf  # primeros 8 chars de eval_id
 
     def test_pdf_incluye_producer_neurosoft(self):
-        data = _build_data()
+        data = _build_data(institucion_nombre="")
         pdf = generate_pro_pdf(data, template="pro")
         assert b"Producer" in pdf
         assert b"NeuroSoft" in pdf
@@ -65,10 +64,18 @@ class TestMetadatosPDFA:
 class TestVariantesDisponibles:
     """F9 — Las 6+ variantes deben generarse sin excepciones."""
 
-    @pytest.mark.parametrize("template", [
-        "estandar", "pro", "pediatrico", "medicolegal",
-        "junta_medica", "inconcluso", "paciente",
-    ])
+    @pytest.mark.parametrize(
+        "template",
+        [
+            "estandar",
+            "pro",
+            "pediatrico",
+            "medicolegal",
+            "junta_medica",
+            "inconcluso",
+            "paciente",
+        ],
+    )
     def test_variante_genera_pdf_valido(self, template):
         data = _build_data()
         try:
@@ -84,6 +91,7 @@ class TestBloqueLegalEnEncabezado:
 
     def test_bloque_legal_incluye_todas_las_normas(self):
         from app.infrastructure.report_pro.narrative import construir_bloque_legal_encabezado
+
         bloque = construir_bloque_legal_encabezado(
             nombre_profesional="Ps. Test",
             tarjeta_profesional="TP-12345",
@@ -96,6 +104,7 @@ class TestBloqueLegalEnEncabezado:
 
     def test_bloque_legal_incluye_profesional(self):
         from app.infrastructure.report_pro.narrative import construir_bloque_legal_encabezado
+
         bloque = construir_bloque_legal_encabezado(
             nombre_profesional="Ps. Johan Salgado",
             tarjeta_profesional="TP-12345",
@@ -105,6 +114,7 @@ class TestBloqueLegalEnEncabezado:
 
     def test_bloque_legal_incluye_paciente_y_evaluacion(self):
         from app.infrastructure.report_pro.narrative import construir_bloque_legal_encabezado
+
         bloque = construir_bloque_legal_encabezado(
             nombre_paciente="Juan Pérez",
             edad_display="35a",

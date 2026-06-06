@@ -19,7 +19,6 @@ para población colombiana considerando similitudes culturales y lingüísticas.
 """
 
 
-
 class TestSpenceAnsiedadInfantil:
     """Spence Children's Anxiety Scale - Subescalas."""
 

@@ -11,6 +11,7 @@ clínicamente correctas.
 Toda la salida va en español neutro y se diseñó para sonar como informe real,
 no como volcado mecánico de datos.
 """
+
 from __future__ import annotations
 
 import json
@@ -65,15 +66,17 @@ def _domain_summary(resultados: Sequence[dict]) -> dict[str, dict]:
         if not dom or dom.lower() in ("", "n/a"):
             continue
         bucket[dom]["zs"].append(float(z))
-        bucket[dom]["tests"].append({
-            "nombre": human_test_name(
-                r.get("test_id", "") or "",
-                r.get("test_nombre", "") or "",
-            ),
-            "z": z,
-            "pd": r.get("puntaje_bruto"),
-            "pe": r.get("puntaje_escalar"),
-        })
+        bucket[dom]["tests"].append(
+            {
+                "nombre": human_test_name(
+                    r.get("test_id", "") or "",
+                    r.get("test_nombre", "") or "",
+                ),
+                "z": z,
+                "pd": r.get("puntaje_bruto"),
+                "pe": r.get("puntaje_escalar"),
+            }
+        )
     out = {}
     for dom, info in bucket.items():
         zs = info["zs"]
@@ -90,11 +93,18 @@ def _domain_summary(resultados: Sequence[dict]) -> dict[str, dict]:
 def _extract_ci_indices(resultados: Sequence[dict]) -> dict[str, int]:
     """Mapea ICV, IRP, IMT, IVP, CIT a sus valores numéricos."""
     mapping_keys = {
-        "indcomver": "ICV", "icv": "ICV",
-        "indrazper": "IRP", "irp": "IRP", "icp": "IRP",
-        "indmemtra": "IMT", "imt": "IMT",
-        "indvelpro": "IVP", "ivp": "IVP",
-        "tot": "CIT", "cit": "CIT", "indtot": "CIT",
+        "indcomver": "ICV",
+        "icv": "ICV",
+        "indrazper": "IRP",
+        "irp": "IRP",
+        "icp": "IRP",
+        "indmemtra": "IMT",
+        "imt": "IMT",
+        "indvelpro": "IVP",
+        "ivp": "IVP",
+        "tot": "CIT",
+        "cit": "CIT",
+        "indtot": "CIT",
     }
     out: dict[str, int] = {}
     for r in resultados:
@@ -114,6 +124,7 @@ def _extract_ci_indices(resultados: Sequence[dict]) -> dict[str, int]:
 # ──────────────────────────────────────────────────────────
 # Generadores de texto
 # ──────────────────────────────────────────────────────────
+
 
 def build_synthesis_paragraphs(
     resultados: Sequence[dict],
@@ -179,10 +190,7 @@ def build_synthesis_paragraphs(
             for d, info in weak:
                 qualifier = "severamente" if info["mean_z"] <= DEBIL_SEVERO_Z else "moderadamente"
                 sev_chunks.append(f"{d.lower()} ({qualifier} disminuido, Z̄={info['mean_z']:+.1f})")
-            chunks.append(
-                "El perfil neuropsicológico evidencia debilidades en: "
-                + "; ".join(sev_chunks) + "."
-            )
+            chunks.append("El perfil neuropsicológico evidencia debilidades en: " + "; ".join(sev_chunks) + ".")
         if strong:
             ch_strong = []
             for d, info in strong:
@@ -190,8 +198,7 @@ def build_synthesis_paragraphs(
                 tag = f"{qualifier} alto, Z̄={info['mean_z']:+.1f}".strip()
                 ch_strong.append(f"{d.lower()} ({tag})")
             chunks.append(
-                "Por su parte, destacan como áreas preservadas o por encima del "
-                "promedio: " + "; ".join(ch_strong) + "."
+                "Por su parte, destacan como áreas preservadas o por encima del promedio: " + "; ".join(ch_strong) + "."
             )
         if not weak and not strong:
             chunks.append(
@@ -203,9 +210,7 @@ def build_synthesis_paragraphs(
 
     # ── Párrafo 3: pruebas específicas más críticas (top 3 debilidades) ──
     all_results = sorted(
-        [r for r in resultados
-         if r.get("z_equivalente") is not None
-         and r.get("tipo_metrica") != "ci"],
+        [r for r in resultados if r.get("z_equivalente") is not None and r.get("tipo_metrica") != "ci"],
         key=lambda r: r["z_equivalente"],
     )
     if all_results and all_results[0]["z_equivalente"] <= DEBIL_Z:
@@ -250,39 +255,28 @@ def build_executive_summary(
     if "CIT" in indices:
         cit = indices["CIT"]
         cat = _interpret_ci_range(cit)
-        conclusion = (
-            f"{paciente_nombre} obtuvo un CIT de {cit} "
-            f"({cat.lower()}), con un perfil "
-        )
+        conclusion = f"{paciente_nombre} obtuvo un CIT de {cit} ({cat.lower()}), con un perfil "
         # Asimetría vs homogeneidad
         rest = {k: v for k, v in indices.items() if k != "CIT"}
         if rest and max(rest.values()) - min(rest.values()) >= 12:
             lo_k, lo_v = min(rest.items(), key=lambda kv: kv[1])
             conclusion += (
-                f"asimétrico: {lo_k}={lo_v} es el índice más bajo. "
-                f"El CIT resume pero no captura la variabilidad."
+                f"asimétrico: {lo_k}={lo_v} es el índice más bajo. El CIT resume pero no captura la variabilidad."
             )
         else:
-            conclusion += (
-                "homogéneo entre los índices compuestos."
-            )
+            conclusion += "homogéneo entre los índices compuestos."
     elif indices:
         idx_str = ", ".join(f"{k}={v}" for k, v in sorted(indices.items()))
-        conclusion = (
-            f"Perfil de {paciente_nombre}: índices {idx_str}."
-        )
+        conclusion = f"Perfil de {paciente_nombre}: índices {idx_str}."
     else:
         # Sin CI: basarse en dominios
         if domains:
             mean_z_global = sum(d["mean_z"] for d in domains.values()) / len(domains)
             conclusion = (
-                f"Perfil neuropsicológico global: Z̄={mean_z_global:+.1f}σ "
-                f"sobre {len(domains)} dominios evaluados."
+                f"Perfil neuropsicológico global: Z̄={mean_z_global:+.1f}σ sobre {len(domains)} dominios evaluados."
             )
         else:
-            conclusion = (
-                "Perfil neuropsicológico sin datos suficientes para un resumen global."
-            )
+            conclusion = "Perfil neuropsicológico sin datos suficientes para un resumen global."
 
     # Hallazgos clave: top 1 debilidad + top 1 fortaleza
     hallazgos: list[str] = []
@@ -298,18 +292,12 @@ def build_executive_summary(
         if weak:
             d, info = weak[0]
             sev = "severamente" if info["mean_z"] <= DEBIL_SEVERO_Z else "moderadamente"
-            hallazgos.append(
-                f"{d} {sev} descendido (Z̄={info['mean_z']:+.1f}σ)"
-            )
+            hallazgos.append(f"{d} {sev} descendido (Z̄={info['mean_z']:+.1f}σ)")
         if strong:
             d, info = strong[0]
-            hallazgos.append(
-                f"{d} preservado (Z̄={info['mean_z']:+.1f}σ)"
-            )
+            hallazgos.append(f"{d} preservado (Z̄={info['mean_z']:+.1f}σ)")
         if not weak and not strong:
-            hallazgos.append(
-                "Rendimiento dentro del rango esperado en todos los dominios."
-            )
+            hallazgos.append("Rendimiento dentro del rango esperado en todos los dominios.")
 
     # Implicación funcional
     if "CIT" in indices and indices["CIT"] < 80:
@@ -324,14 +312,10 @@ def build_executive_summary(
         )
     elif domains and any(d["mean_z"] <= DEBIL_Z for d in domains.values()):
         implicacion = (
-            "Se sugiere intervención dirigida al dominio descendido, "
-            "con monitoreo de respuesta a tratamiento."
+            "Se sugiere intervención dirigida al dominio descendido, con monitoreo de respuesta a tratamiento."
         )
     else:
-        implicacion = (
-            "El perfil es consistente con funcionalidad preservada; se "
-            "recomienda seguimiento de rutina."
-        )
+        implicacion = "El perfil es consistente con funcionalidad preservada; se recomienda seguimiento de rutina."
 
     return {
         "conclusion": conclusion.strip(),
@@ -344,12 +328,7 @@ def build_executive_summary(
 # Reservorio: sugerencia de cuadros clínicos por perfil
 # ──────────────────────────────────────────────────────────
 
-_RESERVORIO_PATH = (
-    Path(__file__).parent.parent.parent
-    / "domain"
-    / "data"
-    / "reservorio_recomendaciones.json"
-)
+_RESERVORIO_PATH = Path(__file__).parent.parent.parent / "domain" / "data" / "reservorio_recomendaciones.json"
 
 
 def _load_reservorio() -> dict:
@@ -421,18 +400,23 @@ def sugerir_cuadros_clinicos(
                 break
 
     domains = _domain_summary(resultados)
-    weak_domains = {
-        d for d, info in domains.items() if info["mean_z"] <= DEBIL_Z
-    }
-    severe_domains = {
-        d for d, info in domains.items() if info["mean_z"] <= DEBIL_SEVERO_Z
-    }
+    weak_domains = {d for d, info in domains.items() if info["mean_z"] <= DEBIL_Z}
+    severe_domains = {d for d, info in domains.items() if info["mean_z"] <= DEBIL_SEVERO_Z}
 
     # Detección de "memoria descendida" por test_id (Grober, Rey, WMS, etc.)
     # en lugar de depender del dominio_cognitivo (que a veces es "General").
     _MEMORIA_TESTS = (
-        "Grober", "Rey", "WMS", "CVLT", "TAVEC", "TOMM", "MemoriaVerbal",
-        "MemoriaVisual", "Recuerdo", "Evocacion", "Evocación",
+        "Grober",
+        "Rey",
+        "WMS",
+        "CVLT",
+        "TAVEC",
+        "TOMM",
+        "MemoriaVerbal",
+        "MemoriaVisual",
+        "Recuerdo",
+        "Evocacion",
+        "Evocación",
     )
     mem_zs: list[float] = []
     for r in resultados:
@@ -441,9 +425,7 @@ def sugerir_cuadros_clinicos(
         z = r.get("z_equivalente")
         if z is None or r.get("tipo_metrica") == "ci":
             continue
-        if any(tok in tid for tok in _MEMORIA_TESTS) or any(
-            tok in tnom for tok in _MEMORIA_TESTS
-        ):
+        if any(tok in tid for tok in _MEMORIA_TESTS) or any(tok in tnom for tok in _MEMORIA_TESTS):
             mem_zs.append(z)
     mem_z = (sum(mem_zs) / len(mem_zs)) if mem_zs else None
 
@@ -497,14 +479,12 @@ def sugerir_cuadros_clinicos(
         elif cit is not None and 70 <= cit < 80:
             matches.append((2, "discapacidad_cognitiva", grupo_key))
         # TDAH: atención y FEE descendidas, o screening positivo
-        elif (has_tdah_screen and ("Atención" in weak_domains
-                                    or "Funciones Ejecutivas" in weak_domains)):
+        elif has_tdah_screen and ("Atención" in weak_domains or "Funciones Ejecutivas" in weak_domains):
             matches.append((3, "tdah", grupo_key))
         elif "Atención" in weak_domains and "Funciones Ejecutivas" in weak_domains:
             matches.append((4, "tdah", grupo_key))
         # Dislexia / Discalculia
-        elif any("compr" in d.lower() or "lect" in d.lower()
-                 for d in weak_domains):
+        elif any("compr" in d.lower() or "lect" in d.lower() for d in weak_domains):
             matches.append((5, "dislexia", grupo_key))
         # Ansiedad: screening positivo sin otro cuadro claro
         elif has_dep_screen and len(weak_domains) <= 2:
@@ -519,10 +499,7 @@ def sugerir_cuadros_clinicos(
         if cit is not None and cit < 70:
             matches.append((1, "discapacidad_intelectual_adulto", grupo_key))
         # Depresión / ansiedad / TDAH adulto
-        if has_dep_screen and (
-            "Atención" in weak_domains
-            and "Funciones Ejecutivas" in weak_domains
-        ):
+        if has_dep_screen and ("Atención" in weak_domains and "Funciones Ejecutivas" in weak_domains):
             matches.append((2, "depresion_ansiedad_tdah", grupo_key))
         # TDAH adulto aislado
         elif has_tdah_screen and "Atención" in weak_domains:
@@ -549,13 +526,15 @@ def sugerir_cuadros_clinicos(
         cuadros = grupo.get("cuadros", {})
         cuadro = cuadros.get(cuadro_id)
         if cuadro:
-            selected.append({
-                "grupo": gk,
-                "grupo_label": grupo.get("label", gk),
-                "cuadro_id": cuadro_id,
-                "label": cuadro.get("label", cuadro_id),
-                "recomendaciones": cuadro.get("recomendaciones", []),
-            })
+            selected.append(
+                {
+                    "grupo": gk,
+                    "grupo_label": grupo.get("label", gk),
+                    "cuadro_id": cuadro_id,
+                    "label": cuadro.get("label", cuadro_id),
+                    "recomendaciones": cuadro.get("recomendaciones", []),
+                }
+            )
     return selected
 
 
@@ -570,164 +549,295 @@ def sugerir_cuadros_clinicos(
 
 GLOSARIO_PRUEBAS: dict[str, dict[str, str]] = {
     # ── Wechsler infantil (WISC-IV) ──
-    "NiWiscDC": {"nombre": "WISC-IV Dígitos en orden directo",
-                 "desc": "Span atencional directo: repetición de dígitos en el mismo orden. Evalúa atención y memoria de trabajo fonológica."},
-    "NiWiscSem": {"nombre": "WISC-IV Dígitos en orden inverso",
-                  "desc": "Span atencional inverso: repetición de dígitos en orden inverso. Evalúa memoria de trabajo y manipulación mental."},
-    "NiWiscVoc": {"nombre": "WISC-IV Vocabulario",
-                  "desc": "Definición de palabras. Evalúa comprensión verbal, riqueza léxica y concepto verbal."},
-    "NiWiscLN": {"nombre": "WISC-IV Letras-Números",
-                 "desc": "Intercalar letras y números en orden. Evalúa memoria de trabajo, secuenciación y atención dividida."},
-    "NiWiscCl": {"nombre": "WISC-IV Claves",
-                 "desc": "Transcribir símbolos bajo presión de tiempo. Evalúa velocidad de procesamiento, coordinación visomotora y atención."},
-    "NiWiscAri": {"nombre": "WISC-IV Aritmética",
-                  "desc": "Problemas aritméticos verbales con tiempo. Evalúa razonamiento cuantitativo, atención y memoria de trabajo."},
+    "NiWiscDC": {
+        "nombre": "WISC-IV Dígitos en orden directo",
+        "desc": "Span atencional directo: repetición de dígitos en el mismo orden. Evalúa atención y memoria de trabajo fonológica.",
+    },
+    "NiWiscSem": {
+        "nombre": "WISC-IV Dígitos en orden inverso",
+        "desc": "Span atencional inverso: repetición de dígitos en orden inverso. Evalúa memoria de trabajo y manipulación mental.",
+    },
+    "NiWiscVoc": {
+        "nombre": "WISC-IV Vocabulario",
+        "desc": "Definición de palabras. Evalúa comprensión verbal, riqueza léxica y concepto verbal.",
+    },
+    "NiWiscLN": {
+        "nombre": "WISC-IV Letras-Números",
+        "desc": "Intercalar letras y números en orden. Evalúa memoria de trabajo, secuenciación y atención dividida.",
+    },
+    "NiWiscCl": {
+        "nombre": "WISC-IV Claves",
+        "desc": "Transcribir símbolos bajo presión de tiempo. Evalúa velocidad de procesamiento, coordinación visomotora y atención.",
+    },
+    "NiWiscAri": {
+        "nombre": "WISC-IV Aritmética",
+        "desc": "Problemas aritméticos verbales con tiempo. Evalúa razonamiento cuantitativo, atención y memoria de trabajo.",
+    },
     # ── Índices compuestos WISC-IV ──
-    "NiWISCIndComVer": {"nombre": "WISC-IV Índice Comprensión Verbal",
-                        "desc": "Índice compuesto que resume razonamiento verbal, comprensión y conocimiento general."},
-    "NiWISCIndRazPer": {"nombre": "WISC-IV Índice Razonamiento Perceptual",
-                        "desc": "Índice compuesto que resume razonamiento no verbal, visualización y procesamiento espacial."},
-    "NiWISCIndMemTra": {"nombre": "WISC-IV Índice Memoria de Trabajo",
-                        "desc": "Índice compuesto que evalúa la capacidad de retener y manipular información temporalmente."},
-    "NiWISCIndVelPro": {"nombre": "WISC-IV Índice Velocidad de Procesamiento",
-                        "desc": "Índice compuesto que evalúa la velocidad para escanear, escribir y copiar información simple."},
-    "NiWISCTot": {"nombre": "WISC-IV Cociente Intelectual Total",
-                  "desc": "Síntesis de los cuatro índices compuestos. Es la medida más global del funcionamiento intelectual."},
+    "NiWISCIndComVer": {
+        "nombre": "WISC-IV Índice Comprensión Verbal",
+        "desc": "Índice compuesto que resume razonamiento verbal, comprensión y conocimiento general.",
+    },
+    "NiWISCIndRazPer": {
+        "nombre": "WISC-IV Índice Razonamiento Perceptual",
+        "desc": "Índice compuesto que resume razonamiento no verbal, visualización y procesamiento espacial.",
+    },
+    "NiWISCIndMemTra": {
+        "nombre": "WISC-IV Índice Memoria de Trabajo",
+        "desc": "Índice compuesto que evalúa la capacidad de retener y manipular información temporalmente.",
+    },
+    "NiWISCIndVelPro": {
+        "nombre": "WISC-IV Índice Velocidad de Procesamiento",
+        "desc": "Índice compuesto que evalúa la velocidad para escanear, escribir y copiar información simple.",
+    },
+    "NiWISCTot": {
+        "nombre": "WISC-IV Cociente Intelectual Total",
+        "desc": "Síntesis de los cuatro índices compuestos. Es la medida más global del funcionamiento intelectual.",
+    },
     # ── Wechsler adulto (WAIS-III) ──
-    "AdWAISA": {"nombre": "WAIS-III Aritmética",
-                "desc": "Problemas aritméticos cronometrados. Evalúa razonamiento cuantitativo, atención y memoria de trabajo."},
-    "AdWAISC": {"nombre": "WAIS-III Comprensión",
-                "desc": "Resolución de problemas sociales prácticos. Evalúa juicio social, conocimiento práctico y razonamiento verbal."},
-    "AdWAISCC": {"nombre": "WAIS-III Claves de Símbolos",
-                 "desc": "Transcribir símbolos bajo presión de tiempo. Evalúa velocidad de procesamiento, aprendizaje asociativo y coordinación."},
-    "AdWAISFI": {"nombre": "WAIS-III Figuras Incompletas",
-                 "desc": "Identificar partes faltantes en figuras. Evalúa percepción visual, concentración y razonamiento perceptual."},
-    "AdWAISHI": {"nombre": "WAIS-III Historias",
-                 "desc": "Recuerdo de historias narradas. Evalúa memoria auditiva verbal y organización semántica."},
-    "AdWAISI": {"nombre": "WAIS-III Información",
-                 "desc": "Preguntas de conocimiento general. Evalúa cultura general, memoria de largo plazo y comprensión verbal."},
-    "AdWAISL": {"nombre": "WAIS-III Letras-Números",
-                "desc": "Intercalar letras y números en orden. Evalúa memoria de trabajo, atención dividida y secuenciación."},
-    "AdWAISRO": {"nombre": "WAIS-III Diseño con Cubos (R.O.)",
-                 "desc": "Reproducir diseños con cubos. Evalúa visualización espacial, razonamiento perceptual y coordinación visomotora."},
-    "AdWAISV": {"nombre": "WAIS-III Vocabulario",
-                "desc": "Definición de palabras. Evalúa comprensión verbal, riqueza léxica y concepto verbal."},
+    "AdWAISA": {
+        "nombre": "WAIS-III Aritmética",
+        "desc": "Problemas aritméticos cronometrados. Evalúa razonamiento cuantitativo, atención y memoria de trabajo.",
+    },
+    "AdWAISC": {
+        "nombre": "WAIS-III Comprensión",
+        "desc": "Resolución de problemas sociales prácticos. Evalúa juicio social, conocimiento práctico y razonamiento verbal.",
+    },
+    "AdWAISCC": {
+        "nombre": "WAIS-III Claves de Símbolos",
+        "desc": "Transcribir símbolos bajo presión de tiempo. Evalúa velocidad de procesamiento, aprendizaje asociativo y coordinación.",
+    },
+    "AdWAISFI": {
+        "nombre": "WAIS-III Figuras Incompletas",
+        "desc": "Identificar partes faltantes en figuras. Evalúa percepción visual, concentración y razonamiento perceptual.",
+    },
+    "AdWAISHI": {
+        "nombre": "WAIS-III Historias",
+        "desc": "Recuerdo de historias narradas. Evalúa memoria auditiva verbal y organización semántica.",
+    },
+    "AdWAISI": {
+        "nombre": "WAIS-III Información",
+        "desc": "Preguntas de conocimiento general. Evalúa cultura general, memoria de largo plazo y comprensión verbal.",
+    },
+    "AdWAISL": {
+        "nombre": "WAIS-III Letras-Números",
+        "desc": "Intercalar letras y números en orden. Evalúa memoria de trabajo, atención dividida y secuenciación.",
+    },
+    "AdWAISRO": {
+        "nombre": "WAIS-III Diseño con Cubos (R.O.)",
+        "desc": "Reproducir diseños con cubos. Evalúa visualización espacial, razonamiento perceptual y coordinación visomotora.",
+    },
+    "AdWAISV": {
+        "nombre": "WAIS-III Vocabulario",
+        "desc": "Definición de palabras. Evalúa comprensión verbal, riqueza léxica y concepto verbal.",
+    },
     # ── Índices compuestos WAIS-III ──
-    "AdWAISICV": {"nombre": "WAIS-III Índice Comprensión Verbal",
-                  "desc": "Índice compuesto que resume razonamiento verbal, comprensión y conocimiento."},
-    "AdWAISICP": {"nombre": "WAIS-III Índice Razonamiento Perceptual",
-                  "desc": "Índice compuesto que resume razonamiento no verbal y procesamiento espacial."},
-    "AdWAISIMT": {"nombre": "WAIS-III Índice Memoria de Trabajo",
-                  "desc": "Índice compuesto que evalúa retención y manipulación temporal de información."},
-    "AdWAISIVP": {"nombre": "WAIS-III Índice Velocidad de Procesamiento",
-                  "desc": "Índice compuesto que evalúa velocidad de escaneo y respuesta."},
-    "AdWAISEMan": {"nombre": "WAIS-III Índice Manipulación Mental",
-                   "desc": "Alias del Índice Memoria de Trabajo cuando se enfatiza la manipulación."},
-    "AdWAISTot": {"nombre": "WAIS-III Cociente Intelectual Total",
-                  "desc": "Síntesis de los cuatro índices compuestos. Medida global del funcionamiento intelectual."},
+    "AdWAISICV": {
+        "nombre": "WAIS-III Índice Comprensión Verbal",
+        "desc": "Índice compuesto que resume razonamiento verbal, comprensión y conocimiento.",
+    },
+    "AdWAISICP": {
+        "nombre": "WAIS-III Índice Razonamiento Perceptual",
+        "desc": "Índice compuesto que resume razonamiento no verbal y procesamiento espacial.",
+    },
+    "AdWAISIMT": {
+        "nombre": "WAIS-III Índice Memoria de Trabajo",
+        "desc": "Índice compuesto que evalúa retención y manipulación temporal de información.",
+    },
+    "AdWAISIVP": {
+        "nombre": "WAIS-III Índice Velocidad de Procesamiento",
+        "desc": "Índice compuesto que evalúa velocidad de escaneo y respuesta.",
+    },
+    "AdWAISEMan": {
+        "nombre": "WAIS-III Índice Manipulación Mental",
+        "desc": "Alias del Índice Memoria de Trabajo cuando se enfatiza la manipulación.",
+    },
+    "AdWAISTot": {
+        "nombre": "WAIS-III Cociente Intelectual Total",
+        "desc": "Síntesis de los cuatro índices compuestos. Medida global del funcionamiento intelectual.",
+    },
     # ── Memoria: Grober-Buschke ──
-    "ViGroberRLT": {"nombre": "Grober-Buschke Recuerdo Libre Total",
-                    "desc": "Suma de palabras recordadas en ensayo libre a lo largo de 3 ensayos. Evalúa codificación y consolidación de memoria verbal."},
-    "ViGroberMC_Tot": {"nombre": "Grober-Buschke Memoria Total (Rec + Recon)",
-                       "desc": "Recuerdo total (libre + clave) en cada ensayo. Evalúa capacidad máxima de recuperación con y sin clave."},
-    "ViGroberML_Tot": {"nombre": "Grober-Buschke Memoria Libre Total",
-                       "desc": "Recuerdo libre acumulado en los 3 ensayos. Evalúa aprendizaje y consolidación verbal."},
-    "ViGroberRT": {"nombre": "Grober-Buschke Recuerdo Total",
-                   "desc": "Recuerdo total (libre + clave) en el ensayo de evocación diferida. Evalúa memoria a largo plazo."},
+    "ViGroberRLT": {
+        "nombre": "Grober-Buschke Recuerdo Libre Total",
+        "desc": "Suma de palabras recordadas en ensayo libre a lo largo de 3 ensayos. Evalúa codificación y consolidación de memoria verbal.",
+    },
+    "ViGroberMC_Tot": {
+        "nombre": "Grober-Buschke Memoria Total (Rec + Recon)",
+        "desc": "Recuerdo total (libre + clave) en cada ensayo. Evalúa capacidad máxima de recuperación con y sin clave.",
+    },
+    "ViGroberML_Tot": {
+        "nombre": "Grober-Buschke Memoria Libre Total",
+        "desc": "Recuerdo libre acumulado en los 3 ensayos. Evalúa aprendizaje y consolidación verbal.",
+    },
+    "ViGroberRT": {
+        "nombre": "Grober-Buschke Recuerdo Total",
+        "desc": "Recuerdo total (libre + clave) en el ensayo de evocación diferida. Evalúa memoria a largo plazo.",
+    },
     # ── Memoria: Rey (AdFCRO_Rey) ──
-    "AdFCRO_Rey": {"nombre": "Rey-Osterrieth Figura Compleja — Copia y Recuerdo",
-                   "desc": "Copia y reproducción diferida de la figura de Rey. Evalúa construcción visual, memoria visual y organización perceptual."},
+    "AdFCRO_Rey": {
+        "nombre": "Rey-Osterrieth Figura Compleja — Copia y Recuerdo",
+        "desc": "Copia y reproducción diferida de la figura de Rey. Evalúa construcción visual, memoria visual y organización perceptual.",
+    },
     # ── Atención: TMT ──
-    "NiTMTA": {"nombre": "Trail Making Test A",
-               "desc": "Unir números en orden ascendente. Evalúa atención visual, búsqueda visual y velocidad psicomotora."},
-    "NiTMTB": {"nombre": "Trail Making Test B",
-               "desc": "Alternar entre números y letras. Evalúa atención dividida, flexibilidad cognitiva y función ejecutiva."},
-    "AdTMT_AB": {"nombre": "Trail Making Test A y B",
-                 "desc": "Versión adulta del TMT. A: atención sostenida. B: alternancia y flexibilidad cognitiva."},
-    "ViTMTA": {"nombre": "Trail Making Test A (AM)",
-               "desc": "TMT-A baremado para adulto mayor. Evalúa atención, búsqueda visual y velocidad psicomotora."},
-    "ViTMTB": {"nombre": "Trail Making Test B (AM)",
-               "desc": "TMT-B baremado para adulto mayor. Evalúa flexibilidad cognitiva y atención dividida."},
+    "NiTMTA": {
+        "nombre": "Trail Making Test A",
+        "desc": "Unir números en orden ascendente. Evalúa atención visual, búsqueda visual y velocidad psicomotora.",
+    },
+    "NiTMTB": {
+        "nombre": "Trail Making Test B",
+        "desc": "Alternar entre números y letras. Evalúa atención dividida, flexibilidad cognitiva y función ejecutiva.",
+    },
+    "AdTMT_AB": {
+        "nombre": "Trail Making Test A y B",
+        "desc": "Versión adulta del TMT. A: atención sostenida. B: alternancia y flexibilidad cognitiva.",
+    },
+    "ViTMTA": {
+        "nombre": "Trail Making Test A (AM)",
+        "desc": "TMT-A baremado para adulto mayor. Evalúa atención, búsqueda visual y velocidad psicomotora.",
+    },
+    "ViTMTB": {
+        "nombre": "Trail Making Test B (AM)",
+        "desc": "TMT-B baremado para adulto mayor. Evalúa flexibilidad cognitiva y atención dividida.",
+    },
     # ── Span dígitos ──
-    "NiSpaDC": {"nombre": "Span Dígitos Directo",
-                "desc": "Repetición de dígitos en orden directo. Evalúa span atencional y memoria de trabajo fonológica."},
-    "NiSpaDI": {"nombre": "Span Dígitos Inverso",
-                "desc": "Repetición de dígitos en orden inverso. Evalúa memoria de trabajo y manipulación mental."},
-    "AdSpaDC": {"nombre": "Span Dígitos Directo (Ad)",
-                "desc": "Versión adulta del span de dígitos directo. Evalúa atención y memoria de trabajo."},
-    "AdSpaDI": {"nombre": "Span Dígitos Inverso (Ad)",
-                "desc": "Versión adulta del span de dígitos inverso. Evalúa memoria de trabajo."},
+    "NiSpaDC": {
+        "nombre": "Span Dígitos Directo",
+        "desc": "Repetición de dígitos en orden directo. Evalúa span atencional y memoria de trabajo fonológica.",
+    },
+    "NiSpaDI": {
+        "nombre": "Span Dígitos Inverso",
+        "desc": "Repetición de dígitos en orden inverso. Evalúa memoria de trabajo y manipulación mental.",
+    },
+    "AdSpaDC": {
+        "nombre": "Span Dígitos Directo (Ad)",
+        "desc": "Versión adulta del span de dígitos directo. Evalúa atención y memoria de trabajo.",
+    },
+    "AdSpaDI": {
+        "nombre": "Span Dígitos Inverso (Ad)",
+        "desc": "Versión adulta del span de dígitos inverso. Evalúa memoria de trabajo.",
+    },
     # ── Fluidez verbal ──
-    "AdFluidezAnimales": {"nombre": "Fluidez Verbal Semántica — Animales",
-                          "desc": "Producir nombres de animales en 1 minuto. Evalúa lenguaje, fluencia semántica y acceso al léxico."},
-    "AdFluidezFrutas": {"nombre": "Fluidez Verbal Semántica — Frutas",
-                         "desc": "Producir nombres de frutas en 1 minuto. Evalúa acceso léxico-semántico."},
-    "AdFluidezLetraF": {"nombre": "Fluidez Verbal Fonológica — F",
-                        "desc": "Palabras que empiezan por F. Evalúa fluencia fonológica, búsqueda activa y control ejecutivo."},
-    "AdFluidezLetraA": {"nombre": "Fluidez Verbal Fonológica — A",
-                        "desc": "Palabras que empiezan por A. Evalúa fluencia fonológica."},
-    "AdFluidezLetraS": {"nombre": "Fluidez Verbal Fonológica — S",
-                        "desc": "Palabras que empiezan por S. Evalúa fluencia fonológica."},
-    "NiFluidezAnimales": {"nombre": "Fluidez Verbal Semántica — Animales (Ni)",
-                          "desc": "Versión infantil de la fluencia semántica de animales."},
-    "NiFluidezFrutas": {"nombre": "Fluidez Verbal Semántica — Frutas (Ni)",
-                         "desc": "Versión infantil de la fluencia semántica de frutas."},
+    "AdFluidezAnimales": {
+        "nombre": "Fluidez Verbal Semántica — Animales",
+        "desc": "Producir nombres de animales en 1 minuto. Evalúa lenguaje, fluencia semántica y acceso al léxico.",
+    },
+    "AdFluidezFrutas": {
+        "nombre": "Fluidez Verbal Semántica — Frutas",
+        "desc": "Producir nombres de frutas en 1 minuto. Evalúa acceso léxico-semántico.",
+    },
+    "AdFluidezLetraF": {
+        "nombre": "Fluidez Verbal Fonológica — F",
+        "desc": "Palabras que empiezan por F. Evalúa fluencia fonológica, búsqueda activa y control ejecutivo.",
+    },
+    "AdFluidezLetraA": {
+        "nombre": "Fluidez Verbal Fonológica — A",
+        "desc": "Palabras que empiezan por A. Evalúa fluencia fonológica.",
+    },
+    "AdFluidezLetraS": {
+        "nombre": "Fluidez Verbal Fonológica — S",
+        "desc": "Palabras que empiezan por S. Evalúa fluencia fonológica.",
+    },
+    "NiFluidezAnimales": {
+        "nombre": "Fluidez Verbal Semántica — Animales (Ni)",
+        "desc": "Versión infantil de la fluencia semántica de animales.",
+    },
+    "NiFluidezFrutas": {
+        "nombre": "Fluidez Verbal Semántica — Frutas (Ni)",
+        "desc": "Versión infantil de la fluencia semántica de frutas.",
+    },
     # ── Stroop ──
-    "AdStroopC": {"nombre": "Test de Stroop — Color",
-                  "desc": "Nombrar el color de la tinta de palabras incongruentes. Evalúa inhibición y control atencional."},
-    "AdStroopP": {"nombre": "Test de Stroop — Palabra",
-                  "desc": "Leer palabras de colores. Evalúa velocidad de lectura automatizada."},
-    "AdStroopPC": {"nombre": "Test de Stroop — Palabra-Color",
-                   "desc": "Versión completa del Stroop con condiciones de lectura, color e interferencia."},
+    "AdStroopC": {
+        "nombre": "Test de Stroop — Color",
+        "desc": "Nombrar el color de la tinta de palabras incongruentes. Evalúa inhibición y control atencional.",
+    },
+    "AdStroopP": {
+        "nombre": "Test de Stroop — Palabra",
+        "desc": "Leer palabras de colores. Evalúa velocidad de lectura automatizada.",
+    },
+    "AdStroopPC": {
+        "nombre": "Test de Stroop — Palabra-Color",
+        "desc": "Versión completa del Stroop con condiciones de lectura, color e interferencia.",
+    },
     # ── Depresión y ansiedad (cribado) ──
-    "AdBeck": {"nombre": "Inventario de Depresión de Beck (BDI-II)",
-               "desc": "Auto-reporte de 21 ítems sobre síntomas depresivos en las últimas 2 semanas. Evalúa severidad de depresión."},
-    "AdBDI": {"nombre": "BDI-II (alias)",
-              "desc": "Alias del Inventario de Depresión de Beck-II."},
-    "AdPHQ9": {"nombre": "PHQ-9",
-               "desc": "Cuestionario de 9 ítems sobre sintomatología depresiva según criterios DSM-IV. Útil en atención primaria."},
-    "ViYesavage": {"nombre": "Escala de Depresión Geriátrica (GDS-15)",
-                   "desc": "Escala de 15 ítems diseñada para detectar depresión en adultos mayores. Reduce falsos positivos por síntomas somáticos."},
-    "AdYesavage": {"nombre": "GDS-15 (alias)",
-                   "desc": "Alias de la Escala de Depresión Geriátrica de Yesavage."},
-    "AdHARS": {"nombre": "Escala de Ansiedad de Hamilton (HARS)",
-               "desc": "Escala heteroaplicada de 14 ítems que evalúa severidad de ansiedad."},
-    "AdEAD": {"nombre": "Escala de Ansiedad de Beck (BAI)",
-              "desc": "Auto-reporte de 21 ítems sobre síntomas ansiosos en la última semana. Evalúa severidad de ansiedad."},
+    "AdBeck": {
+        "nombre": "Inventario de Depresión de Beck (BDI-II)",
+        "desc": "Auto-reporte de 21 ítems sobre síntomas depresivos en las últimas 2 semanas. Evalúa severidad de depresión.",
+    },
+    "AdBDI": {"nombre": "BDI-II (alias)", "desc": "Alias del Inventario de Depresión de Beck-II."},
+    "AdPHQ9": {
+        "nombre": "PHQ-9",
+        "desc": "Cuestionario de 9 ítems sobre sintomatología depresiva según criterios DSM-IV. Útil en atención primaria.",
+    },
+    "ViYesavage": {
+        "nombre": "Escala de Depresión Geriátrica (GDS-15)",
+        "desc": "Escala de 15 ítems diseñada para detectar depresión en adultos mayores. Reduce falsos positivos por síntomas somáticos.",
+    },
+    "AdYesavage": {"nombre": "GDS-15 (alias)", "desc": "Alias de la Escala de Depresión Geriátrica de Yesavage."},
+    "AdHARS": {
+        "nombre": "Escala de Ansiedad de Hamilton (HARS)",
+        "desc": "Escala heteroaplicada de 14 ítems que evalúa severidad de ansiedad.",
+    },
+    "AdEAD": {
+        "nombre": "Escala de Ansiedad de Beck (BAI)",
+        "desc": "Auto-reporte de 21 ítems sobre síntomas ansiosos en la última semana. Evalúa severidad de ansiedad.",
+    },
     # ── Actividades de la vida diaria ──
-    "EscLawton": {"nombre": "Escala de Lawton y Brody (IADL)",
-                  "desc": "Evalúa la capacidad funcional instrumental: uso de teléfono, compras, manejo de dinero, etc."},
-    "AdLawton": {"nombre": "Lawton y Brody (IADL) — Adulto",
-                 "desc": "Versión para adultos de la escala de actividades instrumentales de la vida diaria."},
-    "ViLawton": {"nombre": "Lawton y Brody (IADL) — Adulto Mayor",
-                 "desc": "Versión para adulto mayor de la escala IADL de Lawton."},
+    "EscLawton": {
+        "nombre": "Escala de Lawton y Brody (IADL)",
+        "desc": "Evalúa la capacidad funcional instrumental: uso de teléfono, compras, manejo de dinero, etc.",
+    },
+    "AdLawton": {
+        "nombre": "Lawton y Brody (IADL) — Adulto",
+        "desc": "Versión para adultos de la escala de actividades instrumentales de la vida diaria.",
+    },
+    "ViLawton": {
+        "nombre": "Lawton y Brody (IADL) — Adulto Mayor",
+        "desc": "Versión para adulto mayor de la escala IADL de Lawton.",
+    },
     # ── Minimental y Montreal ──
-    "AdMMSE": {"nombre": "Mini-Mental State Examination (MMSE)",
-               "desc": "Cribado breve de 30 puntos que evalúa orientación, registro, atención, recuerdo y lenguaje."},
-    "AdMOCA": {"nombre": "Montreal Cognitive Assessment (MoCA)",
-               "desc": "Cribado breve de 30 puntos, más sensible que MMSE para detectar deterioro cognitivo leve. Evalúa dominios frontales y visoespaciales."},
+    "AdMMSE": {
+        "nombre": "Mini-Mental State Examination (MMSE)",
+        "desc": "Cribado breve de 30 puntos que evalúa orientación, registro, atención, recuerdo y lenguaje.",
+    },
+    "AdMOCA": {
+        "nombre": "Montreal Cognitive Assessment (MoCA)",
+        "desc": "Cribado breve de 30 puntos, más sensible que MMSE para detectar deterioro cognitivo leve. Evalúa dominios frontales y visoespaciales.",
+    },
     # ── Síntomas psicóticos / validez ──
-    "NiPANSS": {"nombre": "PANSS (versión infantil)",
-                "desc": "Escala de síntomas positivos y negativos para esquizofrenia. Adaptación para población adolescente."},
+    "NiPANSS": {
+        "nombre": "PANSS (versión infantil)",
+        "desc": "Escala de síntomas positivos y negativos para esquizofrenia. Adaptación para población adolescente.",
+    },
     # ── TDAH / Discapacidad intelectual ──
-    "AdWAIS": {"nombre": "WAIS-III (batería completa)",
-               "desc": "Batería completa de Wechsler para adultos con todos los subtests e índices."},
-    "AdWAISWMI": {"nombre": "Índice Memoria de Trabajo WAIS",
-                  "desc": "Índice compuesto de memoria de trabajo derivado de Aritmética y Letras-Números."},
+    "AdWAIS": {
+        "nombre": "WAIS-III (batería completa)",
+        "desc": "Batería completa de Wechsler para adultos con todos los subtests e índices.",
+    },
+    "AdWAISWMI": {
+        "nombre": "Índice Memoria de Trabajo WAIS",
+        "desc": "Índice compuesto de memoria de trabajo derivado de Aritmética y Letras-Números.",
+    },
     # ── INECO / escalas ejecutivas ──
-    "AdINECO": {"nombre": "Batería INECO Frontal Screening",
-                "desc": "Cribado breve de funciones ejecutivas (memoria de trabajo, inhibición, planificación, flexibilidad)."},
+    "AdINECO": {
+        "nombre": "Batería INECO Frontal Screening",
+        "desc": "Cribado breve de funciones ejecutivas (memoria de trabajo, inhibición, planificación, flexibilidad).",
+    },
     # ── ENI-2 infantil ──
-    "NiENIMem": {"nombre": "ENI-2 Memoria",
-                 "desc": "Batería neuropsicológica infantil ENI-2 — subpruebas de memoria."},
-    "NiENILen": {"nombre": "ENI-2 Lenguaje",
-                 "desc": "Batería neuropsicológica infantil ENI-2 — subpruebas de lenguaje."},
+    "NiENIMem": {"nombre": "ENI-2 Memoria", "desc": "Batería neuropsicológica infantil ENI-2 — subpruebas de memoria."},
+    "NiENILen": {
+        "nombre": "ENI-2 Lenguaje",
+        "desc": "Batería neuropsicológica infantil ENI-2 — subpruebas de lenguaje.",
+    },
     # ── Rey Verbal (AdFCRO_Ver) ──
-    "AdFCRO_Ver": {"nombre": "Rey Auditiva Verbal",
-                   "desc": "Recuerdo de una lista de palabras en 5 ensayos. Evalúa aprendizaje verbal, consolidación y reconocimiento."},
+    "AdFCRO_Ver": {
+        "nombre": "Rey Auditiva Verbal",
+        "desc": "Recuerdo de una lista de palabras en 5 ensayos. Evalúa aprendizaje verbal, consolidación y reconocimiento.",
+    },
     # ── Discriminación perceptual ──
-    "NiDiscPer": {"nombre": "Discriminación Perceptual",
-                  "desc": "Evalúa la capacidad de discriminar entre estímulos visuales similares."},
+    "NiDiscPer": {
+        "nombre": "Discriminación Perceptual",
+        "desc": "Evalúa la capacidad de discriminar entre estímulos visuales similares.",
+    },
 }
 
 
@@ -820,9 +930,15 @@ def parse_recomendaciones(text: str) -> dict[str, list[dict]]:
         "[REHABILITACIÓN]": "Rehabilitación",
     }
     PRIORITY_TAGS = {
-        "(alta)": "alta", "(media)": "media", "(baja)": "baja",
-        "[alta]": "alta", "[media]": "media", "[baja]": "baja",
-        "!!!": "alta", "!!": "media", "!": "baja",
+        "(alta)": "alta",
+        "(media)": "media",
+        "(baja)": "baja",
+        "[alta]": "alta",
+        "[media]": "media",
+        "[baja]": "baja",
+        "!!!": "alta",
+        "!!": "media",
+        "!": "baja",
     }
     raw_lines = [ln.strip() for ln in str(text).splitlines() if ln.strip()]
     # Caso simple: si no hay tags, generamos 1 bloque "General"
@@ -1078,7 +1194,9 @@ def validar_principios_narrativa(
     # P2: No patologizar variaciones normales
     # Si NO hay CI o puntaje explícito en el texto, marcar como no_aplica;
     # si los hay, verificar que aparezca un "sugiere" o "consistente con".
-    tiene_puntuacion = bool(re.search(r"\b(?:CI|cociente|percentil|escalar|z[- ]?score|puntuaci[oó]n\s+z)\b", texto, re.IGNORECASE))
+    tiene_puntuacion = bool(
+        re.search(r"\b(?:CI|cociente|percentil|escalar|z[- ]?score|puntuaci[oó]n\s+z)\b", texto, re.IGNORECASE)
+    )
     if not tiene_puntuacion:
         principios["P2"] = {
             "titulo": "No patologizar variaciones normales",
@@ -1086,7 +1204,9 @@ def validar_principios_narrativa(
             "detalle": "No se detectaron puntuaciones explícitas en la narrativa.",
         }
     else:
-        if re.search(r"\b(?:sugiere|consistente con|apoya|orienta a|compatible con|indicativo de)\b", texto, re.IGNORECASE):
+        if re.search(
+            r"\b(?:sugiere|consistente con|apoya|orienta a|compatible con|indicativo de)\b", texto, re.IGNORECASE
+        ):
             principios["P2"] = {
                 "titulo": "No patologizar variaciones normales",
                 "estado": "ok",
@@ -1112,9 +1232,7 @@ def validar_principios_narrativa(
             principios["P3"] = {
                 "titulo": "Citar normas colombianas cuando existan",
                 "estado": "revisar",
-                "detalle": "Población {}: se recomienda mencionar baremo de Neuronorma Colombia (Arango-Lasprilla & Rivera, 2017).".format(
-                    poblacion_objetivo
-                ),
+                "detalle": f"Población {poblacion_objetivo}: se recomienda mencionar baremo de Neuronorma Colombia (Arango-Lasprilla & Rivera, 2017).",
             }
     else:
         principios["P3"] = {
@@ -1185,11 +1303,7 @@ def validar_principios_narrativa(
     }
 
     # Resumen
-    alertas = [
-        f"[{pid}] {p['titulo']}: {p['detalle']}"
-        for pid, p in principios.items()
-        if p["estado"] == "revisar"
-    ]
+    alertas = [f"[{pid}] {p['titulo']}: {p['detalle']}" for pid, p in principios.items() if p["estado"] == "revisar"]
     cumple = all(p["estado"] in ("ok", "no_aplica") for p in principios.values())
 
     resumen_partes = []
@@ -1229,37 +1343,30 @@ MAPEO_LENGUAJE_CLARO = {
     "Coeficiente Intelectual Total": "tu rendimiento intelectual general",
     "Inteligencia": "la forma en que tu cerebro resuelve problemas",
     "funcionamiento intelectual": "tu capacidad para pensar y resolver problemas",
-
     # Memoria
     "Memoria de Trabajo": "la capacidad de mantener información en mente mientras haces otra cosa",
     "memoria auditiva": "la capacidad de recordar lo que escuchas",
     "memoria visual": "la capacidad de recordar lo que ves",
     "memoria de trabajo": "tu memoria activa, como la mesa de trabajo mental",
-
     # Atención
     "Atención Sostenida": "la capacidad de mantener la atención por ratos largos",
     "Atención Selectiva": "la capacidad de filtrar lo que importa y dejar de lado lo que distrae",
     "atención": "tu capacidad de concentrarte",
-
     # Funciones ejecutivas
     "Funciones Ejecutivas": "tus habilidades para planificar, organizarte y controlar impulsos",
     "control inhibitorio": "la capacidad de detener una respuesta automática",
     "flexibilidad cognitiva": "la capacidad de cambiar de tarea o de estrategia",
     "planificación": "la capacidad de organizar pasos para lograr una meta",
-
     # Lenguaje
     "Comprensión Verbal": "la comprensión de lo que te dicen",
     "Expresión Verbal": "la forma en que te expresas con palabras",
     "fluidez verbal": "la facilidad para producir palabras",
-
     # Velocidad
     "Velocidad de Procesamiento": "qué tan rápido tu cerebro hace tareas sencillas",
     "velocidad": "la rapidez con que procesas información",
-
     # Visuoespacial
     "Razonamiento Visuoespacial": "la capacidad de imaginar y manipular formas en tu mente",
     "habilidades visuoespaciales": "la capacidad de manejar formas y espacios",
-
     # Clasificación bandas
     "Superior": "muy por encima del promedio",
     "Promedio Alto": "por encima del promedio",
@@ -1267,7 +1374,6 @@ MAPEO_LENGUAJE_CLARO = {
     "Promedio Bajo": "un poco por debajo del promedio",
     "Bajo": "por debajo del promedio",
     "Muy Bajo": "muy por debajo del promedio",
-
     # Diagnósticos
     "TDAH": "dificultades de atención",
     "TEA": "condiciones del neurodesarrollo que afectan la comunicación y la interacción social",
@@ -1331,7 +1437,7 @@ def generar_resumen_paciente(
         "Realizamos varias pruebas que miden cómo funciona tu cerebro en "
         "distintas situaciones: memoria, atención, lenguaje, razonamiento y "
         "la velocidad con la que procesas información. Las pruebas son como "
-        "\"pequeños retos\" que se resuelven con papel, lápiz y a veces con cubos "
+        '"pequeños retos" que se resuelven con papel, lápiz y a veces con cubos '
         "o figuras. No hay respuestas buenas ni malas: lo que nos interesa es "
         "conocer cómo trabaja tu mente."
     )
@@ -1341,12 +1447,7 @@ def generar_resumen_paciente(
     fortalezas: list[str] = []
     areas_apoyo: list[str] = []
     for r in resultados or []:
-        nombre_test = (
-            r.get("test_nombre")
-            or r.get("nombre")
-            or r.get("test_id")
-            or ""
-        )
+        nombre_test = r.get("test_nombre") or r.get("nombre") or r.get("test_id") or ""
         banda = r.get("clasificacion") or r.get("interpretacion", "")
         if not nombre_test:
             continue
@@ -1367,9 +1468,7 @@ def generar_resumen_paciente(
                     f"({banda_clara}). Vale la pena acompañarlo de cerca."
                 )
             else:
-                fortalezas.append(
-                    f"En {termino_claro}, tu rendimiento fue {banda_clara}."
-                )
+                fortalezas.append(f"En {termino_claro}, tu rendimiento fue {banda_clara}.")
         elif banda in ("Bajo", "Muy Bajo"):
             areas_apoyo.append(
                 f"En {termino_claro}, encontramos un rendimiento {banda_clara}. "
@@ -1387,15 +1486,9 @@ def generar_resumen_paciente(
     else:
         frases: list[str] = []
         if fortalezas:
-            frases.append(
-                "Las áreas donde te fue bien incluyen: " +
-                " ".join(fortalezas[:3])
-            )
+            frases.append("Las áreas donde te fue bien incluyen: " + " ".join(fortalezas[:3]))
         if areas_apoyo:
-            frases.append(
-                "Las áreas donde se recomienda trabajar incluyen: " +
-                " ".join(areas_apoyo[:3])
-            )
+            frases.append("Las áreas donde se recomienda trabajar incluyen: " + " ".join(areas_apoyo[:3]))
         que_encontramos = " ".join(frases)
 
     if recomendaciones:
@@ -1420,10 +1513,7 @@ def generar_resumen_paciente(
                     "de tratamiento."
                 )
             else:
-                recs_paciente.append(
-                    f"Recomendación: {r} (consulta con tu psicólogo/a para "
-                    "detalles específicos)."
-                )
+                recs_paciente.append(f"Recomendación: {r} (consulta con tu psicólogo/a para detalles específicos).")
         que_recomendamos = " ".join(recs_paciente[:4])
     else:
         que_recomendamos = (
@@ -1437,63 +1527,75 @@ def generar_resumen_paciente(
     preguntas_frecuentes: list[tuple[str, str]] = []
 
     # 1. ¿Son permanentes? — siempre relevante.
-    preguntas_frecuentes.append((
-        "¿Mis resultados son permanentes?",
-        "No necesariamente. El cerebro puede cambiar con el tiempo, "
-        "especialmente con práctica, con los apoyos adecuados y con un buen "
-        "ambiente. Estos resultados son una foto del momento actual: tu "
-        "psicólogo/a te ayudará a entender qué puede cambiar y qué se "
-        "mantiene más estable."
-    ))
+    preguntas_frecuentes.append(
+        (
+            "¿Mis resultados son permanentes?",
+            "No necesariamente. El cerebro puede cambiar con el tiempo, "
+            "especialmente con práctica, con los apoyos adecuados y con un buen "
+            "ambiente. Estos resultados son una foto del momento actual: tu "
+            "psicólogo/a te ayudará a entender qué puede cambiar y qué se "
+            "mantiene más estable.",
+        )
+    )
 
     # 2. ¿Por qué algunos puntajes son mejores que otros? — siempre relevante.
-    preguntas_frecuentes.append((
-        "¿Por qué algunos resultados son mejores que otros?",
-        "Es completamente normal. Todas las personas tienen áreas donde "
-        "son más fuertes y áreas donde pueden mejorar. Esto NO significa "
-        "que haya algo mal: el cerebro humano es diverso y cada uno tiene "
-        "su propio perfil."
-    ))
+    preguntas_frecuentes.append(
+        (
+            "¿Por qué algunos resultados son mejores que otros?",
+            "Es completamente normal. Todas las personas tienen áreas donde "
+            "son más fuertes y áreas donde pueden mejorar. Esto NO significa "
+            "que haya algo mal: el cerebro humano es diverso y cada uno tiene "
+            "su propio perfil.",
+        )
+    )
 
     # 3. FAQ condicional: si hubo puntajes muy bajos.
     if any(b in ("Bajo", "Muy Bajo") for b in bandas_paciente):
-        preguntas_frecuentes.append((
-            "¿Qué significa un puntaje 'bajo' o 'muy bajo'?",
-            "Significa que, comparado con personas de la misma edad y nivel "
-            "educativo, esa función específica rindió por debajo de lo "
-            "esperado. NO es un diagnóstico en sí mismo. Es una señal para "
-            "profundizar, entrenar y apoyar esa área. Tu psicólogo/a te "
-            "explicará si requiere intervención profesional adicional."
-        ))
+        preguntas_frecuentes.append(
+            (
+                "¿Qué significa un puntaje 'bajo' o 'muy bajo'?",
+                "Significa que, comparado con personas de la misma edad y nivel "
+                "educativo, esa función específica rindió por debajo de lo "
+                "esperado. NO es un diagnóstico en sí mismo. Es una señal para "
+                "profundizar, entrenar y apoyar esa área. Tu psicólogo/a te "
+                "explicará si requiere intervención profesional adicional.",
+            )
+        )
     # 4. FAQ condicional: si hubo puntajes en CI.
     tiene_ci = any(r.get("tipo_metrica") == "ci" for r in (resultados or []))
     if tiene_ci:
-        preguntas_frecuentes.append((
-            "¿Qué es el 'cociente intelectual' (CI)?",
-            "El CI es un número que resume el rendimiento global en "
-            "diversas pruebas. NO define tu inteligencia total ni tu valor "
-            "como persona: es solo una medida parcial de ciertas habilidades "
-            "de razonamiento, memoria y atención. Varía según el contexto, "
-            "la fatiga, el ánimo del día y muchos otros factores."
-        ))
+        preguntas_frecuentes.append(
+            (
+                "¿Qué es el 'cociente intelectual' (CI)?",
+                "El CI es un número que resume el rendimiento global en "
+                "diversas pruebas. NO define tu inteligencia total ni tu valor "
+                "como persona: es solo una medida parcial de ciertas habilidades "
+                "de razonamiento, memoria y atención. Varía según el contexto, "
+                "la fatiga, el ánimo del día y muchos otros factores.",
+            )
+        )
     # 5. FAQ condicional: si hubo puntajes destacados altos.
     if any(b in ("Superior", "Promedio Alto") for b in bandas_paciente):
-        preguntas_frecuentes.append((
-            "¿Qué hago con las áreas donde me fue muy bien?",
-            "¡Celebra y potencia esas fortalezas! Pueden ser tu ancla para "
-            "compensar las áreas que requieren más esfuerzo. Compartir esto "
-            "con tu familia, colegio o terapeuta les permite diseñar "
-            "estrategias que aprovechen lo que mejor te sale."
-        ))
+        preguntas_frecuentes.append(
+            (
+                "¿Qué hago con las áreas donde me fue muy bien?",
+                "¡Celebra y potencia esas fortalezas! Pueden ser tu ancla para "
+                "compensar las áreas que requieren más esfuerzo. Compartir esto "
+                "con tu familia, colegio o terapeuta les permite diseñar "
+                "estrategias que aprovechen lo que mejor te sale.",
+            )
+        )
     # 6. FAQ condicional: si el paciente es menor de edad.
     if not areas_apoyo:
-        preguntas_frecuentes.append((
-            "¿Necesito otro tipo de evaluaciones?",
-            "Tu psicólogo/a te dirá si se necesitan otros estudios "
-            "(por ejemplo, evaluación pedagógica, médica, o del lenguaje). "
-            "No te preocupes si no entiendes algún término: puedes preguntar "
-            "siempre."
-        ))
+        preguntas_frecuentes.append(
+            (
+                "¿Necesito otro tipo de evaluaciones?",
+                "Tu psicólogo/a te dirá si se necesitan otros estudios "
+                "(por ejemplo, evaluación pedagógica, médica, o del lenguaje). "
+                "No te preocupes si no entiendes algún término: puedes preguntar "
+                "siempre.",
+            )
+        )
 
     return {
         "saludo": saludo,
@@ -1749,10 +1851,14 @@ def validar_principios_redaccion_2024(
                 "auditable_auto": True,
             }
         else:
-            with_dis = sum(1 for m in re.finditer(
-                r"\bDIS-(?:atencional|mn[eé]sic[oa]|ejecutiv[oa]|visuoespacial|verbal)",
-                texto, re.IGNORECASE,
-            ))
+            with_dis = sum(
+                1
+                for m in re.finditer(
+                    r"\bDIS-(?:atencional|mn[eé]sic[oa]|ejecutiv[oa]|visuoespacial|verbal)",
+                    texto,
+                    re.IGNORECASE,
+                )
+            )
             ratio = with_dis / max(1, len(deficit_terms))
             if ratio >= 0.5:
                 principios["R3"] = {
@@ -1792,7 +1898,8 @@ def validar_principios_redaccion_2024(
     # Detectar si el texto menciona pruebas por su nombre.
     pruebas_mencionadas = re.findall(
         r"\b(WCST|Stroop|TMT[- ]?[AB]|Trail\s+Making|WISC|WAIS|MoCA|MMSE|Test\s+de\s+\w+|Cubos\s+de\s+Kohs|Figura\s+Compleja\s+de\s+Rey)\b",
-        texto, re.IGNORECASE,
+        texto,
+        re.IGNORECASE,
     )
     if not pruebas_mencionadas:
         principios["R5"] = {
@@ -1850,11 +1957,7 @@ def validar_principios_redaccion_2024(
     }
 
     # Resumen
-    alertas = [
-        f"[{pid}] {p['titulo']}: {p['detalle']}"
-        for pid, p in principios.items()
-        if p["estado"] == "revisar"
-    ]
+    alertas = [f"[{pid}] {p['titulo']}: {p['detalle']}" for pid, p in principios.items() if p["estado"] == "revisar"]
     cumple = all(p["estado"] in ("ok", "no_aplica") for p in principios.values())
 
     resumen_partes = []
@@ -1882,9 +1985,7 @@ def validar_principios_redaccion_2024(
 
 
 CLAUSULAS_INFORME_PROFESIONAL = {
-    "encabezado": (
-        "INFORME NEUROPSICOLÓGICO CONFIDENCIAL — DOCUMENTO CLÍNICO LEGAL"
-    ),
+    "encabezado": ("INFORME NEUROPSICOLÓGICO CONFIDENCIAL — DOCUMENTO CLÍNICO LEGAL"),
     "declaracion_confidencialidad": (
         "Este documento contiene información clínica protegida por la Ley 1581 "
         "de 2012 (Habeas Data), la Resolución 1995 de 1999 (Historia Clínica) y "
@@ -1946,16 +2047,9 @@ def construir_bloque_legal_encabezado(
     partes.append(f"  Fecha de evaluación: {fecha_evaluacion or '—'}")
     partes.append("")
     partes.append(f"Objetivo del informe: {objetivo or '—'}")
-    partes.append(
-        f"Uso previsto: {uso_previsto or CLAUSULAS_INFORME_PROFESIONAL['uso_previsto_default']}"
-    )
-    partes.append(
-        f"Limitaciones: {limitaciones or CLAUSULAS_INFORME_PROFESIONAL['limitaciones_default']}"
-    )
+    partes.append(f"Uso previsto: {uso_previsto or CLAUSULAS_INFORME_PROFESIONAL['uso_previsto_default']}")
+    partes.append(f"Limitaciones: {limitaciones or CLAUSULAS_INFORME_PROFESIONAL['limitaciones_default']}")
     partes.append(f"Lugar: {lugar or '—'}")
     partes.append("")
     partes.append(CLAUSULAS_INFORME_PROFESIONAL["responsabilidad_profesional"])
     return "\n".join(partes)
-
-
-

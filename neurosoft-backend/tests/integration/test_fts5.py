@@ -30,7 +30,8 @@ def fts_db():
 
     # Crear tabla FTS5
     with engine.begin() as conn:
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE VIRTUAL TABLE IF NOT EXISTS patients_fts
             USING fts5(
                 id UNINDEXED,
@@ -47,9 +48,11 @@ def fts_db():
                 content_rowid='rowid',
                 tokenize='unicode61'
             )
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS patients_ai AFTER INSERT ON patients BEGIN
                 INSERT INTO patients_fts(rowid, id, primer_nombre, segundo_nombre,
                     primer_apellido, segundo_apellido, numero_documento,
@@ -58,9 +61,11 @@ def fts_db():
                     new.primer_apellido, new.segundo_apellido, new.numero_documento,
                     new.motivo_consulta, new.eps, new.ciudad, new.ocupacion);
             END
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS patients_ad AFTER DELETE ON patients BEGIN
                 INSERT INTO patients_fts(patients_fts, rowid, id, primer_nombre,
                     segundo_nombre, primer_apellido, segundo_apellido,
@@ -70,9 +75,11 @@ def fts_db():
                     old.numero_documento, old.motivo_consulta, old.eps,
                     old.ciudad, old.ocupacion);
             END
-        """))
+        """)
+        )
 
-        conn.execute(text("""
+        conn.execute(
+            text("""
             CREATE TRIGGER IF NOT EXISTS patients_au AFTER UPDATE ON patients BEGIN
                 INSERT INTO patients_fts(patients_fts, rowid, id, primer_nombre,
                     segundo_nombre, primer_apellido, segundo_apellido,
@@ -88,7 +95,8 @@ def fts_db():
                     new.primer_apellido, new.segundo_apellido, new.numero_documento,
                     new.motivo_consulta, new.eps, new.ciudad, new.ocupacion);
             END
-        """))
+        """)
+        )
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -96,32 +104,57 @@ def fts_db():
     # Insertar pacientes de prueba
     patients = [
         PatientORM(
-            id="uuid-p1-fts5-test", numero_documento="1234567890", tipo_documento="CC",
-            primer_nombre="María", primer_apellido="García",
-            sexo="M", fecha_nacimiento=date(1990, 5, 15),
+            id="uuid-p1-fts5-test",
+            numero_documento="1234567890",
+            tipo_documento="CC",
+            primer_nombre="María",
+            primer_apellido="García",
+            sexo="M",
+            fecha_nacimiento=date(1990, 5, 15),
             fecha_atencion=date(2026, 1, 10),
             motivo_consulta="Evaluación neuropsicológica por déficit de atención",
-            eps="Sura", ciudad="Bogotá", ocupacion="Ingeniera",
-            escolaridad="Universitaria", lateralidad="Diestro", is_active=True,
+            eps="Sura",
+            ciudad="Bogotá",
+            ocupacion="Ingeniera",
+            escolaridad="Universitaria",
+            lateralidad="Diestro",
+            is_active=True,
         ),
         PatientORM(
-            id="uuid-p2-fts5-test", numero_documento="9876543210", tipo_documento="CC",
-            primer_nombre="Carlos", segundo_nombre="Andrés",
-            primer_apellido="Rodríguez", segundo_apellido="López",
-            sexo="H", fecha_nacimiento=date(1985, 3, 20),
+            id="uuid-p2-fts5-test",
+            numero_documento="9876543210",
+            tipo_documento="CC",
+            primer_nombre="Carlos",
+            segundo_nombre="Andrés",
+            primer_apellido="Rodríguez",
+            segundo_apellido="López",
+            sexo="H",
+            fecha_nacimiento=date(1985, 3, 20),
             fecha_atencion=date(2026, 2, 15),
             motivo_consulta="Control postratamiento TDAH",
-            eps="Sanitas", ciudad="Medellín", ocupacion="Profesor",
-            escolaridad="Universitaria", lateralidad="Diestro", is_active=True,
+            eps="Sanitas",
+            ciudad="Medellín",
+            ocupacion="Profesor",
+            escolaridad="Universitaria",
+            lateralidad="Diestro",
+            is_active=True,
         ),
         PatientORM(
-            id="uuid-p3-fts5-test", numero_documento="1122334455", tipo_documento="TI",
-            primer_nombre="Ana", primer_apellido="Martínez",
-            sexo="M", fecha_nacimiento=date(2015, 8, 1),
+            id="uuid-p3-fts5-test",
+            numero_documento="1122334455",
+            tipo_documento="TI",
+            primer_nombre="Ana",
+            primer_apellido="Martínez",
+            sexo="M",
+            fecha_nacimiento=date(2015, 8, 1),
             fecha_atencion=date(2026, 3, 1),
             motivo_consulta="Dificultades de aprendizaje escolar",
-            eps="Nueva EPS", ciudad="Cali", ocupacion="Estudiante",
-            escolaridad="Secundaria", lateralidad="Diestro", is_active=True,
+            eps="Nueva EPS",
+            ciudad="Cali",
+            ocupacion="Estudiante",
+            escolaridad="Secundaria",
+            lateralidad="Diestro",
+            is_active=True,
         ),
     ]
     for p in patients:
@@ -135,6 +168,7 @@ def fts_db():
 @pytest.fixture
 def patient_repo(fts_db):
     from app.infrastructure.repositories.patient_repo import PatientRepository
+
     return PatientRepository(fts_db)
 
 
@@ -202,12 +236,21 @@ class TestFTS5Sync:
     def test_new_patient_indexed(self, fts_db, patient_repo):
         """Un paciente nuevo se indexa automáticamente."""
         new_patient = PatientORM(
-            id="uuid-new-fts5-test", numero_documento="5555555555", tipo_documento="CC",
-            primer_nombre="Nuevo", primer_apellido="Paciente",
-            sexo="H", fecha_nacimiento=date(2000, 1, 1),
-            fecha_atencion=date(2026, 5, 1), motivo_consulta="Test FTS5",
-            eps="Test EPS", ciudad="Barranquilla", ocupacion="Test",
-            escolaridad="Universitaria", lateralidad="Diestro", is_active=True,
+            id="uuid-new-fts5-test",
+            numero_documento="5555555555",
+            tipo_documento="CC",
+            primer_nombre="Nuevo",
+            primer_apellido="Paciente",
+            sexo="H",
+            fecha_nacimiento=date(2000, 1, 1),
+            fecha_atencion=date(2026, 5, 1),
+            motivo_consulta="Test FTS5",
+            eps="Test EPS",
+            ciudad="Barranquilla",
+            ocupacion="Test",
+            escolaridad="Universitaria",
+            lateralidad="Diestro",
+            is_active=True,
         )
         fts_db.add(new_patient)
         fts_db.commit()

@@ -124,9 +124,7 @@ def generate_rehab_plan_pdf(
             TableStyle,
         )
     except ImportError as e:
-        raise RuntimeError(
-            "reportlab no está instalado. Ejecute: pip install reportlab"
-        ) from e
+        raise RuntimeError("reportlab no está instalado. Ejecute: pip install reportlab") from e
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -141,13 +139,16 @@ def generate_rehab_plan_pdf(
     )
 
     styles = getSampleStyleSheet()
-    h1 = ParagraphStyle("h1", parent=styles["Heading1"], fontSize=16,
-                        textColor=colors.HexColor("#0d9488"), spaceAfter=10)
-    h2 = ParagraphStyle("h2", parent=styles["Heading2"], fontSize=12,
-                        textColor=colors.HexColor("#1e293b"), spaceBefore=10, spaceAfter=6)
+    h1 = ParagraphStyle(
+        "h1", parent=styles["Heading1"], fontSize=16, textColor=colors.HexColor("#0d9488"), spaceAfter=10
+    )
+    h2 = ParagraphStyle(
+        "h2", parent=styles["Heading2"], fontSize=12, textColor=colors.HexColor("#1e293b"), spaceBefore=10, spaceAfter=6
+    )
     body = ParagraphStyle("body", parent=styles["BodyText"], fontSize=10, leading=14)
-    small = ParagraphStyle("small", parent=styles["BodyText"], fontSize=8,
-                           textColor=colors.HexColor("#64748b"), leading=10)
+    small = ParagraphStyle(
+        "small", parent=styles["BodyText"], fontSize=8, textColor=colors.HexColor("#64748b"), leading=10
+    )
 
     story = []
 
@@ -165,31 +166,43 @@ def generate_rehab_plan_pdf(
     story.append(Paragraph("Plan de Rehabilitación Neuropsicológica", h2))
 
     # ── Datos del paciente ───────────────────────────────────
-    nombre_pac = " ".join(filter(None, [
-        getattr(patient, "primer_nombre", ""),
-        getattr(patient, "segundo_nombre", "") or "",
-        getattr(patient, "primer_apellido", ""),
-        getattr(patient, "segundo_apellido", "") or "",
-    ])).strip()
+    nombre_pac = " ".join(
+        filter(
+            None,
+            [
+                getattr(patient, "primer_nombre", ""),
+                getattr(patient, "segundo_nombre", "") or "",
+                getattr(patient, "primer_apellido", ""),
+                getattr(patient, "segundo_apellido", "") or "",
+            ],
+        )
+    ).strip()
     pat_rows = [
         ["Paciente", nombre_pac or "—"],
-        ["Documento", f"{getattr(patient, 'tipo_documento', '') or '—'} {getattr(patient, 'numero_documento', '') or ''}"],
+        [
+            "Documento",
+            f"{getattr(patient, 'tipo_documento', '') or '—'} {getattr(patient, 'numero_documento', '') or ''}",
+        ],
         ["Fecha de nacimiento", _fmt_date(getattr(patient, "fecha_nacimiento", None))],
         ["Sexo", getattr(patient, "sexo", "—") or "—"],
     ]
     t = Table(pat_rows, colWidths=[5 * cm, 11 * cm])
-    t.setStyle(TableStyle([
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold", 9),
-        ("FONT", (1, 0), (1, -1), "Helvetica", 9),
-        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
-        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
-        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-    ]))
+    t.setStyle(
+        TableStyle(
+            [
+                ("FONT", (0, 0), (0, -1), "Helvetica-Bold", 9),
+                ("FONT", (1, 0), (1, -1), "Helvetica", 9),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
     story.append(t)
     story.append(Spacer(1, 0.4 * cm))
 
@@ -206,17 +219,21 @@ def generate_rehab_plan_pdf(
         ["Dominios objetivo", dominios_label],
     ]
     t = Table(plan_rows, colWidths=[5.5 * cm, 10.5 * cm])
-    t.setStyle(TableStyle([
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold", 9),
-        ("FONT", (1, 0), (1, -1), "Helvetica", 9),
-        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
-        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
-        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-    ]))
+    t.setStyle(
+        TableStyle(
+            [
+                ("FONT", (0, 0), (0, -1), "Helvetica-Bold", 9),
+                ("FONT", (1, 0), (1, -1), "Helvetica", 9),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
     story.append(t)
     story.append(Spacer(1, 0.4 * cm))
 
@@ -238,20 +255,24 @@ def generate_rehab_plan_pdf(
             params_txt = ", ".join(f"{k}={v}" for k, v in (params or {}).items()) or "—"
             rows.append([str(i), _label_actividad(slug), str(dif), params_txt])
         t = Table(rows, colWidths=[1 * cm, 7 * cm, 2.5 * cm, 5.5 * cm])
-        t.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0d9488")),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONT", (0, 0), (-1, 0), "Helvetica-Bold", 9),
-            ("FONT", (0, 1), (-1, -1), "Helvetica", 9),
-            ("ALIGN", (0, 0), (0, -1), "CENTER"),
-            ("ALIGN", (2, 0), (2, -1), "CENTER"),
-            ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
-            ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("TOPPADDING", (0, 0), (-1, -1), 4),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-        ]))
+        t.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0d9488")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONT", (0, 0), (-1, 0), "Helvetica-Bold", 9),
+                    ("FONT", (0, 1), (-1, -1), "Helvetica", 9),
+                    ("ALIGN", (0, 0), (0, -1), "CENTER"),
+                    ("ALIGN", (2, 0), (2, -1), "CENTER"),
+                    ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                    ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 4),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ]
+            )
+        )
         story.append(t)
         story.append(Spacer(1, 0.4 * cm))
 
@@ -270,25 +291,31 @@ def generate_rehab_plan_pdf(
         ["Hash SHA-256", str(getattr(plan, "signature_sha256", "") or "—")],
     ]
     t = Table(firma_rows, colWidths=[4 * cm, 12 * cm])
-    t.setStyle(TableStyle([
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold", 9),
-        ("FONT", (1, 0), (1, -1), "Helvetica", 8),
-        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
-        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
-        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-    ]))
+    t.setStyle(
+        TableStyle(
+            [
+                ("FONT", (0, 0), (0, -1), "Helvetica-Bold", 9),
+                ("FONT", (1, 0), (1, -1), "Helvetica", 8),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
     story.append(t)
 
     story.append(Spacer(1, 0.6 * cm))
-    story.append(Paragraph(
-        "Este documento es la copia firmada e inmutable del plan de rehabilitación. "
-        "Cualquier modificación posterior queda registrada en el historial de auditoría.",
-        small,
-    ))
+    story.append(
+        Paragraph(
+            "Este documento es la copia firmada e inmutable del plan de rehabilitación. "
+            "Cualquier modificación posterior queda registrada en el historial de auditoría.",
+            small,
+        )
+    )
 
     doc.build(story)
     return buf.getvalue()

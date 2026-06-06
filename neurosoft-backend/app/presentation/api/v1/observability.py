@@ -4,6 +4,7 @@ S4.2: Endpoint de observabilidad / métricas (opt-in).
 Devuelve un snapshot de las métricas en memoria. Solo accesible para admin.
 Solo retorna datos si NEUROSOFT_METRICS_ENABLED=1.
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter
@@ -11,7 +12,6 @@ from fastapi import APIRouter
 from app.infrastructure.observability import metrics
 from app.presentation.api.v1.auth import AdminUser
 from app.presentation.dependencies import DbSession
-
 
 router = APIRouter(prefix="/observability", tags=["observability"])
 

@@ -7,6 +7,7 @@ Tests de los endpoints añadidos en la ampliación 2026:
 - /ai/ollama/* (bundled, status, autosetup)
 - DTOs y contratos DSM-5
 """
+
 from __future__ import annotations
 
 import pytest
@@ -16,6 +17,7 @@ from fastapi.testclient import TestClient
 @pytest.fixture(scope="module")
 def client():
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -23,6 +25,7 @@ def client():
 # ─────────────────────────────────────────────────────────────
 # AI / Ollama — endpoints que NO requieren que Ollama esté corriendo
 # ─────────────────────────────────────────────────────────────
+
 
 @pytest.mark.integration
 class TestAIOllamaEndpointsSinToken:
@@ -53,9 +56,9 @@ class TestAIOllamaEndpointsSinToken:
 # Shared (telemedicina) — privado y público
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestSharedEndpoints:
-
     def test_list_my_shares_sin_token_401(self, client):
         r = client.get("/api/v1/shared")
         assert r.status_code == 401
@@ -91,9 +94,9 @@ class TestSharedEndpoints:
 # Estímulos bulk
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestEstimulosBulk:
-
     def test_bulk_sin_token_401(self, client):
         r = client.post("/api/v1/estimulos/bulk", json=[])
         assert r.status_code == 401
@@ -109,14 +112,15 @@ class TestEstimulosBulk:
 # DSM-5 catalog — asegura que el backend no rompe si el front envía códigos
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestDSM5CatalogImport:
-
     def test_dsm5_ci_rangos_coherentes(self):
         """Rangos de CI usados por los códigos F70-F73 deben ser strings válidos."""
         # Este test vive en el frontend, pero verificamos el contrato backend:
         # No debe haber un campo DSM-5 persistido que rompa el schema de evaluación.
         from app.infrastructure.database.orm_models import EvaluationORM
+
         cols = {c.name for c in EvaluationORM.__table__.columns}
         # El DSM-5 viaja dentro de observaciones_json (texto libre), no como columna.
         assert "observaciones_json" in cols or "obs_json" in cols or True  # tolerante
@@ -126,11 +130,12 @@ class TestDSM5CatalogImport:
 # Registro de rutas — smoke test: todas las rutas nuevas están en el router
 # ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestRouterRegistration:
-
     def test_todas_las_rutas_nuevas_existen(self):
         from app.main import app
+
         paths = {getattr(r, "path", "") for r in app.routes}
         esperadas = {
             "/api/v1/ai/ollama/status",
@@ -148,4 +153,5 @@ class TestRouterRegistration:
 
     def test_middleware_excluye_prefijo_publico(self):
         from app.main import _PUBLIC_PREFIXES
+
         assert any("/shared/view/" in p for p in _PUBLIC_PREFIXES)

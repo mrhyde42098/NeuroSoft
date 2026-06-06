@@ -16,6 +16,7 @@ Cubre:
   4. Tamper detection: alterar puntajes_brutos_json rompe `valid`.
   5. DELETE bloqueado en evaluaciones firmadas.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -26,6 +27,7 @@ import pytest
 
 def _make_patient_orm(db, doc="SIGN001"):
     from app.infrastructure.database.orm_models import PatientORM
+
     orm = PatientORM(
         id=str(uuid.uuid4()),
         numero_documento=doc,
@@ -47,6 +49,7 @@ def _make_patient_orm(db, doc="SIGN001"):
 
 def _make_evaluation(db, patient_id, protocolo="WISC-IV"):
     from app.infrastructure.database.orm_models import EvaluationORM
+
     ev = EvaluationORM(
         id=str(uuid.uuid4()),
         patient_id=patient_id,
@@ -70,9 +73,9 @@ def _make_evaluation(db, patient_id, protocolo="WISC-IV"):
 # FIRMA: flujo feliz
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSignEvaluation:
-
     def test_firma_puebla_campos_auditoria(self, in_memory_db):
         from app.application.use_cases.scoring_use_cases import SignEvaluationUseCase
         from app.infrastructure.database.orm_models import EvaluationORM
@@ -119,11 +122,7 @@ class TestSignEvaluation:
         )
         in_memory_db.commit()
 
-        logs = (
-            in_memory_db.query(AuditLogORM)
-            .filter(AuditLogORM.entity_id == ev.id)
-            .all()
-        )
+        logs = in_memory_db.query(AuditLogORM).filter(AuditLogORM.entity_id == ev.id).all()
         actions = [l.action for l in logs]
         assert "sign" in actions, f"Esperado 'sign' en {actions}"
 
@@ -155,9 +154,9 @@ class TestSignEvaluation:
 # VERIFICACIÓN DEL HASH (tamper detection)
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestSignatureVerification:
-
     def test_status_no_firmado_retorna_signed_false(self, in_memory_db):
         from app.application.use_cases.scoring_use_cases import (
             GetSignatureStatusUseCase,
@@ -182,9 +181,7 @@ class TestSignatureVerification:
         ev = _make_evaluation(in_memory_db, p.id)
         in_memory_db.commit()
 
-        SignEvaluationUseCase(in_memory_db).execute(
-            evaluation_id=ev.id, actor_id="prof", actor_label="Dr"
-        )
+        SignEvaluationUseCase(in_memory_db).execute(evaluation_id=ev.id, actor_id="prof", actor_label="Dr")
         in_memory_db.commit()
 
         status = GetSignatureStatusUseCase(in_memory_db).execute(ev.id)
@@ -208,9 +205,7 @@ class TestSignatureVerification:
         in_memory_db.commit()
 
         # Firmar normalmente
-        SignEvaluationUseCase(in_memory_db).execute(
-            evaluation_id=ev.id, actor_id="prof", actor_label="Dr"
-        )
+        SignEvaluationUseCase(in_memory_db).execute(evaluation_id=ev.id, actor_id="prof", actor_label="Dr")
         in_memory_db.commit()
 
         # Tampering: cambiar los puntajes brutos por SQL directo.
@@ -250,9 +245,9 @@ class TestSignatureVerification:
 # BLOQUEO DE DELETE SOBRE FIRMADAS (endpoint)
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestDeleteBlockedAfterSigning:
-
     def test_delete_evaluacion_firmada_lanza_409(self, in_memory_db):
         """Simula la lógica del endpoint delete_evaluation."""
         from app.core.exceptions import EvaluationAlreadySignedError
@@ -271,9 +266,7 @@ class TestDeleteBlockedAfterSigning:
         assert orm.signed_at is not None
 
         with pytest.raises(EvaluationAlreadySignedError):
-            raise EvaluationAlreadySignedError(
-                ev.id, signed_at=orm.signed_at.isoformat()
-            )
+            raise EvaluationAlreadySignedError(ev.id, signed_at=orm.signed_at.isoformat())
 
     def test_delete_evaluacion_no_firmada_funciona(self, in_memory_db):
         """Control negativo: sin firma, el delete procede."""

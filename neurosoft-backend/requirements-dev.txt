@@ -16,6 +16,6 @@ pytest-mock>=3.12.0
 httpx==0.27.0             # Cliente HTTP para tests de endpoints FastAPI
 
 # ── Calidad de código ─────────────────────────────────────
-ruff>=0.4.0               # Linter + formatter (reemplaza flake8+black+isort)
+ruff>=0.4.0,<0.16               # Linter + formatter (CI usa pyproject.toml)
 mypy>=1.10.0              # Type checker estático
 types-python-dateutil     # Stubs para mypy

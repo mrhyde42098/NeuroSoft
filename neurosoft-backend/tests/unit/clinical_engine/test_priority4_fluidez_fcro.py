@@ -27,7 +27,6 @@ Fuentes:
 """
 
 
-
 class TestFluidezVerbal:
     """Pruebas de Fluidez Verbal (semántica y fonémica)."""
 

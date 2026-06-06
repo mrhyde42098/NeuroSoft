@@ -11,10 +11,9 @@ Verifica que las defensas básicas del backend están activas:
   - Security headers (CSP, X-Content-Type-Options, etc.).
   - JWT_SECRET no aparece en respuestas / logs.
 """
+
 from __future__ import annotations
 
-import os
-import time
 import uuid
 
 import pytest
@@ -23,7 +22,9 @@ import pytest
 @pytest.fixture(scope="module")
 def client():
     from fastapi.testclient import TestClient
+
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -39,9 +40,13 @@ class TestJwtVerifyExp:
 
     def test_token_expirado_retorna_401(self, client):
         from datetime import UTC, datetime, timedelta
+
         from jose import jwt
+
         from app.infrastructure.auth.auth_service import (
-            ALGORITHM, SECRET_KEY, decode_access_token,
+            ALGORITHM,
+            SECRET_KEY,
+            decode_access_token,
         )
 
         # Construir un token con exp en el pasado
@@ -77,20 +82,22 @@ class TestJwtVerifyExp:
 
 @pytest.mark.integration
 class TestTokenBlacklist:
-
     def test_token_revocado_es_rechazado_por_middleware(self, client):
+        from datetime import UTC, datetime, timedelta
+
         from app.infrastructure.auth.auth_service import (
-            create_access_token, is_token_revoked, revoke_token,
-            ACCESS_TOKEN_EXPIRE_HOURS,
+            is_token_revoked,
+            revoke_token,
         )
         from app.infrastructure.database.engine import SessionLocal
-        from datetime import UTC, datetime, timedelta
 
         # 1) Crear un token valido
         user_id = str(uuid.uuid4())
         jti = f"test-bl-{uuid.uuid4().hex[:8]}"
         from jose import jwt
+
         from app.infrastructure.auth.auth_service import ALGORITHM, SECRET_KEY
+
         now = datetime.now(UTC)
         payload = {
             "sub": user_id,
@@ -115,7 +122,9 @@ class TestTokenBlacklist:
         # 3) Revocar el jti
         with SessionLocal() as db:
             revoke_token(
-                db, jti=jti, user_id=user_id,
+                db,
+                jti=jti,
+                user_id=user_id,
                 expires_at=now + timedelta(hours=1),
                 reason="test",
             )
@@ -153,19 +162,23 @@ class TestClinicalExtrasPathSafety:
         assert r.status_code in (200, 422, 401), r.text
 
     def test_baterias_solo_carga_desde_path_interno(self, client):
-        from app.presentation.api.v1.clinical_extras import _load_baterias_catalog
         from pathlib import Path
+
+        from app.presentation.api.v1.clinical_extras import _load_baterias_catalog
+
         # El path resuelto debe estar dentro del proyecto, no en /etc ni
         # en el home del usuario.
-        path = Path(__file__).resolve().parents[4] / "app" / "domain" / "data" / "baterias_alternas.json"
+        Path(__file__).resolve().parents[4] / "app" / "domain" / "data" / "baterias_alternas.json"
         # El path construido en el modulo debe estar dentro de /app/domain/data
         from app.presentation.api.v1.clinical_extras import (
-            _load_reservorio, _load_baterias_catalog, _load_rips_catalog,
+            _load_reservorio,
+            _load_rips_catalog,
         )
+
         for fn, name in [
             (_load_baterias_catalog, "baterias"),
-            (_load_reservorio,        "reservorio"),
-            (_load_rips_catalog,      "rips"),
+            (_load_reservorio, "reservorio"),
+            (_load_rips_catalog, "rips"),
         ]:
             # Llamar y verificar que carga
             data = fn()
@@ -205,6 +218,7 @@ class TestSecurityHeadersS06:
 
     def test_response_NO_tiene_hsts_en_desarrollo(self, client):
         from app.core.config import settings
+
         if settings.env == "production":
             pytest.skip("HSTS solo en prod")
         r = client.get("/health")
@@ -223,6 +237,7 @@ class TestSecretNotLeaked:
 
     def test_secret_no_aparece_en_health(self, client):
         from app.infrastructure.auth.auth_service import SECRET_KEY
+
         r = client.get("/health")
         body = r.text
         assert SECRET_KEY not in body, "SECRET_KEY filtrado en /health"
@@ -230,6 +245,7 @@ class TestSecretNotLeaked:
 
     def test_secret_no_aparece_en_error_responses(self, client):
         from app.infrastructure.auth.auth_service import SECRET_KEY
+
         # Disparar un 500-like con un body grande
         r = client.get("/api/v1/this/does/not/exist")
         body = r.text
@@ -237,6 +253,7 @@ class TestSecretNotLeaked:
 
     def test_secret_no_aparece_en_login_response(self, client):
         from app.infrastructure.auth.auth_service import SECRET_KEY
+
         r = client.post(
             "/api/v1/auth/login",
             json={"username": "ghost", "password": "wrong"},

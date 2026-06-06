@@ -13,6 +13,7 @@ Características:
 Los campos ``informe_inconcluso_cat`` e ``informe_inconcluso_nota`` deben venir
 en ``ReportData``. Si no están, se usan textos placeholder.
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro
@@ -64,12 +65,24 @@ class InconclusoGenerator(NeuroPDFGeneratorPro):
         c.setFillColorRGB(*SEMANTIC_DEFICIT)
         c.roundRect(-90, -22, 180, 44, 6, fill=1, stroke=0)
         draw_text(
-            c, "EVALUACIÓN", 0, 4,
-            font_name=FONT_SANS_BOLD, size=10, color=WHITE, align="center",
+            c,
+            "EVALUACIÓN",
+            0,
+            4,
+            font_name=FONT_SANS_BOLD,
+            size=10,
+            color=WHITE,
+            align="center",
         )
         draw_text(
-            c, "INCONCLUSA", 0, -10,
-            font_name=FONT_SANS_BOLD, size=12, color=WHITE, align="center",
+            c,
+            "INCONCLUSA",
+            0,
+            -10,
+            font_name=FONT_SANS_BOLD,
+            size=12,
+            color=WHITE,
+            align="center",
         )
         c.restoreState()
 
@@ -101,31 +114,55 @@ class InconclusoGenerator(NeuroPDFGeneratorPro):
 
         y = self._ensure_room(c, data, y, need=160)
         y = section_title(
-            c, "Razón por la cual la evaluación está inconclusa",
-            y, subtitle="Categoría y observación clínica",
+            c,
+            "Razón por la cual la evaluación está inconclusa",
+            y,
+            subtitle="Categoría y observación clínica",
         )
         y = callout(
-            c, razon_label, L.margin, y, L.content_w,
-            accent=SEMANTIC_DEFICIT, fill=SURFACE,
-            title="Categoría", size=TYPE.body_sm,
+            c,
+            razon_label,
+            L.margin,
+            y,
+            L.content_w,
+            accent=SEMANTIC_DEFICIT,
+            fill=SURFACE,
+            title="Categoría",
+            size=TYPE.body_sm,
         )
         y -= 6
         if nota:
             y = self._ensure_room(c, data, y, need=70)
-            y = draw_paragraph(
-                c, nota, L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body, color=NAVY,
-                leading=TYPE.body * 1.45,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    nota,
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body,
+                    color=NAVY,
+                    leading=TYPE.body * 1.45,
+                )
+                - 4
+            )
         else:
-            y = draw_paragraph(
-                c,
-                "El profesional cerró la evaluación antes de completar el "
-                "protocolo planificado, registrando la categoría anterior. "
-                "No se aportó nota clínica adicional.",
-                L.margin, y, L.content_w,
-                font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
-            ) - 4
+            y = (
+                draw_paragraph(
+                    c,
+                    "El profesional cerró la evaluación antes de completar el "
+                    "protocolo planificado, registrando la categoría anterior. "
+                    "No se aportó nota clínica adicional.",
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SANS,
+                    size=TYPE.body_sm,
+                    color=SLATE,
+                )
+                - 4
+            )
         return y - 6
 
     def _section_resultados_parciales(self, c, data, y: float) -> float:
@@ -133,17 +170,19 @@ class InconclusoGenerator(NeuroPDFGeneratorPro):
         if not data.resultados:
             return y
         # Sólo pruebas con puntaje calculado
-        with_score = [r for r in data.resultados
-                      if r.get("puntaje_escalar") is not None
-                      or r.get("z_equivalente") is not None]
+        with_score = [
+            r for r in data.resultados if r.get("puntaje_escalar") is not None or r.get("z_equivalente") is not None
+        ]
         if not with_score:
             return y
 
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=160)
         y = section_title(
-            c, "Resultados Parciales",
-            y, subtitle="Interpretación cautelosa — protocolo incompleto",
+            c,
+            "Resultados Parciales",
+            y,
+            subtitle="Interpretación cautelosa — protocolo incompleto",
         )
         y = callout(
             c,
@@ -151,9 +190,13 @@ class InconclusoGenerator(NeuroPDFGeneratorPro):
             "completamente. La interpretación clínica debe contemplar que el "
             "protocolo previsto no se concluyó, por lo que cualquier conclusión "
             "diagnóstica con base en estos datos será necesariamente preliminar.",
-            L.margin, y, L.content_w,
-            accent=SEMANTIC_DEFICIT, fill=SURFACE,
-            title="Aviso interpretativo", size=TYPE.body_sm,
+            L.margin,
+            y,
+            L.content_w,
+            accent=SEMANTIC_DEFICIT,
+            fill=SURFACE,
+            title="Aviso interpretativo",
+            size=TYPE.body_sm,
         )
         y -= 6
         y = self._draw_score_table(c, data, with_score, y)
@@ -163,17 +206,28 @@ class InconclusoGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
-            c, "Recomendaciones de Continuidad",
-            y, subtitle="Plan sugerido para completar la evaluación",
+            c,
+            "Recomendaciones de Continuidad",
+            y,
+            subtitle="Plan sugerido para completar la evaluación",
         )
 
         # Si el profesional registró recomendaciones específicas, las usamos.
         if data.obs_recomendaciones and data.obs_recomendaciones not in ("N/A", ""):
-            y = draw_paragraph(
-                c, data.obs_recomendaciones, L.margin, y, L.content_w,
-                font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
-                leading=TYPE.body_sm * 1.5,
-            ) - 6
+            y = (
+                draw_paragraph(
+                    c,
+                    data.obs_recomendaciones,
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SERIF,
+                    size=TYPE.body_sm,
+                    color=NAVY,
+                    leading=TYPE.body_sm * 1.5,
+                )
+                - 6
+            )
 
         # Plan genérico de continuidad
         plan = (
@@ -185,8 +239,14 @@ class InconclusoGenerator(NeuroPDFGeneratorPro):
             "proceso de evaluación con un nuevo encuadre."
         )
         y = draw_paragraph(
-            c, plan, L.margin, y, L.content_w,
-            font_name=FONT_SANS, size=TYPE.body_sm, color=SLATE,
+            c,
+            plan,
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SANS,
+            size=TYPE.body_sm,
+            color=SLATE,
             leading=TYPE.body_sm * 1.5,
         )
         return y - 12

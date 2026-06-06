@@ -29,8 +29,8 @@ from pathlib import Path
 from typing import Any
 
 from app.core.exceptions import BaremoDatabaseNotLoadedError, BaremoNotFoundError
-from app.domain.entities.models import PruebaDefinicion
 from app.domain.clinical_engine import overrides as baremos_overrides
+from app.domain.entities.models import PruebaDefinicion
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +101,8 @@ class BaremosLoader:
 
         logger.info(
             "BaremosLoader: %d pruebas indexadas (lazy) desde %s",
-            len(instance._stubs), p.name,
+            len(instance._stubs),
+            p.name,
         )
         return instance
 
@@ -131,15 +132,14 @@ class BaremosLoader:
         raw_bytes = path.read_bytes()
         try:
             import orjson
+
             raw = orjson.loads(raw_bytes)
         except ImportError:
             try:
                 raw = json.loads(raw_bytes.decode("utf-8"))
             except json.JSONDecodeError as exc:
                 logger.exception("BD_NEURO_MAESTRA.json inválido en %s", path)
-                raise BaremoDatabaseNotLoadedError(
-                    f"JSON de baremos corrupto o ilegible: {exc}"
-                ) from exc
+                raise BaremoDatabaseNotLoadedError(f"JSON de baremos corrupto o ilegible: {exc}") from exc
 
         self._meta = raw.get("_meta", {})
         baterias = raw.get("baterias", {})
@@ -150,9 +150,7 @@ class BaremosLoader:
         self._baremo_path = path
         self._baremo_checksum = hashlib.sha256(raw_bytes).hexdigest()
         self._baremo_version = str(
-            self._meta.get("version")
-            or self._meta.get("revision")
-            or f"{path.stem}-{self._baremo_checksum[:8]}"
+            self._meta.get("version") or self._meta.get("revision") or f"{path.stem}-{self._baremo_checksum[:8]}"
         )
 
         for poblacion, tests in baterias.items():
@@ -179,9 +177,7 @@ class BaremosLoader:
             self._meta = json.loads(meta_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             logger.exception("Shards de baremos inválidos en %s", shards_dir)
-            raise BaremoDatabaseNotLoadedError(
-                f"Shards de baremos corruptos o ilegibles: {exc}"
-            ) from exc
+            raise BaremoDatabaseNotLoadedError(f"Shards de baremos corruptos o ilegibles: {exc}") from exc
 
         self._shard_dir = shards_dir
         self._baremo_path = master_path if master_path.exists() else shards_dir
@@ -217,6 +213,7 @@ class BaremosLoader:
         raw_bytes = shard_file.read_bytes()
         try:
             import orjson
+
             loaded = orjson.loads(raw_bytes)
         except ImportError:
             loaded = json.loads(raw_bytes.decode("utf-8"))
@@ -285,11 +282,7 @@ class BaremosLoader:
             return None
 
     def get_pruebas_por_poblacion(self, poblacion: str) -> dict[str, PruebaDefinicion]:
-        return {
-            tid: self._materialize(tid)
-            for tid, pop in self._poblacion_index.items()
-            if pop == poblacion
-        }
+        return {tid: self._materialize(tid) for tid, pop in self._poblacion_index.items() if pop == poblacion}
 
     def get_poblacion_de_prueba(self, test_id: str) -> str | None:
         return self._poblacion_index.get(test_id)

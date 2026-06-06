@@ -20,6 +20,7 @@ POST /dcl/clasificar
 GET  /recomendaciones
     Reservorio institucional de recomendaciones por grupo etario y cuadro clínico.
 """
+
 from __future__ import annotations
 
 import json
@@ -31,12 +32,12 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 # Usamos los prefijos existentes donde encaja el recurso
-rips_catalog_router = APIRouter(prefix="/rips",             tags=["RIPS"])
-wisc_router         = APIRouter(prefix="/wisc",             tags=["WISC-IV"])
-baterias_router     = APIRouter(prefix="/baterias",         tags=["Baterías alternas"])
-memoria_router      = APIRouter(prefix="/memoria",          tags=["Memoria"])
-dcl_router          = APIRouter(prefix="/dcl",              tags=["DCL / DSM-5"])
-recs_router         = APIRouter(prefix="/recomendaciones",  tags=["Recomendaciones"])
+rips_catalog_router = APIRouter(prefix="/rips", tags=["RIPS"])
+wisc_router = APIRouter(prefix="/wisc", tags=["WISC-IV"])
+baterias_router = APIRouter(prefix="/baterias", tags=["Baterías alternas"])
+memoria_router = APIRouter(prefix="/memoria", tags=["Memoria"])
+dcl_router = APIRouter(prefix="/dcl", tags=["DCL / DSM-5"])
+recs_router = APIRouter(prefix="/recomendaciones", tags=["Recomendaciones"])
 
 
 # ─────────────────────────────────────────────────────────────
@@ -73,9 +74,7 @@ def get_rips_classification(
                 population = key  # type: ignore[assignment]
                 break
         if population is None:
-            raise HTTPException(
-                404, detail=f"No hay población definida para edad={age}."
-            )
+            raise HTTPException(404, detail=f"No hay población definida para edad={age}.")
 
     if population is not None:
         if population not in pops:
@@ -121,6 +120,7 @@ def wisc_forma_corta_cit(
     forma: int = Query(default=1, ge=1, le=2, description="1=DC+CD+MT+FI, 2=VB+SE+CM+PC"),
 ):
     from app.domain.clinical_engine.wisc_discrepancy import estimate_cit_forma_corta
+
     try:
         return estimate_cit_forma_corta(suma, forma)
     except ValueError as e:
@@ -149,6 +149,7 @@ class DiscrepanciaDTO(BaseModel):
 )
 def wisc_discrepancia(dto: DiscrepanciaDTO):
     from app.domain.clinical_engine.wisc_discrepancy import detect_discrepancy
+
     result = detect_discrepancy(dto.icv, dto.irp, dto.imt, dto.ivp)
     return result.as_dict()
 
@@ -173,7 +174,9 @@ def _load_baterias_catalog() -> dict:
     ),
 )
 def get_baterias_alternas(
-    condicion: Literal["hipoacusia", "discapacidad_visual", "visual_auditiva", "motora", "analfabeta"] | None = Query(default=None),
+    condicion: Literal["hipoacusia", "discapacidad_visual", "visual_auditiva", "motora", "analfabeta"] | None = Query(
+        default=None
+    ),
     grupo: Literal["nino", "adulto", "adulto_mayor"] | None = Query(default=None),
 ):
     cat = _load_baterias_catalog()
@@ -185,29 +188,27 @@ def get_baterias_alternas(
         cond = conds[condicion]
         if grupo is not None:
             if grupo not in cond["batteries"]:
-                raise HTTPException(
-                    404, detail=f"Grupo etario '{grupo}' no disponible para '{condicion}'."
-                )
+                raise HTTPException(404, detail=f"Grupo etario '{grupo}' no disponible para '{condicion}'.")
             return {
-                "version":       cat["version"],
-                "condicion":     condicion,
-                "label":         cond["label"],
-                "grupo":         grupo,
+                "version": cat["version"],
+                "condicion": condicion,
+                "label": cond["label"],
+                "grupo": grupo,
                 "general_notes": cond.get("general_notes", []),
-                "battery":       cond["batteries"][grupo],
+                "battery": cond["batteries"][grupo],
             }
         return {
-            "version":       cat["version"],
-            "condicion":     condicion,
-            "label":         cond["label"],
+            "version": cat["version"],
+            "condicion": condicion,
+            "label": cond["label"],
             "general_notes": cond.get("general_notes", []),
-            "batteries":     cond["batteries"],
+            "batteries": cond["batteries"],
         }
 
     return {
-        "version":    cat["version"],
-        "source":     cat["source"],
-        "notes":      cat["notes"],
+        "version": cat["version"],
+        "source": cat["source"],
+        "notes": cat["notes"],
         "conditions": conds,
     }
 
@@ -221,29 +222,29 @@ class WordEntry(BaseModel):
 
 
 class GroberTrialDTO(BaseModel):
-    libre:       list[str] = Field(default_factory=list)
-    con_clave:   list[str] = Field(default_factory=list)
+    libre: list[str] = Field(default_factory=list)
+    con_clave: list[str] = Field(default_factory=list)
     intrusiones: list[str] = Field(default_factory=list)
 
 
 class GroberDiferidoDTO(BaseModel):
-    libre:       list[str] = Field(default_factory=list)
-    con_clave:   list[str] = Field(default_factory=list)
+    libre: list[str] = Field(default_factory=list)
+    con_clave: list[str] = Field(default_factory=list)
     intrusiones: list[str] = Field(default_factory=list)
 
 
 class GroberReconocimientoDTO(BaseModel):
-    aciertos:            int = Field(default=0, ge=0, le=16)
-    falsos_positivos:    int = Field(default=0, ge=0, le=16)
-    total_dianas:        int = Field(default=16, ge=1, le=32)
-    total_distractores:  int = Field(default=16, ge=1, le=32)
+    aciertos: int = Field(default=0, ge=0, le=16)
+    falsos_positivos: int = Field(default=0, ge=0, le=16)
+    total_dianas: int = Field(default=16, ge=1, le=32)
+    total_distractores: int = Field(default=16, ge=1, le=32)
 
 
 class GroberRequest(BaseModel):
-    trials:          list[GroberTrialDTO]
-    diferido:        GroberDiferidoDTO | None        = None
-    reconocimiento:  GroberReconocimientoDTO | None  = None
-    word_list:       list[WordEntry] | None          = None
+    trials: list[GroberTrialDTO]
+    diferido: GroberDiferidoDTO | None = None
+    reconocimiento: GroberReconocimientoDTO | None = None
+    word_list: list[WordEntry] | None = None
 
 
 @memoria_router.post(
@@ -263,11 +264,9 @@ def post_grober_buschke(dto: GroberRequest):
         GroberTrial,
         score_grober_buschke,
     )
+
     try:
-        trials = [
-            GroberTrial(libre=t.libre, con_clave=t.con_clave, intrusiones=t.intrusiones)
-            for t in dto.trials
-        ]
+        trials = [GroberTrial(libre=t.libre, con_clave=t.con_clave, intrusiones=t.intrusiones) for t in dto.trials]
         dif = None
         if dto.diferido is not None:
             dif = GroberDiferido(
@@ -297,22 +296,22 @@ class DCLRequest(BaseModel):
     declive: Literal["ninguno", "leve", "moderado", "significativo"]
     dominios_afectados: list[str] = Field(default_factory=list)
 
-    avd_afectadas:            bool = False
-    independencia_perdida:    bool = False
-    delirium_activo:          bool = False
-    otro_trastorno_mental:    bool = False
+    avd_afectadas: bool = False
+    independencia_perdida: bool = False
+    delirium_activo: bool = False
+    otro_trastorno_mental: bool = False
 
-    inicio_insidioso:         bool = False
-    progresion_gradual:       bool = False
-    escalonado_post_acv:      bool = False
+    inicio_insidioso: bool = False
+    progresion_gradual: bool = False
+    escalonado_post_acv: bool = False
     factores_riesgo_vascular: bool = False
-    alucinaciones_visuales:   bool = False
-    parkinsonismo:            bool = False
+    alucinaciones_visuales: bool = False
+    parkinsonismo: bool = False
     fluctuaciones_cognitivas: bool = False
-    desinhibicion_precoz:     bool = False
-    apatia_marcada:           bool = False
-    antecedente_tce:          bool = False
-    edad:                     int | None = Field(default=None, ge=0, le=120)
+    desinhibicion_precoz: bool = False
+    apatia_marcada: bool = False
+    antecedente_tce: bool = False
+    edad: int | None = Field(default=None, ge=0, le=120)
 
 
 @dcl_router.post(
@@ -326,6 +325,7 @@ class DCLRequest(BaseModel):
 )
 def post_dcl_clasificar(dto: DCLRequest):
     from app.domain.clinical_engine.dsm5_dcl_tree import DCLInput, classify_dcl
+
     entrada = DCLInput(**dto.model_dump())
     return classify_dcl(entrada).as_dict()
 
@@ -349,7 +349,7 @@ def _load_reservorio() -> dict:
     ),
 )
 def get_recomendaciones(
-    grupo:  Literal["infantil", "adulto", "adulto_mayor"] | None = Query(default=None),
+    grupo: Literal["infantil", "adulto", "adulto_mayor"] | None = Query(default=None),
     cuadro: str | None = Query(default=None),
 ):
     cat = _load_reservorio()
@@ -361,28 +361,26 @@ def get_recomendaciones(
         g = grupos[grupo]
         if cuadro is not None:
             if cuadro not in g["cuadros"]:
-                raise HTTPException(
-                    404, detail=f"Cuadro '{cuadro}' no disponible en grupo '{grupo}'."
-                )
+                raise HTTPException(404, detail=f"Cuadro '{cuadro}' no disponible en grupo '{grupo}'.")
             c = g["cuadros"][cuadro]
             return {
-                "version":         cat["version"],
-                "grupo":           grupo,
-                "grupo_label":     g["label"],
-                "cuadro":          cuadro,
-                "cuadro_label":    c["label"],
+                "version": cat["version"],
+                "grupo": grupo,
+                "grupo_label": g["label"],
+                "cuadro": cuadro,
+                "cuadro_label": c["label"],
                 "recomendaciones": c["recomendaciones"],
             }
         return {
-            "version":     cat["version"],
-            "grupo":       grupo,
+            "version": cat["version"],
+            "grupo": grupo,
             "grupo_label": g["label"],
-            "cuadros":     g["cuadros"],
+            "cuadros": g["cuadros"],
         }
 
     return {
         "version": cat["version"],
-        "source":  cat["source"],
-        "notes":   cat["notes"],
-        "grupos":  grupos,
+        "source": cat["source"],
+        "notes": cat["notes"],
+        "grupos": grupos,
     }

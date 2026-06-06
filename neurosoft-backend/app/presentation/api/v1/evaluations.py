@@ -84,19 +84,20 @@ def get_evaluations_trend(
     )
     counts = {ym: int(n) for ym, n in rows}
 
-    _MES_ABBR = ["ene", "feb", "mar", "abr", "may", "jun",
-                 "jul", "ago", "sep", "oct", "nov", "dic"]
+    _MES_ABBR = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
 
     out = []
     y, m = start_year, start_month
     for _ in range(meses):
         ym = f"{y:04d}-{m:02d}"
-        out.append({
-            "mes": _MES_ABBR[m - 1],
-            "anio": y,
-            "ym": ym,
-            "val": counts.get(ym, 0),
-        })
+        out.append(
+            {
+                "mes": _MES_ABBR[m - 1],
+                "anio": y,
+                "ym": ym,
+                "val": counts.get(ym, 0),
+            }
+        )
         m += 1
         if m > 12:
             m = 1
@@ -126,8 +127,7 @@ def get_evaluation_history(
     response_model=PatientEvaluationsDTO,
     summary="Última evaluación por protocolo",
     description=(
-        "Retorna solo la evaluación más reciente de cada protocolo. "
-        "Útil para el panel principal del paciente."
+        "Retorna solo la evaluación más reciente de cada protocolo. Útil para el panel principal del paciente."
     ),
 )
 def get_latest_evaluations(
@@ -141,10 +141,7 @@ def get_latest_evaluations(
     "/detail/{eval_id}",
     response_model=EvaluationDetailDTO,
     summary="Detalle completo de una evaluación",
-    description=(
-        "Retorna todos los resultados calculados y puntajes brutos "
-        "de una evaluación específica por su ID."
-    ),
+    description=("Retorna todos los resultados calculados y puntajes brutos de una evaluación específica por su ID."),
 )
 def get_evaluation_detail(
     eval_id: str,
@@ -187,6 +184,7 @@ def delete_evaluation(
 # ═══════════════════════════════════════════════════════════════
 # WORKFLOW DE FIRMA CLÍNICA (Res. 2654 MinSalud)
 # ═══════════════════════════════════════════════════════════════
+
 
 @evaluations_router.post(
     "/detail/{eval_id}/sign",
@@ -258,6 +256,7 @@ def get_signature_status(
 # ═══════════════════════════════════════════════════════════════
 # COMPARACIÓN PRE–POST
 # ═══════════════════════════════════════════════════════════════
+
 
 @evaluations_router.get(
     "/{patient_id}/compare",
@@ -340,26 +339,28 @@ def compare_evaluations(
         else:
             cambio = "estable"
 
-        tests.append({
-            "test_id": tid,
-            "test_nombre": a.get("test_nombre") or b.get("test_nombre") or tid,
-            "dominio_cognitivo": a.get("dominio_cognitivo") or b.get("dominio_cognitivo") or "",
-            "pre": {
-                "puntaje_bruto": pd_pre,
-                "puntaje_escalar": _fnum(a.get("puntaje_escalar")),
-                "z": z_pre,
-                "interpretacion": a.get("interpretacion") or "",
-            },
-            "post": {
-                "puntaje_bruto": pd_post,
-                "puntaje_escalar": _fnum(b.get("puntaje_escalar")),
-                "z": z_post,
-                "interpretacion": b.get("interpretacion") or "",
-            },
-            "delta_z": round(delta_z, 3) if delta_z is not None else None,
-            "delta_pd": round(delta_pd, 3) if delta_pd is not None else None,
-            "cambio": cambio,
-        })
+        tests.append(
+            {
+                "test_id": tid,
+                "test_nombre": a.get("test_nombre") or b.get("test_nombre") or tid,
+                "dominio_cognitivo": a.get("dominio_cognitivo") or b.get("dominio_cognitivo") or "",
+                "pre": {
+                    "puntaje_bruto": pd_pre,
+                    "puntaje_escalar": _fnum(a.get("puntaje_escalar")),
+                    "z": z_pre,
+                    "interpretacion": a.get("interpretacion") or "",
+                },
+                "post": {
+                    "puntaje_bruto": pd_post,
+                    "puntaje_escalar": _fnum(b.get("puntaje_escalar")),
+                    "z": z_post,
+                    "interpretacion": b.get("interpretacion") or "",
+                },
+                "delta_z": round(delta_z, 3) if delta_z is not None else None,
+                "delta_pd": round(delta_pd, 3) if delta_pd is not None else None,
+                "cambio": cambio,
+            }
+        )
 
     # Ordenar por delta_z descendente (mejoras primero, deterioros al final)
     tests.sort(

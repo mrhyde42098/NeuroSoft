@@ -18,6 +18,7 @@ Endpoint público (sin auth — _PUBLIC_PATHS prefix en middleware):
 
 Autor: NeuroSoft — 2026
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -46,7 +47,7 @@ from app.presentation.dependencies import DbSession
 
 logger = logging.getLogger("neurosoft.shared")
 
-shared_router        = APIRouter(prefix="/shared", tags=["Telemedicina"])
+shared_router = APIRouter(prefix="/shared", tags=["Telemedicina"])
 shared_public_router = APIRouter(prefix="/shared/view", tags=["Telemedicina (público)"])
 
 
@@ -58,24 +59,24 @@ VALID_SCOPES = ("summary", "full", "iq_only")
 
 class CreateShareIn(BaseModel):
     evaluation_id: str
-    scope:         str           = Field("summary", pattern="^(summary|full|iq_only)$")
-    ttl_hours:     int           = Field(72, ge=1, le=24 * 30)  # máximo 30 días
-    password:      str | None = None
+    scope: str = Field("summary", pattern="^(summary|full|iq_only)$")
+    ttl_hours: int = Field(72, ge=1, le=24 * 30)  # máximo 30 días
+    password: str | None = None
 
 
 class ShareOut(BaseModel):
-    id:             str
-    token:          str
-    evaluation_id:  str
-    patient_id:     str
-    scope:          str
-    expires_at:     datetime
-    revoked:        bool
-    viewed_count:   int
+    id: str
+    token: str
+    evaluation_id: str
+    patient_id: str
+    scope: str
+    expires_at: datetime
+    revoked: bool
+    viewed_count: int
     last_viewed_at: datetime | None = None
-    created_at:     datetime
-    has_password:   bool
-    public_url:     str
+    created_at: datetime
+    has_password: bool
+    public_url: str
 
 
 class VerifyIn(BaseModel):
@@ -149,15 +150,15 @@ def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientOR
     público. El clínico decide 'scope' al crear el share.
     """
     payload: dict = {
-        "token":      row.token,
-        "scope":      row.scope or "summary",
+        "token": row.token,
+        "scope": row.scope or "summary",
         "created_at": row.created_at.isoformat() if row.created_at else None,
         "expires_at": row.expires_at.isoformat() if row.expires_at else None,
         "evaluation": {
-            "protocolo":  ev.protocolo,
-            "fecha":      ev.fecha.isoformat() if ev.fecha else None,
-            "poblacion":  ev.poblacion,
-            "edad":       ev.edad_display,
+            "protocolo": ev.protocolo,
+            "fecha": ev.fecha.isoformat() if ev.fecha else None,
+            "poblacion": ev.poblacion,
+            "edad": ev.edad_display,
             "pruebas_realizadas": ev.pruebas_realizadas,
         },
         "patient_alias": (pt.iniciales if pt and getattr(pt, "iniciales", None) else "Paciente"),
@@ -172,18 +173,19 @@ def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientOR
     if row.scope == "summary":
         payload["puntos_fuertes"] = _safe_json_list(ev.puntos_fuertes_json)
         payload["puntos_debiles"] = _safe_json_list(ev.puntos_debiles_json)
-        payload["advertencias"]   = _safe_json_list(ev.advertencias_json)
+        payload["advertencias"] = _safe_json_list(ev.advertencias_json)
     elif row.scope == "iq_only":
         # Filtrar sólo compuestos WISC/WAIS si están en resultados
         payload["iq"] = [
-            r for r in resultados
+            r
+            for r in resultados
             if isinstance(r, dict) and str(r.get("test_id", "")).upper().startswith(("ICV", "IRP", "IMT", "IVP", "CIT"))
         ]
     else:  # full
-        payload["resultados"]     = resultados
+        payload["resultados"] = resultados
         payload["puntos_fuertes"] = _safe_json_list(ev.puntos_fuertes_json)
         payload["puntos_debiles"] = _safe_json_list(ev.puntos_debiles_json)
-        payload["advertencias"]   = _safe_json_list(ev.advertencias_json)
+        payload["advertencias"] = _safe_json_list(ev.advertencias_json)
 
     return payload
 
@@ -196,7 +198,7 @@ def create_share(
     payload: CreateShareIn,
     request: Request,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     user_id = getattr(request.state, "user_id", "default")
 
@@ -220,8 +222,9 @@ def create_share(
     db.add(row)
     db.commit()
     db.refresh(row)
-    logger.info("share_created id=%s token=%s expires=%s scope=%s",
-                row.id, token[:8] + "…", expires.isoformat(), payload.scope)
+    logger.info(
+        "share_created id=%s token=%s expires=%s scope=%s", row.id, token[:8] + "…", expires.isoformat(), payload.scope
+    )
     return _row_to_out(row)
 
 

@@ -12,6 +12,7 @@ Características distintivas:
 Las secciones nuevas se intentan poblar de la HC (campos ``obs_*``). Si no
 hay contenido relevante, se incluye texto institucional por defecto.
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro
@@ -95,12 +96,21 @@ class MedicoLegalGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "Alcance del Informe",
-            y, subtitle="Limitaciones y propósito del presente documento",
+            c,
+            "Alcance del Informe",
+            y,
+            subtitle="Limitaciones y propósito del presente documento",
         )
         y = callout(
-            c, ALCANCE_TEMPLATE, L.margin, y, L.content_w,
-            accent=NAVY, fill=SURFACE, title="Lectura del informe", size=TYPE.body_sm,
+            c,
+            ALCANCE_TEMPLATE,
+            L.margin,
+            y,
+            L.content_w,
+            accent=NAVY,
+            fill=SURFACE,
+            title="Lectura del informe",
+            size=TYPE.body_sm,
         )
         return y - 8
 
@@ -108,13 +118,21 @@ class MedicoLegalGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=130)
         y = section_title(
-            c, "Validez de Síntomas y Esfuerzo",
-            y, subtitle="Consideración crítica para informe pericial",
+            c,
+            "Validez de Síntomas y Esfuerzo",
+            y,
+            subtitle="Consideración crítica para informe pericial",
         )
         y = callout(
-            c, VALIDEZ_TEMPLATE, L.margin, y, L.content_w,
-            accent=SEMANTIC_DEFICIT, fill=SURFACE,
-            title="Advertencia metodológica", size=TYPE.body_sm,
+            c,
+            VALIDEZ_TEMPLATE,
+            L.margin,
+            y,
+            L.content_w,
+            accent=SEMANTIC_DEFICIT,
+            fill=SURFACE,
+            title="Advertencia metodológica",
+            size=TYPE.body_sm,
         )
         return y - 8
 
@@ -122,12 +140,20 @@ class MedicoLegalGenerator(NeuroPDFGeneratorPro):
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=130)
         y = section_title(
-            c, "Consideraciones de Aculturación y Escolaridad",
-            y, subtitle="Modulación cultural y educativa de los hallazgos",
+            c,
+            "Consideraciones de Aculturación y Escolaridad",
+            y,
+            subtitle="Modulación cultural y educativa de los hallazgos",
         )
         y = draw_paragraph(
-            c, ACULTURACION_TEMPLATE, L.margin, y, L.content_w,
-            font_name=FONT_SERIF, size=TYPE.body, color=NAVY,
+            c,
+            ACULTURACION_TEMPLATE,
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SERIF,
+            size=TYPE.body,
+            color=NAVY,
             leading=TYPE.body * 1.45,
         )
         return y - 12

@@ -32,6 +32,7 @@ _scheduler = None
 # TAREAS
 # ─────────────────────────────────────────────────────────────
 
+
 def _task_recordatorio_citas():
     """
     Ejecuta a las 08:00 diario.
@@ -64,7 +65,10 @@ def _task_recordatorio_citas():
             # PII: NO loguear nombres (Ley 1581). Sólo id del paciente.
             logger.info(
                 "  %s  %-10s  patient_id=%s  [%s]",
-                c.hora_inicio, c.tipo_cita, c.patient_id, c.estado,
+                c.hora_inicio,
+                c.tipo_cita,
+                c.patient_id,
+                c.estado,
             )
             # Auto-confirmar las que siguen en programada
             if c.estado == "programada":
@@ -114,7 +118,8 @@ def _task_recordatorio_email_manana():
                 AppointmentORM.fecha == manana,
                 AppointmentORM.estado.in_(["programada", "confirmada"]),
                 AppointmentORM.recordatorio_env == False,  # noqa: E712
-            ).all()
+            )
+            .all()
         )
         if not citas:
             logger.info("[Scheduler] No hay citas para mañana (%s).", manana)
@@ -156,9 +161,12 @@ def _task_recordatorio_email_manana():
                 body = tpl_body.format_map(_SafeMap(extra))
 
                 result = send_email(
-                    db, to=[pat.email.strip()],
-                    subject=subject, body=body,
-                    tipo="recordatorio", patient_id=pat.id,
+                    db,
+                    to=[pat.email.strip()],
+                    subject=subject,
+                    body=body,
+                    tipo="recordatorio",
+                    patient_id=pat.id,
                     actor_label="scheduler_recordatorio",
                 )
                 if result.ok:
@@ -176,7 +184,8 @@ def _task_recordatorio_email_manana():
 
 
 class _SafeMap(dict):
-    def __missing__(self, k): return "{" + k + "}"
+    def __missing__(self, k):
+        return "{" + k + "}"
 
 
 def _task_marcar_no_asistio():
@@ -227,6 +236,8 @@ def _task_backup_automatico():
         from app.infrastructure.audit import record_event
         from app.infrastructure.backup import (
             crear_backup as crear_backup_cifrado,
+        )
+        from app.infrastructure.backup import (
             eliminar_backups_viejos,
         )
         from app.infrastructure.database.engine import get_session
@@ -236,7 +247,8 @@ def _task_backup_automatico():
         tamano = ruta.stat().st_size / 1024
         logger.info(
             "[Scheduler] Backup automático cifrado: %s (%.1f KB)",
-            ruta, tamano,
+            ruta,
+            tamano,
         )
 
         # 2) Audit
@@ -254,7 +266,8 @@ def _task_backup_automatico():
 
         # 3) Retención
         eliminados = eliminar_backups_viejos(
-            mantener_diarios=7, mantener_semanales=4,
+            mantener_diarios=7,
+            mantener_semanales=4,
         )
         if eliminados:
             logger.info(
@@ -274,12 +287,10 @@ def _task_backup_integrity_check():
     advertencia para que el profesional haga un backup manual.
     """
     try:
-        from app.infrastructure.database.engine import _engine
-        from sqlalchemy import text
+        import sqlite3
 
         # Buscar backups en data/backups/ o data/pre_migrate/
         from pathlib import Path as _Path
-        import sqlite3
 
         backups_dir = _Path("data") / "backups"
         if not backups_dir.exists():
@@ -302,14 +313,10 @@ def _task_backup_integrity_check():
 
         if corrupted:
             logger.warning(
-                "[Scheduler] ⚠️ %d backups potencialmente corruptos: %s",
-                len(corrupted), [c[0] for c in corrupted]
+                "[Scheduler] ⚠️ %d backups potencialmente corruptos: %s", len(corrupted), [c[0] for c in corrupted]
             )
         else:
-            logger.info(
-                "[Scheduler] ✅ Integridad de backups verificada: %d backups OK",
-                len(backups)
-            )
+            logger.info("[Scheduler] ✅ Integridad de backups verificada: %d backups OK", len(backups))
 
     except Exception as e:
         logger.error("[Scheduler] Error en verificacion de integridad: %s", e)
@@ -358,6 +365,7 @@ def _prune_old_backups(keep_daily: int = 30) -> None:
             # Conservar los de domingo (weekday == 6)
             try:
                 from datetime import datetime as _dt
+
                 if _dt.fromtimestamp(arch.stat().st_mtime).weekday() == 6:
                     keep.add(arch)
                     continue
@@ -373,6 +381,7 @@ def _prune_old_backups(keep_daily: int = 30) -> None:
 # ARRANQUE / APAGADO
 # ─────────────────────────────────────────────────────────────
 
+
 def start_scheduler() -> None:
     """Inicia el scheduler de tareas programadas."""
     global _scheduler
@@ -382,9 +391,7 @@ def start_scheduler() -> None:
         from apscheduler.triggers.cron import CronTrigger
     except ImportError:
         logger.warning(
-            "[Scheduler] APScheduler no instalado. "
-            "Las tareas programadas no correrán. "
-            "pip install apscheduler"
+            "[Scheduler] APScheduler no instalado. Las tareas programadas no correrán. pip install apscheduler"
         )
         return
 
@@ -446,8 +453,7 @@ def start_scheduler() -> None:
 
     _scheduler.start()
     logger.info(
-        "[Scheduler] ✅ Iniciado — recordatorio 08:00, no_asistio 23:59, "
-        "backup diario 02:00, purga blacklist cada hora"
+        "[Scheduler] ✅ Iniciado — recordatorio 08:00, no_asistio 23:59, backup diario 02:00, purga blacklist cada hora"
     )
 
 

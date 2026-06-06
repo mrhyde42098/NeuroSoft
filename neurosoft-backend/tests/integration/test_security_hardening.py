@@ -12,6 +12,7 @@ Las pruebas que requieren TestClient comparten una BD real ad-hoc creada
 por la `lifespan` de FastAPI; las que prueban lógica interna (revocación,
 sentinels) usan la fixture `in_memory_db` aislada.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
@@ -21,6 +22,7 @@ import pytest
 # ═══════════════════════════════════════════════════════════════
 # 1. SECURITY HEADERS
 # ═══════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 class TestSecurityHeaders:
@@ -35,6 +37,7 @@ class TestSecurityHeaders:
         from fastapi.testclient import TestClient
 
         from app.main import app
+
         with TestClient(app) as c:
             yield c
 
@@ -69,15 +72,15 @@ class TestSecurityHeaders:
         r = client.get("/health")
         # En el entorno de tests env=development, no debería estar.
         from app.core.config import settings
+
         if settings.env != "production":
-            assert "strict-transport-security" not in {
-                k.lower() for k in r.headers.keys()
-            }
+            assert "strict-transport-security" not in {k.lower() for k in r.headers.keys()}
 
 
 # ═══════════════════════════════════════════════════════════════
 # 2. X-Request-ID
 # ═══════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 class TestHealthOperational:
@@ -88,6 +91,7 @@ class TestHealthOperational:
         from fastapi.testclient import TestClient
 
         from app.main import app
+
         with TestClient(app) as c:
             yield c
 
@@ -109,12 +113,12 @@ class TestHealthOperational:
 
 @pytest.mark.integration
 class TestRequestId:
-
     @pytest.fixture(scope="class")
     def client(self):
         from fastapi.testclient import TestClient
 
         from app.main import app
+
         with TestClient(app) as c:
             yield c
 
@@ -176,11 +180,7 @@ class TestRequestIdPropagaAuditoria:
         )
         in_memory_db.commit()
 
-        log = (
-            in_memory_db.query(AuditLogORM)
-            .filter(AuditLogORM.action == "test")
-            .one()
-        )
+        log = in_memory_db.query(AuditLogORM).filter(AuditLogORM.action == "test").one()
         assert log.request_id == "abcdef0123456789"
 
     def test_record_event_usa_contextvar_si_no_hay_request(self, in_memory_db):
@@ -203,11 +203,7 @@ class TestRequestIdPropagaAuditoria:
         finally:
             current_request_id.reset(tok)
 
-        log = (
-            in_memory_db.query(AuditLogORM)
-            .filter(AuditLogORM.action == "test_ctx")
-            .one()
-        )
+        log = in_memory_db.query(AuditLogORM).filter(AuditLogORM.action == "test_ctx").one()
         assert log.request_id == "ctx-rid-xyz"
 
 
@@ -215,11 +211,12 @@ class TestRequestIdPropagaAuditoria:
 # 3. CAMBIO DE CONTRASEÑA REVOCA SESIONES
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestRevokeAllUserTokens:
-
     def _make_user(self, db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(db)
         u = repo.create(
             username="multi_session",
@@ -238,11 +235,7 @@ class TestRevokeAllUserTokens:
         revoke_all_user_tokens(in_memory_db, user.id, reason="password_change")
         in_memory_db.commit()
 
-        sentinel = (
-            in_memory_db.query(TokenBlacklistORM)
-            .filter_by(jti=f"user:{user.id}")
-            .one()
-        )
+        sentinel = in_memory_db.query(TokenBlacklistORM).filter_by(jti=f"user:{user.id}").one()
         assert sentinel.user_id == user.id
         assert sentinel.reason == "password_change"
 
@@ -257,11 +250,7 @@ class TestRevokeAllUserTokens:
         revoke_all_user_tokens(in_memory_db, user.id, "admin_revoked")
         in_memory_db.commit()
 
-        rows = (
-            in_memory_db.query(TokenBlacklistORM)
-            .filter_by(jti=f"user:{user.id}")
-            .all()
-        )
+        rows = in_memory_db.query(TokenBlacklistORM).filter_by(jti=f"user:{user.id}").all()
         assert len(rows) == 1
         assert rows[0].reason == "admin_revoked"
 
@@ -282,9 +271,7 @@ class TestRevokeAllUserTokens:
         tok = create_access_token(user.id, user.role)
         _payload = decode_access_token(tok)
         # Forzar iat al pasado para la prueba
-        old_iat = int(
-            (datetime.now(UTC) - timedelta(hours=1)).timestamp()
-        )
+        old_iat = int((datetime.now(UTC) - timedelta(hours=1)).timestamp())
 
         # Antes de la sentinel
         assert is_user_session_revoked(in_memory_db, user.id, old_iat) is False
@@ -311,9 +298,7 @@ class TestRevokeAllUserTokens:
         in_memory_db.commit()
 
         # Token nuevo: iat = ahora + 1s (claramente posterior a la sentinel)
-        future_iat = int(
-            (datetime.now(UTC) + timedelta(seconds=1)).timestamp()
-        )
+        future_iat = int((datetime.now(UTC) + timedelta(seconds=1)).timestamp())
         assert is_user_session_revoked(in_memory_db, user.id, future_iat) is False
 
     def test_get_current_user_rechaza_token_pre_revocacion(self, in_memory_db):
@@ -355,7 +340,8 @@ class TestRevokeAllUserTokens:
         with pytest.raises(HTTPException) as exc_info:
             get_current_user(
                 credentials=HTTPAuthorizationCredentials(
-                    scheme="Bearer", credentials=old_token,
+                    scheme="Bearer",
+                    credentials=old_token,
                 ),
                 db=in_memory_db,
             )
@@ -367,12 +353,14 @@ class TestRevokeAllUserTokens:
 # 4. ENDPOINT ADMIN — REVOKE TOKENS
 # ═══════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 class TestAdminRevokeEndpoint:
     """Prueba directa de la función `admin_revoke_user_tokens`."""
 
     def _make_admin_and_user(self, db):
         from app.infrastructure.auth.auth_service import UserRepository
+
         repo = UserRepository(db)
         admin = repo.create(
             username="admin42",
@@ -414,11 +402,7 @@ class TestAdminRevokeEndpoint:
         in_memory_db.commit()
 
         # Sentinel creada
-        sentinel = (
-            in_memory_db.query(TokenBlacklistORM)
-            .filter_by(jti=f"user:{target.id}")
-            .one()
-        )
+        sentinel = in_memory_db.query(TokenBlacklistORM).filter_by(jti=f"user:{target.id}").one()
         assert sentinel.reason == "admin_revoked"
         assert sentinel.user_id == target.id
 

@@ -11,6 +11,7 @@ Fuentes:
 
 Llamar ``ensure_fonts_registered()`` una vez antes de dibujar cualquier texto.
 """
+
 from __future__ import annotations
 
 import logging
@@ -98,6 +99,7 @@ FONT_SERIF = "NSSerif"
 FONT_SERIF_BOLD = "NSSerif-Bold"
 FONT_SERIF_ITALIC = "NSSerif-Italic"
 
+
 # Tamaños de tipografía por jerarquía
 @dataclass(frozen=True)
 class TypeScale:
@@ -107,14 +109,15 @@ class TypeScale:
     pequeño (8.5/7.5). Ahora el cuerpo principal es ~10.5 pt, cercano a un
     informe impreso real. Las leyendas de gráficos siguen pequeñas.
     """
-    title_hero: float = 28.0     # Portada principal
-    title_h1: float = 19.0       # Sección mayor
-    title_h2: float = 14.0       # Subsección
-    title_h3: float = 11.5       # Bloque dentro de subsección
-    body: float = 10.5           # Cuerpo principal (narrativa verbatim)
-    body_sm: float = 9.0         # Cuerpo secundario / dos columnas
-    caption: float = 7.5         # Pies, etiquetas de campo
-    micro: float = 6.0           # Footers, leyendas de gráficos
+
+    title_hero: float = 28.0  # Portada principal
+    title_h1: float = 19.0  # Sección mayor
+    title_h2: float = 14.0  # Subsección
+    title_h3: float = 11.5  # Bloque dentro de subsección
+    body: float = 10.5  # Cuerpo principal (narrativa verbatim)
+    body_sm: float = 9.0  # Cuerpo secundario / dos columnas
+    caption: float = 7.5  # Pies, etiquetas de campo
+    micro: float = 6.0  # Footers, leyendas de gráficos
 
 
 TYPE = TypeScale()
@@ -126,12 +129,13 @@ TYPE = TypeScale()
 @dataclass(frozen=True)
 class Layout:
     """Medidas A4 en puntos (1 pt = 1/72 inch)."""
+
     page_w: float = 595.27
     page_h: float = 841.89
-    margin: float = 42.0           # ~1.5 cm
+    margin: float = 42.0  # ~1.5 cm
     margin_top_header: float = 60.0
     margin_bottom_footer: float = 50.0
-    gutter: float = 8.0            # gap entre columnas
+    gutter: float = 8.0  # gap entre columnas
 
     @property
     def content_w(self) -> float:
@@ -204,25 +208,35 @@ def ensure_fonts_registered() -> bool:
     # todos los pesos (100-900) internamente; ReportLab los puede usar.
     ttf_candidates = {
         FONT_SANS: [
-            "Inter-Regular.ttf", "Inter_18pt-Regular.ttf",
-            "Inter[opsz,wght].ttf", "Inter-VariableFont_slnt,wght.ttf",
+            "Inter-Regular.ttf",
+            "Inter_18pt-Regular.ttf",
+            "Inter[opsz,wght].ttf",
+            "Inter-VariableFont_slnt,wght.ttf",
         ],
         FONT_SANS_BOLD: [
-            "Inter-Bold.ttf", "Inter_18pt-Bold.ttf",
+            "Inter-Bold.ttf",
+            "Inter_18pt-Bold.ttf",
             # Si no hay bold estático, usamos la variable que tiene todos los pesos
-            "Inter-Regular.ttf", "Inter[opsz,wght].ttf",
+            "Inter-Regular.ttf",
+            "Inter[opsz,wght].ttf",
         ],
         FONT_SANS_ITALIC: [
-            "Inter-Italic.ttf", "Inter-Italic[opsz,wght].ttf",
+            "Inter-Italic.ttf",
+            "Inter-Italic[opsz,wght].ttf",
         ],
         FONT_SERIF: [
-            "Lora-Regular.ttf", "Lora[wght].ttf", "Lora-VariableFont_wght.ttf",
+            "Lora-Regular.ttf",
+            "Lora[wght].ttf",
+            "Lora-VariableFont_wght.ttf",
         ],
         FONT_SERIF_BOLD: [
-            "Lora-Bold.ttf", "Lora[wght].ttf", "Lora-Regular.ttf",
+            "Lora-Bold.ttf",
+            "Lora[wght].ttf",
+            "Lora-Regular.ttf",
         ],
         FONT_SERIF_ITALIC: [
-            "Lora-Italic.ttf", "Lora-Italic[wght].ttf",
+            "Lora-Italic.ttf",
+            "Lora-Italic[wght].ttf",
         ],
     }
 

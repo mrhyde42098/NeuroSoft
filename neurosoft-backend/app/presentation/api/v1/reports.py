@@ -41,6 +41,7 @@ def _find_evaluation(eval_repo: EvaluationRepo, eval_id: str):
             detail=f"Evaluación '{eval_id}' no encontrada.",
         ) from None
 
+
 reports_router = APIRouter(prefix="/reports", tags=["Informes PDF"])
 
 
@@ -69,11 +70,16 @@ def generate_pdf(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
     template: Literal[
-        "estandar", "pro", "pediatrico",
-        "medicolegal", "junta_medica", "inconcluso",
-        "therapy_closure", "paciente",
+        "estandar",
+        "pro",
+        "pediatrico",
+        "medicolegal",
+        "junta_medica",
+        "inconcluso",
+        "therapy_closure",
+        "paciente",
     ] = Query(
         "pro",
         description=(
@@ -117,11 +123,7 @@ def generate_pdf(
     )
 
     # 4. Observaciones de la tabla observations (complementa HC si vacía)
-    obs_list = (
-        db.query(ObservationORM)
-        .filter_by(patient_id=ev.patient_id, evaluation_id=eval_id)
-        .all()
-    )
+    obs_list = db.query(ObservationORM).filter_by(patient_id=ev.patient_id, evaluation_id=eval_id).all()
     observations_dict = {o.dominio: o.texto for o in obs_list} if obs_list else {}
 
     # 5. Configuración institucional (singleton)
@@ -152,7 +154,9 @@ def generate_pdf(
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         logger.exception(
-            "Error generando PDF para eval_id=%s con template=%s", eval_id, template,
+            "Error generando PDF para eval_id=%s con template=%s",
+            eval_id,
+            template,
         )
         raise HTTPException(status_code=500, detail=f"Error generando PDF: {e}")
 
@@ -189,7 +193,7 @@ def generate_docx(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -214,11 +218,7 @@ def generate_docx(
         .first()
     )
 
-    obs_list = (
-        db.query(ObservationORM)
-        .filter_by(patient_id=ev.patient_id, evaluation_id=eval_id)
-        .all()
-    )
+    obs_list = db.query(ObservationORM).filter_by(patient_id=ev.patient_id, evaluation_id=eval_id).all()
     observations_dict = {o.dominio: o.texto for o in obs_list} if obs_list else {}
 
     institucion = _get_or_default_institucion(db)
@@ -277,7 +277,7 @@ def generate_xlsx(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -302,11 +302,7 @@ def generate_xlsx(
         .first()
     )
 
-    obs_list = (
-        db.query(ObservationORM)
-        .filter_by(patient_id=ev.patient_id, evaluation_id=eval_id)
-        .all()
-    )
+    obs_list = db.query(ObservationORM).filter_by(patient_id=ev.patient_id, evaluation_id=eval_id).all()
     observations_dict = {o.dominio: o.texto for o in obs_list} if obs_list else {}
 
     institucion = _get_or_default_institucion(db)
@@ -359,7 +355,7 @@ def preview_report_data(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -375,11 +371,7 @@ def preview_report_data(
     if not patient_orm:
         raise HTTPException(status_code=404, detail="Paciente no encontrado.")
 
-    hc = (
-        db.query(ClinicalHistoryORM)
-        .filter(ClinicalHistoryORM.patient_id == ev.patient_id)
-        .first()
-    )
+    hc = db.query(ClinicalHistoryORM).filter(ClinicalHistoryORM.patient_id == ev.patient_id).first()
 
     # Profesional asignado → firma disponible?
     tiene_firma = False
@@ -390,10 +382,18 @@ def preview_report_data(
     # §M-5: cálculo detallado de completitud por sección
     tiene_hc = hc is not None
     tiene_motivo = bool(hc and (hc.motivo_consulta or "").strip())
-    tiene_antecedentes = bool(hc and any((getattr(hc, f, "") or "").strip() for f in [
-        "antecedentes_personales", "antecedentes_familiares",
-        "antecedentes_psiquiatricos", "farmacos_actuales",
-    ]))
+    tiene_antecedentes = bool(
+        hc
+        and any(
+            (getattr(hc, f, "") or "").strip()
+            for f in [
+                "antecedentes_personales",
+                "antecedentes_familiares",
+                "antecedentes_psiquiatricos",
+                "farmacos_actuales",
+            ]
+        )
+    )
     tiene_obs = bool(
         (hc and hc.obs_clinica_general not in (None, "", "N/A"))
         or db.query(ObservationORM.id).filter(ObservationORM.patient_id == ev.patient_id).first()
@@ -401,9 +401,7 @@ def preview_report_data(
 
     # Conteo de observaciones por dominio cognitivo (de las pruebas aplicadas).
     obs_por_dominio = (
-        db.query(ObservationORM.dominio_cognitivo)
-        .filter(ObservationORM.patient_id == ev.patient_id)
-        .distinct().all()
+        db.query(ObservationORM.dominio_cognitivo).filter(ObservationORM.patient_id == ev.patient_id).distinct().all()
     )
     dominios_con_obs = {d[0] for d in obs_por_dominio if d[0]}
     dominios_evaluados = {r.dominio_cognitivo for r in (ev.resultados or []) if r.dominio_cognitivo}
@@ -411,7 +409,8 @@ def preview_report_data(
 
     # Reglas de bloqueo (CRÍTICO no puede faltar para descargar)
     bloqueos = []
-    if not tiene_hc: bloqueos.append("Falta Historia Clínica")
+    if not tiene_hc:
+        bloqueos.append("Falta Historia Clínica")
     if not ev.resultados or len(ev.resultados) == 0:
         bloqueos.append("La evaluación no tiene resultados registrados")
     if not tiene_firma:
@@ -419,9 +418,12 @@ def preview_report_data(
 
     # Reglas de advertencia (no bloquean pero se muestran)
     advertencias_completitud = []
-    if not tiene_motivo: advertencias_completitud.append("HC sin motivo de consulta")
-    if not tiene_antecedentes: advertencias_completitud.append("HC sin antecedentes")
-    if not tiene_obs: advertencias_completitud.append("Sin observaciones clínicas")
+    if not tiene_motivo:
+        advertencias_completitud.append("HC sin motivo de consulta")
+    if not tiene_antecedentes:
+        advertencias_completitud.append("HC sin antecedentes")
+    if not tiene_obs:
+        advertencias_completitud.append("Sin observaciones clínicas")
     if dominios_sin_obs:
         advertencias_completitud.append(
             f"{len(dominios_sin_obs)} dominios sin observación: {', '.join(sorted(dominios_sin_obs))[:120]}"
@@ -431,10 +433,19 @@ def preview_report_data(
         {"id": "hc", "label": "Historia clínica", "ok": tiene_hc, "critico": True},
         {"id": "motivo", "label": "Motivo de consulta", "ok": tiene_motivo, "critico": False},
         {"id": "antecedentes", "label": "Antecedentes", "ok": tiene_antecedentes, "critico": False},
-        {"id": "resultados", "label": f"Resultados ({len(ev.resultados or [])})", "ok": bool(ev.resultados), "critico": True},
-        {"id": "observaciones", "label": "Observaciones clínicas",
-         "ok": tiene_obs, "critico": False,
-         "detalle": f"{len(dominios_con_obs)}/{len(dominios_evaluados)} dominios" if dominios_evaluados else None},
+        {
+            "id": "resultados",
+            "label": f"Resultados ({len(ev.resultados or [])})",
+            "ok": bool(ev.resultados),
+            "critico": True,
+        },
+        {
+            "id": "observaciones",
+            "label": "Observaciones clínicas",
+            "ok": tiene_obs,
+            "critico": False,
+            "detalle": f"{len(dominios_con_obs)}/{len(dominios_evaluados)} dominios" if dominios_evaluados else None,
+        },
         {"id": "firma", "label": "Firma del profesional", "ok": tiene_firma, "critico": True},
     ]
     completitud_pct = round(100 * sum(1 for s in secciones if s["ok"]) / len(secciones))
@@ -457,7 +468,7 @@ def preview_report_data(
         # §M-5: nuevos campos de completitud
         "secciones": secciones,
         "completitud_pct": completitud_pct,
-        "bloqueos": bloqueos,           # impiden descargar (a menos que se use plantilla 'inconcluso')
+        "bloqueos": bloqueos,  # impiden descargar (a menos que se use plantilla 'inconcluso')
         "puede_descargar": len(bloqueos) == 0,
         "advertencias_completitud": advertencias_completitud,
         "dominios_evaluados": sorted(dominios_evaluados),
@@ -480,7 +491,7 @@ def get_report_enrichment(
     eval_id: str,
     eval_repo: EvaluationRepo,
     db: DbSession,
-    user=CurrentUser,
+    user: CurrentUser,
 ):
     from app.application.use_cases.report_enrichment import (
         build_report_enrichment,
@@ -519,7 +530,7 @@ def get_report_enrichment(
             resultados_pruebas = [
                 {
                     "nombre_prueba": r.get("nombre_prueba", ""),
-                    "test_id":       r.get("test_id", ""),
+                    "test_id": r.get("test_id", ""),
                     "puntaje_escalar": r.get("puntaje_escalar"),
                 }
                 for r in resultados_raw
@@ -544,10 +555,12 @@ def get_report_enrichment(
 # Helper: configuración institucional con defaults
 # ─────────────────────────────────────────────────────────────
 
+
 def _get_or_default_institucion(db):
     """Retorna la configuración institucional o un objeto con defaults."""
     try:
         from app.infrastructure.database.orm_models import ConfigInstitucionORM
+
         inst = db.query(ConfigInstitucionORM).first()
         if inst:
             return inst
@@ -556,16 +569,18 @@ def _get_or_default_institucion(db):
         # SQLAlchemy OperationalError no entra aquí: preferimos que se propague
         # para detectar BDs corruptas en el endpoint que genera informes.
         import logging as _logging
+
         _logging.getLogger(__name__).debug(
-            "ConfigInstitucionORM no disponible: %s", _cfg_exc,
+            "ConfigInstitucionORM no disponible: %s",
+            _cfg_exc,
         )
 
     class _DefaultInstitucion:
-        nombre     = "Consultorio Neuropsicológico"
-        nit        = ""
-        direccion  = ""
-        telefono   = ""
-        email      = ""
+        nombre = "Consultorio Neuropsicológico"
+        nit = ""
+        direccion = ""
+        telefono = ""
+        email = ""
         logo_base64 = None
 
     return _DefaultInstitucion()

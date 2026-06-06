@@ -8,6 +8,7 @@ síntesis integradora + impresión + recomendaciones + anexo + firma.
 Hereda de ``NeuroPDFGeneratorPro`` sin sobreescribir ``_build_pages`` — los
 defaults de la base ya producen la salida Pro completa.
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro

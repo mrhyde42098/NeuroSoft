@@ -95,6 +95,7 @@ class InconclusoStatsDTO(BaseModel):
 # Helpers
 # ─────────────────────────────────────────────────────────────
 
+
 def _orm_to_dto(orm: InformeInconclusoORM, db: Session) -> InconclusoResponseDTO:
     # Paciente nombre
     pat_nombre = None
@@ -130,6 +131,7 @@ def _orm_to_dto(orm: InformeInconclusoORM, db: Session) -> InconclusoResponseDTO
 # ─────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────
+
 
 @inconclusos_router.post("/", response_model=InconclusoResponseDTO, status_code=201)
 def crear_inconcluso(dto: InconclusoCreateDTO, db: DbSession):
@@ -184,9 +186,7 @@ def stats_inconclusos(db: DbSession):
     resueltos = sum(1 for i in all_items if i.estado == "resuelto")
     cerrados = sum(1 for i in all_items if i.estado == "cerrado")
     vencidos = sum(
-        1 for i in all_items
-        if (i.estado or "abierto") == "abierto"
-        and i.fecha_limite and i.fecha_limite < hoy
+        1 for i in all_items if (i.estado or "abierto") == "abierto" and i.fecha_limite and i.fecha_limite < hoy
     )
     return InconclusoStatsDTO(
         total=len(all_items),

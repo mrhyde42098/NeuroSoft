@@ -10,7 +10,6 @@ Fuentes:
 """
 
 
-
 class TestAdultoJovenRestantes:
     """Pruebas de adulto joven de PRIORIDAD 4."""
 

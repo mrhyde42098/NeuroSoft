@@ -9,6 +9,7 @@ ORM guarda los UUIDs como texto (SQLite carece de tipo UUID nativo). Los
 validadores simplemente garantizan que, si el campo se expone en el API,
 el valor tenga forma de UUID canónica antes de tocar la base.
 """
+
 from __future__ import annotations
 
 import uuid

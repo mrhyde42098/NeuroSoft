@@ -10,6 +10,7 @@ Endpoints:
 
 Todos los endpoints requieren bearer token (admin gate por rol futuro).
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
@@ -115,31 +116,57 @@ def kpis_por_profesional(
     profs = db.query(ProfessionalORM).all()
     out: list[dict[str, Any]] = []
     for p in profs:
-        pacientes = db.query(func.count(PatientORM.id)).filter(
-            PatientORM.profesional_id == p.id,
-        ).scalar() or 0
-        evals_total = db.query(func.count(EvaluationORM.id)).join(
-            PatientORM, PatientORM.id == EvaluationORM.patient_id,
-        ).filter(PatientORM.profesional_id == p.id).scalar() or 0
-        evals_periodo = db.query(func.count(EvaluationORM.id)).join(
-            PatientORM, PatientORM.id == EvaluationORM.patient_id,
-        ).filter(
-            PatientORM.profesional_id == p.id,
-            EvaluationORM.created_at >= cutoff,
-        ).scalar() or 0
-        planes_firmados = db.query(func.count(RehabPlanORM.id)).filter(
-            RehabPlanORM.profesional_id == p.id,
-            RehabPlanORM.signed_at.isnot(None),
-        ).scalar() or 0
-        out.append({
-            "profesional_id": p.id,
-            "nombre": p.nombre_completo,
-            "titulo": getattr(p, "titulo", None),
-            "pacientes": int(pacientes),
-            "evaluaciones_total": int(evals_total),
-            f"evaluaciones_{dias}d": int(evals_periodo),
-            "planes_firmados": int(planes_firmados),
-        })
+        pacientes = (
+            db.query(func.count(PatientORM.id))
+            .filter(
+                PatientORM.profesional_id == p.id,
+            )
+            .scalar()
+            or 0
+        )
+        evals_total = (
+            db.query(func.count(EvaluationORM.id))
+            .join(
+                PatientORM,
+                PatientORM.id == EvaluationORM.patient_id,
+            )
+            .filter(PatientORM.profesional_id == p.id)
+            .scalar()
+            or 0
+        )
+        evals_periodo = (
+            db.query(func.count(EvaluationORM.id))
+            .join(
+                PatientORM,
+                PatientORM.id == EvaluationORM.patient_id,
+            )
+            .filter(
+                PatientORM.profesional_id == p.id,
+                EvaluationORM.created_at >= cutoff,
+            )
+            .scalar()
+            or 0
+        )
+        planes_firmados = (
+            db.query(func.count(RehabPlanORM.id))
+            .filter(
+                RehabPlanORM.profesional_id == p.id,
+                RehabPlanORM.signed_at.isnot(None),
+            )
+            .scalar()
+            or 0
+        )
+        out.append(
+            {
+                "profesional_id": p.id,
+                "nombre": p.nombre_completo,
+                "titulo": getattr(p, "titulo", None),
+                "pacientes": int(pacientes),
+                "evaluaciones_total": int(evals_total),
+                f"evaluaciones_{dias}d": int(evals_periodo),
+                "planes_firmados": int(planes_firmados),
+            }
+        )
     # Ordenar por producción reciente
     out.sort(key=lambda x: x[f"evaluaciones_{dias}d"], reverse=True)
     return out
@@ -162,6 +189,7 @@ def kpis_diagnosticos(
     admin=Depends(require_admin),
 ) -> list[dict[str, Any]]:
     from app.infrastructure.database.orm_models import ClinicalHistoryORM
+
     rows = (
         db.query(
             ClinicalHistoryORM.codigo_cie10,

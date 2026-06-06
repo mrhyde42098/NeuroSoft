@@ -36,6 +36,7 @@ Uso desde el endpoint:
     user_template = prompt_data["user_template"]
     user_msg = user_template.format(puntajes=..., observaciones=...)
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -69,7 +70,6 @@ _CIERRE_REVISAR = (
 # ─── Catálogo de prompts ───────────────────────────────────────────────
 
 PROMPTS: dict[str, dict[str, Any]] = {
-
     # ── 1. Mejorar redacción de observación clínica ─────────────────
     "mejorar_observacion_clinica": {
         "label": "Pulir redacción clínica",
@@ -78,8 +78,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "los hallazgos. Útil para limpiar observaciones del clínico."
         ),
         "system": (
-            _BASE_PERSONA +
-            "\nTAREA: Recibirás un texto clínico (observación, narrativa "
+            _BASE_PERSONA + "\nTAREA: Recibirás un texto clínico (observación, narrativa "
             "o impresión diagnóstica) escrito por el clínico durante o "
             "tras la evaluación. Tu trabajo es:\n"
             "  - Mejorar la gramática y puntuación.\n"
@@ -89,15 +88,12 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "  - Si el texto es muy escueto, sugiere 1-2 frases adicionales "
             "    marcadas con [SUGERIDO] que el clínico puede aceptar o "
             "    descartar — nunca las pongas como afirmaciones del clínico.\n"
-            "  - Salida: el texto reescrito, listo para copiar en el informe.\n"
-            + _CIERRE_REVISAR
+            "  - Salida: el texto reescrito, listo para copiar en el informe.\n" + _CIERRE_REVISAR
         ),
         "user_template": (
-            "Mejora la redacción del siguiente texto clínico, manteniendo todos "
-            "los hallazgos:\n\n---\n{texto}\n---"
+            "Mejora la redacción del siguiente texto clínico, manteniendo todos los hallazgos:\n\n---\n{texto}\n---"
         ),
     },
-
     # ── 2. Sugerir candidatos diagnósticos DSM-5/CIE-10 ─────────────
     "sugerir_dx_dsm5": {
         "label": "Sugerir hipótesis diagnóstica",
@@ -106,8 +102,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "candidatos diagnósticos DSM-5/CIE-10 con justificación."
         ),
         "system": (
-            _BASE_PERSONA +
-            "\nTAREA: Dado un perfil neuropsicológico (puntajes z por "
+            _BASE_PERSONA + "\nTAREA: Dado un perfil neuropsicológico (puntajes z por "
             "dominio + observaciones), genera 3-5 HIPÓTESIS diagnósticas "
             "DSM-5/CIE-10 ordenadas por verosimilitud.\n\n"
             "FORMATO DE SALIDA (estricto):\n"
@@ -128,8 +123,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "  - Cada candidato debe tener justificación basada en los datos "
             "    aportados — si no hay base, NO lo incluyas.\n"
             "  - Marca [REVISAR] cualquier inferencia que requiera datos "
-            "    adicionales."
-            + _CIERRE_REVISAR
+            "    adicionales." + _CIERRE_REVISAR
         ),
         "user_template": (
             "Perfil neuropsicológico del paciente:\n"
@@ -141,7 +135,6 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "Sugiere las hipótesis diagnósticas más probables."
         ),
     },
-
     # ── 3. Explicar discrepancia entre índices ──────────────────────
     "explicar_discrepancia": {
         "label": "Explicar discrepancia entre índices",
@@ -150,8 +143,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "puntos) a lenguaje accesible para familia/remitente."
         ),
         "system": (
-            _BASE_PERSONA +
-            "\nTAREA: Tienes una discrepancia significativa entre índices "
+            _BASE_PERSONA + "\nTAREA: Tienes una discrepancia significativa entre índices "
             "del WISC-IV o WAIS-III. Redacta un párrafo que:\n"
             "  - Explique qué significa la discrepancia en lenguaje "
             "    accesible (padres, profesores, médico remitente).\n"
@@ -160,8 +152,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "    para WISC-IV).\n"
             "  - Termine con 1-2 implicaciones prácticas (escolares, "
             "    laborales, terapéuticas).\n"
-            "  - Longitud: 3-5 oraciones, NO un ensayo.\n"
-            + _CIERRE_REVISAR
+            "  - Longitud: 3-5 oraciones, NO un ensayo.\n" + _CIERRE_REVISAR
         ),
         "user_template": (
             "Discrepancia detectada:\n"
@@ -173,7 +164,6 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "Genera un párrafo explicativo para el informe."
         ),
     },
-
     # ── 4. Recomendaciones específicas por dominio ──────────────────
     "redactar_recomendaciones": {
         "label": "Generar recomendaciones específicas",
@@ -182,8 +172,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "escolares/laborales/terapéuticas concretas, no genéricas."
         ),
         "system": (
-            _BASE_PERSONA +
-            "\nTAREA: Genera recomendaciones específicas para el paciente "
+            _BASE_PERSONA + "\nTAREA: Genera recomendaciones específicas para el paciente "
             "según los dominios con compromiso identificados.\n\n"
             "FORMATO DE SALIDA:\n"
             "  ### Escolares / laborales\n"
@@ -200,8 +189,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "    de lectoescritura' (concreto, operacional).\n"
             "  - Adapta por edad del paciente.\n"
             "  - Si recomiendas una intervención, indica frecuencia y "
-            "    duración estimada."
-            + _CIERRE_REVISAR
+            "    duración estimada." + _CIERRE_REVISAR
         ),
         "user_template": (
             "Edad: {edad}\nEscolaridad: {escolaridad}\n"
@@ -211,17 +199,14 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "Genera recomendaciones específicas."
         ),
     },
-
     # ── 5. Narrativa integradora de los 6 dominios ──────────────────
     "narrativa_integradora": {
         "label": "Narrativa integradora del informe",
         "description": (
-            "Genera un párrafo de síntesis que integre hallazgos en "
-            "atención, memoria, lenguaje, FE, viso-construcción."
+            "Genera un párrafo de síntesis que integre hallazgos en atención, memoria, lenguaje, FE, viso-construcción."
         ),
         "system": (
-            _BASE_PERSONA +
-            "\nTAREA: Generas la sección 'Síntesis Neuropsicológica' del "
+            _BASE_PERSONA + "\nTAREA: Generas la sección 'Síntesis Neuropsicológica' del "
             "informe a partir de los hallazgos por dominio.\n\n"
             "FORMATO DE SALIDA (un párrafo unificado, 6-10 oraciones):\n"
             "  - Empieza con una oración tópica que resuma el perfil global.\n"
@@ -236,8 +221,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "REGLAS:\n"
             "  - NO uses sub-títulos ni listas — un párrafo fluido.\n"
             "  - Cita el puntaje z o escalar cuando sea relevante.\n"
-            "  - Lenguaje formal, técnico pero accesible al médico remitente."
-            + _CIERRE_REVISAR
+            "  - Lenguaje formal, técnico pero accesible al médico remitente." + _CIERRE_REVISAR
         ),
         "user_template": (
             "Edad: {edad}\nEscolaridad: {escolaridad}\n"
@@ -246,7 +230,6 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "Genera la síntesis neuropsicológica integradora."
         ),
     },
-
     # ── 6. Adaptación pediátrica ────────────────────────────────────
     "revisar_pediatrico": {
         "label": "Adaptar lenguaje pediátrico",
@@ -255,8 +238,7 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "menos jerga, hablando con padres y profesores."
         ),
         "system": (
-            _BASE_PERSONA +
-            "\nTAREA: Reescribe el texto del informe pensando en padres y "
+            _BASE_PERSONA + "\nTAREA: Reescribe el texto del informe pensando en padres y "
             "profesores del paciente infantil.\n\n"
             "REGLAS:\n"
             "  - Oraciones de máximo 25 palabras.\n"
@@ -267,17 +249,15 @@ PROMPTS: dict[str, dict[str, Any]] = {
             "    'dificultad', 'comprometido', 'descendido'.\n"
             "  - Mantén toda la información clínica relevante.\n"
             "  - Si hay términos diagnósticos, mantenlos pero explica entre "
-            "    paréntesis su significado.\n"
-            + _CIERRE_REVISAR
+            "    paréntesis su significado.\n" + _CIERRE_REVISAR
         ),
-        "user_template": (
-            "Texto técnico del informe a adaptar:\n\n---\n{texto}\n---"
-        ),
+        "user_template": ("Texto técnico del informe a adaptar:\n\n---\n{texto}\n---"),
     },
 }
 
 
 # ─── API pública del módulo ────────────────────────────────────────────
+
 
 def list_prompts() -> list[dict[str, str]]:
     """Lista los prompts disponibles para que el frontend los exponga."""
@@ -297,9 +277,7 @@ def get_prompt(prompt_id: str) -> dict[str, Any]:
     user_template}. Lanza ValueError si no existe.
     """
     if prompt_id not in PROMPTS:
-        raise ValueError(
-            f"Prompt '{prompt_id}' no existe. Disponibles: {list(PROMPTS.keys())}"
-        )
+        raise ValueError(f"Prompt '{prompt_id}' no existe. Disponibles: {list(PROMPTS.keys())}")
     return PROMPTS[prompt_id]
 
 

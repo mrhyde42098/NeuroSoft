@@ -14,6 +14,7 @@ S0.1 del PLAN_MAESTRO_GLOBAL:
 Las pruebas usan TestClient + la BD real que el lifespan de la app crea en
 tests/, así podemos pasar por la ruta completa HTTP → DB.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -23,7 +24,6 @@ import json
 import os
 import zipfile
 from pathlib import Path
-from typing import Tuple
 
 import pytest
 
@@ -32,7 +32,7 @@ import pytest
 # ═══════════════════════════════════════════════════════════════════
 
 
-def _build_nsupdate(manifest: dict, entries: list[Tuple[str, bytes]]) -> bytes:
+def _build_nsupdate(manifest: dict, entries: list[tuple[str, bytes]]) -> bytes:
     """
     Construye un .nsupdate (ZIP) en memoria.
 
@@ -51,6 +51,7 @@ def _build_nsupdate(manifest: dict, entries: list[Tuple[str, bytes]]) -> bytes:
     if len(body) < 2048:
         pad_size = 2048 - len(body) + 512  # holgura
         import os as _os
+
         zf_buf = io.BytesIO()
         with zipfile.ZipFile(zf_buf, "w", zipfile.ZIP_DEFLATED) as zf:
             zf.writestr("manifest.json", json.dumps(manifest))
@@ -74,6 +75,7 @@ def _hmac_key() -> str:
     if explicit:
         return explicit
     from app.infrastructure.auth.auth_service import SECRET_KEY
+
     return hashlib.sha256(("nsupdate-hmac::" + SECRET_KEY).encode("utf-8")).hexdigest()
 
 
@@ -89,7 +91,9 @@ def _sign(body: bytes) -> str:
 @pytest.fixture(scope="module")
 def client():
     from fastapi.testclient import TestClient
+
     from app.main import app
+
     with TestClient(app) as c:
         yield c
 
@@ -111,7 +115,7 @@ def admin_token(client) -> str:
         repo = UserRepository(db)
         existing = db.query(UserORM).filter_by(username="admin_test_update").first()
         if existing is None:
-            admin = repo.create(
+            repo.create(
                 username="admin_test_update",
                 password_plain="AdminTest!2026",
                 nombre_completo="Admin Test Update",
@@ -258,11 +262,11 @@ class TestUpdateHmac:
 
 @pytest.mark.integration
 class TestUpdatePathTraversal:
-
     def test_entrada_con_parent_dir_se_rechaza(self, client, admin_token):
         """Si el ZIP trae `frontend/../../etc/passwd`, se rechaza con 400."""
         # body > 1024 para que no sea rechazado por tamaño
         import os as _os
+
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
             zf.writestr("manifest.json", json.dumps({"version": "1.0.0"}))
@@ -321,15 +325,16 @@ class TestUpdatePathTraversal:
 
 @pytest.mark.integration
 class TestUpdateAudit:
-
     def test_happy_path_inserta_audit_log(self, client, admin_token):
         from app.infrastructure.database.engine import SessionLocal
         from app.infrastructure.database.orm_models import AuditLogORM
 
-        # Limpiar audit log previos de update_applied
         with SessionLocal() as db:
-            db.query(AuditLogORM).filter_by(action="update_applied").delete()
-            db.commit()
+            before = (
+                db.query(AuditLogORM)
+                .filter_by(action="update_applied")
+                .count()
+            )
 
         body = _build_nsupdate(
             {"version": "9.9.9-audit", "frontend_hash": "abc123"},
@@ -349,10 +354,11 @@ class TestUpdateAudit:
             rows = (
                 db.query(AuditLogORM)
                 .filter_by(action="update_applied")
+                .order_by(AuditLogORM.ts.asc())
                 .all()
             )
-            assert len(rows) >= 1, "no se insertó audit_log de update_applied"
-            entry = rows[-1]
+            assert len(rows) > before, "no se insertó audit_log de update_applied"
+            entry = next(r for r in reversed(rows) if "v9.9.9-audit" in (r.summary or ""))
             assert entry.entity_type == "system"
             assert entry.actor_label == "admin_test_update"
             assert "v9.9.9-audit" in (entry.summary or "")

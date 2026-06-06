@@ -26,7 +26,6 @@ Fuentes:
 """
 
 
-
 class TestAdultoMayorRestantes:
     """Pruebas de adulto mayor de PRIORIDAD 4."""
 

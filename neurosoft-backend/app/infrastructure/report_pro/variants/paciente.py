@@ -11,6 +11,7 @@ Características:
     con el profesional tratante.
   - 2-3 páginas, apto para imprimir y llevar a casa.
 """
+
 from __future__ import annotations
 
 from ..base import NeuroPDFGeneratorPro
@@ -31,12 +32,10 @@ from ..theme import (
     LAYOUT,
     NAVY,
     SEMANTIC_DEFICIT,
-    SEMANTIC_NA,
     SEMANTIC_SUPERIOR,
     SLATE,
     SURFACE,
     TEAL,
-    TEAL_PALE,
     TYPE,
 )
 
@@ -71,21 +70,35 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         c.rect(L.margin, y - 40, L.content_w, 4, fill=1, stroke=0)
 
         from ..helpers import draw_text
+
         draw_text(
-            c, "INFORME PARA EL PACIENTE", L.margin + 12, y - 18,
-            font_name=FONT_SERIF_BOLD, size=TYPE.title_h2, color=CREAM,
+            c,
+            "INFORME PARA EL PACIENTE",
+            L.margin + 12,
+            y - 18,
+            font_name=FONT_SERIF_BOLD,
+            size=TYPE.title_h2,
+            color=CREAM,
         )
         draw_text(
-            c, "Resumen en lenguaje claro — sin términos técnicos",
-            L.margin + 12, y - 30,
-            font_name=FONT_SANS, size=TYPE.caption, color=CREAM,
+            c,
+            "Resumen en lenguaje claro — sin términos técnicos",
+            L.margin + 12,
+            y - 30,
+            font_name=FONT_SANS,
+            size=TYPE.caption,
+            color=CREAM,
         )
 
         if data.fecha_atencion:
             draw_text(
-                c, data.fecha_atencion.strftime("%d / %m / %Y"),
-                L.page_w - L.margin - 12, y - 22,
-                font_name=FONT_SANS_BOLD, size=TYPE.body, color=CREAM,
+                c,
+                data.fecha_atencion.strftime("%d / %m / %Y"),
+                L.page_w - L.margin - 12,
+                y - 22,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.body,
+                color=CREAM,
                 align="right",
             )
         return y - 50
@@ -99,8 +112,14 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
             recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
         )
         y = draw_paragraph(
-            c, resumen["saludo"], L.margin, y, L.content_w,
-            font_name=FONT_SERIF, size=TYPE.body, color=NAVY,
+            c,
+            resumen["saludo"],
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SERIF,
+            size=TYPE.body,
+            color=NAVY,
             leading=TYPE.body * 1.5,
         )
         return y - 8
@@ -114,12 +133,20 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         )
         y = self._ensure_room(c, data, y, need=100)
         y = section_title(
-            c, "¿Qué hicimos?",
-            y, subtitle="Cómo fue la evaluación",
+            c,
+            "¿Qué hicimos?",
+            y,
+            subtitle="Cómo fue la evaluación",
         )
         y = draw_paragraph(
-            c, resumen["que_hicimos"], L.margin, y, L.content_w,
-            font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+            c,
+            resumen["que_hicimos"],
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SERIF,
+            size=TYPE.body_sm,
+            color=NAVY,
             leading=TYPE.body_sm * 1.5,
         )
         return y - 8
@@ -135,12 +162,20 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
             return y
         y = self._ensure_room(c, data, y, need=100)
         y = section_title(
-            c, "¿Qué encontramos?",
-            y, subtitle="Los resultados, explicados de forma sencilla",
+            c,
+            "¿Qué encontramos?",
+            y,
+            subtitle="Los resultados, explicados de forma sencilla",
         )
         y = draw_paragraph(
-            c, resumen["que_encontramos"], L.margin, y, L.content_w,
-            font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+            c,
+            resumen["que_encontramos"],
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SERIF,
+            size=TYPE.body_sm,
+            color=NAVY,
             leading=TYPE.body_sm * 1.5,
         )
         return y - 8
@@ -157,8 +192,10 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
 
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
-            c, "Tus fortalezas y áreas de apoyo",
-            y, subtitle="Lo que haces bien y lo que se puede trabajar",
+            c,
+            "Tus fortalezas y áreas de apoyo",
+            y,
+            subtitle="Lo que haces bien y lo que se puede trabajar",
         )
 
         col_w = (L.content_w - 16) / 2
@@ -167,14 +204,12 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         y_f = y_d = y
 
         if resumen["fortalezas"]:
-            y_f = block_header(c, "Fortalezas", y_f,
-                               color=SEMANTIC_SUPERIOR, x=x_left)
+            y_f = block_header(c, "Fortalezas", y_f, color=SEMANTIC_SUPERIOR, x=x_left)
             for item in resumen["fortalezas"][:5]:
                 y_f = bullet(c, item, x_left, y_f, col_w) - 2
 
         if resumen["areas_apoyo"]:
-            y_d = block_header(c, "Áreas de apoyo", y_d,
-                               color=SEMANTIC_DEFICIT, x=x_right)
+            y_d = block_header(c, "Áreas de apoyo", y_d, color=SEMANTIC_DEFICIT, x=x_right)
             for item in resumen["areas_apoyo"][:5]:
                 y_d = bullet(c, item, x_right, y_d, col_w) - 2
 
@@ -190,12 +225,20 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         )
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
-            c, "¿Qué recomendamos?",
-            y, subtitle="Pasos a seguir",
+            c,
+            "¿Qué recomendamos?",
+            y,
+            subtitle="Pasos a seguir",
         )
         y = draw_paragraph(
-            c, resumen["que_recomendamos"], L.margin, y, L.content_w,
-            font_name=FONT_SERIF, size=TYPE.body_sm, color=NAVY,
+            c,
+            resumen["que_recomendamos"],
+            L.margin,
+            y,
+            L.content_w,
+            font_name=FONT_SERIF,
+            size=TYPE.body_sm,
+            color=NAVY,
             leading=TYPE.body_sm * 1.5,
         )
         return y - 8
@@ -209,19 +252,33 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         )
         y = self._ensure_room(c, data, y, need=180)
         y = section_title(
-            c, "Preguntas frecuentes",
-            y, subtitle="Dudas comunes sobre la evaluación",
+            c,
+            "Preguntas frecuentes",
+            y,
+            subtitle="Dudas comunes sobre la evaluación",
         )
         for pregunta, respuesta in resumen["preguntas_frecuentes"]:
             y = self._ensure_room(c, data, y, need=60)
             y = draw_paragraph(
-                c, f"• {pregunta}", L.margin, y, L.content_w,
-                font_name=FONT_SANS_BOLD, size=TYPE.body_sm, color=NAVY,
+                c,
+                f"• {pregunta}",
+                L.margin,
+                y,
+                L.content_w,
+                font_name=FONT_SANS_BOLD,
+                size=TYPE.body_sm,
+                color=NAVY,
                 leading=TYPE.body_sm * 1.3,
             )
             y = draw_paragraph(
-                c, respuesta, L.margin + 14, y, L.content_w - 14,
-                font_name=FONT_SERIF, size=TYPE.caption, color=SLATE,
+                c,
+                respuesta,
+                L.margin + 14,
+                y,
+                L.content_w - 14,
+                font_name=FONT_SERIF,
+                size=TYPE.caption,
+                color=SLATE,
                 leading=TYPE.caption * 1.4,
             )
             y -= 4
@@ -237,8 +294,14 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
             "tratante. No dudes en pedirlo y revisarlo junto a él/ella."
         )
         y = callout(
-            c, aviso, L.margin, y, L.content_w,
-            accent=NAVY, fill=SURFACE,
-            title="Sobre este documento", size=TYPE.caption,
+            c,
+            aviso,
+            L.margin,
+            y,
+            L.content_w,
+            accent=NAVY,
+            fill=SURFACE,
+            title="Sobre este documento",
+            size=TYPE.caption,
         )
         return y - 4
