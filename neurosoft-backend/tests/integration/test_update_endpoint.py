@@ -330,11 +330,7 @@ class TestUpdateAudit:
         from app.infrastructure.database.orm_models import AuditLogORM
 
         with SessionLocal() as db:
-            before = (
-                db.query(AuditLogORM)
-                .filter_by(action="update_applied")
-                .count()
-            )
+            before = db.query(AuditLogORM).filter_by(action="update_applied").count()
 
         body = _build_nsupdate(
             {"version": "9.9.9-audit", "frontend_hash": "abc123"},
@@ -351,12 +347,7 @@ class TestUpdateAudit:
         assert r.status_code == 200, r.text
 
         with SessionLocal() as db:
-            rows = (
-                db.query(AuditLogORM)
-                .filter_by(action="update_applied")
-                .order_by(AuditLogORM.ts.asc())
-                .all()
-            )
+            rows = db.query(AuditLogORM).filter_by(action="update_applied").order_by(AuditLogORM.ts.asc()).all()
             assert len(rows) > before, "no se insertó audit_log de update_applied"
             entry = next(r for r in reversed(rows) if "v9.9.9-audit" in (r.summary or ""))
             assert entry.entity_type == "system"
