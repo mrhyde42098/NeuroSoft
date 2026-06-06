@@ -10,13 +10,27 @@ Formulario: https://openai.com/es-419/form/codex-for-oss/
 - [ ] Email = cuenta **ChatGPT** con la que usas Codex
 - [ ] **Organization ID**: ejecutar `powershell scripts/abrir-codex-oss.ps1` o abrir el enlace del Paso 2
 
-### Paso 1 — About e issues (automático, 1 clic)
+### Paso 1 — Issues automáticos (sin login extra si ya hiciste push)
+
+El workflow **Bootstrap Codex OSS** crea los 3 issues al correr.
 
 1. Abre: https://github.com/mrhyde42098/NeuroSoft/actions/workflows/bootstrap-codex-oss.yml
-2. Clic en **Run workflow** → **Run workflow** (rama `main`)
-3. Espera ~30 s (círculo verde). Eso configura descripción, topics y crea 3 issues.
+2. Si la última corrida está en **rojo**, clic **Run workflow** → **Run workflow**
+3. Espera el círculo **verde** (~1 min)
 
-Si no ves «Actions», en el repo ve a **Settings → Actions → General** y permite workflows.
+### Paso 1b — About y topics (solo si la descripción sigue diciendo "Software neuropsicologico")
+
+GitHub no deja cambiar el About sin iniciar sesión. Opción más fácil:
+
+1. Entra a https://github.com/login (tu cuenta `mrhyde42098`)
+2. Abre https://github.com/mrhyde42098/NeuroSoft
+3. A la derecha, engranaje ⚙ junto a **About**
+4. Pega en **Description:**
+   `OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.`
+5. En **Topics** agrega: `neuropsychology` `healthcare` `fastapi` `react` `python` `colombia` `open-source` `clinical-software` `sqlite` `mental-health`
+6. **Save changes**
+
+*(Alternativa con token: `powershell scripts/configurar-github-oss.ps1 -GitHubToken ghp_...`)*
 
 ### Paso 2 — Organization ID de OpenAI (solo tú puedes verlo)
 

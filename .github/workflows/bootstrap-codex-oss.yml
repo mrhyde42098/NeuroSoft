@@ -1,5 +1,5 @@
 # Configura descripción, topics e issues públicos para la solicitud Codex OSS.
-# Se ejecuta una vez: Actions → "Bootstrap Codex OSS" → Run workflow
+# Ejecutar: Actions → "Bootstrap Codex OSS" → Run workflow
 name: Bootstrap Codex OSS
 
 on:
@@ -11,51 +11,66 @@ on:
 
 permissions:
   issues: write
-  administration: write
 
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
     steps:
-      - name: Actualizar About y topics del repo
+      - name: Actualizar About y topics (si el token lo permite)
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            try {
+              await github.rest.repos.update({
+                owner,
+                repo,
+                description:
+                  "OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.",
+              });
+              await github.request("PUT /repos/{owner}/{repo}/topics", {
+                owner,
+                repo,
+                names: [
+                  "neuropsychology",
+                  "healthcare",
+                  "fastapi",
+                  "react",
+                  "python",
+                  "colombia",
+                  "open-source",
+                  "clinical-software",
+                  "sqlite",
+                  "mental-health",
+                ],
+              });
+              core.info("About y topics actualizados.");
+            } catch (e) {
+              core.warning(
+                "No se pudo actualizar About/topics con GITHUB_TOKEN: " + e.message
+              );
+            }
+
+      - name: Crear labels si faltan
         uses: actions/github-script@v7
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const description =
-              "OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.";
-            const topics = [
-              "neuropsychology",
-              "healthcare",
-              "fastapi",
-              "react",
-              "python",
-              "colombia",
-              "open-source",
-              "clinical-software",
-              "sqlite",
-              "mental-health",
-            ];
-
-            await github.rest.repos.update({
-              owner,
-              repo,
-              description,
-              homepage: "https://github.com/mrhyde42098/NeuroSoft",
-            });
-
-            await github.request("PUT /repos/{owner}/{repo}/topics", {
-              owner,
-              repo,
-              headers: {
-                Accept: "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28",
-              },
-              names: topics,
-            });
-
-            core.info("About y topics actualizados.");
+            for (const name of ["roadmap", "enhancement", "bug"]) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name,
+                  color: name === "roadmap" ? "1d76db" : "0e8a16",
+                });
+              } catch (e) {
+                if (e.status !== 422) throw e;
+              }
+            }
 
       - name: Crear issues de roadmap (si no existen)
         uses: actions/github-script@v7
