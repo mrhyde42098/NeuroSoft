@@ -18,19 +18,16 @@ export default function DashboardPage({ setPage }) {
   useEffect(() => {
     api.get("/api/v1/patients/stats").then(setStats).catch(() => toast.error("Error cargando estadísticas"));
     api.get("/api/v1/agenda/stats").then(setAgendaStats).catch(() => {});
-    api.get("/api/v1/patients/panel?por_pagina=50").then(async (d) => {
-      const pacs = (d.pacientes || []).slice(0, 20);
-      const adheres = await Promise.all(pacs.map(async (p) => {
-        const a = await api.get(`/api/v1/rehab/adherence/${p.id}`).catch(() => null);
-        return a ? { ...a, _paciente: p.nombre_completo } : null;
+    api.get("/api/v1/notifications/adherence/summary?dias=30").then((d) => {
+      const activos = (d.pacientes || []).slice(0, 5).map((p) => ({
+        adherencia_pct: p.adherencia_pct,
+        paciente: p.paciente_nombre,
+        has_plan: true,
       }));
-      const conPlan = adheres.filter((a) => a && a.has_plan);
-      if (!conPlan.length) { setRehabSummary({ total: 0, promedio: 0, activos: [] }); return; }
-      const promedio = Math.round(conPlan.reduce((s, a) => s + a.adherencia_pct, 0) / conPlan.length);
       setRehabSummary({
-        total: conPlan.length,
-        promedio,
-        activos: conPlan.sort((a, b) => b.adherencia_pct - a.adherencia_pct).slice(0, 5).map((a) => ({ ...a, paciente: a._paciente })),
+        total: d.total_pacientes ?? activos.length,
+        promedio: d.promedio_adherencia ?? 0,
+        activos,
       });
     }).catch(() => setRehabSummary({ total: 0, promedio: 0, activos: [] }));
   }, [toast]);
@@ -117,18 +114,18 @@ export default function DashboardPage({ setPage }) {
           </SectionCard>
         )}
 
-        {/* Zona 3 — Módulos */}
-        <SectionCard eyebrow="Módulos" title="Acceso rápido" icon="apps">
+        {/* Zona 3 — Accesos complementarios (no duplican hero ni sidebar) */}
+        <SectionCard eyebrow="Recursos" title="Herramientas y seguimiento" icon="hub">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { icon: "person", title: "Pacientes", sub: "Panel y historias", p: "patients" },
-              { icon: "psychology", title: "Evaluación", sub: "WISC, WAIS y más", p: "evaluation" },
-              { icon: "checklist", title: "Screening", sub: "Escalas clínicas", p: "screening" },
-              { icon: "fitness_center", title: "Rehabilitación", sub: "Planes cognitivos", p: "rehab" },
-              { icon: "psychology_alt", title: "Terapia", sub: "Sesiones clínicas", p: "therapy" },
-              { icon: "calendar_today", title: "Agenda", sub: "Citas y recordatorios", p: "agenda" },
-              { icon: "description", title: "Informes", sub: "PDF y envío", p: "reports" },
-              { icon: "bar_chart", title: "Estadísticas", sub: "Tendencia y demografía", p: "estadisticas" },
+              { icon: "bar_chart", title: "Estadísticas", sub: "Tendencia, agenda y rehab", p: "estadisticas" },
+              { icon: "compare", title: "Comparar evaluaciones", sub: "Evolución entre sesiones", p: "compare" },
+              { icon: "menu_book", title: "Aprender", sub: "Glosario y protocolos", p: "aprender" },
+              { icon: "library_books", title: "Referencias", sub: "Bibliografía clínica", p: "referencias" },
+              { icon: "receipt_long", title: "RIPS / facturación", sub: "Exportación EPS", p: "rips" },
+              { icon: "share", title: "Compartir", sub: "Enlaces seguros al paciente", p: "shares" },
+              { icon: "settings", title: "Configuración", sub: "Informes, IA y respaldo", p: "config" },
+              { icon: "help", title: "Ayuda", sub: "Guías de uso", p: "help" },
             ].map((m) => (
               <ActionTile key={m.p} icon={m.icon} title={m.title} subtitle={m.sub} onClick={() => setPage(m.p)} />
             ))}

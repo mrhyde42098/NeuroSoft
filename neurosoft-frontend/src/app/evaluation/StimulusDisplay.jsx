@@ -76,7 +76,7 @@ export default function StimulusDisplay({ testId, stimuli, itemIndex = null }) {
 
   return (
 
-    <div className="w-full max-w-xl mx-auto mb-3">
+    <div className="w-full max-w-3xl mx-auto mb-3">
 
       <div className="rounded-xl p-3 relative" style={{ background: "var(--ns-subtle)", border: "1px solid var(--ns-card-b)" }}>
 
@@ -100,7 +100,7 @@ export default function StimulusDisplay({ testId, stimuli, itemIndex = null }) {
 
                 {s.tipo === "imagen" && s.contenido_base64 ? (
 
-                  <img src={s.contenido_base64} alt={s.nombre} className="h-40 rounded-lg border bg-white" />
+                  <img src={s.contenido_base64} alt={s.nombre} className="h-56 rounded-lg border bg-white" />
 
                 ) : (
 
@@ -132,7 +132,14 @@ export default function StimulusDisplay({ testId, stimuli, itemIndex = null }) {
 
         ) : null}
 
-        {verbatim && <div className="mt-2"><ApoyoClinicoPanel testId={testId} variant="compact" /></div>}
+        {verbatim && (
+          <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--ns-card-b)" }}>
+            <p className="text-[10px] font-extrabold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: TEAL }}>
+              <I name="support" className="text-[12px]" />Apoyo clínico
+            </p>
+            <ApoyoClinicoPanel testId={testId} variant="compact" />
+          </div>
+        )}
 
       </div>
 

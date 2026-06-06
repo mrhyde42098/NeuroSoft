@@ -71,7 +71,7 @@ export default function RipsPage() {
   return (
     <>
       <TopBar title="RIPS" subtitle="Registro Individual de Prestación de Servicios — Colombia" />
-      <main className="p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
+      <main className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
         <SectionCard eyebrow="Normativa" title="Exportación mensual" subtitle="Res. 3374/2000 · Codificación dual CIE-10/CIE-11 en transición" icon="receipt_long">
           <div className="flex flex-wrap items-end gap-4 mb-4">
             <label className="block">

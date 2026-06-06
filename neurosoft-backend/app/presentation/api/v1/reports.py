@@ -77,7 +77,7 @@ def generate_pdf(
     ] = Query(
         "pro",
         description=(
-            "Variante de plantilla del informe: 'pro' (estándar IN&S+Pro), "
+            "Variante de plantilla del informe: 'pro' (estándar NPS+Pro), "
             "'estandar' (legacy histórica), 'pediatrico', 'medicolegal', "
             "'junta_medica' (2 págs), 'inconcluso', "
             "'therapy_closure' (cierre de proceso terapéutico), "

@@ -28,16 +28,13 @@ estimulos_router = APIRouter(prefix="/estimulos", tags=["Estímulos"])
 
 
 def _is_pdf_capacitacion(orm: EstimuloORM) -> bool:
-    """Recortes de PDFs de capacitación — no se sirven en evaluación."""
+    """Importaciones masivas sin mapeo por ítem — no se sirven en evaluación."""
     tid = orm.test_id or ""
-    nombre = (orm.nombre or "").upper()
     return (
         "Stim_p" in tid
         or tid.startswith("NiWiscStim")
         or tid.startswith("AdStim")
         or tid.startswith("EstímuloStim")
-        or "IN&S" in nombre
-        or (orm.descripcion and ".pdf" in str(orm.descripcion))
     )
 
 

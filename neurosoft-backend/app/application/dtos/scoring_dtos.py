@@ -8,8 +8,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
+from app.core.score_bounds import SENTINEL_NA, validate_puntaje_bruto
 from app.core.validators import OptionalUUIDStr, UUIDStr
 
 # ============================================================
@@ -33,6 +34,26 @@ class ScoringRequestDTO(BaseModel):
             "Usar 9999 para pruebas no realizadas."
         ),
     )
+
+    @model_validator(mode="after")
+    def _validate_puntajes_bounds(self) -> "ScoringRequestDTO":
+        errors: list[str] = []
+        for test_id, raw in self.puntajes.items():
+            if raw is None or raw == "":
+                continue
+            try:
+                num = float(raw)
+            except (TypeError, ValueError):
+                errors.append(f"{test_id}: valor no numérico")
+                continue
+            if num == SENTINEL_NA:
+                continue
+            msg = validate_puntaje_bruto(str(test_id).split(" ")[0].strip(), num)
+            if msg:
+                errors.append(msg)
+        if errors:
+            raise ValueError("; ".join(errors[:5]))
+        return self
 
     model_config = {
         "json_schema_extra": {

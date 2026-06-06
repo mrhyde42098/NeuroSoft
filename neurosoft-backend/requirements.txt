@@ -9,12 +9,12 @@
 # Pinned:    versiones exactas para builds reproducibles.
 
 # ── Framework web ─────────────────────────────────────────
-fastapi==0.115.0
-uvicorn[standard]==0.30.0
+fastapi==0.136.3
+uvicorn[standard]==0.34.0
 
 # ── Validación y settings ─────────────────────────────────
-pydantic==2.7.0
-pydantic-settings==2.3.0
+pydantic==2.10.6
+pydantic-settings==2.7.1
 
 # ── Base de datos ─────────────────────────────────────────
 sqlalchemy==2.0.31
@@ -26,8 +26,9 @@ passlib[bcrypt]>=1.7.4              # API de hashing
 bcrypt==4.0.1                       # Backend de passlib (pin por compatibilidad)
 
 # ── Uploads y fechas ──────────────────────────────────────
-python-multipart==0.0.9   # Upload de archivos (firma, restore, import)
+python-multipart==0.0.20   # Upload de archivos (firma, restore, import)
 python-dateutil==2.9.0    # Parser de fechas robusto
+orjson>=3.10.0            # Parse rápido BD_NEURO_MAESTRA.json
 
 # ── Generación de informes ────────────────────────────────
 python-docx==1.1.2

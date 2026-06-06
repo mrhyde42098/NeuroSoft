@@ -336,6 +336,19 @@ def get_config(db: Session = Depends(get_session)):
     return GetConfigUseCase(db).execute()
 
 
+@config_router.get("/branding", summary="Nombre y logo públicos (sin auth)")
+def get_branding(db: Session = Depends(get_session)):
+    """Datos mínimos para pantalla de activación e identidad visual — sin PHI."""
+    cfg = GetConfigUseCase(db).execute()
+    inst = cfg.institucion if cfg else None
+    nombre = (getattr(inst, "nombre", None) or "").strip()
+    return {
+        "nombre": nombre,
+        "subtitle": "Evaluación neuropsicológica clínica",
+        "logo_base64": getattr(inst, "logo_base64", None) if inst else None,
+    }
+
+
 @config_router.put("/institucion", response_model=ConfigInstitucionDTO,
                    summary="Actualizar datos de la institución")
 def update_institucion(

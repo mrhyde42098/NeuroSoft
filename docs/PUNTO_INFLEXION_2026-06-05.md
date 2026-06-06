@@ -1,9 +1,9 @@
 # Punto de inflexión — NeuroSoft App
 ## Informe de traspaso para continuidad en otra sesión de IA
 
-**Fecha:** 5 de junio de 2026  
-**Autor del software:** Johan Sebastián Salgado Sarmiento (propietario único)  
-**Sesión origen:** Auditoría integral post-sprint V0–V6 + implementación de fixes + build completo  
+**Fecha:** 5 de junio de 2026 
+**Autor del software:** Johan Sebastián Salgado Sarmiento (propietario único) 
+**Sesión origen:** Auditoría integral post-sprint V0–V6 + implementación de fixes + build completo 
 **Documentos relacionados:** `AUDIT_2026-06-05.md`, `docs/AUDITORIA_PDFs.md`, `CLAUDE.md`, `docs/ARQUITECTURA.md`
 
 ---
@@ -53,23 +53,23 @@ Este archivo es el **punto de inflexión** entre dos chats de IA. Léelo complet
 
 ```
 D:\NeuroSoftApp\
-├── neurosoft-backend/          FastAPI + motor clínico + PDF + API
-│   ├── app/domain/clinical_engine/   ← NÚCLEO (engine, strategies, baremos_loader)
-│   ├── app/application/use_cases/    ← Orquestación
-│   ├── app/infrastructure/           ← BD, auth, report_pro, scheduler, audit
-│   ├── app/presentation/api/v1/      ← ~37 routers REST
-│   ├── data/BD_NEURO_MAESTRA.json    ← INTOCABLE (valores numéricos)
-│   └── tests/                        ← 1011 tests pytest
-├── neurosoft-frontend/         React SPA
-│   ├── src/data/clinical.js          ← REACTIVOS, INSTRUCCIONES, CONDUCTAS
-│   ├── src/app/evaluation/           ← Flujo de evaluación (núcleo UX)
-│   └── dist/                         ← Build Vite (generado)
-├── installer/NeuroSoft.iss     Inno Setup
-├── vendor/ollama/OllamaSetup.exe   (~1.3 GB, gitignored)
-├── dist/                       Artefactos de build
-├── build.py                    Pipeline PyInstaller
-├── .claude/skills/             Skills del proyecto (/audit-completo, /build-beta-tester, etc.)
-└── docs/                       Documentación + casos clínicos + este informe
+├── neurosoft-backend/ FastAPI + motor clínico + PDF + API
+│ ├── app/domain/clinical_engine/ ← NÚCLEO (engine, strategies, baremos_loader)
+│ ├── app/application/use_cases/ ← Orquestación
+│ ├── app/infrastructure/ ← BD, auth, report_pro, scheduler, audit
+│ ├── app/presentation/api/v1/ ← ~37 routers REST
+│ ├── data/BD_NEURO_MAESTRA.json ← INTOCABLE (valores numéricos)
+│ └── tests/ ← 1011 tests pytest
+├── neurosoft-frontend/ React SPA
+│ ├── src/data/clinical.js ← REACTIVOS, INSTRUCCIONES, CONDUCTAS
+│ ├── src/app/evaluation/ ← Flujo de evaluación (núcleo UX)
+│ └── dist/ ← Build Vite (generado)
+├── installer/NeuroSoft.iss Inno Setup
+├── vendor/ollama/OllamaSetup.exe (~1.3 GB, gitignored)
+├── dist/ Artefactos de build
+├── build.py Pipeline PyInstaller
+├── .claude/skills/ Skills del proyecto (/audit-completo, /build-beta-tester, etc.)
+└── docs/ Documentación + casos clínicos + este informe
 ```
 
 ---
@@ -87,7 +87,7 @@ D:\NeuroSoftApp\
 
 ### Fase B — Implementación ("Realízalo todo")
 
-Implementar los hallazgos prioritarios del audit (IDOR, advertencias motor, hardening strategies, frontend guards, sanitización IN&S, etc.).
+Implementar los hallazgos prioritarios del audit (IDOR, advertencias motor, hardening strategies, frontend guards, sanitización de referencias comerciales, etc.).
 
 ### Fase C — Build + informe de traspaso (este mensaje)
 
@@ -100,7 +100,7 @@ Implementar los hallazgos prioritarios del audit (IDOR, advertencias motor, hard
 
 | Sprint | Tema | Estado |
 |---|---|---|
-| V0 | Sanitización referencias "IN&S" en código | ✅ |
+| V0 | Sanitización referencias comerciales explícitas en código | ✅ |
 | V1 | Bugs visuales PDF (charts.py, base.py, strikethrough) | ✅ |
 | V2 | Estímulos FCRO + disclaimer Cubos | ✅ |
 | V3 | Gráficas rediseñadas (Z, radar, campana, KPI) | ✅ |
@@ -203,9 +203,9 @@ python -m pytest tests/ -q
 **Comandos:**
 ```powershell
 cd D:\NeuroSoftApp\neurosoft-frontend
-npm run lint          # gate pre-build
-npm run build         # lint + vite
-npm run dev           # puerto 5173, API en 8000
+npm run lint # gate pre-build
+npm run build # lint + vite
+npm run dev # puerto 5173, API en 8000
 ```
 
 ---
@@ -234,7 +234,7 @@ npm run dev           # puerto 5173, API en 8000
 | **PDF** | Tabla pruebas con ≥1 resultado (antes ≥2) |
 | **reservorio.py** | `path` solo en dev |
 | **Frontend** | ReactivePanel guards `items`/`elements`; AdBusSim/ViBusSim separados en INSTRUCCIONES |
-| **Protocolos** | 7 JSON sin "IN&S", mojibake `Niños` corregido (frontend + Capacitaciones Clínicas) |
+| **Protocolos** | 7 JSON sin "", mojibake `Niños` corregido (frontend + Capacitaciones Clínicas) |
 | **Test nuevo** | `test_engine_advertencias.py` — regresión advertencias coexisten |
 
 ### 8.3 Bugs históricos §5 — estado post-fix
@@ -249,7 +249,7 @@ npm run dev           # puerto 5173, API en 8000
 | BNT requires_license | ✅ |
 | AdBusSim + ViBusSim en REACTIVOS | ✅ |
 | AdBusSim + ViBusSim en INSTRUCCIONES | ✅ (separados) |
-| IN&S en protocolos JSON | ✅ (nombres sanitizados) |
+| marcas comerciales en protocolos JSON | ✅ (nombres sanitizados) |
 | Typos BD COMRENSIÓN/ORGNIZACIÓN | ✅ |
 
 ---
@@ -368,7 +368,7 @@ Ubicación: `D:\NeuroSoftApp\.claude\skills\`
 ### Prohibido sin aprobación
 - Modificar valores en `BD_NEURO_MAESTRA.json`
 - Sugerir migrar stack (TS, Electron, PostgreSQL, Next.js, Langchain, Workbox)
-- Usar placeholders "IN&S", "[DEMO]", "Ps. Johan Salgado" como default
+- Usar placeholders "", "[DEMO]", "Ps. Johan Salgado" como default
 - Mostrar versión en UI al usuario
 - Mencionar uso de IA al paciente en PDF
 
@@ -426,6 +426,57 @@ Ubicación: `D:\NeuroSoftApp\.claude\skills\`
 - Build: `dist/NeuroSoft.exe` 47.3 MB · `NeuroSoft-Setup.exe` 1.34 GB.
 - Informes: `docs/INFORME_CIERRE_2026-06-06.md`, `ESTADO_VIVO.md` actualizado.
 
+### 6 jun 2026 — UX evaluación + QW-6/QW-8
+- Dashboard intro evaluación (sin pantalla en blanco sin paciente).
+- Screening: nombres sin duplicar abreviatura. Agenda: alta mínima para cita.
+- Videos terapia: embed `youtube-nocookie` + enlace externo. Etiquetas pacientes (migración 010).
+
 ---
+
+## 17. Checklist E2E manual — Paciente → WISC → PDF
+
+Ejecutar en build local o `NeuroSoft.exe` antes de cada entrega beta.
+
+| # | Paso | Esperado | ✓ |
+|---|---|---|---|
+| 1 | Login profesional | Entra al dashboard sin error | ☐ |
+| 2 | Registrar paciente ~10 años (o usar existente) | Panel muestra edad/población infantil | ☐ |
+| 3 | Evaluación → WISC-IV | Dashboard intro con grilla de subtests (no pantalla vacía) | ☐ |
+| 4 | Seleccionar paciente + Comenzar | Abre subtest con reactivos, guía lateral visible (XL) | ☐ |
+| 5 | Aplicar ≥5 subtests core (Sem, Voc, Mat, DC, Claves…) | PD guardados; progreso sube | ☐ |
+| 6 | Finalizar → Resultados | CI/índices calculados; sin 9999 en core | ☐ |
+| 7 | Generar PDF Estándar | Descarga/abre sin error | ☐ |
+| 8 | Generar PDF Pro | Gráficas sin superposición; Resumen Familia presente | ☐ |
+| 9 | Screening PHQ-9 o GAD-7 | Nombres legibles (sin «PHQ-9 — PHQ-9») | ☐ |
+| 10 | Agenda → Nuevo paciente mínimo + cita | Crea paciente y agenda sin ir a registro completo | ☐ |
+
+**Regresión rápida:** `pytest neurosoft-backend/tests` + abrir evaluación sin paciente (debe mostrar dashboard, no blanco).
+
+---
+
+### 6 jun 2026 — Stack + licencias + manual beta
+- **Stack:** FastAPI 0.136.3, Pydantic 2.10, React 19, Vite 6, baremos lazy load por prueba.
+- **Licencias:** `admin_license_app.py` → `dist/NeuroSoft-LicenseAdmin.exe` (titular). Historial en `%APPDATA%/NeuroSoft/LicenseAdmin/`.
+- **Legal UX:** Acuerdo v2.0.0 una vez por PC (`install_agreement.json`); admin/master no lo ven.
+- **Docs:** `docs/GUIA_PROTECCION_Y_LICENCIAS.md`, `docs/SEGURIDAD_DATOS_CLINICOS.md` (BitLocker opcional).
+- **Manual:** `python docs/scripts/generate_manual_pdf.py` → `dist/MANUAL_BETA_TESTER.pdf`.
+- **Mejoras post-upgrade:** ✅ OpenAPI CI, Annotated auth, lazy routes, shards automáticos en build.
+
+---
+
+### 6 jun 2026 (tarde) — Centro Aprender + empaquetado automático
+- **Aprender:** `ProtocolosPage.jsx`, 6 quizzes, 11 casos simulador, hub con dashboard progreso, tablas en artículos.
+- **Build:** `python build.py --skip-ollama` → frontend + shards + exe + PDF + `NeuroSoft-Setup.exe` (todo en un comando).
+- **Manual:** sección 6 Aprender; portada genérica beta (sin credenciales personales).
+- **Docs:** `docs/ROADMAP_APRENDER_ENRIQUECIMIENTO.md` cerrado; pendiente P2 = glosario +120 y rutas guiadas.
+
+### 6 jun 2026 (noche) — Aprender P2 cerrado
+- **Glosario:** 120 términos (+20 RIPS, CIE-11, ENI-2, SVT/TOMM…).
+- **Artículos:** 11 total (+MoCA Colombia, Neuronorma, informe NPS, SVT/TOMM, Res. 1995).
+- **Rutas guiadas:** `aprenderPaths.js` — 4 itinerarios con progreso localStorage.
+- **Biblioteca:** favoritos y leídos (`ns_biblioteca_fav`, `ns_biblioteca_leidos`).
+- **API:** `GET /api/v1/aprender/stats` + `/paths` (público, manifest en `data/aprender/`).
+- **Build:** fix `build.py` (`step_pyinstaller` duplicado); manual PDF + Setup regenerados.
+
 
 *Fin del informe de traspaso. NeuroSoft App — software propietario. Sin atribución a terceros.*

@@ -373,7 +373,7 @@ export default function ScreeningPage() {
           Cognitivo · Emocional · Conductual · Funcional
         </span>
       </TopBar>
-      <main className="p-8 space-y-6 max-w-6xl mx-auto">
+      <main className="p-8 space-y-6 max-w-screen-2xl mx-auto">
         <MsgBanner msg={msg === "ok" ? "ok" : msg} onDismiss={msg && msg !== "ok" ? () => setMsg("") : null} />
 
         <details className="rounded-xl border" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-card)" }}>
@@ -390,17 +390,24 @@ export default function ScreeningPage() {
 
         <details className="rounded-xl border" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-card)" }}>
           <summary className="px-5 py-3 cursor-pointer text-sm font-bold flex items-center gap-2">
-            <I name="gavel" style={{ color: "#f59e0b" }} />Validez de síntomas (peritaje)
+            <I name="gavel" style={{ color: "#f59e0b" }} />Validez de rendimiento (peritaje forense)
           </summary>
-          <div className="p-4">
+          <div className="px-5 pb-2">
+            <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--ns-muted)" }}>
+              No evalúa si el paciente &quot;inventa&quot; síntomas emocionales, sino si el <strong>rendimiento cognitivo</strong> en pruebas
+              es creíble (esfuerzo, comprensión, colaboración). Se usa en peritajes laborales o pensionales con posible simulación.
+              Aplique REY-15 y TOMM desde <strong>Evaluación → protocolo Validez de síntomas</strong> y registre aquí los PD.
+            </p>
+          </div>
+          <div className="p-4 pt-0">
             <ValidezPanel onInsertObs={(txt) => setObs((o) => (o ? `${o}\n\n${txt}` : txt))} />
           </div>
         </details>
 
         <div className="grid grid-cols-12 gap-6">
-        <Card className="p-4 col-span-12 lg:col-span-4 h-fit">
-          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--ns-muted)" }}>Categorías</p>
-          <div className="space-y-1">
+        <Card className="p-4 col-span-12 lg:col-span-4 h-fit max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--ns-muted)" }}>Instrumentos por categoría</p>
+          <div className="space-y-4">
             {[
               { title: "Cognitivo", icon: "psychology", domains: ["Cognitivo", "Cognitivo ejecutivo", "Severidad demencia"] },
               { title: "Emocional", icon: "sentiment_sad", domains: ["Depresión", "Ansiedad", "Ansiedad / Depresión", "Ansiedad infantil"] },
@@ -414,18 +421,36 @@ export default function ScreeningPage() {
                 .filter((k) => group.domains.includes(SCREENING_FORMS[k].domain));
               if (matching.length === 0) return null;
               return (
-                <div key={group.title} className="mb-3">
-                  <p className="text-[10px] font-extrabold uppercase flex items-center gap-1 mb-1" style={{ color: TEAL }}>
+                <div key={group.title}>
+                  <p className="text-[10px] font-extrabold uppercase flex items-center gap-1 mb-2" style={{ color: TEAL }}>
                     <I name={group.icon} className="text-sm" />{group.title}
                   </p>
-                  <div className="flex flex-col gap-1">
-                    {matching.map((k) => (
-                      <button key={k} type="button" onClick={() => { setTest(k); setScores({}); setObs(""); }}
-                        className={`text-left px-2 py-1.5 rounded-lg text-xs font-bold ${test === k ? "text-white" : ""}`}
-                        style={test === k ? { background: TEAL } : { background: "var(--ns-subtle)", color: "var(--ns-text)" }}>
-                        {SCREENING_FORMS[k].abbr} — {SCREENING_FORMS[k].name?.slice(0, 28)}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {matching.map((k) => {
+                      const f = SCREENING_FORMS[k];
+                      const active = test === k;
+                      const shortName = (f.name || "").replace(new RegExp(`^${f.abbr}\\s*[—\\-–]\\s*`, "i"), "").slice(0, 38);
+                      return (
+                        <button
+                          key={k}
+                          type="button"
+                          title={`${f.name}\n${f.domain} · ${f.ageRange || ""}\n${f.notes || ""}`}
+                          onClick={() => { setTest(k); setScores({}); setObs(""); }}
+                          className="text-left p-3 rounded-xl border transition-all hover:shadow-md min-h-[92px] flex flex-col gap-2 justify-between"
+                          style={active
+                            ? { background: TEAL, borderColor: TEAL, color: "#fff" }
+                            : { background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}
+                        >
+                          <span className="text-base font-extrabold leading-none">{f.abbr || k}</span>
+                          <span className="text-[10px] leading-tight line-clamp-2 opacity-95">
+                            {shortName || f.domain}
+                          </span>
+                          <span className="text-[9px] font-bold uppercase tracking-wide opacity-70 line-clamp-1">
+                            {f.domain}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               );

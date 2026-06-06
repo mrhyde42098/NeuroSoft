@@ -164,7 +164,8 @@ async def lifespan(app: FastAPI):
         loader = BaremosLoader.load(settings.baremo_path)
         app.state.baremo_loaded = True
         app.state.baremo_loader = loader
-        logger.info("✅ Baremos cargados: %d pruebas", loader.total_pruebas)
+        _elapsed = _t.time() - app.state.started_at
+        logger.info("✅ Baremos cargados: %d pruebas (%.1fs arranque)", loader.total_pruebas, _elapsed)
     except Exception as e:
         app.state.baremo_loaded = False
         app.state.baremo_loader = None
@@ -280,6 +281,12 @@ _PUBLIC_PATHS = {
     "/openapi.json",
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
+    "/api/v1/license/status",
+    "/api/v1/license/activate",
+    "/api/v1/license/trial",
+    "/api/v1/license/agreement-status",
+    "/api/v1/license/accept-agreement",
+    "/api/v1/config/branding",
 }
 
 # Prefijos públicos (para rutas con token dinámico, ej. telemedicina,
@@ -288,6 +295,7 @@ _PUBLIC_PATHS = {
 _PUBLIC_PREFIXES = (
     "/api/v1/shared/view/",
     "/api/v1/public/rehab/",
+    "/api/v1/aprender/",
 )
 
 # ─────────────────────────────────────────────────────────────

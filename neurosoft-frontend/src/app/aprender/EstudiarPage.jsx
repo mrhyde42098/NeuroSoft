@@ -98,7 +98,7 @@ export default function EstudiarPage() {
   return (
     <>
       <TopBar title="Estudiar — Tarjetas espaciadas" />
-      <main className="p-8 max-w-4xl mx-auto space-y-5">
+      <main className="p-8 max-w-7xl mx-auto space-y-5">
         <div className="flex items-center gap-3 mb-2">
           <I name="psychology" style={{ color: TEAL, fontSize: 28 }} />
           <div className="flex-1">

@@ -20,7 +20,7 @@
 
 | Archivo | Tipo |
 |---|---|
-| [`VERIFICACION_INS_PDF_2026-06-05.md`](VERIFICACION_INS_PDF_2026-06-05.md) | PDF IN&S vs JSON vs clinical.js — veredicto ✅ JSON |
+| [`VERIFICACION_PROTOCOLO_PDF_2026-06-05.md`](VERIFICACION_PROTOCOLO_PDF_2026-06-05.md) | PDF de protocolo vs JSON vs clinical.js — veredicto ✅ JSON |
 | [`REACTIVOS_WISC_WAIS_PLAN.md`](REACTIVOS_WISC_WAIS_PLAN.md) | Plan P0: gap analysis WISC/WAIS → clinical.js |
 | `Capacitaciones Clínicas/protocolos/*.json` | Fuente clínica autoritativa |
 | `docs/scripts/audit_reactivos_gap.py` | Script inventario placeholders |
@@ -33,6 +33,17 @@
 | [`historico/CARPETAS_RAIZ.md`](historico/CARPETAS_RAIZ.md) | Mapa de cada carpeta en raíz |
 
 | [`infra/BUILD_Y_DISTRIBUCION.md`](infra/BUILD_Y_DISTRIBUCION.md) | vendor, installer, mcp, scripts .py raíz |
+| [`GUIA_PROTECCION_Y_LICENCIAS.md`](GUIA_PROTECCION_Y_LICENCIAS.md) | IP, claves NSFT, build protegido (titular) |
+| [`SEGURIDAD_DATOS_CLINICOS.md`](SEGURIDAD_DATOS_CLINICOS.md) | BitLocker opcional, SQLCipher roadmap |
+| [`MEJORAS_POST_UPGRADE.md`](MEJORAS_POST_UPGRADE.md) | Oportunidades tras FastAPI 0.136 / React 19 |
+
+## 3b. Herramientas del titular (no distribuir)
+
+| Artefacto | Uso |
+|---|---|
+| `dist/NeuroSoft-LicenseAdmin.exe` | GUI generación de licencias |
+| `python admin_license_app.py` | Mismo panel desde código |
+| `python build_license_admin.py` | Recompilar exe del panel |
 
 ## 4. Auditorías
 
@@ -42,7 +53,7 @@
 | [`historico/audits/`](historico/audits/) | Auditorías 26-may → 5-jun 2026 |
 | [`audits/`](audits/) | Auditorías mayo 2025 (bugs, backend v2) |
 | [`AUDITORIA_PDFs.md`](AUDITORIA_PDFs.md) | Sprint V1–V5 PDF + reactivos (23 fixes) |
-| [`REFERENCIAS_INFORMES_NPS.md`](REFERENCIAS_INFORMES_NPS.md) | **Estándar visual informes** IN&S+Pro, muestras mínimas, prompt maestro |
+| [`REFERENCIAS_INFORMES_NPS.md`](REFERENCIAS_INFORMES_NPS.md) | **Estándar visual informes** NPS+Pro, muestras mínimas, prompt maestro |
 | [`casos-clinicos/AUDITORIA_EXCEL_VS_MOTOR.md`](casos-clinicos/AUDITORIA_EXCEL_VS_MOTOR.md) | Baremos vs Excel VBA |
 | [`casos-clinicos/AUDITORIA_55_TESTS_SOLO_MOTOR.md`](casos-clinicos/AUDITORIA_55_TESTS_SOLO_MOTOR.md) | Fuentes clínicas 52 tests |
 

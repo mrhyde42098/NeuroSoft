@@ -61,7 +61,7 @@ export default function GuideFormatter({ instructions }) {
   const { mat, inst, disc, tip, puntaje } = instructions;
 
   return (
-    <div className="space-y-4 text-xs leading-relaxed" style={{ color: "var(--ns-text)" }}>
+    <div className="space-y-4 text-sm leading-relaxed" style={{ color: "var(--ns-text)" }}>
 
       {/* ── MATERIALES ── */}
       {mat && (
@@ -88,8 +88,8 @@ export default function GuideFormatter({ instructions }) {
           </div>
           <ul className="space-y-1.5">
             {parseBullets(inst).map((b, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs">
-                <span className="mt-0.5 shrink-0 w-1 h-1 rounded-full" style={{ background: "#7c3aed" }} />
+              <li key={i} className="flex items-start gap-2 text-sm">
+                <span className="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: "#7c3aed" }} />
                 <span>{b}</span>
               </li>
             ))}
@@ -104,27 +104,30 @@ export default function GuideFormatter({ instructions }) {
             <I name="block" className="text-base" style={{ color: "#dc2626" }} />
             <span className="font-extrabold uppercase tracking-wider text-[11px]" style={{ color: "#dc2626" }}>Discontinuar</span>
           </div>
-          <p className="text-xs font-semibold" style={{ color: "#991b1b" }}>{disc}</p>
+          <p className="text-sm font-semibold" style={{ color: "#991b1b" }}>{disc}</p>
         </div>
       )}
 
       {/* ── PUNTUACION ── */}
       {puntaje && (
-        <div>
-          <div className="flex items-center gap-2 mb-1">
+        <div className="p-3 rounded-xl border" style={{ borderColor: "rgba(217,119,6,0.25)", background: "rgba(217,119,6,0.05)" }}>
+          <div className="flex items-center gap-2 mb-2">
             <I name="calculate" className="text-base" style={{ color: "#d97706" }} />
-            <span className="font-extrabold uppercase tracking-wider text-[11px]" style={{ color: "#d97706" }}>Puntuacion</span>
+            <span className="font-extrabold uppercase tracking-wider text-[11px]" style={{ color: "#d97706" }}>Puntuación</span>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="rounded-lg overflow-hidden border text-xs" style={{ borderColor: "var(--ns-card-b)" }}>
             {parseBullets(puntaje).map((b, i) => (
-              <span key={i} className="text-xs font-semibold">{b}</span>
+              <div key={i} className="grid grid-cols-[1fr_auto] gap-3 px-3 py-2 items-center border-b last:border-b-0"
+                style={{ background: i % 2 ? "var(--ns-subtle)" : "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
+                <span className="font-medium leading-snug">{b}</span>
+                {i === 0 && parseMax(puntaje) && (
+                  <span className="font-extrabold tabular-nums px-2 py-0.5 rounded-md shrink-0"
+                    style={{ background: "rgba(217,119,6,0.15)", color: "#92400e" }}>
+                    Máx {parseMax(puntaje)}
+                  </span>
+                )}
+              </div>
             ))}
-            {parseMax(puntaje) && (
-              <span className="text-xs font-extrabold px-2 py-0.5 rounded-lg"
-                style={{ background: "rgba(217,119,6,0.12)", color: "#92400e" }}>
-                Max: {parseMax(puntaje)}
-              </span>
-            )}
           </div>
         </div>
       )}
@@ -143,12 +146,17 @@ export default function GuideFormatter({ instructions }) {
             if (ages.length > 0) return (
               <div className="mb-2">
                 <p className="text-[10px] font-bold uppercase mb-1" style={{ color: "#0D9488" }}>Edad de inicio</p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="rounded-lg overflow-hidden border text-[11px]" style={{ borderColor: "var(--ns-card-b)" }}>
+                  <div className="grid grid-cols-2 gap-px font-bold uppercase tracking-wide text-[9px] px-3 py-1.5"
+                    style={{ background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
+                    <span>Edad</span><span className="text-right">Ítem inicio</span>
+                  </div>
                   {ages.map((a, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold"
-                      style={{ background: "var(--ns-card)", border: "1px solid var(--ns-card-b)" }}>
-                      {a.range} años → ítem {a.item}
-                    </span>
+                    <div key={i} className="grid grid-cols-2 gap-3 px-3 py-2 border-t font-semibold tabular-nums"
+                      style={{ borderColor: "var(--ns-card-b)", background: i % 2 ? "var(--ns-subtle)" : "var(--ns-card)" }}>
+                      <span>{a.range} años</span>
+                      <span className="text-right" style={{ color: "#0D9488" }}>{a.item}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -161,13 +169,18 @@ export default function GuideFormatter({ instructions }) {
             const times = parseTimes(tip);
             if (times.length > 0) return (
               <div className="mb-2">
-                <p className="text-[10px] font-bold uppercase mb-1" style={{ color: "#0D9488" }}>Tiempos por item</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {times.map((t, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold"
-                      style={{ background: "rgba(245,158,11,0.1)", color: "#92400e", border: "1px solid rgba(245,158,11,0.2)" }}>
-                      Items {t.items}: {t.seconds}s
-                    </span>
+                <p className="text-[10px] font-bold uppercase mb-1" style={{ color: "#0D9488" }}>Tiempos por ítem</p>
+                <div className="rounded-lg overflow-hidden border text-[11px]" style={{ borderColor: "var(--ns-card-b)" }}>
+                  <div className="grid grid-cols-2 gap-px font-bold uppercase tracking-wide text-[9px] px-3 py-1.5"
+                    style={{ background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
+                    <span>Ítems</span><span className="text-right">Tiempo</span>
+                  </div>
+                  {times.map((tm, i) => (
+                    <div key={i} className="grid grid-cols-2 gap-3 px-3 py-2 border-t font-semibold tabular-nums"
+                      style={{ borderColor: "var(--ns-card-b)", background: i % 2 ? "var(--ns-subtle)" : "var(--ns-card)" }}>
+                      <span>{tm.items}</span>
+                      <span className="text-right" style={{ color: "#92400e" }}>{tm.seconds}s</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -189,8 +202,8 @@ export default function GuideFormatter({ instructions }) {
             return (
               <ul className="space-y-1 mt-2">
                 {bullets.map((b, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[11px]">
-                    <span className="mt-0.5 shrink-0 w-1 h-1 rounded-full" style={{ background: "#0D9488" }} />
+                  <li key={i} className="flex items-start gap-2 text-[13px]">
+                    <span className="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: "#0D9488" }} />
                     <span>{b}</span>
                   </li>
                 ))}
@@ -199,6 +212,33 @@ export default function GuideFormatter({ instructions }) {
           })()}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Bloques de guía Informe / HC con jerarquía visual y conexión con la app. */
+export function GuideRichSection({ title, body, icon = "info", accent = "#0D9488", hint }) {
+  if (!body) return null;
+  const blocks = String(body).split(/\n\n+/).filter(Boolean);
+  return (
+    <div className="rounded-xl border overflow-hidden" style={{ borderColor: `${accent}30` }}>
+      <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${accent}10` }}>
+        <I name={icon} className="text-sm" style={{ color: accent }} />
+        <span className="text-[11px] font-extrabold uppercase tracking-wide" style={{ color: accent }}>
+          {title.replace(/_/g, " ")}
+        </span>
+      </div>
+      <div className="p-3 space-y-2 text-xs leading-relaxed" style={{ background: "var(--ns-card)", color: "var(--ns-text)" }}>
+        {blocks.map((b, i) => (
+          <p key={i}>{b}</p>
+        ))}
+        {hint && (
+          <p className="text-[10px] pt-2 border-t flex items-start gap-1.5" style={{ borderColor: "var(--ns-card-b)", color: "var(--ns-muted)" }}>
+            <I name="link" className="text-xs shrink-0 mt-0.5" style={{ color: accent }} />
+            {hint}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

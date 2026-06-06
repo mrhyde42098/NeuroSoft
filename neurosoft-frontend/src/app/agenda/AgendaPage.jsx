@@ -10,14 +10,18 @@ import {
 import { TEAL } from "../../ui/tokens.js";
 import { safeLS } from "../../utils/safeLS.js";
 import SectionCard from "../../ui/SectionCard.jsx";
+import ConsentModal from "../patients/ConsentModal.jsx";
 import { REGIMENES, ASEGURADORES_COLOMBIA, requiereAutorizacion } from "../../data/aseguradoresColombia.js";
 import { CUPS_PSICOLOGIA } from "../../data/cupsPsicologia.js";
+import { useToast } from "../../contexts.jsx";
 
 const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
 export default function AgendaPage({ setPage }) {
+  const toast = useToast();
   const [stats, setStats] = useState(null);
+  const [consentPatient, setConsentPatient] = useState(null);
   const [week, setWeek] = useState([]);
   const [ld, setLd] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -42,6 +46,15 @@ export default function AgendaPage({ setPage }) {
     typeof Notification !== "undefined" ? Notification.permission : "default"
   );
   const set = (k, val) => sF((o) => ({ ...o, [k]: val }));
+  const selectedPatient = patients.find((p) => String(p.id) === String(f.patient_id));
+
+  const openConsent = (patient = selectedPatient) => {
+    if (!patient?.id) {
+      toast.info("Seleccione o cree un paciente para imprimir o enviar el consentimiento.");
+      return;
+    }
+    setConsentPatient(patient);
+  };
   const reqNotif = async () => {
     if (typeof Notification === "undefined") return;
     const p = await Notification.requestPermission();
@@ -199,10 +212,13 @@ export default function AgendaPage({ setPage }) {
                     ))}
                   </Sel>
                   {setPage && (
-                    <Btn v="outline" className="text-xs shrink-0" onClick={() => setPage("register")}>
-                      <I name="person_add" />Nuevo
+                    <Btn v="outline" className="text-xs shrink-0" onClick={() => setPage("register")} title="Abrir registro de paciente (ficha completa)">
+                      <I name="person_add" />Nuevo paciente
                     </Btn>
                   )}
+                  <Btn v="outline" className="text-xs shrink-0" onClick={() => openConsent()} title="Imprimir o enviar consentimiento informado">
+                    <I name="draw" />Consentimiento
+                  </Btn>
                 </div>
               </div>
               <div><Label>Fecha</Label><Input type="date" value={f.fecha} onChange={(e) => set("fecha", e.target.value)} /></div>
@@ -259,8 +275,13 @@ export default function AgendaPage({ setPage }) {
             <p className="text-[11px] mt-3" style={{ color: "var(--ns-muted)" }}>
               Recordatorios: notificación del navegador 15 min antes (activar arriba). Para SMS/correo automático, configure SMTP en Configuración → Comunicaciones.
             </p>
-            <div className="flex justify-end mt-4">
-              <Btn onClick={create} disabled={saving || !f.patient_id || (requiereAutorizacion(f.regimen) && !f.autorizacion_no)}>
+            <div className="flex flex-wrap justify-end items-center gap-2 mt-4">
+              {f.patient_id && (
+                <Btn v="outline" className="!min-h-[44px] !py-2.5 !px-5 !text-sm" onClick={() => openConsent()}>
+                  <I name="draw" className="text-sm" />Consentimiento informado
+                </Btn>
+              )}
+              <Btn className="!min-h-[44px] !py-2.5 !px-5 !text-sm" onClick={create} disabled={saving || !f.patient_id || (requiereAutorizacion(f.regimen) && !f.autorizacion_no)}>
                 {saving ? "Guardando..." : "Agendar Cita"}
               </Btn>
             </div>
@@ -404,6 +425,17 @@ export default function AgendaPage({ setPage }) {
           </Card>
         )}
       </main>
+      {consentPatient && (
+        <ConsentModal
+          patientId={consentPatient.id}
+          patientName={
+            consentPatient.nombre_completo
+            || `${consentPatient.primer_nombre || ""} ${consentPatient.primer_apellido || ""}`.trim()
+          }
+          patientEmail={consentPatient.correo || f.contacto_correo || ""}
+          onClose={() => setConsentPatient(null)}
+        />
+      )}
     </>
   );
 }

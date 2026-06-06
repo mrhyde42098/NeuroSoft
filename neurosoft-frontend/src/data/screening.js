@@ -1640,3 +1640,19 @@ export function getScreeningMetadata(testId) {
   return { form, constructo, index };
 }
 
+/** Etiqueta del picker sin duplicar abreviatura (ej. SCARED-5 — SCARED-5 — …). */
+export function screeningPickerLabel(form) {
+  if (!form) return "";
+  const abbr = (form.abbr || "").trim();
+  let name = (form.name || "").trim();
+  if (abbr) {
+    const esc = abbr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const dup = new RegExp(`^${esc}\\s*[—\\-–]\\s*`, "i");
+    if (dup.test(name)) name = name.replace(dup, "").trim();
+    if (!name) return abbr;
+    const short = name.length > 42 ? `${name.slice(0, 39)}…` : name;
+    return `${abbr} — ${short}`;
+  }
+  return name.length > 48 ? `${name.slice(0, 45)}…` : name;
+}
+

@@ -295,7 +295,14 @@ export const useConfirm = () => {
 /* ═══════════════════════════════════════════════════════════════
  * ACCESSIBILITY (§12.8)
  * ═══════════════════════════════════════════════════════════════ */
-const A11yCtx = createContext({ highContrast: false, fontScale: "md", setHighContrast: () => {}, setFontScale: () => {} });
+const A11yCtx = createContext({
+  highContrast: false,
+  fontScale: "md",
+  eyeRest: false,
+  setHighContrast: () => {},
+  setFontScale: () => {},
+  setEyeRest: () => {},
+});
 
 const FONT_CLASSES = ["ns-font-md", "ns-font-lg", "ns-font-xl"];
 
@@ -307,6 +314,7 @@ function applyFontScale(scale) {
 export function A11yProvider({ children }) {
   const [highContrast, _setHC] = useState(() => safeLS.get("ns_a11y_hc") === "1");
   const [fontScale, _setFS] = useState(() => safeLS.get("ns_a11y_fs") || "md");
+  const [eyeRest, _setER] = useState(() => safeLS.get("ns_a11y_eye") === "1");
 
   const setHighContrast = (v) => {
     _setHC(v);
@@ -319,9 +327,16 @@ export function A11yProvider({ children }) {
     safeLS.set("ns_a11y_fs", v);
     applyFontScale(v);
   };
+  const setEyeRest = (v) => {
+    _setER(v);
+    safeLS.set("ns_a11y_eye", v ? "1" : "0");
+    if (v) document.documentElement.classList.add("eye-rest-mode");
+    else document.documentElement.classList.remove("eye-rest-mode");
+  };
 
   useEffect(() => {
     if (highContrast) document.documentElement.classList.add("high-contrast");
+    if (eyeRest) document.documentElement.classList.add("eye-rest-mode");
     applyFontScale(fontScale);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -338,6 +353,8 @@ export function A11yProvider({ children }) {
           || e.target?.isContentEditable) return;
       if (e.key === "h" || e.key === "H") {
         setHighContrast(!document.documentElement.classList.contains("high-contrast"));
+      } else if (e.key === "e" || e.key === "E") {
+        setEyeRest(!document.documentElement.classList.contains("eye-rest-mode"));
       } else if (e.key === "+" || e.key === "=") {
         const cur = SCALES.indexOf(safeLS.get("ns_a11y_fs") || "md");
         if (cur < SCALES.length - 1) setFontScale(SCALES[cur + 1]);
@@ -351,7 +368,7 @@ export function A11yProvider({ children }) {
   }, []);
 
   return (
-    <A11yCtx.Provider value={{ highContrast, fontScale, setHighContrast, setFontScale }}>
+    <A11yCtx.Provider value={{ highContrast, fontScale, eyeRest, setHighContrast, setFontScale, setEyeRest }}>
       {children}
     </A11yCtx.Provider>
   );

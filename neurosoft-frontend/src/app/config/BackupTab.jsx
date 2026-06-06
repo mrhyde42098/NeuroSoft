@@ -12,10 +12,14 @@ import {
 import { TEAL } from "../../ui/tokens.js";
 
 /* ══════════════ BackupTab — respaldo y restauración ══════════════ */
+const BACKUP_PREFS_KEY="ns_backup_prefs";
+
 export default function BackupTab(){
   const[list,setList]=useState([]);const[ld,setLd]=useState(true);const[saving,setSaving]=useState(false);const[msg,setMsg]=useState("");
   const[notas,setNotas]=useState("");const[restoreFile,setRestoreFile]=useState(null);const[confirmRestore,setConfirmRestore]=useState(false);
+  const[prefs,setPrefs]=useState(()=>{try{return JSON.parse(localStorage.getItem(BACKUP_PREFS_KEY)||"{}")}catch{return{}}});
   const toast=useToast();const confirm=useConfirm();
+  const savePrefs=(next)=>{setPrefs(next);try{localStorage.setItem(BACKUP_PREFS_KEY,JSON.stringify(next))}catch{}};
   const load=async()=>{setLd(true);try{const d=await api.get("/api/v1/backup/list");setList(d||[])}catch{setList([])}setLd(false)};
   useEffect(()=>{load()},[]);
   const doDownload=async()=>{try{const token=localStorage.getItem("ns_token")||"";const r=await fetch(API+"/api/v1/backup/download",{headers:{Authorization:"Bearer "+token}});if(!r.ok)throw new Error("HTTP "+r.status);const blob=await r.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`neurosoft_backup_${new Date().toISOString().slice(0,19).replace(/[:T]/g,"")}.db`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast.success("Backup descargado")}catch(e){toast.error("Error al descargar: "+(e.message||e))}};
@@ -31,6 +35,31 @@ export default function BackupTab(){
       <p className="text-xs mt-1" style={{color:"var(--ns-muted)"}}>Gestione copias de seguridad locales. Los respaldos automáticos se ejecutan a diario a las 02:00 y se conservan 30 días (más los del domingo indefinidamente).</p>
     </div>
     <MsgBanner msg={msg==="ok"?"ok":msg} onDismiss={msg&&msg!=="ok"?()=>setMsg(""):null}/>
+
+    <div className="p-5 rounded-xl border" style={{borderColor:"var(--ns-card-b)",background:"var(--ns-subtle)"}}>
+      <p className="text-sm font-bold flex items-center gap-2"><I name="schedule" style={{color:TEAL}}/>Backup automático (servidor)</p>
+      <p className="text-xs mt-2" style={{color:"var(--ns-muted)"}}>
+        El servicio crea un respaldo cifrado cada día a las <strong>02:00</strong> (APScheduler). Retención: 7 diarios + 4 semanales. Los archivos quedan en <code className="text-[10px]">data/backups/</code>.
+      </p>
+      <div className="grid sm:grid-cols-2 gap-4 mt-4">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{color:"var(--ns-muted)"}}>Copia externa recomendada</p>
+          <Input value={prefs.carpeta_destino||""} onChange={e=>savePrefs({...prefs,carpeta_destino:e.target.value})}
+            placeholder="Ej: D:\Backups\NeuroSoft o carpeta sincronizada OneDrive" className="text-xs"/>
+          <p className="text-[10px] mt-1" style={{color:"var(--ns-muted)"}}>Referencia local: tras «Descargar .db», copie el archivo a esta ruta (no se mueve solo).</p>
+        </div>
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer text-xs">
+            <input type="checkbox" checked={!!prefs.recordar_semanal} onChange={e=>savePrefs({...prefs,recordar_semanal:e.target.checked})} className="w-4 h-4"/>
+            Recordarme revisar backups cada lunes al abrir Configuración
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer text-xs">
+            <input type="checkbox" checked={!!prefs.descargar_tras_crear} onChange={e=>savePrefs({...prefs,descargar_tras_crear:e.target.checked})} className="w-4 h-4"/>
+            Sugerir descarga al crear backup manual
+          </label>
+        </div>
+      </div>
+    </div>
 
     {/* Descargar + Crear manual */}
     <div className="grid grid-cols-2 gap-4">

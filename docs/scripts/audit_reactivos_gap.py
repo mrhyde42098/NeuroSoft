@@ -11,9 +11,15 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+def _proto(name: str) -> Path:
+    cap = ROOT / "Capacitaciones Clínicas/protocolos" / name
+    fe = ROOT / "neurosoft-frontend/src/data/protocols" / name
+    return cap if cap.exists() else fe
+
+
 def main() -> None:
-    cap_wisc = load_json(ROOT / "Capacitaciones Clínicas/protocolos/wisc_iv_protocolo.json")
-    cap_wais = load_json(ROOT / "Capacitaciones Clínicas/protocolos/wais_iii_protocolo.json")
+    cap_wisc = load_json(_proto("wisc_iv_protocolo.json"))
+    cap_wais = load_json(_proto("wais_iii_protocolo.json"))
     clinical = (ROOT / "neurosoft-frontend/src/data/clinical.js").read_text(encoding="utf-8")
 
     placeholders = re.findall(r"(\w+):\{[^}]*requires_protocol_text:true", clinical)

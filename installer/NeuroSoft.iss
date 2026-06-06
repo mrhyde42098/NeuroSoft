@@ -9,8 +9,8 @@
 
 #define MyAppName        "NeuroSoft App"
 #define MyAppShortName   "NeuroSoft"
-#define MyAppPublisher   "Johan Salgado"
-#define MyAppURL         "mailto:jssalgadosa@unal.edu.co"
+#define MyAppPublisher   "NeuroSoft"
+#define MyAppURL         "https://neurosoft.local"
 #define MyAppExeName     "NeuroSoft.exe"
 #define MyAppId          "{{A3F1C8B2-9D4E-4C5A-B7E1-NEUROSOFT2026}}"
 
@@ -22,8 +22,8 @@ AppVerName={#MyAppName}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
-AppContact=jssalgadosa@unal.edu.co
-AppCopyright=Copyright (C) 2026 Johan Salgado
+AppContact=support@neurosoft.local
+AppCopyright=Copyright (C) 2026 NeuroSoft
 
 ; ─── Carpeta de instalación por defecto ────────────────────────────
 ; El usuario podrá cambiar esta ruta durante la instalación.

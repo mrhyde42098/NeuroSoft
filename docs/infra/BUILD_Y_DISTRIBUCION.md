@@ -12,7 +12,8 @@ Mapa de carpetas y scripts de empaquetado que suelen confundirse en la raíz del
 |---|---|---|
 | `launcher.py` | Entry point PyInstaller / pywebview desktop | **No** — referenciado en `neurosoft.spec` |
 | `build.py` | Orquesta npm build + PyInstaller + opcional Ollama | **No** |
-| `generate_license.py` | Generación de licencias desktop | **No** — uso ocasional desde raíz |
+| `admin_license_app.py` / `build_license_admin.py` | Panel GUI licencias → `dist/NeuroSoft-LicenseAdmin.exe` | **No** — solo titular |
+| `generate_license.py` | Legacy CLI/GUI licencias | Reemplazado por `admin_license_app.py` |
 
 Mover estos archivos rompe rutas relativas del spec y del instalador.
 

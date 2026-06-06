@@ -1,6 +1,6 @@
 ---
 name: redisenar-informes
-description: Implementa y mantiene el estándar visual de informes PDF NeuroSoft (IN&S + gráficas Pro sin bugs). OBLIGATORIO Composer 2.5 u Opus 4.8 para editar report_pro/. Usar cuando Johan pida rediseño PDF, bugs de superposición, plantillas o calidad del informe NPS.
+description: Implementa y mantiene el estándar visual de informes PDF NeuroSoft ( + gráficas Pro sin bugs). OBLIGATORIO Composer 2.5 u Opus 4.8 para editar report_pro/. Usar cuando Johan pida rediseño PDF, bugs de superposición, plantillas o calidad del informe NPS.
 ---
 
 # Rediseñar informes NeuroSoft
@@ -11,8 +11,8 @@ description: Implementa y mantiene el estándar visual de informes PDF NeuroSoft
 minimum: ["composer-2.5", "claude-opus-4-8-thinking-high"]
 forbidden_for_code: ["haiku", "flash", "gpt-4o-mini", "llama3.1:8b"]
 routing:
-  layout_charts_refactor: "claude-opus-4-8-thinking-high"
-  ui_wiring_tests_docs: "composer-2.5"
+ layout_charts_refactor: "claude-opus-4-8-thinking-high"
+ ui_wiring_tests_docs: "composer-2.5"
 ```
 
 Si la sesión usa un modelo inferior, **detener** y pedir a Johan cambiar a Composer u Opus antes de editar `report_pro/`.
@@ -25,9 +25,9 @@ La IA **no dibuja layout PDF** — solo ReportLab en código. La IA en `ai.py` a
 2. PDFs en [`docs/referencias-informes/`](../../docs/referencias-informes/)
 3. [`neurosoft-backend/app/infrastructure/report_pro/base.py`](../../neurosoft-backend/app/infrastructure/report_pro/base.py)
 
-## Estándar visual (IN&S + Pro)
+## Estándar visual (layout clínico + Pro)
 
-- Header repetido: orden, fechas, paciente (estilo IN&S)
+- Header repetido: orden, fechas, paciente (estilo ficha clínica NPS)
 - Observación clínica **antes** de resultados cuantitativos
 - Gráficas premium: KPI, discrepancias, perfil Z, campana, radar, tabla
 - **Máximo 2 bloques gráficos por página** (`CHART_MODULES` + `MAX_CHART_BLOCKS_PER_PAGE`)

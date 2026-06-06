@@ -31,7 +31,7 @@ from app.core.exceptions import (
 )
 from app.core.utils import AgeCalculator
 from app.domain.entities.models import Paciente, PacienteId
-from app.infrastructure.repositories.patient_repo import PatientRepository
+from app.infrastructure.repositories.patient_repo import PatientRepository, _parse_etiquetas
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +60,7 @@ def _to_response(paciente: Paciente) -> PatientResponseDTO:
         codigo_rips=paciente.codigo_rips,
         eps=paciente.eps,
         via_atencion=getattr(paciente, "via_atencion", None) or "mixto",
+        etiquetas=getattr(paciente, "etiquetas", None) or [],
         age_years=age.years,
         age_months=age.months,
         age_display=age.display,
@@ -122,6 +123,8 @@ class RegisterPatientUseCase:
             motivo_consulta=dto.motivo_consulta,
             remite=dto.remite,
             eps=dto.eps,
+            regimen=dto.regimen,
+            pais=dto.pais,
             orden_medica_no=dto.orden_medica_no,
             discapacidad=dto.discapacidad,
             codigo_rips=dto.codigo_rips,
@@ -130,6 +133,7 @@ class RegisterPatientUseCase:
             numero_sesiones=dto.numero_sesiones,
             donante=dto.donante,
             via_atencion=dto.via_atencion,
+            etiquetas=dto.etiquetas or [],
         )
 
         saved = self._repo.save(paciente)
@@ -365,6 +369,7 @@ class PatientPanelUseCase:
                     else None
                 ),
                 ultimo_protocolo=eval_protocolo.get(orm.id),
+                etiquetas=_parse_etiquetas(getattr(orm, "etiquetas", None)),
             ))
 
         return PatientPanelResponseDTO(

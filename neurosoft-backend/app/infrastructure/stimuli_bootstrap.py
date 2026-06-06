@@ -20,8 +20,6 @@ def _pdf_capacitacion_sql_filters():
         EstimuloORM.test_id.startswith("NiWiscStim"),
         EstimuloORM.test_id.startswith("AdStim"),
         EstimuloORM.test_id.startswith("EstímuloStim"),
-        EstimuloORM.nombre.ilike("%IN&S%"),
-        EstimuloORM.descripcion.ilike("%.pdf%"),
     )
 
 

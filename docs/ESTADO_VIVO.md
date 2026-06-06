@@ -1,6 +1,6 @@
 # Estado vivo — NeuroSoft App
-**Última actualización:** 6 de junio de 2026 (cierre beta + OSS + build)  
-**Fuente de verdad** para saber qué está hecho vs qué falta.  
+**Última actualización:** 6 de junio de 2026 (Centro Aprender + build automático + post-upgrade) 
+**Fuente de verdad** para saber qué está hecho vs qué falta. 
 **Regla IA:** al cerrar sprint/roadmap → skill `/actualizar-estado-vivo`. Sync contexto completo solo con `/actualizar-contexto-ia`.
 
 ---
@@ -12,7 +12,8 @@
 | Tests pytest | **1016 passed** |
 | ESLint frontend | 0 warnings (`npm run lint`) |
 | Baremos | 173 pruebas, ~114.586 claves (`BD_NEURO_MAESTRA.json`) |
-| Build exe | **47.3 MB** · Setup ~1.34 GB (regenerado 6 jun 2026) |
+| Build exe | **~48 MB** · Setup ~1.4 GB · LicenseAdmin exe |
+| Stack | FastAPI 0.136 · React 19 · Vite 6 · Pydantic 2.10 |
 | CI workflows | `.github/workflows/backend-ci.yml`, `frontend-ci.yml` |
 | GitHub OSS | https://github.com/mrhyde42098/NeuroSoft · Codex OSS enviado |
 
@@ -22,7 +23,7 @@
 
 | Sprint | Tema | Doc |
 |---|---|---|
-| V0 | Sanitización IN&S en código | `docs/historico/sprints/AUDITORIA_PDFs.md` §V0 |
+| V0 | Sanitización de referencias comerciales en código | `docs/historico/sprints/AUDITORIA_PDFs.md` §V0 |
 | V1–V3 | PDF charts + estímulos + gráficas | `docs/AUDITORIA_PDFs.md` |
 | V4 | REACTIVOS WISC/WAIS fidelidad | idem |
 | V5 | Validación edad, typos BD | idem |
@@ -44,7 +45,7 @@
 | S7 | Terapia Meet/Zoom SOAP + PanelIA pulls | ✅ |
 | S8 | AprenderHub tabs + Config pruebas embebidas | ✅ |
 | CONS | Consentimiento PDF + email SMTP + firma digital | ✅ (OTP SMS opcional P2) |
-| OSS | Repo público, CONTRIBUTING, issues, sin material IN&S en git | ✅ |
+| OSS | Repo público, CONTRIBUTING, issues, sin material de capacitación en git | ✅ |
 | PDF Pro | Resumen para la Familia en variante `pro` | ✅ (6 jun 2026) |
 
 ---
@@ -69,7 +70,7 @@
 | ID | Feature | Estado |
 |---|---|---|
 | M-1 | Módulo terapias enriquecido (18 enfoques) | ✅ |
-| M-2 | Aprender (glosario, estudiar, quiz, simulador) | ✅ |
+| M-2 | Aprender (glosario 120, rutas, API, biblioteca fav) | ✅ P2 cerrado 6 jun |
 | M-3 | C-SSRS riesgo suicida | ✅ |
 | M-4 | Telepsicología Jitsi | ✅ |
 | M-5 | Completitud informe + bloqueo descarga | ✅ |
@@ -97,10 +98,20 @@
 ## Pendiente real (priorizado)
 
 ### P0 — antes de beta amplia
-- [ ] **Sprint REACTIVOS WISC/WAIS** — ver `docs/REACTIVOS_WISC_WAIS_PLAN.md` (16 placeholders + Sem/Voc desalineados)
-- [ ] E2E manual: paciente → WISC → PDF pro (checklist en `PUNTO_INFLEXION`)
+- [ ] **Sprint REACTIVOS WISC/WAIS** — ver `docs/REACTIVOS_WISC_WAIS_PLAN.md`
+- [ ] E2E manual: paciente → WISC → PDF pro
 - [ ] Fix test flaky `test_listar_backups_detecta_archivos`
-- [ ] Dark mode en `evaluation/` (skill `/dark-mode-fix`)
+
+### Hecho reciente (6 jun 2026)
+- [x] **Centro Aprender P2:** 120 términos glosario, 11 artículos, 4 rutas guiadas, favoritos biblioteca, API `/api/v1/aprender/`
+- [x] **Centro Aprender P0/P1:** 6 quizzes, 11 casos simulador, 6 protocolos, `ProtocolosPage`, hub con progreso
+- [x] **Build automático:** `build.py` regenera shards + PDF + Inno Setup sin pasos manuales
+- [x] **Post-upgrade:** OpenAPI tests, `Annotated` auth, lazy routes React 19, bundle ~336 KB
+- [x] FastAPI 0.136 + React 19 + Vite 6 + baremos shards por población
+- [x] Acuerdo legal v2.0.0 (una vez por PC; skip admin/master)
+- [x] `admin_license_app.py` + `NeuroSoft-LicenseAdmin.exe`
+- [x] Manual beta PDF regenerado con sección Aprender (genérico, sin credenciales personales)
+- [x] Terapias: botón Cerrar en vista previa catálogo
 
 ### P1 — calidad clínica/UX
 - [ ] Consentimiento OTP SMS (opcional; email+PDF ya implementado)
@@ -119,7 +130,7 @@
 
 ## Documentos que NO tocar (histórico)
 
-Los roadmaps en `docs/planning/` son **planes originales** — no borrar.  
+Los roadmaps en `docs/planning/` son **planes originales** — no borrar. 
 El estado real está **aquí** (`ESTADO_VIVO.md`), no en los roadmaps viejos.
 
 Auditorías archivadas: `docs/historico/audits/`

@@ -49,6 +49,8 @@ class PatientORM(Base):
     motivo_consulta = Column(Text)
     remite = Column(String(200))
     eps = Column(String(100))
+    regimen = Column(String(30))
+    pais = Column(String(60))
     orden_medica_no = Column(String(50))
     discapacidad = Column(String(100))
     codigo_rips = Column(String(10))
@@ -58,6 +60,8 @@ class PatientORM(Base):
     donante = Column(Boolean, default=False)
     # Vía de atención: comma-separated neuropsicologia|psicoterapia|rehabilitacion|mixto
     via_atencion = Column(String(120), nullable=False, default="mixto")
+    # QW-6: etiquetas configurables (JSON array de strings)
+    etiquetas = Column(Text, nullable=True)
     created_at = Column(DateTime, default=_utc_now, nullable=False)
     updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
     is_active = Column(Boolean, default=True, nullable=False)
@@ -601,6 +605,9 @@ class AIConfigORM(Base):
     api_key      = Column(Text)                    # opcional si provider=ollama
     model        = Column(String(80))
     ollama_url   = Column(String(200), default="http://127.0.0.1:11434")
+    # Endpoint OpenAI-compatible para proveedores en línea como MedGemma
+    # (OpenRouter, Hugging Face TGI, Vertex proxy, etc.). Vacío = OpenAI oficial.
+    openai_base_url = Column(String(300))
     temperature  = Column(Integer, default=70)     # /100 → 0.70
     max_tokens   = Column(Integer, default=1024)
     enable_cloud = Column(Boolean, default=True)   # si False → forzar Ollama

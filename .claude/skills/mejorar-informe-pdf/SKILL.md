@@ -2,7 +2,7 @@
 name: mejorar-informe-pdf
 description: Plan estructurado para rediseñar el informe clínico PDF que genera NeuroSoft. El actual es genérico; queremos uno de calidad profesional con narrativa coherente, gráficos clínicos serios y diseño limpio. Usar cuando Johan pida trabajar en el informe PDF o cuando se quiera ofrecer una variante de plantilla nueva.
 
-> **Implementación activa:** usar primero `/redisenar-informes` (skill de ejecución con estándar IN&S+Pro).
+> **Implementación activa:** usar primero `/redisenar-informes` (skill de ejecución con estándar NPS+Pro).
 > Referencia: `docs/REFERENCIAS_INFORMES_NPS.md`
 ---
 
@@ -45,10 +45,10 @@ El informe PDF actual de NeuroSoft (generado por `neurosoft-backend/app/infrastr
 ### 📊 Gráficos clínicos
 - La gráfica Z horizontal es básica (barras planas con franjas de color).
 - **Faltan**:
-  - Radar/spider chart de dominios cognitivos (lo más esperado en informes neuropsicológicos)
-  - Distribución normativa con la curva gaussiana superpuesta al perfil del paciente
-  - Gráfico de discrepancias entre índices (WISC: ICV vs IRP vs IMT vs IVP)
-  - Indicadores visuales claros de fortalezas/debilidades
+ - Radar/spider chart de dominios cognitivos (lo más esperado en informes neuropsicológicos)
+ - Distribución normativa con la curva gaussiana superpuesta al perfil del paciente
+ - Gráfico de discrepancias entre índices (WISC: ICV vs IRP vs IMT vs IVP)
+ - Indicadores visuales claros de fortalezas/debilidades
 
 ### 📝 Narrativa clínica
 - **Texto telegráfico** — los dominios se llenan con plantillas auto-generadas que no fluyen como informe real.

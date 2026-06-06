@@ -30,10 +30,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { I } from "./primitives.jsx";
 import { useEscape, useFocusTrap } from "./a11y.jsx";
 import {
+  VERSION_ACUERDO,
+  ACUERDO_SECCIONES,
+} from "../data/installAgreement.js";
+import {
   estadoAceptacionGlobal,
   registrarAceptacionGlobal,
   revocarAceptacionGlobal,
-  VERSION_ACUERDO,
 } from "../data/pearsonProtected.js";
 
 /**
@@ -136,10 +139,10 @@ export default function PearsonConsentDialog({
                 id="pearson-consent-title"
                 className="text-lg font-extrabold"
               >
-                Material con copyright — Acuerdo para usarlo
+                Acuerdo de uso del software clínico
               </h2>
               <p className="text-xs" style={{ color: "var(--ns-muted)" }}>
-                Versión del acuerdo: <span className="ns-mono">{VERSION_ACUERDO}</span>
+                Versión {VERSION_ACUERDO} · Una sola aceptación por equipo
               </p>
             </div>
           </div>
@@ -155,100 +158,23 @@ export default function PearsonConsentDialog({
                 border: "1px solid var(--ns-warn-b, #FCD34D)",
               }}
             >
-              <strong>El acuerdo se actualizó.</strong> Léelo de nuevo y acéptalo
-              para seguir usando el texto original de las pruebas WISC-IV y WAIS-III
-              dentro de la aplicación.
+              <strong>El acuerdo se actualizó.</strong> Léalo de nuevo y acéptelo
+              para continuar usando el software en este equipo.
             </div>
           )}
 
-          <p>
-            Para que tu trabajo clínico sea más ágil, NeuroSoft trae el texto
-            original — palabra por palabra — de los estímulos de las pruebas
-            <strong> WISC-IV </strong> y <strong> WAIS-III</strong>. Ese texto es
-            propiedad de la <em>Editorial El Manual Moderno / Pearson</em> y solo
-            se te muestra porque tú tienes tu propia licencia. <strong>No se
-            puede copiar ni compartir</strong>; es para tu consulta en consulta.
+          <p className="text-sm">
+            Antes de usar el programa por primera vez en este equipo, lea y acepte
+            los términos siguientes. Este acuerdo no reemplaza su contrato de licencia
+            ni las condiciones de los editores de las pruebas que usted aplique.
           </p>
 
-          <section>
-            <h3 className="font-bold text-sm mb-2">
-              ¿Por qué te lo pedimos?
-            </h3>
-            <p className="text-xs">
-              Las leyes colombianas y los tratados internacionales protegen los
-              derechos de autor de los manuales. Al usar el texto original dentro
-              de NeuroSoft te comprometes a respetar esas reglas — igual que
-              cuando hojeas tu manual físico. En concreto, esto se apoya en:
-            </p>
-            <ul className="text-xs space-y-1 ml-4 list-disc mt-2">
-              <li>Ley 23 de 1982 (Colombia) — Derechos de autor.</li>
-              <li>Ley 44 de 1993 — Modificaciones a la Ley 23.</li>
-              <li>Decisión 486 de 2000 (Comunidad Andina).</li>
-              <li>Tratados internacionales de la OMPI (WIPO).</li>
-              <li>Tu contrato de licenciamiento con el editor.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="font-bold text-sm mb-2">
-              Tu compromiso como profesional
-            </h3>
-            <p className="text-xs mb-2">
-              Al aceptar, te comprometes a:
-            </p>
-            <ol className="text-xs space-y-1 ml-4 list-decimal">
-              <li>
-                Tener tu licencia personal vigente del WISC-IV y/o WAIS-III.
-              </li>
-              <li>
-                Usar el texto original únicamente con tus pacientes (evaluar,
-                diagnosticar, hacer seguimiento).
-              </li>
-              <li>
-                No copiar los estímulos a informes, publicaciones, redes sociales
-                ni a ningún medio fuera de la consulta.
-              </li>
-              <li>
-                Conservar tus manuales físicos como referencia ante cualquier
-                duda sobre cómo aplicar o cómo puntuar.
-              </li>
-              <li>
-                Seguir las instrucciones de aplicación que trae cada manual
-                original.
-              </li>
-              <li>
-                Aceptar que cada vez que abras un estímulo quede un registro
-                automático en la bitácora de la aplicación.
-              </li>
-            </ol>
-          </section>
-
-          <section>
-            <h3 className="font-bold text-sm mb-2">
-              ¿Qué te ofrece NeuroSoft a cambio?
-            </h3>
-            <p className="text-xs">
-              Una vez aceptado, en cada prueba con texto protegido encontrarás:
-            </p>
-            <ul className="text-xs space-y-1 ml-4 list-disc mt-2">
-              <li>
-                Una <strong>marca visual discreta</strong> sobre el estímulo
-                (no interrumpe tu aplicación).
-              </li>
-              <li>
-                La <strong>referencia exacta al manual</strong>: página, ISBN y
-                editorial para que lo consultes cuando quieras.
-              </li>
-              <li>
-                <strong>Errores frecuentes</strong> y alternativas de puntuación
-                cuando aplique.
-              </li>
-              <li>
-                <strong>Registro automático</strong> de cada apertura para tu
-                tranquilidad y la del paciente.
-              </li>
-            </ul>
-          </section>
+          {ACUERDO_SECCIONES.map((sec) => (
+            <section key={sec.titulo}>
+              <h3 className="font-bold text-sm mb-1">{sec.titulo}</h3>
+              <p className="text-xs leading-relaxed">{sec.cuerpo}</p>
+            </section>
+          ))}
 
           {!user && (
             <section
@@ -319,9 +245,8 @@ export default function PearsonConsentDialog({
               className="mt-1"
             />
             <span className="text-xs">
-              Confirmo que he leído el acuerdo, cumplo los compromisos listados y
-              acepto el registro de auditoría de cada vez que abra el texto original
-              de un estímulo.
+              He leído el acuerdo, declaro cumplir la normativa colombiana aplicable
+              y acepto usar el software bajo estos términos en este equipo.
             </span>
           </label>
         </div>

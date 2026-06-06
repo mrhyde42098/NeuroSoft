@@ -2,6 +2,8 @@
  * src/data/clinical.js — Constantes clinicas (extraidas de App.jsx)
  * ─────────────────────────────────────────────────────────────────────── */
 
+import { REACTIVOS_PEARSON } from "./reactivosPearson.generated.js";
+
 export const OBS_TEMPLATES={apariencia_conducta:["El/la paciente se presenta orientado/a en persona, tiempo y espacio. Actitud colaboradora durante la sesión.","Contacto visual adecuado. Lenguaje espontáneo fluido y coherente.","Se observan signos de ansiedad/inquietud motora durante tareas de mayor demanda cognitiva.","Aspecto general acorde a edad y contexto. Higiene y vestimenta adecuadas."],atencion_concentracion:["Se evidencian dificultades en atención sostenida, con pérdida de foco ante estímulos distractores.","La velocidad de procesamiento se encuentra dentro de rangos esperados para su grupo normativo.","Presenta dificultades en tareas que requieren atención dividida y alternante."],memoria:["La curva de aprendizaje muestra un patrón ascendente con beneficio de la repetición.","Se evidencia disociación entre memoria libre (deficitaria) y con claves (preservada), sugiriendo dificultad en recuperación.","Adecuada consolidación a largo plazo con mínima pérdida en recuerdo diferido."],lenguaje:["Lenguaje expresivo fluido con adecuada articulación, sintaxis y prosodia.","Vocabulario acorde a nivel educativo. Comprensión de instrucciones preservada.","Dificultades en fluidez verbal fonológica con mejor rendimiento en semántica."],funciones_ejecutivas:["Se evidencian dificultades en flexibilidad cognitiva con tendencia a perseveración.","Adecuada capacidad de planificación y organización en tareas estructuradas.","Dificultades en control inhibitorio con respuestas impulsivas en tareas de interferencia."],habilidades_visoespaciales:["Adecuada capacidad de análisis y síntesis visoconstructiva.","Se evidencian dificultades en organización perceptual y planificación visoespacial."],impresion_diagnostica:["Los hallazgos sugieren un perfil compatible con {diagnóstico}, caracterizado por {características}.","El perfil neuropsicológico es consistente con las dificultades reportadas."],recomendaciones:["Intervención neuropsicológica enfocada en {áreas}.","Adaptaciones escolares/laborales: {adaptaciones}.","Valoración por {especialidad} para {motivo}.","Programa de estimulación cognitiva con énfasis en {dominios}."]};
 
 export const CONDUCTAS={NiWiscDC:["Estilos de resolución: ensayo-error, fortuito, con estrategia","Nivel de planeación: ¿planea con cuidado o es impulsivo?","Colocación de cubos: adentro→afuera o viceversa (estilo analítico visual)","Coordinación motora y lateralidad: torpeza, temblores o firmeza","Consulta del modelo: si es constante → baja memoria visual o cautela","Preocupación por detalles: indica obsesión → impacto en velocidad","Perseverancia y tolerancia a la frustración: ¿se dan por vencidos?","Movimiento corporal: ¿rota su cuerpo o el diseño? → dificultades visoperceptuales","Reconocer el error: ¿no logra reconocer que su diseño difiere del modelo?"],NiWiscSem:["Beneficio de retroalimentación en ejemplo: flexibles vs rígidos o concretos","Extensión de respuestas: respuestas demasiado detalladas pueden sugerir obsesividad","Distinguir asociaciones sobreaprendidas en reactivos fáciles","Manejo de la frustración: ¿Dice constantemente 'no sé' o 'no se parecen'?","Las respuestas de defensividad/evitación se distinguen de dificultades de categorización","Autocorrecciones espontáneas: son válidas"],NiWiscRDD:["Estrategia de resolución: ¿agrupa números? ¿Desde el inicio o a medida que avanza?","Características del error: ¿traspone los números o los olvida por completo?","Inatención, discapacidad auditiva o ansiedad como factores","Interferencia por condiciones de aplicación: ruidos → no interpretable","Impulsividad: ¿repite muy rápido o antes de que termine la serie?","Autocorrecciones espontáneas: son válidas"],NiWiscConD:["Distinguir asociaciones sobreaprendidas en reactivos fáciles","Frustración: ¿Dice 'nada se parece'? Defensividad y evitación vs. dificultades","Reflexión previa: ¿estudia los dibujos antes? → estilo reflexivo","Verbalización durante la resolución del problema","Errores por interpretación social/cultural equivocada, no visoperceptuales","Autocorrecciones espontáneas: son válidas"],NiWiscCl:["Movimientos oculares: uso constante de clave → memoria deficiente o inseguridad","Si no reconoce el orden numérico → dificultad con conceptos numéricos","Si NO usa claves → buena retención y memoria visual/asociativa","Impulsividad: escribe símbolos rápido pero de forma descuidada","Planeación: si intenta escribir por símbolo (1, luego 2, etc.)","Ansiedad: manos tiemblan, aprieta lápiz, presiona duro","Perfeccionismo: tiempo excesivo perfeccionando → obsesividad","Inatención o fatiga a medida que avanza"],NiWiscVoc:["Pronunciación: ¿dificultades? ¿Inseguridad para expresarse?","Lenguaje no verbal: sustituye palabras con gestos","Problemas de recuperación: 'No sé' o 'lo tengo en la punta de la lengua' → baja rapidez léxica","Dificultades auditivas: inclinarse para oír, discriminación auditiva (confinar/confiar)","Exceso de palabras: compensación por inseguridad, obsesión o ineficiente expresión","Autocorrecciones espontáneas: son válidas"],NiWiscLN:["Estrategia de resolución: ¿agrupa o secuencia? ¿Desde el inicio o progresivo?","Error: ¿No puede reordenar aunque repita la secuencia literal?","Dificultades: inatención, discapacidad auditiva, ansiedad","Interferencia por condiciones: ruidos o distracciones → no interpretable","Tolerancia a la frustración: ¿persevera ante los errores?","Comprensión errónea: si trata como retención de dígitos → puntaje engañoso"],NiWiscMat:["Nivel de planeación: examina sistemáticamente o es impulsivo","Movimientos oculares: aproximación sistemática vs aleatoria","Frustración: ¿dice 'no sé' antes de observar? → indicador de frustración","Autocorrecciones espontáneas: son válidas"],NiWiscCom:["Respuestas muy extensas: ¿ocultar desconocimiento? ¿Obsesión?","Expresión verbal: anomias, circunstancialidad, tangencialidad, circunlocuciones","Inatención: ¿afecta desempeño en reactivos extensos?","Respuestas defensivas: indagar si sabe la respuesta ('No deberíamos usar cinturones')","Necesidad de motivación constante para dar otra respuesta","Error: ¿por habilidad verbal deficiente o juicio social pobre?","Reacción al pedir otra razón: amenazados/frustrados vs cómodos"],NiWiscBusSim:["Ansiedad: manos tiemblan, aprieta lápiz, presión dura al escribir","Atención: ¿se mantiene o disminuye? ¿Fatiga? Contar reactivos cada 30s","Revisión constante de cada fila → preocupación obsesiva por detalle","Impulsividad: identifica rápido pero de forma descuidada","Movimientos oculares: mirar constantemente → memoria deficiente; no volver al símbolo → buena retención"],NiWiscAri:["Representación mental: ¿puede representar mentalmente las cantidades?","Necesidad de repetición: ¿pide que repitan el problema?","Velocidad: respuesta rápida vs. demoras que sugieren cálculo inseguro","Ansiedad ante el tiempo: ¿se pone nervioso al saber que hay límite?","Uso de dedos o movimientos: ¿cuenta con los dedos?"],NiWisFigInc:["Impulsividad: ¿responde rápido sin examinar toda la imagen?","Exploración visual: ¿examina sistemáticamente o al azar?","Reconocimiento del detalle vs. la función: ¿identifica qué falta o qué hace?","Verbalización: ¿describe en voz alta lo que busca?"],NiWisPalCon:["Claves progresivas: ¿aprovecha las claves adicionales o se queda en la primera?","Vocabulario receptivo: ¿conoce las palabras en las claves?","Frustración ante las claves: ¿se rinde antes de escuchar todas?"],NiWisReg:["Atención sostenida: ¿mantiene ritmo constante?","Fatiga: ¿desacelera al final?","Impulsividad: ¿marca sin verificar?"],NiWisInf:["Tipo de conocimiento: ¿falla en información escolar vs cotidiana?","Estimulación ambiental: ¿las fallas sugieren poca exposición cultural?","Dificultades de recuperación: ¿sabe la respuesta pero no logra evocarla?","Motivación: ¿se rinde ante preguntas difíciles o intenta?","Verbalización: ¿respuestas escuetas o elaboradas?"],
@@ -65,7 +67,7 @@ GoNoGoICO:["Control inhibitorio","Falsos positivos","Fatiga al final"]};
 
 export const GUIA_HC={desarrollo:"Condiciones de gestación hasta 2 semanas post-parto. Registrar: CPN (+/-), SFA, preeclampsia, IVU, RCIU, estrés materno, tipo de parto (vaginal, instrumentado, cesárea programada/urgencias/iterativa). Hitos del desarrollo en MESES; si no sabe → Demora/Normal. Peso normal ≥2500gr. Control esfínteres: diurno y nocturno; si diurno >3 años → demora.",antecedentes:"Patológicos: enfermedades agudas previas/actuales. Sensoriales: hipotonía, hipoacusia, limitaciones visuales, coordinación. Psiquiátricos: Dx desde psiquiatría (TEA, TDAH, Tourette, ansiedad, depresión). Farmacológicos: medicamentos ACTUALES con nombres correctos. Terapéuticos: procesos previos/actuales, continuidad, efectos. Familiares: núcleo + familia extensa hasta 3er grado, indicar línea materna/paterna.",familiar:"Vive con: nombres, edades, nivel educativo padres, cuidador principal, conductas parentales. ABC Niños: independencia en vestirse, comer, baño, cubiertos, cordones, bicicleta, dinero. Escolar: nombre colegio, rendimiento, público/privado, adaptación curricular, materias difíciles, pérdidas de año.",comportamiento:"Frecuencia, duración e intensidad de síntomas. Registrar: impulsividad, inquietud motora, relaciones sociales, tolerancia a la frustración, ansiedad (preocupación, temores, miedos), tristeza. Eventos vitales relevantes. Alteraciones en la percepción (texturas, olores, sonidos). Movimientos repetitivos (estereotipias, tics).",sueno:"NO poner 'normal'. Indicar: horas de sueño, facilidad para conciliar, continuo y reparador. Solo/acompañado (colecho). Respiración (ronca, AOS). Parasomnias (sonambulismo, somniloquios). Terrores nocturnos/pesadillas. Bruxismo, siestas, somnolencia diurna, ojeras.",alimentacion:"Patrón balanceado (todos los grupos). Selectividad por texturas/olores/formas. Come verduras/frutas. Dietas especiales (cetogénica, alergias). Patrón en exceso/defecto (hiperfagia, hipofagia, anorexia). Se demora comiendo, mastica o acumula, se distrae."};
 
-export const REACTIVOS={
+const _REACTIVOS_LEGACY={
   /* ── DISEÑO CON CUBOS (WISC-IV) — 14 ítems ── */
   NiWiscDC:{type:"items",label:"Diseño con Cubos",items:[
     {n:1,cubos:2,tiempo:30,max:2,desc:"2 cubos — Diseño simple horizontal"},
@@ -821,7 +823,7 @@ export const REACTIVOS={
   /* Go/No-Go INECO FS */
   GoNoGoICO:{type:"scored_items",label:"Go/No-Go INECO",scoring:[0,1,2,3],items:[{n:1,q:"Comprende la regla"},{n:2,q:"Ejecuta correctamente"},{n:3,q:"Inhibe la respuesta"}]},
   InstrConflICO:{type:"scored_items",label:"Instrucciones Conflictivas INECO",scoring:[0,1,2,3],items:[{n:1,q:"Comprende la regla"},{n:2,q:"Alterna correctamente"},{n:3,q:"No persevera"}]},
-  RefranesICO:{type:"scored_items",label:"Refranes INECO",scoring:[0,1,2],items:[{n:1,q:"Refrán 1"},{n:2,q:"Refrán 2"},{n:3,q:"Refrán 3"}]},
+  RefranesICO:{type:"scored_items",label:"Refranes INECO",scoring:[0,1,2],items:[{n:1,q:"Refrán 1 — significado abstracto (0-2)"},{n:2,q:"Refrán 2 — significado abstracto (0-2)"},{n:3,q:"Refrán 3 — significado abstracto (0-2)"}]},
   /* CARAS-R captura simple por aciertos/errores/tiempo */
   /* Cancelación ENI-2 */
   NiENICDib:{type:"caras",label:"Cancelación de Dibujos ENI-2",totalItems:60,maxTime:180},
@@ -966,6 +968,9 @@ export const REACTIVOS={
   },
 };
 
+/* Pearson WISC/WAIS: sincronizado desde protocolos JSON (reactivosPearson.generated.js) */
+export const REACTIVOS = { ..._REACTIVOS_LEGACY, ...REACTIVOS_PEARSON };
+
 export const DEFAULT_RECOBRO_SECONDS = 20 * 60;
 
 export const HITO_LABELS = {
@@ -979,6 +984,24 @@ export const HITO_LABELS = {
 };
 
 export const TEST_APPLICATION_META = {
+  /* ── WISC-IV: orden de administración estándar Wechsler (DC primero).
+   * Los ids NiWisc* son exclusivos del protocolo wisc_iv, por lo que estos
+   * números no colisionan con los hitos transversales de abajo. ── */
+  NiWiscDC: { orden_aplicacion: 1, hito: "visoespacial" },
+  NiWiscSem: { orden_aplicacion: 2, hito: "ejecutiva" },
+  NiWiscRDD: { orden_aplicacion: 3, hito: "atencion" },
+  NiWiscConD: { orden_aplicacion: 4, hito: "visoespacial" },
+  NiWiscCl: { orden_aplicacion: 5, hito: "atencion" },
+  NiWiscVoc: { orden_aplicacion: 6, hito: "lenguaje" },
+  NiWiscLN: { orden_aplicacion: 7, hito: "atencion" },
+  NiWiscMat: { orden_aplicacion: 8, hito: "visoespacial" },
+  NiWiscCom: { orden_aplicacion: 9, hito: "lenguaje" },
+  NiWiscBusSim: { orden_aplicacion: 10, hito: "atencion" },
+  NiWisFigInc: { orden_aplicacion: 11, hito: "visoespacial" },
+  NiWiscAri: { orden_aplicacion: 12, hito: "atencion" },
+  NiWisInf: { orden_aplicacion: 13, hito: "lenguaje" },
+  NiWisPalCon: { orden_aplicacion: 14, hito: "lenguaje" },
+  NiWisReg: { orden_aplicacion: 15, hito: "atencion" },
   GBTotal: { orden_aplicacion: 1, hito: "codificacion" },
   CVLTTotal: { orden_aplicacion: 1, hito: "codificacion" },
   "NiEniE1 + NiEniE2 + NiEniE3 + NiEniE4 = NiEniLT": { orden_aplicacion: 1, hito: "codificacion" },
@@ -1011,7 +1034,6 @@ export const TEST_APPLICATION_META = {
   BNT: { orden_aplicacion: 17, hito: "lenguaje" },
   NiENIDen: { orden_aplicacion: 17, hito: "lenguaje" },
   AdWAISV: { orden_aplicacion: 18, hito: "lenguaje" },
-  NiWiscVoc: { orden_aplicacion: 18, hito: "lenguaje" },
   NiPrec: { orden_aplicacion: 18, hito: "lenguaje" },
   NiLVS: { orden_aplicacion: 19, hito: "lenguaje" },
   NiCopTxt: { orden_aplicacion: 20, hito: "lenguaje" },
@@ -1053,16 +1075,22 @@ export const inferClinicalMeta = (testId, test = {}, fallbackOrder = 900) => {
   };
 };
 
-export const withClinicalOrder = (test, fallbackOrder = 900) => ({
-  ...test,
-  ...inferClinicalMeta(test.test_id, test, fallbackOrder),
-});
+export const withClinicalOrder = (test, fallbackOrder = 900) => {
+  const meta = inferClinicalMeta(test.test_id, test, fallbackOrder);
+  return {
+    ...test,
+    hito: meta.hito,
+    intervalo_minimo_recobro: meta.intervalo_minimo_recobro,
+    codificacion_de: meta.codificacion_de,
+    /* El orden lo define la lista del protocolo en EvalApplyPage (protos[…].tests).
+     * No reordenar por orden_aplicacion global: colisiona entre protocolos
+     * (p. ej. adulto mayor empezaba en FCRO y dejaba escalas/Grober al final). */
+    orden_aplicacion: fallbackOrder,
+  };
+};
 
 export const prepareClinicalProtocolTests = (tests = []) =>
-  tests
-    .map((test, index) => ({ ...withClinicalOrder(test, index + 1), _orden_original: index }))
-    .sort((a, b) => (a.orden_aplicacion - b.orden_aplicacion) || (a._orden_original - b._orden_original))
-    .map(({ _orden_original, ...test }) => test);
+  tests.map((test, index) => withClinicalOrder(test, index + 1));
 
 export const isClinicalTestDone = (test, puntajes = {}) =>
   puntajes[test?.test_id] != null && puntajes[test.test_id] !== "";
@@ -1108,8 +1136,12 @@ export const getSuggestedClinicalTest = (
   // 2. Preferimos una disponible (no bloqueada por intervalo de recobro);
   //    si todas están bloqueadas, devolvemos la primera para que el
   //    clínico al menos vea cuál sigue y cuánto le falta.
-  const available = pending.find(({ status }) => !status.isBlocked);
-  return available || pending[0] || null;
+  const pick = (list) => list.find(({ status }) => !status.isBlocked) || list[0] || null;
+  /* Escalas al final del protocolo: suelen llenarse en sala de espera y
+   * digitarse después de la batería (o al redactar el informe). */
+  const cognitivas = pending.filter(({ test }) => !test.es_escala_diferida);
+  const escalas = pending.filter(({ test }) => test.es_escala_diferida);
+  return pick(cognitivas) || pick(escalas);
 };
 
 export const formatRetentionRemaining = (ms = 0) => {
@@ -1146,7 +1178,7 @@ export const INSTRUCCIONES={
   AdWAISFI:{mat:"Cuadernillo de estímulos, cronómetro.",inst:"'Observa este dibujo. ¿Qué parte importante le falta?' Si no responde en 15 s: '¿Qué falta aquí?'. Respuesta válida: señalar la parte o nombrarla.",disc:"Discontinuar tras 5 ítems consecutivos de 0. Tiempo límite: 20 s por ítem.",tip:"Inicio: ítem 6 (16-74 a.) / ítem 1 (75+ a.). Retroceder si falla ítems 6 y 7. No aceptar 'no sé' sin esperar al menos 10 s. Señalar o nombrar la parte es igualmente válido.",puntaje:"0-1 por ítem. Máx: 25"},
   AdWAISV:{mat:"Administración oral. Sin material visual.",inst:"'Le voy a decir unas palabras. Dígame qué significa cada una.' Presentar una palabra a la vez, claramente.",disc:"Discontinuar tras 6 ítems consecutivos de 0.",tip:"Inicio: ítem 4 (todas las edades). Retroceder si falla ítems 4 o 5. Puntaje: 0=incorrecta/vaga/idiosincrásica; 1=sinónimo simple o uso funcional ('tijeras=cortar'); 2=definición con concepto general + atributos ('tijeras=instrumento con dos hojas para cortar'). Prompt para respuesta de 1 pt: '¿Qué más puede decirme?' (solo una vez por ítem).",puntaje:"0-2 por ítem. Máx: 66"},
   AdSDWais:{mat:"Hoja de respuestas con clave impresa, lápiz sin borrador, cronómetro.",inst:"Completar ítems de práctica hasta que el examinado comprenda. Luego: 'Ahora haga lo mismo lo más rápido posible. Empiece aquí.' Iniciar cronómetro.",disc:"Tiempo: 120 s exactos. Detener al indicar el tiempo.",tip:"Trabajar de izquierda a derecha sin saltar casillas. No usar borrador — tachar y corregir al lado. No memorizar la clave. Anotar el último símbolo completado al detener.",puntaje:"Símbolos correctos en 120 s. Máx: 133"},
-  AdSemWais:{mat:"Administración oral. Sin material visual.",inst:"'Le voy a decir dos palabras. Dígame en qué se parecen.' Ejemplo de práctica: '¿En qué se parecen un perro y un gato?'",disc:"Discontinuar tras 4 ítems consecutivos de 0.",tip:"Inicio: ítem 1 (todas las edades). Sin retroceso. Puntaje: 0=incorrecto/sin relación; 1=similitud concreta o funcional ('sirven para comer'); 2=similitud abstracta/categorial ('son animales/mamíferos'). Prompt permitido si respuesta vaga: '¿En qué más?' (máximo una vez).",puntaje:"0-2 por ítem. Máx: 33"},
+  AdSemWais:{mat:"Administración oral. Sin material visual.",inst:"'Le voy a decir dos palabras. Dígame en qué se parecen.' Ejemplo de práctica: '¿En qué se parecen un perro y un gato?'",disc:"Discontinuar tras 4 ítems consecutivos de 0.",tip:"Inicio: ítem 1 (todas las edades). Sin retroceso. En batería de adulto mayor se aplica la forma corta de los primeros 5 pares (tamizaje de abstracción), no la lista completa. Puntaje: 0=incorrecto/sin relación; 1=similitud concreta o funcional ('sirven para comer'); 2=similitud abstracta/categorial ('son animales/mamíferos'). Prompt permitido si respuesta vaga: '¿En qué más?' (máximo una vez).",puntaje:"0-2 por ítem. Máx: 33 (forma corta adulto mayor: 0-10)"},
   AdWAISCC:{mat:"9 cubos bicolor (rojo/blanco), cuadernillo de estímulos, cronómetro.",inst:"Ítems 1-2: demostrar el diseño con cubos y pedir que lo replique. Ítems 3+: mostrar la imagen impresa, el examinado replica con sus cubos.",disc:"Discontinuar tras 3 ítems consecutivos de 0.",tip:"Inicio: ítem 5 (16-74 a.) / ítem 1 (75+ a.). Retroceder si falla ítems 5 y 6. Tiempos: ítems 1-8 = 60 s · ítems 9-14 = 120 s. Bonificación por velocidad solo en ítems 9-14 (completar en <31 s o <75 s según ítem). No rotar el cuadernillo.",puntaje:"0-4 por ítem según tiempo + bonificación. Total aprox. 0-68"},
   AdWAISA:{mat:"Cronómetro. (Ítems iniciales pueden mostrar imagen en el cuadernillo según edición.)",inst:"'Le voy a leer unos problemas de matemáticas. Resuélvalos mentalmente y dígame la respuesta cuando la tenga. Sin papel ni lápiz.'",disc:"Discontinuar tras 4 ítems consecutivos de 0.",tip:"Inicio: ítem 5 (16-74 a.) / ítem 1 (75+ a.). Retroceder si falla ítems 5 y 6. Tiempos: ítems 1-12 ≈ 30 s · ítems 13-16 ≈ 60 s · ítems 17-20 ≈ 120 s. Repetir el enunciado UNA sola vez si se solicita. No dar retroalimentación.",puntaje:"0-1 por ítem. Máx: 22"},
   AdMatr:{mat:"Cuadernillo de estímulos con matrices de 5 opciones.",inst:"'Observe esta figura a la que le falta una parte. Señale cuál de estas opciones (señalar la fila inferior) completa correctamente el diseño.'",disc:"Discontinuar tras 4 ítems consecutivos de 0 o 4 incorrectos en 5 consecutivos.",tip:"Inicio: ítem 4 (16-74 a.) / ítem 1 (75+ a.). Retroceder si falla ítems 4 y 5. Permitir hasta 30 s por ítem. Sin retroalimentación. Respuesta válida: señalar o decir el número/letra de la opción.",puntaje:"0-1 por ítem. Máx: 26"},
@@ -1174,14 +1206,14 @@ export const INSTRUCCIONES={
   BNT:{mat:"Boston Naming Test — cuadernillo 60 o 15 ítems.",inst:"Nombrar la figura presentada. Dar clave semántica y luego fonológica si hay anomia.",disc:"Fallo en 6 ítems consecutivos.",tip:"Documentar tipo de parafasia y beneficio de claves.",puntaje:"Correctas sin clave. Máx según versión (15 o 60)"},
   StroopAM:{mat:"Lámina palabras, lámina colores, lámina palabra-color.",inst:"Leer las palabras, después nombrar colores, después nombrar el color de la tinta (inhibición).",disc:"45 s por lámina.",tip:"Calcular interferencia según fórmula de Golden.",puntaje:"Palabras en 45 s por lámina; interferencia = PC - (P·C)/(P+C)"},
   StroopAJ:{mat:"Lámina palabras, lámina colores, lámina palabra-color.",inst:"Leer palabras, nombrar colores, nombrar color de la tinta.",disc:"45 s por lámina.",tip:"Registrar autocorrecciones y errores.",puntaje:"Palabras en 45 s; interferencia = PC - (P·C)/(P+C)"},
-  MMSE:{mat:"Protocolo MMSE, lápiz, hoja.",inst:"Administrar las 11 tareas (orientación, registro, atención/cálculo, memoria diferida, lenguaje, praxia).",disc:"Aplicación secuencial sin discontinuación.",tip:"Ajustar por escolaridad (puntos de corte variables).",puntaje:"0-30"},
-  EscKertesz:{mat:"Cuestionario FBI/Kertesz.",inst:"Aplicar al cuidador principal. Marcar frecuencia/intensidad de cada ítem.",disc:"Completar todos los ítems.",tip:"Útil para demencias frontotemporales; contrastar con observación directa.",puntaje:"Suma ponderada"},
-  EscQueja:{mat:"Cuestionario de queja subjetiva de memoria.",inst:"Aplicar al paciente. Indicar frecuencia percibida de fallos.",disc:"Ninguna.",tip:"Complementar con informante para detectar anosognosia.",puntaje:"Puntaje total"},
-  EscYesavage:{mat:"Yesavage 15 ítems.",inst:"Responder sí/no a cada ítem con base en las últimas dos semanas.",disc:"—",tip:"Tamizaje de depresión en adulto mayor. Corte ≥5 depresión, ≥10 depresión severa.",puntaje:"0-15"},
-  EscLawton:{mat:"Escala de Lawton (AIVD).",inst:"Aplicar al cuidador o paciente.",disc:"—",tip:"8 ítems AIVD; mujeres 0-8, hombres 0-5.",puntaje:"0-8 / 0-5"},
-  EscSTAI:{mat:"STAI — 40 ítems (estado y rasgo).",inst:"Responder en escala Likert.",disc:"—",tip:"Interpretar estado vs rasgo por separado.",puntaje:"0-60 por subescala"},
-  EscBeck:{mat:"BDI-II, 21 ítems.",inst:"Seleccionar la opción que mejor describa la última semana.",disc:"—",tip:"Cortes: 0-13 mínima · 14-19 leve · 20-28 moderada · 29-63 severa.",puntaje:"0-63"},
-  EscASRS:{mat:"ASRS v1.1.",inst:"Responder 18 ítems sobre síntomas TDAH en adultos.",disc:"—",tip:"Parte A (6 ítems) es tamizaje; Parte B diagnóstica.",puntaje:"Ítems positivos / total"},
+  MMSE:{mat:"Protocolo MMSE, lápiz, hoja.",inst:"Administrar las 11 tareas (orientación, registro, atención/cálculo, memoria diferida, lenguaje, praxia).",disc:"Aplicación secuencial sin discontinuación.",tip:"También disponible en Screening. En batería completa va al cierre; ajustar por escolaridad.",puntaje:"0-30"},
+  EscKertesz:{mat:"Cuestionario FBI/Kertesz.",inst:"Aplicar al cuidador principal. Marcar frecuencia/intensidad de cada ítem.",disc:"Completar todos los ítems.",tip:"Suele entregarse en sala de espera; el puntaje se digita al cierre de sesión o al redactar el informe (5-10 días). Útil para demencias frontotemporales.",puntaje:"Suma ponderada"},
+  EscQueja:{mat:"Cuestionario de queja subjetiva de memoria.",inst:"Aplicar al paciente. Indicar frecuencia percibida de fallos.",disc:"Ninguna.",tip:"Puede aplicarse en espera; registrar PD cuando finalice la batería cognitiva. Complementar con informante.",puntaje:"Puntaje total"},
+  EscYesavage:{mat:"Yesavage 15 ítems.",inst:"Responder sí/no a cada ítem con base en las últimas dos semanas.",disc:"—",tip:"Autorreporte en sala de espera o al final. Digitación diferida al cerrar evaluación. Corte ≥5 depresión, ≥10 severa.",puntaje:"0-15"},
+  EscLawton:{mat:"Escala de Lawton (AIVD).",inst:"Aplicar al cuidador o paciente.",disc:"—",tip:"Al cierre de la sesión o al elaborar informe. 8 ítems AIVD; mujeres 0-8, hombres 0-5.",puntaje:"0-8 / 0-5"},
+  EscSTAI:{mat:"STAI — 40 ítems (estado y rasgo).",inst:"Responder en escala Likert.",disc:"—",tip:"Aplicación en espera; puntaje al final de la batería o al redactar informe. Separar estado vs rasgo.",puntaje:"0-60 por subescala"},
+  EscBeck:{mat:"BDI-II, 21 ítems.",inst:"Seleccionar la opción que mejor describa la última semana.",disc:"—",tip:"Autorreporte diferido. Cortes: 0-13 mínima · 14-19 leve · 20-28 moderada · 29-63 severa.",puntaje:"0-63"},
+  EscASRS:{mat:"ASRS v1.1.",inst:"Responder 18 ítems sobre síntomas TDAH en adultos.",disc:"—",tip:"Puede llenarse en espera; PD al cierre. Parte A (6 ítems) tamizaje; Parte B diagnóstica.",puntaje:"Ítems positivos / total"},
   InstrConflICO:{mat:"Protocolo INECO FS.",inst:"Tocar la mesa según la consigna del examinador (1 golpe → 2; 2 golpes → 0).",disc:"Fallo en la regla.",tip:"Mide control inhibitorio y comprensión de reglas contradictorias.",puntaje:"0-3"},
   RefranesICO:{mat:"3 refranes.",inst:"Explicar el significado abstracto del refrán.",disc:"—",tip:"Evaluar abstracción: concretismo → frontal.",puntaje:"0-6 (0-2 por refrán)"},
   GoNoGoICO:{mat:"Protocolo INECO FS.",inst:"Golpear la mesa ante señal go, inhibir ante señal no-go.",disc:"Fallo en la regla.",tip:"Control inhibitorio / perseveración.",puntaje:"0-3"},

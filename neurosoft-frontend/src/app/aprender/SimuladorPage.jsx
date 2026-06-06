@@ -52,7 +52,7 @@ export default function SimuladorPage() {
     return (
       <>
         <TopBar title="Simulador de casos clínicos" />
-        <main className="p-8 max-w-5xl mx-auto space-y-5">
+        <main className="p-8 max-w-7xl mx-auto space-y-5">
           <div className="flex items-center gap-3 mb-2">
             <I name="psychology_alt" style={{ color: TEAL, fontSize: 28 }} />
             <div>
@@ -122,7 +122,7 @@ export default function SimuladorPage() {
           <I name="arrow_back" className="mr-1" />Volver
         </Btn>
       </TopBar>
-      <main className="p-8 max-w-5xl mx-auto space-y-5">
+      <main className="p-8 max-w-7xl mx-auto space-y-5">
         {/* Sociodemográficos */}
         <Card className="p-5">
           <p className="ns-eyebrow mb-2" style={{ color: TEAL }}>Datos del paciente (caso sintético)</p>

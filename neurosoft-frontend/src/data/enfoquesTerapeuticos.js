@@ -770,12 +770,12 @@ const _ENFOQUES_BASE = [
         descripcion: "Explicación visual del proceso para hispanohablantes.",
       },
       {
-        titulo: "Demostración real de una sesión EMDR (fase 4)",
-        url_youtube: "https://www.youtube.com/embed/AmlJ4O5cm1w",
+        titulo: "EMDR fase 4 — reprocesamiento (demostración)",
+        url_youtube: "https://www.youtube-nocookie.com/embed/Pb6C9pBv8Ss",
         autor: "EMDR Institute",
-        duracion: "22:15",
+        duracion: "18:40",
         idioma: "en",
-        descripcion: "Sesión grabada con permiso explícito del paciente — útil para ver el flujo real.",
+        descripcion: "Demostración del movimiento bilateral y reprocesamiento en fase 4 (material público EMDR Institute).",
       },
     ],
     bibliografia: [

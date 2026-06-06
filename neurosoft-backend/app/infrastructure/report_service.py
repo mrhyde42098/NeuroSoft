@@ -979,7 +979,7 @@ def generate_report_pdf(report_data: ReportData, template: str = "pro") -> bytes
     Args:
         report_data: instancia poblada de ReportData.
         template:    identificador de plantilla. Default ``"pro"`` (estándar
-                     visual IN&S + gráficas premium). ``"estandar"`` conserva
+                     layout clínico + gráficas premium). ``"estandar"`` conserva
                      el generador histórico. Variantes Pro: ``"pediatrico"``,
                      ``"medicolegal"``, ``"junta_medica"``, ``"inconcluso"``,
                      ``"paciente"``, ``"therapy_closure"``.

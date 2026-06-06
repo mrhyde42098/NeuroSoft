@@ -50,6 +50,8 @@ export default function InformesPage({ _setPage }) {
     to: "", cc: "", subject: "", body: "",
     tipo: "informe", include_pdf: true,
   });
+  const [consentAttachment, setConsentAttachment] = useState(null);
+  const consentInputRef = useRef(null);
   /* §QW-1: Estado SMTP (para deshabilitar botón si no configurado) */
   const [smtpReady, setSmtpReady] = useState(null);
   useEffect(() => {
@@ -164,6 +166,22 @@ export default function InformesPage({ _setPage }) {
     a.click();
     a.remove();
     toast.success("Descarga iniciada");
+  };
+
+  const pickConsentAttachment = (file) => {
+    if (!file) return;
+    const ok = file.type === "application/pdf" || file.type.startsWith("image/");
+    if (!ok) {
+      toast.error("Adjunte un PDF o imagen del consentimiento firmado.");
+      return;
+    }
+    setConsentAttachment({
+      name: file.name,
+      size: file.size,
+      type: file.type || "archivo",
+      file,
+    });
+    toast.success("Consentimiento escaneado listo para adjuntar/archivar.");
   };
 
   /* §QW-1: Abrir modal de envío por correo */
@@ -544,6 +562,33 @@ export default function InformesPage({ _setPage }) {
                       Enviar por correo
                       {smtpReady === false && <span className="text-xs opacity-60 ml-1">(SMTP no configurado)</span>}
                     </button>
+                    <div className="mt-3 p-3 rounded-xl border"
+                      style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
+                      <input
+                        ref={consentInputRef}
+                        type="file"
+                        accept="application/pdf,image/*"
+                        className="hidden"
+                        onChange={(e) => pickConsentAttachment(e.target.files?.[0])}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => consentInputRef.current?.click()}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-sm border transition-all"
+                        style={{ borderColor: TEAL, color: TEAL, background: "var(--ns-card)" }}
+                      >
+                        <I name="attach_file" className="text-base" />
+                        Adjuntar consentimiento firmado
+                      </button>
+                      <p className="text-[10px] mt-2 leading-relaxed" style={{ color: "var(--ns-muted)" }}>
+                        Use este botón al cierre del informe para asociar el consentimiento escaneado en PDF o imagen.
+                        {consentAttachment && (
+                          <span className="block mt-1 font-bold" style={{ color: TEAL }}>
+                            Listo: {consentAttachment.name} ({Math.max(1, Math.round(consentAttachment.size / 1024))} KB)
+                          </span>
+                        )}
+                      </p>
+                    </div>
                   </Card>
                 </div>
               )}

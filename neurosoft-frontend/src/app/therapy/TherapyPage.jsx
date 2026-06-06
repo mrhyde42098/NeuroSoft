@@ -450,20 +450,22 @@ function CatalogoModal({ onClose, filter, setFilter, enfoques }) {
   const [selected, setSelected] = useState(null);
   /* §M-1: Panel académico extendido (videos, técnicas, casos, etc.) */
   const [detalleEnfoque, setDetalleEnfoque] = useState(null);
+  const evidenciaCount = enfoques.reduce((acc, e) => ({ ...acc, [e.evidencia]: (acc[e.evidencia] || 0) + 1 }), {});
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(2px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div onClick={e => e.stopPropagation()}
-        className="w-full max-w-4xl max-h-[85vh] rounded-lg shadow-2xl flex flex-col overflow-hidden"
+        className="w-full max-w-6xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
         style={{ background: "var(--ns-card)" }}>
         {/* Header */}
-        <div className="p-5 border-b flex items-center justify-between" style={{ borderColor: "var(--ns-card-b)" }}>
-          <div>
+        <div className="p-6 border-b flex items-start justify-between gap-4" style={{ borderColor: "var(--ns-card-b)", background: `linear-gradient(135deg, ${PLUM}10, transparent)` }}>
+          <div className="min-w-0">
             <p className="ns-eyebrow" style={{ color: PLUM }}>Biblioteca</p>
-            <h3 className="ns-serif text-xl font-bold">Enfoques terapéuticos</h3>
-            <p className="text-xs mt-0.5" style={{ color: "var(--ns-muted)" }}>
-              {enfoques.length} enfoques con literatura validada · niveles de evidencia A-tradicional
+            <h3 className="ns-serif text-2xl font-bold">Enfoques terapéuticos</h3>
+            <p className="text-sm mt-1 max-w-2xl leading-relaxed" style={{ color: "var(--ns-muted)" }}>
+              Seleccione el enfoque no por moda, sino por problema clínico, fase del caso, evidencia disponible y recursos del paciente.
+              Cada tarjeta resume indicación, estructura y medición sugerida.
             </p>
           </div>
           <button onClick={onClose} aria-label="Cerrar catálogo"
@@ -472,8 +474,25 @@ function CatalogoModal({ onClose, filter, setFilter, enfoques }) {
           </button>
         </div>
 
+        <div className="px-6 py-3 border-b grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
+          {[
+            ["Total", enfoques.length, "menu_book", PLUM],
+            ["Evidencia A", evidenciaCount.A || 0, "verified", "#166534"],
+            ["Evidencia B", evidenciaCount.B || 0, "science", "#92400E"],
+            ["Tradicional/C", (evidenciaCount.tradicional || 0) + (evidenciaCount.C || 0), "history_edu", "var(--ns-muted)"],
+          ].map(([label, value, icon, color]) => (
+            <div key={label} className="rounded-xl p-3 border" style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
+              <div className="flex items-center gap-2">
+                <I name={icon} className="text-base" style={{ color }} />
+                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ns-muted)" }}>{label}</span>
+              </div>
+              <p className="text-2xl font-extrabold mt-1 tabular-nums" style={{ color }}>{value}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Filtros */}
-        <div className="px-5 py-3 border-b flex gap-2 flex-wrap" style={{ borderColor: "var(--ns-card-b)" }}>
+        <div className="px-6 py-3 border-b flex gap-2 flex-wrap" style={{ borderColor: "var(--ns-card-b)" }}>
           <button onClick={() => setFilter("")}
             className={`text-xs px-3 py-1 rounded ${!filter ? "" : "hover:bg-gray-100"}`}
             style={!filter ? { background: PLUM, color: "white" } : { color: "var(--ns-muted)" }}>
@@ -489,20 +508,20 @@ function CatalogoModal({ onClose, filter, setFilter, enfoques }) {
         </div>
 
         {/* Listado */}
-        <div className="flex-1 overflow-auto p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex-1 overflow-auto p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {enfoques.map(e => (
             <button key={e.id}
               onClick={() => setSelected(e)}
               onDoubleClick={() => setDetalleEnfoque(e)}
               title="Click para vista previa · Doble click para panel académico completo"
-              className="p-4 rounded-md text-left transition-all border hover:shadow-sm relative"
+              className="p-4 rounded-2xl text-left transition-all border hover:shadow-md relative min-h-[210px] flex flex-col"
               style={{
                 background: selected?.id === e.id ? `${PLUM}10` : "var(--ns-card)",
                 borderColor: selected?.id === e.id ? PLUM : "var(--ns-card-b)",
               }}>
-              <div className="flex items-start justify-between mb-1.5">
+              <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm leading-tight">{e.nombre}</p>
+                  <p className="font-bold text-[15px] leading-tight">{e.nombre}</p>
                   {e.sigla && (
                     <p className="text-[10px] ns-mono mt-0.5" style={{ color: PLUM }}>{e.sigla}</p>
                   )}
@@ -516,49 +535,66 @@ function CatalogoModal({ onClose, filter, setFilter, enfoques }) {
                   Evidencia {e.evidencia}
                 </span>
               </div>
-              <p className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: "var(--ns-muted)" }}>
+              <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "var(--ns-muted)" }}>
                 {e.categoria.replace(/_/g, " ")} · {e.duracion_tipica}
               </p>
-              <p className="text-xs leading-snug" style={{ color: "var(--ns-muted)" }}>
+              <p className="text-xs leading-snug flex-1" style={{ color: "var(--ns-muted)" }}>
                 {e.indicaciones.slice(0, 2).join(" · ")}
                 {e.indicaciones.length > 2 && ` · +${e.indicaciones.length - 2}`}
               </p>
+              <div className="mt-3 pt-3 border-t grid grid-cols-2 gap-2 text-[10px]" style={{ borderColor: "var(--ns-card-b)" }}>
+                <span className="font-bold" style={{ color: PLUM }}>
+                  {e.estructura?.length || 0} fases
+                </span>
+                <span className="font-bold text-right" style={{ color: "var(--ns-muted)" }}>
+                  {(e.outcome_recomendadas || []).slice(0, 2).join(" · ") || "Outcome clínico"}
+                </span>
+              </div>
             </button>
           ))}
         </div>
 
         {/* Footer / detalle del seleccionado */}
         {selected && (
-          <div className="border-t p-5 max-h-[35vh] overflow-auto" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
+          <div className="border-t p-5 max-h-[38vh] overflow-auto" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
             <div className="flex items-start justify-between mb-2 gap-3">
               <div className="flex-1 min-w-0">
                 <p className="ns-eyebrow mb-1">Resumen clínico</p>
                 <h4 className="ns-serif text-lg font-bold">{selected.nombre}</h4>
               </div>
-              {/* §M-1: botón al panel académico completo */}
-              <button
-                onClick={() => setDetalleEnfoque(selected)}
-                className="text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 hover:shadow-sm transition-all shrink-0"
-                style={{ background: PLUM, color: "white" }}
-                title="Abrir panel académico con videos, técnicas, casos y bibliografía">
-                <I name="school" className="text-base" />
-                Ver más
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setSelected(null)}
+                  className="text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition-all"
+                  style={{ background: "var(--ns-card)", border: "1px solid var(--ns-card-b)", color: "var(--ns-muted)" }}
+                  title="Cerrar y volver al catálogo de enfoques">
+                  <I name="close" className="text-base" />
+                  Cerrar
+                </button>
+                <button
+                  onClick={() => setDetalleEnfoque(selected)}
+                  className="text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 hover:shadow-sm transition-all"
+                  style={{ background: PLUM, color: "white" }}
+                  title="Abrir panel académico con videos, técnicas, casos y bibliografía">
+                  <I name="school" className="text-base" />
+                  Ver más
+                </button>
+              </div>
             </div>
             {selected.notas && (
               <p className="text-sm mb-3 ns-serif-italic" style={{ color: "var(--ns-text)" }}>{selected.notas}</p>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div>
-                <p className="ns-eyebrow mb-1">Estructura típica</p>
-                <ul className="space-y-0.5 leading-relaxed" style={{ color: "var(--ns-muted)" }}>
-                  {selected.estructura.slice(0, 6).map((s, i) => <li key={i}>· {s}</li>)}
+              <div className="rounded-xl p-3 border" style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
+                <p className="ns-eyebrow mb-2">Estructura típica</p>
+                <ul className="space-y-1.5 leading-relaxed" style={{ color: "var(--ns-muted)" }}>
+                  {selected.estructura.slice(0, 6).map((s, i) => <li key={i} className="flex gap-2"><span className="font-bold" style={{ color: PLUM }}>{i + 1}.</span><span>{s}</span></li>)}
                 </ul>
               </div>
-              <div>
-                <p className="ns-eyebrow mb-1">Técnicas clave</p>
-                <ul className="space-y-0.5 leading-relaxed" style={{ color: "var(--ns-muted)" }}>
-                  {selected.tecnicas_clave.slice(0, 5).map((t, i) => <li key={i}>· {t}</li>)}
+              <div className="rounded-xl p-3 border" style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
+                <p className="ns-eyebrow mb-2">Técnicas clave</p>
+                <ul className="space-y-1.5 leading-relaxed" style={{ color: "var(--ns-muted)" }}>
+                  {selected.tecnicas_clave.slice(0, 5).map((t, i) => <li key={i} className="flex gap-2"><I name="check_circle" className="text-xs mt-0.5" style={{ color: PLUM }} /><span>{t}</span></li>)}
                 </ul>
                 {selected.outcome_recomendadas?.length > 0 && (
                   <>

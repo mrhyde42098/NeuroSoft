@@ -38,7 +38,7 @@
 
 /* Versión del acuerdo: incrementar para forzar re-aceptación ante
  * cambios legales o de licenciamiento. */
-export const VERSION_ACUERDO = "1.0.0";
+export const VERSION_ACUERDO = "2.0.0";
 
 /* Clave en localStorage: una sola, global (no por paciente/protocolo). */
 const STORAGE_KEY = "ns_pearson_consent_global";
@@ -56,9 +56,14 @@ export const TESTS_VERBATIM = new Set([
   "AdWAISHI",
   "AdWAISI",
   "AdWAISL",
+  "AdWAISC",
+  "AdWAISA",
+  "AdSemWais",
+  "AdMatr",
   // WISC-IV
   "NiWiscSem",
   "NiWiscVoc",
+  "NiWiscCom",
   "NiWiscDC",
   "NiWiscConD",
   "NiWiscMat",
@@ -66,6 +71,10 @@ export const TESTS_VERBATIM = new Set([
   "NiWiscLN",
   "NiWiscCl",
   "NiWiscBusSim",
+  "NiWiscAri",
+  "NiWisFigInc",
+  "NiWisInf",
+  "NiWisPalCon",
 ]);
 
 /**
@@ -200,6 +209,78 @@ export const METADATOS_VERBATIM = {
     anio: 2007,
     isbn: "978-968-426-987-0",
     pagina: "Bloques de búsqueda de símbolos",
+  },
+  NiWiscCom: {
+    nombre: "Comprensión (WISC-IV)",
+    manual: "WISC-IV — Manual de Aplicación",
+    editorial: "Editorial El Manual Moderno",
+    anio: 2007,
+    isbn: "978-968-426-987-0",
+    pagina: "Preguntas situacionales 1-21",
+  },
+  NiWiscAri: {
+    nombre: "Aritmética (WISC-IV)",
+    manual: "WISC-IV — Cuaderno de Estímulos",
+    editorial: "Editorial El Manual Moderno",
+    anio: 2007,
+    isbn: "978-968-426-987-0",
+    pagina: "Problemas 1-34",
+  },
+  NiWisFigInc: {
+    nombre: "Figuras Incompletas (WISC-IV)",
+    manual: "WISC-IV — Cuaderno de Estímulos",
+    editorial: "Editorial El Manual Moderno",
+    anio: 2007,
+    isbn: "978-968-426-987-0",
+    pagina: "Láminas 1-38",
+  },
+  NiWisInf: {
+    nombre: "Información (WISC-IV)",
+    manual: "WISC-IV — Manual de Aplicación",
+    editorial: "Editorial El Manual Moderno",
+    anio: 2007,
+    isbn: "978-968-426-987-0",
+    pagina: "Preguntas 1-33",
+  },
+  NiWisPalCon: {
+    nombre: "Palabras en Contexto (WISC-IV)",
+    manual: "WISC-IV — Manual de Aplicación",
+    editorial: "Editorial El Manual Moderno",
+    anio: 2007,
+    isbn: "978-968-426-987-0",
+    pagina: "Ítems con pistas 1-24",
+  },
+  AdSemWais: {
+    nombre: "Semejanzas (WAIS-III)",
+    manual: "WAIS-III — Manual de Aplicación",
+    editorial: "Editorial El Manual Moderno",
+    anio: 1997,
+    isbn: "978-968-426-984-9",
+    pagina: "Pares 1-19",
+  },
+  AdWAISC: {
+    nombre: "Comprensión (WAIS-III)",
+    manual: "WAIS-III — Manual de Aplicación",
+    editorial: "Editorial El Manual Moderno",
+    anio: 1997,
+    isbn: "978-968-426-984-9",
+    pagina: "Situaciones 1-18",
+  },
+  AdWAISA: {
+    nombre: "Aritmética (WAIS-III)",
+    manual: "WAIS-III — Manual de Aplicación",
+    editorial: "Editorial El Manual Moderno",
+    anio: 1997,
+    isbn: "978-968-426-984-9",
+    pagina: "Problemas 1-20",
+  },
+  AdMatr: {
+    nombre: "Matrices (WAIS-III)",
+    manual: "WAIS-III — Cuaderno de Estímulos",
+    editorial: "Editorial El Manual Moderno",
+    anio: 1997,
+    isbn: "978-968-426-984-9",
+    pagina: "Ítems A-C y 1-26",
   },
 };
 

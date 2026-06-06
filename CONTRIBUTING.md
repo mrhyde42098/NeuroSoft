@@ -18,6 +18,19 @@ motor clínico tienen impacto directo en diagnósticos.
 - Valores numéricos en `neurosoft-backend/data/BD_NEURO_MAESTRA.json`
 - Cambios de plataforma (Electron, PostgreSQL, TypeScript, etc.)
 
+## Material protegido (no subir al repo)
+
+| Archivo / carpeta | Motivo |
+|---|---|
+| `reactivosPearson.generated.js` con claves | Tras `sync_reactivos_from_protocol.py` — usar stub OSS en git |
+| `docs/generated/*_extract.txt`, `wisc_*.txt`, `wais_*.txt` | Texto verbatim Pearson |
+| `neurosoft-backend/data/baremos_shards/` | Regenerable en build |
+| `licenses_*.csv`, `license_history.json` | Claves de licencia beta |
+| `dist/`, `vendor/`, `.env` | Binarios y secretos |
+
+El repo público incluye **stub vacío** de reactivos Pearson. Clones OSS compilan;
+la evaluación interactiva WISC/WAIS requiere generar reactivos en local con licencia.
+
 ## Estructura del monorepo
 
 | Carpeta | Rol |

@@ -17,10 +17,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Separa Recharts (lib pesada de gráficas) en su propio chunk
           recharts: ['recharts'],
-          // React + ReactDOM en chunk aparte para mejor caching
           react: ['react', 'react-dom'],
+          therapy: [
+            './src/app/therapy/TherapyPage.jsx',
+            './src/data/enfoquesTerapeuticos.js',
+          ],
         },
       },
     },

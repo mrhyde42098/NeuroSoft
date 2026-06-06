@@ -1,18 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════
- * src/app/evaluation/ScreeningWizard.jsx — Wizard de motivo de consulta
- * ───────────────────────────────────────────────────────────────────────
- * F8.2 — Reusa:
- *   - sugerenciaProtocolo(edad, motivos, escolaridad)        (protocolLoader)
- *   - sugerenciaQuejaMemoria(motivos)                        (protocolLoader)
- *   - sugerirPorConstructos(constructos, edad, esCuidador)   (screening)
- *   - tiempoTotalEstimado(testIds)                           (protocolLoader)
- *
- * El wizard NO agrega tests al plan automáticamente; sugiere chips
- * accionables que el clínico confirma manualmente. Esto preserva el
- * principio ético P4 (lenguaje descriptivo, no definitivo) — el
- * sistema no prescribe, sugiere.
- * ═══════════════════════════════════════════════════════════════════════ */
-
+/* Wizard de motivo de consulta — sugerencias clínicas (no prescriptivas) */
 import React, { useMemo, useState } from "react";
 import { Btn, Card, I, Label, Sel } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
@@ -25,26 +11,24 @@ import {
 import {
   CONSTRUCTOS,
   SCREENING_FORMS,
-  _SCREENING_INDEX,
   getFormsPorConstructo,
   sugerirPorConstructos,
   getScreeningMetadata,
 } from "../../data/screening.js";
 
-/* ── Catálogo de motivos de consulta normalizados → constructos ── */
 const MOTIVOS = [
-  { id: "queja_memoria",   label: "Queja de memoria",          icon: "memory",      constructos: ["depresion", "cognitivo_global"] },
-  { id: "tdah_infantil",   label: "Sospecha TDAH (niño)",     icon: "bolt",        constructos: ["tdah_infantil"] },
-  { id: "tdah_adulto",     label: "Sospecha TDAH (adulto)",   icon: "self_improvement", constructos: ["tdah_adulto"] },
-  { id: "depresion",       label: "Síntomas depresivos",      icon: "sentiment_very_dissatisfied", constructos: ["depresion"] },
-  { id: "ansiedad",        label: "Síntomas ansiosos",        icon: "mood_bad",    constructos: ["ansiedad"] },
-  { id: "tea",             label: "Sospecha TEA (≤30m)",      icon: "visibility",  constructos: ["tea_early_screening"] },
-  { id: "deterioro_cognitivo", label: "Deterioro cognitivo",  icon: "psychology",  constructos: ["cognitivo_global", "demencia_severidad", "funcionalidad_instrum"] },
-  { id: "neuropsiquiatria",    label: "Síntomas neuropsiquiátricos", icon: "psychology_alt", constructos: ["neuropsiquiatria"] },
+  { id: "queja_memoria", label: "Queja de memoria", icon: "memory", constructos: ["depresion", "cognitivo_global"] },
+  { id: "tdah_infantil", label: "TDAH (niño/a)", icon: "bolt", constructos: ["tdah_infantil"] },
+  { id: "tdah_adulto", label: "TDAH (adulto)", icon: "self_improvement", constructos: ["tdah_adulto"] },
+  { id: "depresion", label: "Síntomas depresivos", icon: "sentiment_very_dissatisfied", constructos: ["depresion"] },
+  { id: "ansiedad", label: "Síntomas ansiosos", icon: "mood_bad", constructos: ["ansiedad"] },
+  { id: "tea", label: "Sospecha TEA (≤30 m)", icon: "visibility", constructos: ["tea_early_screening"] },
+  { id: "deterioro_cognitivo", label: "Deterioro cognitivo", icon: "psychology", constructos: ["cognitivo_global", "demencia_severidad", "funcionalidad_instrum"] },
+  { id: "neuropsiquiatria", label: "Síntomas neuropsiquiátricos", icon: "psychology_alt", constructos: ["neuropsiquiatria"] },
   { id: "sobrecarga_cuidador", label: "Sobrecarga del cuidador", icon: "volunteer_activism", constructos: ["sobrecarga_cuidador"] },
-  { id: "trauma_ptsd",         label: "Trauma / PTSD",        icon: "crisis_alert", constructos: ["trauma_ptsd"] },
-  { id: "funcionalidad",       label: "Pérdida funcionalidad", icon: "accessibility_new", constructos: ["funcionalidad_basica", "funcionalidad_instrum"] },
-  { id: "tdah_escolar",        label: "Comportamiento escolar", icon: "school",     constructos: ["tdah_escolar"] },
+  { id: "trauma_ptsd", label: "Trauma / TEPT", icon: "crisis_alert", constructos: ["trauma_ptsd"] },
+  { id: "funcionalidad", label: "Pérdida funcional", icon: "accessibility_new", constructos: ["funcionalidad_basica", "funcionalidad_instrum"] },
+  { id: "tdah_escolar", label: "Conducta escolar", icon: "school", constructos: ["tdah_escolar"] },
 ];
 
 const MOTIVOS_KEYWORDS = {
@@ -53,25 +37,17 @@ const MOTIVOS_KEYWORDS = {
   depresion: ["depresion", "depresión", "tristeza", "animo bajo", "ánimo bajo", "anhedonia", "deprimido"],
   ansiedad: ["ansiedad", "preocupacion", "preocupación", "panico", "pánico", "fobia", "ansioso"],
   tea: ["tea", "autismo", "autista", "espectro", "asd"],
-  trauma: ["trauma", "ptsd", "estres post", "estrés post", "violencia", "abuso"],
+  trauma: ["trauma", "ptsd", "tept", "estres post", "estrés post", "violencia", "abuso"],
   cuidador: ["cuidador", "burnout", "carga", "sobrecarga"],
   funcionalidad: ["funcionalidad", "actividades diarias", "avd", "iadv"],
   neuropsiquiatria: ["agresividad", "agitacion", "agitación", "delirios", "alucinaciones", "apraxia"],
 };
 
-function motivosTocan(constructo) {
-  /* Devuelve los motivos del catálogo que disparan ``constructo``. */
-  return MOTIVOS.filter((m) => m.constructos.includes(constructo));
-}
-
 function keywordsPorMotivos(motivosSeleccionados) {
-  /* Combina los keywords de los motivos seleccionados (sirve para
-     alimentar sugerenciaProtocolo que también espera keywords). */
   const set = new Set();
   for (const m of motivosSeleccionados) {
-    const found = Object.entries(MOTIVOS_KEYWORDS).find(([_, kws]) => kws.includes(m.id));
+    const found = Object.entries(MOTIVOS_KEYWORDS).find(([, kws]) => kws.includes(m.id));
     if (found) set.add(found[0]);
-    /* Si el id del motivo ya coincide con un keyword, también lo añade. */
     set.add(m.id);
   }
   return Array.from(set);
@@ -93,15 +69,10 @@ export default function ScreeningWizard({ onPickTest, edadInicial = null }) {
     if (motivosIds.length === 0 && !esCuidador) return null;
     const motivosObj = MOTIVOS.filter((m) => motivosIds.includes(m.id));
     const keywords = keywordsPorMotivos(motivosObj);
-
-    /* 1) Protocolo cognitivo (WISC-IV / WAIS-III / extendido queja memoria) */
     const protocolo = sugerenciaProtocolo(edad, keywords, escolaridad || null);
     const extendido = sugerenciaQuejaMemoria(keywords);
-
-    /* 2) Constructos psicológicos a partir de los motivos elegidos. */
     const constructos = Array.from(new Set(motivosObj.flatMap((m) => m.constructos)));
     const screenIds = construirListaScreenings(constructos, edad, esCuidador);
-
     return {
       protocolo,
       extendido,
@@ -113,213 +84,169 @@ export default function ScreeningWizard({ onPickTest, edadInicial = null }) {
 
   const handleCalcular = () => {
     if (motivosIds.length === 0 && !esCuidador) {
-      toast("Selecciona al menos un motivo de consulta", "warn");
+      toast.warn("Seleccione al menos un motivo de consulta");
       return;
     }
-    setLastRun({
-      edad,
-      motivos: motivosIds.slice(),
-      escolaridad,
-      esCuidador,
-      recomendaciones,
-    });
+    setLastRun({ edad, motivos: motivosIds.slice(), escolaridad, esCuidador, recomendaciones });
   };
 
   const handlePick = (testId) => {
     if (onPickTest) onPickTest(testId);
-    else toast(`Test sugerido: ${testId} (no hay handler conectado)`, "info");
+    else toast.info(`Instrumento sugerido: ${testId}`);
   };
 
   return (
-    <Card className="p-5" style={{ borderLeft: `4px solid ${TEAL}` }}>
-      <div className="flex items-center gap-2 mb-4">
-        <I name="auto_awesome" className="text-lg" style={{ color: TEAL }} />
-        <h3 className="font-bold text-sm" style={{ color: "var(--ns-text)" }}>
-          Asistente de selección
-        </h3>
-        <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold"
-          style={{ background: `${TEAL}15`, color: TEAL }}>
-          F8.2 · Sugerencia (no prescribe)
+    <Card className="p-5 border-l-4" style={{ borderLeftColor: TEAL, background: "var(--ns-card)" }}>
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <I name="route" className="text-lg" style={{ color: TEAL }} />
+        <h3 className="font-bold text-sm" style={{ color: "var(--ns-text)" }}>Orientador por motivo de consulta</h3>
+        <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold ml-auto"
+          style={{ background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
+          Sugerencia clínica · usted decide
         </span>
       </div>
 
-      <p className="text-xs mb-4" style={{ color: "var(--ns-muted)" }}>
-        Marca los motivos de consulta y la edad. El asistente sugerirá una batería inicial.
-        Puedes ignorar la sugerencia y elegir manualmente.
+      <p className="text-xs mb-4 leading-relaxed" style={{ color: "var(--ns-muted)" }}>
+        Indique edad y motivos. NeuroSoft propone protocolo cognitivo y escalas coherentes con la queja;
+        puede aceptar, modificar o ignorar cada sugerencia.
       </p>
 
-      {/* Edad + escolaridad + cuidador */}
       <div className="grid sm:grid-cols-3 gap-3 mb-4">
         <div>
           <Label>Edad del paciente</Label>
           <input type="number" min="0" max="120" value={edad}
             onChange={(e) => setEdad(parseInt(e.target.value || "0", 10))}
-            className="w-full px-3 py-2 rounded-lg text-sm"
-            style={{ background: "var(--ns-card)", color: "var(--ns-text)", border: "1px solid var(--ns-card-b)" }} />
+            className="w-full px-3 py-2.5 rounded-xl text-sm border"
+            style={{ background: "var(--ns-input)", color: "var(--ns-text)", borderColor: "var(--ns-card-b)" }} />
         </div>
         <div>
           <Label>Escolaridad (opcional)</Label>
           <Sel value={escolaridad} onChange={(e) => setEscolaridad(e.target.value)}>
             <option value="">— Sin especificar —</option>
-            <option value="Analfabeta">Analfabeta</option>
-            <option value="Primaria incompleta">Primaria incompleta</option>
-            <option value="Primaria completa">Primaria completa</option>
-            <option value="Secundaria incompleta">Secundaria incompleta</option>
-            <option value="Secundaria completa">Secundaria completa</option>
-            <option value="Universitaria">Universitaria</option>
-            <option value="Posgrado">Posgrado</option>
+            {["Analfabeta", "Primaria incompleta", "Primaria completa", "Secundaria incompleta", "Secundaria completa", "Universitaria", "Posgrado"].map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
           </Sel>
         </div>
         <div className="flex items-end">
-          <label className="flex items-center gap-2 text-xs cursor-pointer"
-            style={{ color: "var(--ns-text)" }}>
-            <input type="checkbox" checked={esCuidador} onChange={(e) => setEsCuidador(e.target.checked)} />
-            Responde un cuidador (proxy)
+          <label className="flex items-start gap-2 text-xs cursor-pointer p-2 rounded-xl border w-full"
+            style={{ borderColor: esCuidador ? TEAL : "var(--ns-card-b)", background: esCuidador ? `${TEAL}08` : "transparent" }}>
+            <input type="checkbox" className="mt-0.5" checked={esCuidador} onChange={(e) => setEsCuidador(e.target.checked)} />
+            <span>
+              <strong>Informante cuidador</strong>
+              <span className="block text-[10px] mt-0.5 opacity-80">Quien responde es familiar o cuidador (ej. Zarit, NPI-Q)</span>
+            </span>
           </label>
         </div>
       </div>
 
-      {/* Motivos */}
       <Label>Motivo(s) de consulta</Label>
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
         {MOTIVOS.map((m) => {
           const activo = motivosIds.includes(m.id);
           return (
             <button key={m.id} type="button" onClick={() => toggleMotivo(m.id)}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all"
+              className="px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all text-left border"
               style={activo
-                ? { background: TEAL, color: "#fff" }
-                : { background: "var(--ns-subtle)", color: "var(--ns-muted)", border: "1px solid var(--ns-card-b)" }}>
-              <I name={m.icon} className="text-sm" />
-              {m.label}
+                ? { background: TEAL, color: "#fff", borderColor: TEAL }
+                : { background: "var(--ns-subtle)", color: "var(--ns-text)", borderColor: "var(--ns-card-b)" }}>
+              <I name={m.icon} className="text-base shrink-0" />
+              <span className="leading-snug">{m.label}</span>
             </button>
           );
         })}
       </div>
 
       <div className="flex justify-end mb-4">
-        <Btn variant="primary" onClick={handleCalcular}>
-          <I name="auto_awesome" className="text-base" /> Calcular sugerencia
+        <Btn onClick={handleCalcular} className="!min-h-[44px]">
+          <I name="search" className="text-base" /> Ver sugerencias
         </Btn>
       </div>
 
-      {/* Resultados */}
-      {lastRun && lastRun.recomendaciones && (
-        <div className="space-y-3">
-          {/* Protocolo cognitivo */}
+      {lastRun?.recomendaciones && (
+        <div className="space-y-3 border-t pt-4" style={{ borderColor: "var(--ns-card-b)" }}>
           {lastRun.recomendaciones.protocolo ? (
-            <div className="p-3 rounded-lg" style={{ background: "var(--ns-subtle)" }}>
-              <div className="flex items-center gap-2 mb-2">
-                <I name="psychology" style={{ color: TEAL }} />
-                <span className="text-sm font-bold" style={{ color: "var(--ns-text)" }}>
-                  Protocolo sugerido: {lastRun.recomendaciones.protocolo.protocolo}
-                </span>
-                <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                  style={{ background: `${TEAL}20`, color: TEAL }}>
-                  ≈{lastRun.recomendaciones.duracionProtocoloMin} min
-                </span>
-              </div>
-              <p className="text-[11px] mb-2" style={{ color: "var(--ns-muted)" }}>
-                {lastRun.recomendaciones.protocolo.justificacion}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {lastRun.recomendaciones.protocolo.testIds.map((tid) => (
-                  <TestChip key={tid} testId={tid} onPick={handlePick} />
-                ))}
-              </div>
-            </div>
+            <ResultBlock icon="psychology" title={`Protocolo: ${lastRun.recomendaciones.protocolo.protocolo}`}
+              badge={`≈${lastRun.recomendaciones.duracionProtocoloMin} min`}
+              desc={lastRun.recomendaciones.protocolo.justificacion}>
+              {lastRun.recomendaciones.protocolo.testIds.map((tid) => (
+                <TestChip key={tid} testId={tid} onPick={handlePick} />
+              ))}
+            </ResultBlock>
           ) : (
             <p className="text-xs italic" style={{ color: "var(--ns-muted)" }}>
-              Sin sugerencia de protocolo cognitivo para esta combinación de edad y motivo.
-              Aplicar el protocolo por edad (WISC-IV si &lt;17a, WAIS-III si ≥17a).
+              Sin batería cognitiva sugerida para esta edad/motivo. Revise WISC-IV (&lt;17 años) o WAIS-III (≥17 años) en Evaluación.
             </p>
           )}
-
-          {/* Queja memoria extendida */}
-          {lastRun.recomendaciones.extendido && (
-            <div className="p-3 rounded-lg" style={{ background: "var(--ns-subtle)" }}>
-              <div className="flex items-center gap-2 mb-2">
-                <I name="elderly" style={{ color: TEAL }} />
-                <span className="text-sm font-bold" style={{ color: "var(--ns-text)" }}>
-                  Batería extendida sugerida (queja de memoria)
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {lastRun.recomendaciones.extendido.map((t) => (
-                  <TestChip key={t.testId} testId={t.testId} onPick={handlePick} razon={t.razon} />
-                ))}
-              </div>
-            </div>
+          {lastRun.recomendaciones.extendido?.length > 0 && (
+            <ResultBlock icon="elderly" title="Ampliación por queja de memoria">
+              {lastRun.recomendaciones.extendido.map((t) => (
+                <TestChip key={t.testId} testId={t.testId} onPick={handlePick} razon={t.razon} />
+              ))}
+            </ResultBlock>
           )}
-
-          {/* Screenings por constructo */}
-          {lastRun.recomendaciones.screenIds.length > 0 ? (
-            <div className="p-3 rounded-lg" style={{ background: "var(--ns-subtle)" }}>
-              <div className="flex items-center gap-2 mb-2">
-                <I name="quiz" style={{ color: TEAL }} />
-                <span className="text-sm font-bold" style={{ color: "var(--ns-text)" }}>
-                  Screenings sugeridos ({lastRun.recomendaciones.screenIds.length})
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {lastRun.recomendaciones.screenIds.map((tid) => (
-                  <TestChip key={tid} testId={tid} onPick={handlePick} />
-                ))}
-              </div>
-              {lastRun.recomendaciones.constructos.length > 0 && (
-                <p className="text-[11px] mt-2" style={{ color: "var(--ns-muted)" }}>
-                  Basado en constructos: {lastRun.recomendaciones.constructos
-                    .map((c) => CONSTRUCTOS[c]?.label || c).join(" · ")}
-                </p>
-              )}
-            </div>
-          ) : null}
+          {lastRun.recomendaciones.screenIds.length > 0 && (
+            <ResultBlock icon="quiz" title={`Escalas sugeridas (${lastRun.recomendaciones.screenIds.length})`}
+              desc={lastRun.recomendaciones.constructos.map((c) => CONSTRUCTOS[c]?.label || c).join(" · ")}>
+              {lastRun.recomendaciones.screenIds.map((tid) => (
+                <TestChip key={tid} testId={tid} onPick={handlePick} />
+              ))}
+            </ResultBlock>
+          )}
         </div>
       )}
     </Card>
   );
 }
 
-/* ── Chip accionable de un test ────────────────────────────────── */
+function ResultBlock({ icon, title, badge, desc, children }) {
+  return (
+    <div className="p-3 rounded-xl border" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
+      <div className="flex items-center gap-2 mb-2 flex-wrap">
+        <I name={icon} style={{ color: TEAL }} />
+        <span className="text-sm font-bold">{title}</span>
+        {badge && (
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold ml-auto" style={{ background: `${TEAL}20`, color: TEAL }}>
+            {badge}
+          </span>
+        )}
+      </div>
+      {desc && <p className="text-[11px] mb-2" style={{ color: "var(--ns-muted)" }}>{desc}</p>}
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
+
 function TestChip({ testId, onPick, razon = null }) {
   const meta = getScreeningMetadata(testId);
   const fromForm = SCREENING_FORMS[testId];
   if (!fromForm) {
     return (
-      <button onClick={() => onPick(testId)} title={razon || ""}
-        className="px-2 py-1 rounded text-[11px] font-semibold"
-        style={{ background: "var(--ns-card)", color: "var(--ns-text)", border: "1px solid var(--ns-card-b)" }}>
+      <button type="button" onClick={() => onPick(testId)} title={razon || ""}
+        className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border"
+        style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
         {testId}
       </button>
     );
   }
   const color = meta?.constructo?.color || TEAL;
   return (
-    <button onClick={() => onPick(testId)} title={razon || fromForm.name}
-      className="px-2 py-1 rounded text-[11px] font-semibold flex items-center gap-1"
-      style={{ background: `${color}15`, color, border: `1px solid ${color}40` }}>
-      <I name="play_arrow" className="text-xs" />
+    <button type="button" onClick={() => onPick(testId)} title={razon || fromForm.name}
+      className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 border"
+      style={{ background: `${color}12`, color, borderColor: `${color}35` }}>
+      <I name="north_east" className="text-xs" />
       {fromForm.abbr || testId}
     </button>
   );
 }
 
-/* ── Helper: union de screenings por constructo filtrados por edad ── */
 function construirListaScreenings(constructos, edad, esCuidador) {
-  /* Une las sugerencias por constructo, deduplica y limita a 8
-     (un panel con >8 chips es ruido). */
   const set = new Set();
   for (const c of constructos) {
     for (const id of getFormsPorConstructo(c)) set.add(id);
   }
-  const porEdad = new Set(sugerirPorConstructos(constructos, edad, esCuidador));
-  const interseccion = Array.from(set).filter((id) => porEdad.has(id));
-  if (interseccion.length > 0) return interseccion.slice(0, 8);
-  /* Si la intersección está vacía (motivos sin tests para esa edad),
-     devolver los del constructo sin filtrar para que el clínico
-     vea opciones. */
+  if (esCuidador) {
+    for (const id of sugerirPorConstructos(["sobrecarga_cuidador"], edad, true)) set.add(id);
+  }
   return Array.from(set).slice(0, 8);
 }
-
-/* ── Re-exports para tests externos ────────────────────────────── */
-export { MOTIVOS, MOTIVOS_KEYWORDS, motivosTocan, construirListaScreenings };

@@ -65,6 +65,8 @@ class Paciente:
     motivo_consulta: str | None = None
     remite: str | None = None
     eps: str | None = None
+    regimen: str | None = None
+    pais: str | None = None
     orden_medica_no: str | None = None
     discapacidad: str | None = None
     codigo_rips: str | None = None
@@ -73,6 +75,7 @@ class Paciente:
     numero_sesiones: int = 1
     donante: bool = False
     via_atencion: str = "mixto"
+    etiquetas: list[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     is_active: bool = True

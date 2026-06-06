@@ -83,8 +83,8 @@ export const Card = ({ children, className = "", style, ...p }) => (
 
 export const Label = ({ children, className = "" }) => (
   <label
-    className={`block text-[10px] font-extrabold uppercase tracking-[0.2em] mb-2 ${className}`}
-    style={{ color: "var(--ns-muted)" }}
+    className={`block text-[11px] font-bold uppercase tracking-wide mb-1.5 ${className}`}
+    style={{ color: "var(--ns-stone, var(--ns-muted))" }}
   >
     {children}
   </label>
@@ -92,16 +92,26 @@ export const Label = ({ children, className = "" }) => (
 
 export const Input = ({ className = "", style, ...p }) => (
   <input
-    className={`w-full px-4 py-3.5 rounded-xl border-2 border-transparent focus:border-teal-500/20 focus:ring-0 transition-all text-sm ${className}`}
-    style={{ background: "var(--ns-input)", color: "var(--ns-text)", ...style }}
+    className={`w-full px-4 py-3.5 rounded-xl border focus:border-teal-500/40 focus:ring-0 transition-all text-sm ${className}`}
+    style={{
+      background: "var(--ns-input)",
+      color: "var(--ns-text)",
+      borderColor: "var(--ns-card-b)",
+      ...style,
+    }}
     {...p}
   />
 );
 
 export const Sel = ({ children, className = "", style, ...p }) => (
   <select
-    className={`w-full px-4 py-3.5 rounded-xl border-2 border-transparent focus:border-teal-500/20 focus:ring-0 transition-all text-sm ${className}`}
-    style={{ background: "var(--ns-input)", color: "var(--ns-text)", ...style }}
+    className={`w-full px-4 py-3.5 rounded-xl border focus:border-teal-500/40 focus:ring-0 transition-all text-sm ${className}`}
+    style={{
+      background: "var(--ns-input)",
+      color: "var(--ns-text)",
+      borderColor: "var(--ns-card-b)",
+      ...style,
+    }}
     {...p}
   >
     {children}

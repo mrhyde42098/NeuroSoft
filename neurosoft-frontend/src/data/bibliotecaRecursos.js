@@ -50,6 +50,7 @@ export const BIBLIOTECA_RECURSOS = [
     nivel: "intermedio",
     categoria: "neuropsicologia",
     destacado: true,
+    url: "https://www.manualmoderno.com/",
   },
   {
     id: "lezak-2012",
@@ -105,6 +106,7 @@ export const BIBLIOTECA_RECURSOS = [
     nivel: "basico",
     categoria: "psicoterapia",
     destacado: true,
+    url: "https://www.guilford.com/",
   },
   {
     id: "kazantzis-2016",
@@ -115,6 +117,7 @@ export const BIBLIOTECA_RECURSOS = [
     fuente: "Cognitive Therapy and Research, 40(5)",
     resumen: "Meta-análisis: la adherencia a tareas inter-sesión produce un effect size g≈0.48 sobre el outcome clínico. Justifica el módulo de tareas terapéuticas de NeuroSoft.",
     tags: ["TCC", "tareas-casa", "meta-análisis", "outcome"],
+    doi: "10.1007/s10608-016-9768-3",
     formato: "Acceso por suscripción",
     nivel: "intermedio",
     categoria: "psicoterapia",

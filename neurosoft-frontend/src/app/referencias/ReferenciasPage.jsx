@@ -54,11 +54,11 @@ export default function ReferenciasPage() {
 
   return <>
     <TopBar title="Referencias bibliográficas" />
-    <main className="p-8 max-w-5xl mx-auto space-y-5">
+    <main className="p-8 max-w-7xl mx-auto space-y-5">
       <div className="flex items-center gap-3 mb-4">
         <I name="menu_book" style={{ color: TEAL, fontSize: 26 }} />
         <div>
-          <h2 className="ns-serif text-xl font-bold">Catálogo bibliográfico curado</h2>
+          <h2 className="ns-serif text-xl font-bold">Catálogo bibliográfico seleccionado</h2>
           <p className="text-xs" style={{ color: "var(--ns-muted)" }}>
             {total} referencias · Fuentes verificadas con DOI/ISBN · APA 7ª edición
           </p>

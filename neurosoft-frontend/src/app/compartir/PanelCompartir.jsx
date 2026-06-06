@@ -98,6 +98,16 @@ export function ShareButton({ evaluationId }) {
 
             {!link && (
               <>
+                <div className="rounded-xl p-3 text-[11px] leading-relaxed bg-teal-50 border border-teal-200 text-teal-900">
+                  <p className="font-bold mb-1 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">info</span>
+                    ¿Qué hace este enlace?
+                  </p>
+                  Genera una página web <strong>de solo lectura</strong> con el resultado del informe.
+                  El paciente o el médico remitente la abren desde el navegador, <strong>sin instalar nada ni iniciar sesión</strong>.
+                  El enlace <strong>vence solo</strong> al cumplirse la vigencia y puedes <strong>revocarlo</strong> en cualquier momento.
+                  Si añades una sala de videollamada, tienes telemedicina completa: ven el informe mientras hablan contigo.
+                </div>
                 <div>
                   <label className="text-xs font-bold uppercase text-slate-500">Alcance</label>
                   <select value={scope} onChange={e => setScope(e.target.value)}
@@ -351,7 +361,7 @@ export function SharesPage() {
   const isExpired = (s) => s && new Date(s) < new Date();
 
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-6">
+    <div className="max-w-7xl mx-auto p-8 space-y-6">
       <header>
         <h1 className="text-3xl font-bold">Telemedicina · Links compartidos</h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -577,7 +587,7 @@ export function SharedViewer({ token }) {
           )}
 
           <footer className="pt-4 border-t border-slate-200 text-[10px] text-slate-400 text-center">
-            Generado por NeuroSoft · Este link vence el {data.expires_at?.slice(0, 10) || "—"}.
+            Informe compartido · Este link vence el {data.expires_at?.slice(0, 10) || "—"}.
             <br/>Contenido sanitizado — sin información identificable del paciente.
           </footer>
         </div>

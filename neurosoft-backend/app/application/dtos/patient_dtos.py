@@ -63,6 +63,8 @@ class PatientCreateDTO(BaseModel):
     motivo_consulta:    str | None = Field(default=None, max_length=500)
     remite:             str | None = None
     eps:                str | None = None
+    regimen:            str | None = None
+    pais:               str | None = None
     orden_medica_no:    str | None = None
     discapacidad:       str | None = None
     codigo_rips:        str | None = Field(default=None, max_length=10)
@@ -74,6 +76,7 @@ class PatientCreateDTO(BaseModel):
         default="mixto",
         description="Comma-separated: neuropsicologia, psicoterapia, rehabilitacion, mixto",
     )
+    etiquetas:          list[str] = Field(default_factory=list)
 
     @field_validator("via_atencion")
     @classmethod
@@ -158,6 +161,7 @@ class PatientUpdateDTO(BaseModel):
     codigo_rips:        str | None = None
     eps:                str | None = None
     via_atencion:       str | None = None
+    etiquetas:          list[str] | None = None
 
 
 # ============================================================
@@ -193,6 +197,7 @@ class PatientResponseDTO(BaseModel):
     codigo_rips:        str | None
     eps:                str | None
     via_atencion:       str = "mixto"
+    etiquetas:          list[str] = Field(default_factory=list)
 
     # Campos calculados por el backend
     age_years:      int
@@ -229,6 +234,7 @@ class PatientPanelItemDTO(BaseModel):
     total_evaluaciones: int = 0
     ultima_evaluacion:  str | None = None   # ISO date de la última evaluación
     ultimo_protocolo:   str | None = None   # Ej: "WISC-IV"
+    etiquetas:          list[str] = Field(default_factory=list)
 
 
 class PatientPanelResponseDTO(BaseModel):

@@ -180,7 +180,56 @@ def step_clean() -> None:
             shutil.rmtree(p, ignore_errors=True)
 
 
-def step_pyinstaller() -> None:
+def step_baremos_shards() -> None:
+    """Regenera shards de baremos si existe el JSON maestro (reduce RAM cold start)."""
+    master = BACKEND / "data" / "BD_NEURO_MAESTRA.json"
+    script = ROOT / "docs" / "scripts" / "split_baremos_poblacion.py"
+    if not master.exists() or not script.exists():
+        _log("Baremos master ausente — omitiendo shards.", "warn")
+        return
+    py = _python_exe()
+    _log("Regenerando baremos_shards/…")
+    _run([py, str(script), "--input", str(master)], check=True)
+    _log("Baremos shards OK.", "ok")
+
+
+def step_manual_pdf() -> None:
+    """Genera MANUAL_BETA_TESTER.pdf en dist/."""
+    script = ROOT / "docs" / "scripts" / "generate_manual_pdf.py"
+    if not script.exists():
+        _log("generate_manual_pdf.py no encontrado — omitiendo PDF.", "warn")
+        return
+    py = _python_exe()
+    out = ROOT / "dist" / "MANUAL_BETA_TESTER.pdf"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    _log("Generando manual PDF beta tester…")
+    _run([py, str(script), str(out)], check=True)
+    if out.exists():
+        _log(f"Manual PDF -> {out} ({_human_size(out)})", "ok")
+
+
+def step_inno_setup() -> None:
+    """Compila instalador Inno Setup si ISCC está disponible."""
+    iscc = Path(r"C:\Users\DESKTOP\AppData\Local\Programs\Inno Setup 6\ISCC.exe")
+    if not iscc.exists():
+        _log("ISCC.exe no encontrado — omitiendo NeuroSoft-Setup.exe.", "warn")
+        return
+    iss = ROOT / "installer" / "NeuroSoft.iss"
+    if not iss.exists():
+        _log("NeuroSoft.iss no encontrado.", "warn")
+        return
+    _log("Compilando instalador Inno Setup…")
+    _run([str(iscc), str(iss)], check=True)
+    setup = ROOT / "dist" / "NeuroSoft-Setup.exe"
+    if setup.exists():
+        _log(f"Instalador -> {setup} ({_human_size(setup)})", "ok")
+
+
+def step_py_compile_backend() -> None:
+    py = _python_exe()
+    _run([py, "-m", "py_compile", str(BACKEND / "app" / "main.py")], check=True)
+
+
     _log("Empaquetando con PyInstaller…")
     py = _python_exe()
 
@@ -288,6 +337,14 @@ def main() -> int:
                         help="Limpia dist/ y build/ antes del empaquetado")
     parser.add_argument("--skip-ollama", action="store_true",
                         help="No descarga el instalador de Ollama (util para builds rapidos)")
+    parser.add_argument("--skip-shards", action="store_true",
+                        help="No regenera baremos_shards/")
+    parser.add_argument("--skip-manual", action="store_true",
+                        help="No genera MANUAL_BETA_TESTER.pdf")
+    parser.add_argument("--skip-inno", action="store_true",
+                        help="No compila NeuroSoft-Setup.exe")
+    parser.add_argument("--full", action="store_true",
+                        help="Build completo: shards + PDF + Inno (default en build normal)")
     parser.add_argument("--make-update", action="store_true",
                         help="Genera un archivo .nsupdate con el frontend + changelog (sin .exe)")
     args = parser.parse_args()
@@ -297,14 +354,24 @@ def main() -> int:
     if args.clean:
         step_clean()
     step_build_frontend(skip=args.skip_frontend)
+    step_py_compile_backend()
 
     if args.make_update:
         step_make_update()
         _log(f"Tiempo total: {time.time() - t0:.1f}s", "info")
         return 0
 
+    full = args.full or not (args.skip_shards and args.skip_manual and args.skip_inno)
+    if full and not args.skip_shards:
+        step_baremos_shards()
+
     step_download_ollama(skip=args.skip_ollama)
-    step_pyinstaller()
+
+    if full and not args.skip_manual:
+        step_manual_pdf()
+    if full and not args.skip_inno:
+        step_inno_setup()
+
     step_report()
     _log(f"Tiempo total: {time.time() - t0:.1f}s", "info")
     return 0

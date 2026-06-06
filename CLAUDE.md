@@ -10,7 +10,7 @@
 4. **`docs/historico/CARPETAS_RAIZ.md`** — qué hace cada carpeta del monorepo
 5. Este archivo (`CLAUDE.md`) — reglas de stack y qué NO recomendar
 
-**Auditorías:** `docs/historico/audits/` (ya no en raíz).  
+**Auditorías:** `docs/historico/audits/` (ya no en raíz). 
 **Roadmaps viejos:** `docs/planning/` — consultar estado real en `ESTADO_VIVO.md`.
 
 ### Regla obligatoria para toda IA
@@ -31,18 +31,20 @@ Proyecto monorepo de **NeuroSoft App** — sistema de evaluación neuropsicológ
 
 ```
 D:\NeuroSoftApp\
-├── neurosoft-backend\          ← FastAPI + motor clínico (CLAUDE.md propio)
-├── neurosoft-frontend\         ← React SPA (CLAUDE.md propio)
-├── Capacitaciones Clínicas\    ← Protocolos WISC/WAIS fuente (JSON)
-├── docs\                       ← ESTADO_VIVO, PUNTO_INFLEXION, infra, histórico
-├── archive\                    ← Legacy (Excel VBA, scripts one-off)
-├── installer\                  ← Inno Setup → NeuroSoft-Setup.exe
-├── vendor\ollama\              ← OllamaSetup.exe (~1.3 GB, gitignored)
-├── mcp-servers\baremos\        ← MCP opcional para consultar baremos en Claude Code
-├── dist\ / build\              ← Artefactos PyInstaller (gitignored)
-├── build.py / launcher.py      ← Pipeline desktop (NO mover de raíz)
-├── neurosoft.spec              ← Spec PyInstaller
-└── .claude\                    ← Skills + agente clinical-engine-reviewer
+├── neurosoft-backend\ ← FastAPI + motor clínico (CLAUDE.md propio)
+├── neurosoft-frontend\ ← React SPA (CLAUDE.md propio)
+├── Capacitaciones Clínicas\ ← Protocolos WISC/WAIS fuente (JSON)
+├── docs\ ← ESTADO_VIVO, PUNTO_INFLEXION, infra, histórico
+├── archive\ ← Legacy (Excel VBA, scripts one-off)
+├── installer\ ← Inno Setup → NeuroSoft-Setup.exe
+├── vendor\ollama\ ← OllamaSetup.exe (~1.3 GB, gitignored)
+├── mcp-servers\baremos\ ← MCP opcional para consultar baremos en Claude Code
+├── dist\ / build\ ← Artefactos PyInstaller (gitignored)
+├── build.py / launcher.py ← Pipeline desktop (NO mover de raíz)
+├── admin_license_app.py / build_license_admin.py ← Panel licencias (solo titular)
+├── tools/license_core.py ← Lógica claves NSFT
+├── neurosoft.spec ← Spec PyInstaller
+└── .claude\ ← Skills + agente clinical-engine-reviewer
 ```
 
 **Mapa detallado:** `docs/historico/CARPETAS_RAIZ.md` · **Build/instalador:** `docs/infra/BUILD_Y_DISTRIBUCION.md`
@@ -67,16 +69,16 @@ Este proyecto YA tiene configurada infraestructura significativa de desarrollo. 
 - `investigar-clinica` — agente investigador clínico (papers 2022-2026)
 - `investigar-terapia` — investigador específico de psicoterapia
 - `mejorar-informe-pdf` — plan para rediseñar el informe PDF
-- `redisenar-informes` — **ejecuta** el estándar visual IN&S+Pro (Composer/Opus 4.8 mínimo)
+- `redisenar-informes` — **ejecuta** el estándar visual NPS+Pro (Composer/Opus 4.8 mínimo)
 - `snapshot-paciente` — genera fixtures JSON para tests de regresión clínica
 
 **Cualquier "agente de análisis de baremos / investigación / build / refactor" propuesto YA existe como skill. Verifícalo antes.**
 
 ### ✅ Linting + quality gates ya configurados
 - **ESLint v9 flat config** en `neurosoft-frontend/eslint.config.js`
-  - `no-undef: error`, `react/jsx-no-undef: error`, `no-dupe-keys: error`, `no-const-assign: error`
-  - `no-empty: warn` con `allowEmptyCatch: true` (patrón intencional)
-  - `react-hooks/rules-of-hooks: error`
+ - `no-undef: error`, `react/jsx-no-undef: error`, `no-dupe-keys: error`, `no-const-assign: error`
+ - `no-empty: warn` con `allowEmptyCatch: true` (patrón intencional)
+ - `react-hooks/rules-of-hooks: error`
 - **Build pipeline con lint-gate**: `npm run build` ejecuta `npm run lint && vite build` — si lint falla, no se construye. NO recomiendes añadir esto.
 - **`py_compile` check** en `/build-beta-tester` antes de PyInstaller.
 
@@ -88,7 +90,7 @@ Este proyecto YA tiene configurada infraestructura significativa de desarrollo. 
 
 ### ✅ IA — Asistente clínico ya integrado
 - **Backend**: `app/domain/clinical_engine/ai_prompts.py` con **6 prompts especializados curados**:
-  `mejorar_observacion_clinica`, `sugerir_dx_dsm5`, `explicar_discrepancia`, `redactar_recomendaciones`, `narrativa_integradora`, `revisar_pediatrico`.
+ `mejorar_observacion_clinica`, `sugerir_dx_dsm5`, `explicar_discrepancia`, `redactar_recomendaciones`, `narrativa_integradora`, `revisar_pediatrico`.
 - **Endpoint**: `GET /api/v1/ai/prompts` y `POST /api/v1/ai/specialized`.
 - **Log de trazabilidad**: tabla `ai_logs` (ORM `AILogORM`, migración Alembic 006) — guarda metadata (provider, model, tokens, duración, applied_to_report) **sin contenido PHI**.
 - **Sanitización PHI**: `sanitize_clinical_input()` en `ai.py` quita documentos, fechas, emails, teléfonos antes de salir al cloud.
@@ -225,7 +227,7 @@ Ejecutables con `/nombre` desde Claude Code:
 | **`/exportar-sesion`** | Exporta resumen md de la sesión actual para retomar en otro chat |
 | **`/snapshot-paciente`** | Crea fixture JSON de un caso clínico para tests de regresión |
 | **`/mejorar-informe-pdf`** | Plan estructurado para rediseñar el informe PDF |
-| **`/redisenar-informes`** | Implementa/mantiene estándar PDF IN&S+Pro — ver `docs/REFERENCIAS_INFORMES_NPS.md` |
+| **`/redisenar-informes`** | Implementa/mantiene estándar PDF NPS+Pro — ver `docs/REFERENCIAS_INFORMES_NPS.md` |
 | **`/organizar-repo`** | Auditoría de auditorías: ordenar docs, ESTADO_VIVO, limpiar raíz |
 | **`/actualizar-estado-vivo`** | Al cerrar sprint/roadmap: actualizar ESTADO_VIVO (+ línea en PUNTO_INFLEXION si aplica) |
 | **`/actualizar-contexto-ia`** | Sync on-demand de archivos de lectura IA (solo cuando Johan lo pida) |
@@ -245,7 +247,7 @@ description: Cuándo se debe activar y qué hace.
 ## Pipeline de build (manual, sin skill)
 
 ```bash
-cd neurosoft-frontend && npm run build       # incluye lint pre-build
+cd neurosoft-frontend && npm run build # incluye lint pre-build
 cd .. && python build.py --skip-frontend --skip-ollama
 & "C:\Users\DESKTOP\AppData\Local\Programs\Inno Setup 6\ISCC.exe" installer\NeuroSoft.iss
 ```
@@ -285,7 +287,7 @@ Comandos **denegados**:
 - **Beta tester**: credenciales pre-configuradas en el .exe: `beta / BetaTester2026!` (defaults). Override vía `NEUROSOFT_BETA_USERNAME` / `NEUROSOFT_BETA_PASSWORD`. Installs históricos que tengan otros usuarios beta siguen funcionando.
 - **Branding**: producto se llama **"NeuroSoft App"** — sin números de versión visibles al usuario.
 - **Idioma**: todo en español colombiano neutro.
-- **Stack**: React 18 + Vite + Tailwind (frontend) · FastAPI + SQLAlchemy + SQLite (backend) · PyInstaller + Inno Setup (empaquetado) · Ollama (IA local opcional).
+- **Stack**: React 19 + Vite 6 + Tailwind (frontend) · FastAPI 0.136 + Pydantic 2.10 + SQLAlchemy + SQLite (backend) · PyInstaller + Inno Setup · Ollama (IA local opcional).
 - **No publicar uso de IA al paciente**: la cláusula del PDF habla de responsabilidad profesional (Ley 1090), NO menciona explícitamente que se usó IA — eso es decisión editorial intencional del clínico.
 
 ---

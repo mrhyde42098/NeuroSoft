@@ -26,6 +26,29 @@ function renderMarkdown(md) {
   };
   while (i < lines.length) {
     const ln = lines[i];
+    if (/^\|.+\|$/.test(ln.trim()) && i + 1 < lines.length && /^\|[\s\-:|]+\|$/.test(lines[i + 1]?.trim())) {
+      flushList(i);
+      const headerCells = ln.trim().slice(1, -1).split("|").map((c) => c.trim());
+      i += 2;
+      const rows = [];
+      while (i < lines.length && /^\|.+\|$/.test(lines[i].trim())) {
+        rows.push(lines[i].trim().slice(1, -1).split("|").map((c) => c.trim()));
+        i++;
+      }
+      out.push(
+        <table key={`tbl-${i}`} className="w-full text-xs mb-4 border-collapse">
+          <thead>
+            <tr>{headerCells.map((h, j) => <th key={j} className="border px-2 py-1 text-left font-bold" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {rows.map((row, ri) => (
+              <tr key={ri}>{row.map((cell, ci) => <td key={ci} className="border px-2 py-1" style={{ borderColor: "var(--ns-card-b)" }}>{cell}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      );
+      continue;
+    }
     if (/^# /.test(ln)) {
       flushList(i);
       out.push(<h1 key={i} className="ns-serif text-2xl font-bold mt-6 mb-3">{ln.replace(/^# /, "")}</h1>);
@@ -99,7 +122,7 @@ export default function ArticulosPage() {
   return (
     <>
       <TopBar title="Artículos clínicos" />
-      <main className="p-8 max-w-5xl mx-auto space-y-5">
+      <main className="p-8 max-w-7xl mx-auto space-y-5">
         <div className="flex items-center gap-3 mb-2">
           <I name="article" style={{ color: TEAL, fontSize: 28 }} />
           <div>

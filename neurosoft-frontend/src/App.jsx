@@ -1,12 +1,12 @@
 import React,{useState,useEffect,lazy,Suspense}from"react";
 import{api}from"./api/client.js";
+import LazyRoute,{pageLoader}from"./ui/LazyRoute.jsx";
 /* §lazy: imports eager solo para los componentes críticos al primer render.
  * Las páginas grandes se cargan bajo demanda con React.lazy → reduce
  * el bundle inicial de 795 KB a ~250 KB (las rutas se traen al navegar). */
 import LoginPage from"./app/auth/LoginPage.jsx";
 import DashboardPage from"./app/dashboard/DashboardPage.jsx";
 import SidebarLayout from"./app/layout/Sidebar.jsx";
-import {AIFloatingChat} from"./app/ia/PanelIA";
 import{SharedViewer}from"./app/compartir/PanelCompartir";
 import PublicRehabViewer from"./app/rehab/PublicRehabViewer.jsx";
 import {AuthProvider as ExtAuthProvider,DarkProvider as ExtDarkProvider,ToastProvider as ExtToastProvider,ConfirmProvider as ExtConfirmProvider,A11yProvider as ExtA11yProvider,useAuth as extUseAuth,useDark as extUseDark,useToast as extUseToast} from"./contexts.jsx";
@@ -17,35 +17,38 @@ import{SkipToMain}from"./ui/a11y.jsx";
 import PearsonConsentDialog from"./ui/PearsonConsentDialog.jsx";
 import{usePearsonConsent}from"./hooks/usePearsonConsent.js";
 
-/* §lazy: páginas cargadas bajo demanda. Cada una se descarga al primer setPage(). */
-const AIConfigPage     = lazy(() => import("./app/ia/PanelIA").then(m => ({default: m.AIConfigPage})));
-const SharesPage       = lazy(() => import("./app/compartir/PanelCompartir").then(m => ({default: m.SharesPage})));
-const RehabPage        = lazy(() => import("./app/rehab/RehabPage.jsx"));
-const PatientsPage     = lazy(() => import("./app/patients/PatientsPage.jsx"));
-const RegisterPage     = lazy(() => import("./app/patients/RegisterPage.jsx"));
-const AgendaPage       = lazy(() => import("./app/agenda/AgendaPage.jsx"));
-const InformesPage     = lazy(() => import("./app/reports/InformesPage.jsx"));
-const HistorialPage    = lazy(() => import("./app/history/HistorialPage.jsx"));
-const ScreeningPage    = lazy(() => import("./app/evaluation/ScreeningPage.jsx"));
-const ComparePage      = lazy(() => import("./app/history/ComparePage.jsx"));
-const ConfigPage       = lazy(() => import("./app/config/ConfigPage.jsx"));
-const HelpPage         = lazy(() => import("./app/help/HelpPage.jsx"));
-const EvalApplyPage    = lazy(() => import("./app/evaluation/EvalApplyPage.jsx"));
-const EvalResultsPage  = lazy(() => import("./app/evaluation/EvalResultsPage.jsx"));
-const ClinicalHistoryPage = lazy(() => import("./app/patients/ClinicalHistoryPage.jsx"));
-const TherapyPage         = lazy(() => import("./app/therapy/TherapyPage.jsx"));
-const BibliotecaPage      = lazy(() => import("./app/aprender/BibliotecaPage.jsx"));
-const PruebasDisponiblesPage = lazy(() => import("./app/aprender/PruebasDisponiblesPage.jsx"));
-/* §M-2 Módulo Aprender — pilar 3 educativo */
-const AprenderHub         = lazy(() => import("./app/aprender/AprenderHub.jsx"));
-const GlosarioPage        = lazy(() => import("./app/aprender/GlosarioPage.jsx"));
-const EstudiarPage        = lazy(() => import("./app/aprender/EstudiarPage.jsx"));
-const QuizPage            = lazy(() => import("./app/aprender/QuizPage.jsx"));
-const ArticulosPage       = lazy(() => import("./app/aprender/ArticulosPage.jsx"));
-const SimuladorPage       = lazy(() => import("./app/aprender/SimuladorPage.jsx"));
-const ReferenciasPage    = lazy(() => import("./app/referencias/ReferenciasPage.jsx"));  // §F2
-const EstadisticasPage   = lazy(() => import("./app/dashboard/EstadisticasPage.jsx"));
-const RipsPage           = lazy(() => import("./app/reports/RipsPage.jsx"));
+/* §lazy: chat flotante bajo demanda; rutas con React 19 use() vía LazyRoute */
+const AIFloatingChat = lazy(() => import("./app/ia/PanelIA.jsx").then(m => ({ default: m.AIFloatingChat })));
+
+/* React 19 use() — loaders cacheados para LazyRoute */
+const loadEstadisticas   = pageLoader(() => import("./app/dashboard/EstadisticasPage.jsx"));
+const loadRips           = pageLoader(() => import("./app/reports/RipsPage.jsx"));
+const loadPatients       = pageLoader(() => import("./app/patients/PatientsPage.jsx"));
+const loadRegister       = pageLoader(() => import("./app/patients/RegisterPage.jsx"));
+const loadClinicalHist   = pageLoader(() => import("./app/patients/ClinicalHistoryPage.jsx"));
+const loadEvalApply      = pageLoader(() => import("./app/evaluation/EvalApplyPage.jsx"));
+const loadEvalResults    = pageLoader(() => import("./app/evaluation/EvalResultsPage.jsx"));
+const loadHistorial      = pageLoader(() => import("./app/history/HistorialPage.jsx"));
+const loadAgenda         = pageLoader(() => import("./app/agenda/AgendaPage.jsx"));
+const loadInformes       = pageLoader(() => import("./app/reports/InformesPage.jsx"));
+const loadCompare        = pageLoader(() => import("./app/history/ComparePage.jsx"));
+const loadScreening      = pageLoader(() => import("./app/evaluation/ScreeningPage.jsx"));
+const loadRehab          = pageLoader(() => import("./app/rehab/RehabPage.jsx"));
+const loadTherapy        = pageLoader(() => import("./app/therapy/TherapyPage.jsx"));
+const loadBiblioteca     = pageLoader(() => import("./app/aprender/BibliotecaPage.jsx"));
+const loadPruebas        = pageLoader(() => import("./app/aprender/PruebasDisponiblesPage.jsx"));
+const loadAprender       = pageLoader(() => import("./app/aprender/AprenderHub.jsx"));
+const loadGlosario       = pageLoader(() => import("./app/aprender/GlosarioPage.jsx"));
+const loadEstudiar       = pageLoader(() => import("./app/aprender/EstudiarPage.jsx"));
+const loadQuiz           = pageLoader(() => import("./app/aprender/QuizPage.jsx"));
+const loadArticulos      = pageLoader(() => import("./app/aprender/ArticulosPage.jsx"));
+const loadSimulador      = pageLoader(() => import("./app/aprender/SimuladorPage.jsx"));
+const loadReferencias    = pageLoader(() => import("./app/referencias/ReferenciasPage.jsx"));
+const loadAIConfig       = pageLoader(() => import("./app/ia/PanelIA.jsx").then(m => ({ default: m.AIConfigPage })));
+const loadShares         = pageLoader(() => import("./app/compartir/PanelCompartir.jsx").then(m => ({ default: m.SharesPage })));
+const loadConfig         = pageLoader(() => import("./app/config/ConfigPage.jsx"));
+const loadHelp           = pageLoader(() => import("./app/help/HelpPage.jsx"));
+const loadProtocolos     = pageLoader(() => import("./app/aprender/ProtocolosPage.jsx"));
 /* Auth/Dark/Toast/ErrorBoundary ahora viven en src/contexts.jsx y src/ui/.
  * Mantenemos los identificadores con re-asignaciones para no tocar las
  * 19 páginas que aún viven en este archivo. */
@@ -100,12 +103,25 @@ function Sidebar({page,setPage}){
 }
 
 function AppShell(){
+  const{user}=useAuth();
   const[page,setPage]=useState("dashboard");
   const[pageKey,setPageKey]=useState(0);
   const[evalCtx,setEvalCtx]=useState({patientId:null,puntajes:{},obs:{},proto:"wisc_iv",protoNombre:"WISC-IV",scoringResult:null});
   const{toggle}=useDark();
   const toast=useToast();
   const pearson=usePearsonConsent();
+  const[agreement,setAgreement]=useState(null);
+  const[lic,setLic]=useState(null);
+  useEffect(()=>{
+    let cancelled=false;
+    Promise.all([
+      api.get("/api/v1/license/agreement-status").catch(()=>null),
+      api.get("/api/v1/license/status").catch(()=>null),
+    ]).then(([a,l])=>{if(!cancelled){setAgreement(a);setLic(l);}});
+    return()=>{cancelled=true;};
+  },[]);
+  const skipAgreement=user?.role==="admin"||lic?.is_master||lic?.dev_mode;
+  const showAgreement=!skipAgreement&&agreement&&!agreement.accepted;
   const nav=(p,data)=>{if(data)setEvalCtx(c=>({...c,...data}));setPage(p);setPageKey(k=>k+1)};
   /* Polling de tarea-casa: notifica al clínico cuando un paciente
    * completa una actividad desde el link público. Cada 90 s. */
@@ -153,7 +169,40 @@ function AppShell(){
   /* §A1-fix: guard adicional contra contentEditable (editor IA / informes inline). */
   useEffect(()=>{const handler=e=>{if(!e.altKey)return;const tag=(e.target?.tagName||"").toLowerCase();if(tag==="input"||tag==="textarea"||tag==="select")return;if(e.target?.isContentEditable)return;const sc=SHORTCUTS.find(s=>s.key.toLowerCase()===e.key.toLowerCase());if(sc){e.preventDefault();if(sc.page){setPage(sc.page);setPageKey(k=>k+1);}else if(sc.action==="dark")toggle();else if(sc.action==="shortcuts"){/* show shortcuts - handled in sidebar */}}};window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)},[toggle]);
   const setPageNav=(p)=>{setPage(p);setPageKey(k=>k+1)};
-  const pages={dashboard:<DashboardPage setPage={setPageNav}/>,estadisticas:<EstadisticasPage setPage={setPageNav}/>,rips:<RipsPage setPage={setPageNav}/>,patients:<PatientsPage setPage={setPageNav} nav={nav} setEvalCtx={setEvalCtx}/>,register:<RegisterPage setPage={setPageNav}/>,clinical_history:<ClinicalHistoryPage setPage={setPageNav}/>,evaluation:<EvalApplyPage setPage={setPageNav} nav={nav} evalCtx={evalCtx} setEvalCtx={setEvalCtx}/>,eval_apply:<EvalApplyPage setPage={setPageNav} nav={nav} evalCtx={evalCtx} setEvalCtx={setEvalCtx}/>,eval_results:<EvalResultsPage setPage={setPageNav} nav={nav} evalCtx={evalCtx} setEvalCtx={setEvalCtx}/>,history:<HistorialPage setPage={setPageNav}/>,agenda:<AgendaPage setPage={setPageNav}/>,reports:<InformesPage setPage={setPageNav}/>,compare:<ComparePage setPage={setPageNav}/>,screening:<ScreeningPage setPage={setPageNav}/>,rehab:<RehabPage/>,therapy:<TherapyPage setPage={setPageNav}/>,biblioteca:<BibliotecaPage/>,pruebas:<PruebasDisponiblesPage/>,pruebas_disponibles:<PruebasDisponiblesPage/>,aprender:<AprenderHub setPage={setPageNav}/>,aprender_glosario:<GlosarioPage/>,aprender_estudiar:<EstudiarPage/>,aprender_quiz:<QuizPage/>,aprender_articulos:<ArticulosPage/>,aprender_simulador:<SimuladorPage/>,referencias:<ReferenciasPage/>,ai:<AIConfigPage/>,shares:<SharesPage/>,config:<ConfigPage setPage={setPageNav}/>,help:<HelpPage/>,help_changelog:<HelpPage section="changelog"/>};
+  const pages={
+    dashboard:<DashboardPage setPage={setPageNav}/>,
+    estadisticas:<LazyRoute load={loadEstadisticas} setPage={setPageNav}/>,
+    rips:<LazyRoute load={loadRips} setPage={setPageNav}/>,
+    patients:<LazyRoute load={loadPatients} setPage={setPageNav} nav={nav} setEvalCtx={setEvalCtx}/>,
+    register:<LazyRoute load={loadRegister} setPage={setPageNav}/>,
+    clinical_history:<LazyRoute load={loadClinicalHist} setPage={setPageNav}/>,
+    evaluation:<LazyRoute load={loadEvalApply} setPage={setPageNav} nav={nav} evalCtx={evalCtx} setEvalCtx={setEvalCtx}/>,
+    eval_apply:<LazyRoute load={loadEvalApply} setPage={setPageNav} nav={nav} evalCtx={evalCtx} setEvalCtx={setEvalCtx}/>,
+    eval_results:<LazyRoute load={loadEvalResults} setPage={setPageNav} nav={nav} evalCtx={evalCtx} setEvalCtx={setEvalCtx}/>,
+    history:<LazyRoute load={loadHistorial} setPage={setPageNav}/>,
+    agenda:<LazyRoute load={loadAgenda} setPage={setPageNav}/>,
+    reports:<LazyRoute load={loadInformes} setPage={setPageNav}/>,
+    compare:<LazyRoute load={loadCompare} setPage={setPageNav}/>,
+    screening:<LazyRoute load={loadScreening} setPage={setPageNav}/>,
+    rehab:<LazyRoute load={loadRehab}/>,
+    therapy:<LazyRoute load={loadTherapy} setPage={setPageNav}/>,
+    biblioteca:<LazyRoute load={loadBiblioteca}/>,
+    pruebas:<LazyRoute load={loadPruebas}/>,
+    pruebas_disponibles:<LazyRoute load={loadPruebas}/>,
+    aprender:<LazyRoute load={loadAprender} setPage={setPageNav}/>,
+    aprender_glosario:<LazyRoute load={loadGlosario}/>,
+    aprender_estudiar:<LazyRoute load={loadEstudiar}/>,
+    aprender_quiz:<LazyRoute load={loadQuiz}/>,
+    aprender_articulos:<LazyRoute load={loadArticulos}/>,
+    aprender_simulador:<LazyRoute load={loadSimulador}/>,
+    aprender_protocolos:<LazyRoute load={loadProtocolos}/>,
+    referencias:<LazyRoute load={loadReferencias}/>,
+    ai:<LazyRoute load={loadAIConfig}/>,
+    shares:<LazyRoute load={loadShares}/>,
+    config:<LazyRoute load={loadConfig} setPage={setPageNav}/>,
+    help:<LazyRoute load={loadHelp}/>,
+    help_changelog:<LazyRoute load={loadHelp} section="changelog"/>,
+  };
   return(
     <div className="flex min-h-screen" style={{background:"var(--ns-bg)",color:"var(--ns-text)",fontFamily:"'Manrope',sans-serif"}}>
       <SkipToMain/>
@@ -165,12 +214,22 @@ function AppShell(){
           </Suspense>
         </div>
       </main>
-      <AIFloatingChat/>
+      <Suspense fallback={null}>
+        <AIFloatingChat/>
+      </Suspense>
       <PearsonConsentDialog
-        open={!pearson.aceptado}
+        open={showAgreement}
         mode="firstInstall"
-        user={null}
-        onClose={(acepto)=>{if(acepto)pearson.refresh()}}
+        user={user}
+        onClose={async(acepto)=>{
+          if(acepto){
+            try{
+              await api.post("/api/v1/license/accept-agreement",{});
+              pearson.aceptar(user?.id,user?.nombre_completo||user?.username);
+              setAgreement(a=>({...a,accepted:true,version:agreement?.current_version}));
+            }catch{pearson.refresh();}
+          }
+        }}
       />
     </div>
   );

@@ -18,11 +18,15 @@ export default function ValidezPanel({ onInsertObs }) {
 
   return (
     <SectionCard
-      title="Validez de síntomas (peritaje / Slick 1999)"
+      title="Validez de rendimiento — criterios Slick (1999)"
       icon="gavel"
-      eyebrow="Peritaje"
-      subtitle='Complementa la batería con REY15 y TOMM desde Evaluación → protocolo "Validez de síntomas".'
+      eyebrow="Peritaje forense"
+      subtitle="Evalúa esfuerzo y credibilidad del desempeño, no la veracidad de quejas subjetivas."
     >
+      <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--ns-muted)" }}>
+        En contextos con incentivo externo (laboral, pensional, judicial) combine pruebas de validez de rendimiento
+        (Rey 15-Ítems, TOMM) con su juicio clínico. Los criterios de Slick orientan la decisión; no sustituyen la entrevista.
+      </p>
       <label className="flex items-center gap-2 text-xs">
         <input type="checkbox" checked={incentivo} onChange={(e) => setIncentivo(e.target.checked)} />
         Incentivo externo significativo (laboral, forense, pensión)

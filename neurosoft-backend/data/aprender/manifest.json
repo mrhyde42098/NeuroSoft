@@ -1,0 +1,12 @@
+{
+  "version": "2026-06-06",
+  "updated_at": "2026-06-06",
+  "glosario_count": 120,
+  "tarjetas_count": 50,
+  "quizzes_count": 6,
+  "articulos_count": 11,
+  "simulador_count": 11,
+  "protocolos_count": 6,
+  "paths_count": 4,
+  "paths_file": "paths.json"
+}

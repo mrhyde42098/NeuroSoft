@@ -19,14 +19,31 @@
  *   - Marcar leídos / favoritos en localStorage
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { I, TopBar } from "../../ui/primitives.jsx";
 import { TEAL, NAVY } from "../../ui/tokens.js";
+import { safeLS } from "../../utils/safeLS.js";
 import {
   BIBLIOTECA_RECURSOS,
   BIBLIOTECA_CATEGORIAS,
   filtrarRecursos,
 } from "../../data/bibliotecaRecursos.js";
+
+const FAV_KEY = "ns_biblioteca_fav";
+const LEIDOS_KEY = "ns_biblioteca_leidos";
+
+function readIdSet(key) {
+  try {
+    const raw = safeLS.get(key);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function writeIdSet(key, set) {
+  safeLS.set(key, JSON.stringify([...set]));
+}
 
 const TIPO_LABEL = {
   articulo:   { lb: "Artículo",    ic: "article" },
@@ -47,11 +64,36 @@ export default function BibliotecaPage() {
   const [texto, setTexto] = useState("");
   const [categoria, setCategoria] = useState("todos");
   const [nivel, setNivel] = useState("");
+  const [soloFav, setSoloFav] = useState(false);
+  const [favoritos, setFavoritos] = useState(() => readIdSet(FAV_KEY));
+  const [leidos, setLeidos] = useState(() => readIdSet(LEIDOS_KEY));
 
-  const filtrados = useMemo(
-    () => filtrarRecursos(BIBLIOTECA_RECURSOS, { texto, categoria, nivel }),
-    [texto, categoria, nivel]
-  );
+  const toggleFav = useCallback((id, e) => {
+    e?.stopPropagation?.();
+    setFavoritos((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      writeIdSet(FAV_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const marcarLeido = useCallback((id, e) => {
+    e?.stopPropagation?.();
+    setLeidos((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      writeIdSet(LEIDOS_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const filtrados = useMemo(() => {
+    let list = filtrarRecursos(BIBLIOTECA_RECURSOS, { texto, categoria, nivel });
+    if (soloFav) list = list.filter((r) => favoritos.has(r.id));
+    return list;
+  }, [texto, categoria, nivel, soloFav, favoritos]);
 
   const destacados = useMemo(
     () => filtrados.filter(r => r.destacado).slice(0, 4),
@@ -73,7 +115,7 @@ export default function BibliotecaPage() {
         <div className="ns-section-rule">
           <p className="ns-eyebrow" style={{ color: TEAL }}>Pilar 3 · Aprender</p>
           <h2 className="ns-serif text-3xl font-bold mt-1 mb-2" style={{ color: "var(--ns-text)" }}>
-            Biblioteca <span className="ns-serif-italic" style={{ color: TEAL }}>clínica curada</span>
+            Biblioteca <span className="ns-serif-italic" style={{ color: TEAL }}>clínica revisada</span>
           </h2>
           <p className="text-sm max-w-2xl" style={{ color: "var(--ns-muted)" }}>
             Una selección viva de manuales, artículos y escalas relevantes para tu práctica.
@@ -162,13 +204,31 @@ export default function BibliotecaPage() {
         </div>
 
         {/* Resumen de resultados */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <p className="text-xs" style={{ color: "var(--ns-muted)" }}>
             <span className="ns-serif text-base font-bold tabular-nums" style={{ color: "var(--ns-text)" }}>
               {filtrados.length}
             </span>{" "}
             recurso{filtrados.length !== 1 ? "s" : ""} {texto ? `para “${texto}”` : ""}
           </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSoloFav((v) => !v)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1"
+              style={{
+                background: soloFav ? TEAL : "transparent",
+                color: soloFav ? "#fff" : "var(--ns-muted)",
+                border: `1px solid ${soloFav ? TEAL : "var(--ns-card-b)"}`,
+              }}
+            >
+              <I name="star" className="text-sm" />
+              Favoritos ({favoritos.size})
+            </button>
+            <span className="text-[10px]" style={{ color: "var(--ns-muted)" }}>
+              {leidos.size} leídos
+            </span>
+          </div>
         </div>
 
         {/* Destacados */}
@@ -176,7 +236,17 @@ export default function BibliotecaPage() {
           <div>
             <p className="ns-eyebrow mb-3" style={{ color: TEAL }}>Destacados</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {destacados.map(r => <ResourceCard key={r.id} recurso={r} destacado />)}
+              {destacados.map(r => (
+                <ResourceCard
+                  key={r.id}
+                  recurso={r}
+                  destacado
+                  esFav={favoritos.has(r.id)}
+                  esLeido={leidos.has(r.id)}
+                  onToggleFav={toggleFav}
+                  onMarcarLeido={marcarLeido}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -186,7 +256,16 @@ export default function BibliotecaPage() {
           <div>
             <p className="ns-eyebrow mb-3">Catálogo completo</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {restantes.map(r => <ResourceCard key={r.id} recurso={r} />)}
+              {restantes.map(r => (
+                <ResourceCard
+                  key={r.id}
+                  recurso={r}
+                  esFav={favoritos.has(r.id)}
+                  esLeido={leidos.has(r.id)}
+                  onToggleFav={toggleFav}
+                  onMarcarLeido={marcarLeido}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -210,11 +289,10 @@ export default function BibliotecaPage() {
           style={{ background: "var(--ns-subtle)", borderLeft: `3px solid ${TEAL}` }}>
           <p className="ns-eyebrow mb-1" style={{ color: TEAL }}>Sobre esta biblioteca</p>
           <p className="text-xs leading-relaxed" style={{ color: "var(--ns-muted)" }}>
-            Los recursos aquí listados son referencias bibliográficas curadas — NeuroSoft no aloja
-            ni distribuye los textos completos. Para acceder al material, sigue las indicaciones de
-            cada ficha (PDF abierto, suscripción institucional, librería). Si encuentras una referencia
-            que debería estar acá, escríbenos a{" "}
-            <span className="ns-mono" style={{ color: NAVY }}>jssalgadosa@unal.edu.co</span>.
+            Los recursos aquí listados son referencias bibliográficas seleccionadas — no alojamos
+            ni distribuimos los textos completos. Para acceder al material, sigue las indicaciones de
+            cada ficha (PDF abierto, suscripción institucional, librería). Para sugerir referencias,
+            usa el email de contacto configurado en <strong>Configuración → Institución</strong>.
           </p>
         </div>
       </main>
@@ -222,13 +300,14 @@ export default function BibliotecaPage() {
   );
 }
 
-function ResourceCard({ recurso, destacado }) {
+function ResourceCard({ recurso, destacado, esFav, esLeido, onToggleFav, onMarcarLeido }) {
   const tipo = TIPO_LABEL[recurso.tipo] || { lb: recurso.tipo, ic: "auto_stories" };
   const nivelMeta = NIVEL_LABEL[recurso.nivel] || { lb: recurso.nivel, c: "#475569" };
   const cat = BIBLIOTECA_CATEGORIAS.find(c => c.id === recurso.categoria);
   const acento = cat?.color || TEAL;
 
   const abrir = () => {
+    onMarcarLeido?.(recurso.id);
     if (recurso.url) window.open(recurso.url, "_blank", "noopener,noreferrer");
     else if (recurso.doi) window.open(`https://doi.org/${recurso.doi}`, "_blank", "noopener,noreferrer");
   };
@@ -284,7 +363,33 @@ function ResourceCard({ recurso, destacado }) {
         <span className="text-[10px] flex items-center gap-1" style={{ color: "var(--ns-muted)" }}>
           <I name={recurso.url || recurso.doi ? "open_in_new" : "local_library"} className="text-xs" />
           {recurso.url || recurso.doi ? "Abrir referencia" : recurso.formato}
+          {esLeido && (
+            <span className="ml-1 px-1 rounded-sm" style={{ background: "var(--ns-subtle)", color: TEAL }}>
+              Leído
+            </span>
+          )}
         </span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label={esFav ? "Quitar de favoritos" : "Agregar a favoritos"}
+            onClick={(e) => onToggleFav?.(recurso.id, e)}
+            className="p-1 rounded"
+            style={{ color: esFav ? "#B45309" : "var(--ns-muted)" }}
+          >
+            <I name={esFav ? "star" : "star_border"} className="text-base" />
+          </button>
+          {!esLeido && (
+            <button
+              type="button"
+              onClick={(e) => onMarcarLeido?.(recurso.id, e)}
+              className="text-[10px] px-2 py-0.5 rounded"
+              style={{ color: "var(--ns-muted)", border: "1px solid var(--ns-card-b)" }}
+            >
+              Marcar leído
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );

@@ -1,7 +1,7 @@
 # Auditoría integral FULL — NeuroSoft App · 6 de junio de 2026
 
-**Entregable:** Informe maestro único (metodología 7 capas).  
-**Baseline tests:** 1010 passed, 1 failed (`test_backup.py` — entorno local, no clínico).  
+**Entregable:** Informe maestro único (metodología 7 capas). 
+**Baseline tests:** 1010 passed, 1 failed (`test_backup.py` — entorno local, no clínico). 
 **Cobertura inventariada:** ver `audit_coverage_2026-06-06.json` — **450 archivos / 140 491 líneas** en dominios productivos (backend app, tests, frontend src, docs, protocolos).
 
 ---
@@ -83,7 +83,7 @@
 | WISC/WAIS placeholders | Corregido (commit `c28e78a`) |
 | FCRO patrones | OK |
 | cfg.scoring undefined | OK |
-| IN&S en nombres protocolo | Limpiado en sync; scripts docs aún mencionan IN&S |
+| marcas comerciales en nombres protocolo | Limpiado en sync; scripts docs aún mencionan |
 | Estímulos por ítem | **Nuevo** — ItemStimulus + PresentationOverlay |
 
 ---
@@ -173,25 +173,25 @@
 
 ### P0 (implementado en este sprint)
 
-1. Estímulos PDF + UI miniatura/fullscreen  
-2. IFS Colombia + cortes ACE/MoCA/PHQ  
-3. CIE-11 complementario en picker  
-4. Módulo validez (Slick + protocolo REY15/TOMM)  
+1. Estímulos PDF + UI miniatura/fullscreen 
+2. IFS Colombia + cortes ACE/MoCA/PHQ 
+3. CIE-11 complementario en picker 
+4. Módulo validez (Slick + protocolo REY15/TOMM) 
 5. Auditoría FULL (este documento)
 
 ### P1
 
-- OTP consentimiento Ley 527  
-- FIT SRS/ORS terapia  
-- Seed automático estímulos en instalador  
-- Mapeo CIE-10↔11 completo OMS en JSON  
-- CVLT índices simulación en informe medicolegal  
+- OTP consentimiento Ley 527 
+- FIT SRS/ORS terapia 
+- Seed automático estímulos en instalador 
+- Mapeo CIE-10↔11 completo OMS en JSON 
+- CVLT índices simulación en informe medicolegal 
 
 ### P2
 
-- Conners 4, BANFE-2, ADOS-2 (licencias)  
-- HVLT-R/BVMT-R baremos LATAM  
-- INVIMA / FHIR — dictamen legal  
+- Conners 4, BANFE-2, ADOS-2 (licencias) 
+- HVLT-R/BVMT-R baremos LATAM 
+- INVIMA / FHIR — dictamen legal 
 
 ---
 

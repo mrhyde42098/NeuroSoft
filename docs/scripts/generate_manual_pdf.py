@@ -341,9 +341,9 @@ def build_manual(out_path):
         pagesize=A4,
         leftMargin=2*cm, rightMargin=2*cm,
         topMargin=2*cm, bottomMargin=2*cm,
-        title="NeuroSoft — Manual del Beta Tester (Mayra)",
-        author="Johan Salgado",
-        subject="Manual de uso NeuroSoft para beta tester",
+        title="NeuroSoft — Manual del Beta Tester",
+        author="NeuroSoft",
+        subject="Manual de uso NeuroSoft para beta testers",
         creator="NeuroSoft App",
     )
 
@@ -415,7 +415,7 @@ def build_manual(out_path):
             # Subtítulo Mayra
             c.setFillColor(TEAL)
             c.setFont("Helvetica-Bold", 22)
-            c.drawString(2*cm, H - 11.5*cm, "para Mayra")
+            c.drawString(2*cm, H - 11.5*cm, "para profesionales clínicos")
 
             # Línea decorativa TEAL
             c.setStrokeColor(TEAL)
@@ -436,23 +436,19 @@ def build_manual(out_path):
             c.roundRect(2*cm, box_y, 0.25*cm, 4*cm, 3, stroke=0, fill=1)
             c.setFillColor(TEAL_LIGHT)
             c.setFont("Helvetica-Bold", 9)
-            c.drawString(2.6*cm, box_y + 3.2*cm, "ACCESO RÁPIDO")
+            c.drawString(2.6*cm, box_y + 3.2*cm, "PRIMER ACCESO")
             c.setFillColor(colors.white)
             c.setFont("Helvetica-Bold", 13)
-            c.drawString(2.6*cm, box_y + 2.4*cm, "Tus credenciales personales")
-            # Columnas user / pass
+            c.drawString(2.6*cm, box_y + 2.4*cm, "Credenciales de tu clínica")
             c.setFillColor(GRAY_MUTED)
             c.setFont("Helvetica-Bold", 8)
             c.drawString(2.6*cm, box_y + 1.6*cm, "USUARIO")
             c.drawString(8*cm, box_y + 1.6*cm, "CONTRASEÑA")
             c.drawString(14*cm, box_y + 1.6*cm, "ROL")
             c.setFillColor(colors.white)
-            c.setFont("Courier-Bold", 13)
-            c.drawString(2.6*cm, box_y + 0.7*cm, "mayra")
-            c.setFillColor(TEAL_LIGHT)
-            c.drawString(8*cm, box_y + 0.7*cm, "MayraBeta2026!")
-            c.setFillColor(colors.white)
-            c.setFont("Helvetica-Bold", 12)
+            c.setFont("Helvetica", 10)
+            c.drawString(2.6*cm, box_y + 0.7*cm, "Entregadas por el administrador")
+            c.drawString(8*cm, box_y + 0.7*cm, "Personal / temporal")
             c.drawString(14*cm, box_y + 0.7*cm, "Profesional")
 
             # Pie de portada
@@ -460,11 +456,10 @@ def build_manual(out_path):
             c.setFont("Helvetica", 8)
             c.drawString(2*cm, 2.5*cm, "Documento confidencial · Distribución exclusiva")
             c.setFont("Helvetica-Bold", 8)
-            c.drawString(2*cm, 2*cm, "Johan Salgado")
+            c.drawString(2*cm, 2*cm, "NeuroSoft App")
             c.setFont("Helvetica", 8)
-            c.drawString(2*cm, 1.6*cm, "jssalgadosa@unal.edu.co")
-            c.drawRightString(W - 2*cm, 2*cm, "NeuroSoft App")
-            c.drawRightString(W - 2*cm, 1.6*cm, "Mayo 2026")
+            c.drawString(2*cm, 1.6*cm, "Manual beta tester")
+            c.drawRightString(W - 2*cm, 2*cm, "Junio 2026")
 
     story.append(Cover())
     story.append(PageBreak())
@@ -477,19 +472,17 @@ def build_manual(out_path):
 
     # ─── BIENVENIDA ───────────────────────────────────────────────
     story.append(Spacer(1, 6))
-    story.append(Paragraph("Bienvenida, Mayra", S["h1"]))
+    story.append(Paragraph("Bienvenida, beta tester", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
-        "Gracias por aceptar probar <b>NeuroSoft App</b>, el sistema de evaluación "
-        "neuropsicológica clínica diseñado para profesionales en Colombia. Tu "
-        "experiencia como neuropsicóloga será el insumo más valioso para refinar "
-        "el sistema antes de su lanzamiento público.",
+        "Gracias por probar <b>NeuroSoft App</b> — sistema de apoyo para evaluación "
+        "neuropsicológica en Colombia. Este manual cubre instalación, activación de licencia, "
+        "primer uso y flujo clínico completo (junio 2026).",
         S["body_lead"]
     ))
     story.append(Paragraph(
-        "Este manual te guiará desde la instalación hasta el primer informe completo, "
-        "y te muestra cómo reportar bugs o sugerir mejoras. Si algo no es claro, "
-        "escríbenos directamente a <font color='#0D9488'><b>jssalgadosa@unal.edu.co</b></font>.",
+        "Te guiará desde la instalación hasta el primer informe completo. "
+        "Para soporte: contacto del administrador de tu clínica o titular NeuroSoft.",
         S["body"]
     ))
 
@@ -502,11 +495,12 @@ def build_manual(out_path):
         ["3.", "Instalación",                     "p. 4"],
         ["4.", "Primer arranque",                 "p. 4"],
         ["5.", "Flujo clínico paso a paso",       "p. 5"],
-        ["6.", "Funcionalidades a probar",        "p. 7"],
-        ["7.", "Cómo reportar bugs y sugerencias","p. 8"],
-        ["8.", "Privacidad y datos de prueba",    "p. 8"],
-        ["9.", "Atajos de teclado",               "p. 9"],
-        ["10.", "Soporte y contacto",             "p. 9"],
+        ["6.", "Centro de Aprendizaje",          "p. 7"],
+        ["7.", "Funcionalidades a probar",        "p. 8"],
+        ["8.", "Cómo reportar bugs y sugerencias","p. 9"],
+        ["9.", "Privacidad y datos de prueba",    "p. 9"],
+        ["10.", "Atajos de teclado",               "p. 10"],
+        ["11.", "Soporte y contacto",             "p. 10"],
     ]
     toc = Table(toc_data, colWidths=[1*cm, 12*cm, 2*cm])
     toc.setStyle(TableStyle([
@@ -601,9 +595,11 @@ def build_manual(out_path):
     story.append(Paragraph("4.  Primer arranque", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
-        "En la pantalla de inicio de sesión, escribe usuario <font face='Courier'><b>mayra</b></font> "
-        "y contraseña <font face='Courier'><b>MayraBeta2026!</b></font>, luego clic en <b>Iniciar sesión</b>. "
-        "¡Listo! Estás en el Dashboard principal de NeuroSoft.",
+        "Tras instalar, el programa solicitará tu <b>clave de licencia</b> (formato "
+        "<font face='Courier'>NSFT-XXXX-…</font>) enviada por el administrador. "
+        "Luego verás el <b>acuerdo de uso</b> — se acepta <b>una sola vez por equipo</b> "
+        "(Ley 1090/2006, 1581/2012, derechos de autor de pruebas). "
+        "Inicia sesión con las credenciales que recibiste por separado.",
         S["body"]
     ))
     story.append(Spacer(1, 8))
@@ -612,7 +608,8 @@ def build_manual(out_path):
         ("<b>Sidebar izquierdo</b>", "navegación principal agrupada en 4 secciones (Clínica, Evaluación, Rehabilitación, Herramientas)."),
         ("<b>Topbar superior</b>", "tu nombre y el contexto de la página actual."),
         ("<b>Dashboard</b>", "panel con KPIs vacíos al inicio (porque aún no hay pacientes), notificaciones y accesos rápidos."),
-        ("<b>Botón flotante 🤖 (abajo-derecha)</b>", "Asistente IA — opcional, requiere configurar un proveedor."),
+        ("<b>Acuerdo de uso</b>", "Modal legal al primer arranque en cada PC (solo una vez)."),
+        ("<b>Configuración → Institución</b>", "Personaliza nombre, logo y datos de tu consultorio en informes PDF."),
     ]
     bullet_table = Table(
         [[Paragraph(t, S["body"]), Paragraph(d, S["body"])] for t, d in elements],
@@ -657,8 +654,32 @@ def build_manual(out_path):
 
     story.append(PageBreak())
 
-    # ─── SECCIÓN 6: Funcionalidades a probar ──────────────────────
-    story.append(Paragraph("6.  Funcionalidades a probar", S["h1"]))
+    # ─── SECCIÓN 6: Centro de Aprendizaje ─────────────────────────
+    story.append(Paragraph("6.  Centro de Aprendizaje", S["h1"]))
+    story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
+    story.append(Paragraph(
+        "Sidebar → <b>Centro de aprendizaje</b>. Módulo educativo integrado con el motor clínico "
+        "(junio 2026): glosario, tarjetas Leitner, quizzes, artículos, simulador de casos y "
+        "protocolos paso a paso.",
+        S["body_lead"]
+    ))
+    aprender_items = [
+        ("Glosario", "120 términos con definición, ejemplo y fuente bibliográfica."),
+        ("Tarjetas", "50 tarjetas Leitner — progreso guardado en tu equipo."),
+        ("Quizzes", "6 cuestionarios (WISC, Neuronorma, ética, validez, WAIS, demencias)."),
+        ("Artículos", "11 lecturas editoriales (MoCA, Neuronorma, informe NPS, validez, Res. 1995)."),
+        ("Simulador", "11 casos clínicos sintéticos con interpretación experta."),
+        ("Protocolos", "6 guías paso a paso (TDAH, demencia, CBT, crisis, WAIS, TEA)."),
+        ("Rutas guiadas", "4 itinerarios de estudio (NPS sem 1, AM, ética, adulto joven)."),
+        ("Pruebas", "Catálogo vivo de baremos disponibles en NeuroSoft."),
+    ]
+    for titulo, desc in aprender_items:
+        story.append(Paragraph(f"<b>{titulo}:</b> {desc}", S["bullet"]))
+
+    story.append(PageBreak())
+
+    # ─── SECCIÓN 7: Funcionalidades a probar ──────────────────────
+    story.append(Paragraph("7.  Funcionalidades a probar", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
         "Tu feedback es especialmente valioso en las siguientes áreas. Marca con un "
@@ -675,7 +696,9 @@ def build_manual(out_path):
         ["■", "Generación de PDF",           "¿El informe se ve profesional? ¿faltan datos?"],
         ["■", "Auto-generador observaciones","¿Los borradores son útiles como punto de partida?"],
         ["■", "Pre–Post + RCI",              "¿La interpretación del cambio confiable es clara?"],
-        ["▲", "Asistente IA",                 "Probar conexión con Gemini gratuita."],
+        ["▲", "Centro de Aprendizaje",        "Glosario, tarjetas, quizzes, simulador y protocolos."],
+        ["▲", "Config institución + logo",     "Informes PDF con marca de tu consultorio."],
+        ["▲", "Asistente IA (Ollama local)",   "Opcional; sanitiza datos antes de enviar texto."],
         ["▲", "Modo oscuro",                  "Activar desde el sidebar inferior."],
         ["▲", "Modo proyección",              "Útil para pantalla externa (ícono zoom)."],
         ["▲", "Rehabilitación cognitiva",     "Probar al menos 2 actividades (Stroop, N-back, etc.)."],
@@ -717,8 +740,8 @@ def build_manual(out_path):
 
     story.append(PageBreak())
 
-    # ─── SECCIÓN 7: Reportar bugs ─────────────────────────────────
-    story.append(Paragraph("7.  Cómo reportar bugs y sugerencias", S["h1"]))
+    # ─── SECCIÓN 8: Reportar bugs ─────────────────────────────────
+    story.append(Paragraph("8.  Cómo reportar bugs y sugerencias", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph("Para cada hallazgo, por favor envíanos:", S["body"]))
     for b in [
@@ -733,8 +756,8 @@ def build_manual(out_path):
     story.append(Spacer(1, 10))
     story.append(Paragraph("Canal preferido", S["h3"]))
     story.append(Paragraph(
-        "Email: <font color='#0D9488'><b>jssalgadosa@unal.edu.co</b></font><br/>"
-        "Asunto: <font face='Courier'>[NeuroSoft Beta] — &lt;título del bug&gt;</font>",
+        "Canal: contacto del administrador de tu clínica o titular NeuroSoft.<br/>"
+        "Asunto sugerido: <font face='Courier'>[NeuroSoft Beta] — &lt;título del bug&gt;</font>",
         S["body"]
     ))
 
@@ -767,9 +790,9 @@ def build_manual(out_path):
     ]))
     story.append(code_table)
 
-    # ─── SECCIÓN 8: Privacidad ────────────────────────────────────
+    # ─── SECCIÓN 9: Privacidad ────────────────────────────────────
     story.append(Spacer(1, 14))
-    story.append(Paragraph("8.  Privacidad y datos de prueba", S["h1"]))
+    story.append(Paragraph("9.  Privacidad y datos de prueba", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     privacy_box_data = [[
         Paragraph(
@@ -801,8 +824,8 @@ def build_manual(out_path):
 
     story.append(PageBreak())
 
-    # ─── SECCIÓN 9: Atajos de teclado ─────────────────────────────
-    story.append(Paragraph("9.  Atajos de teclado", S["h1"]))
+    # ─── SECCIÓN 10: Atajos de teclado ────────────────────────────
+    story.append(Paragraph("10.  Atajos de teclado", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     sc_data = [
         ["ATAJO", "ACCIÓN"],
@@ -834,14 +857,14 @@ def build_manual(out_path):
     ]))
     story.append(sc_table)
 
-    # ─── SECCIÓN 10: Soporte ──────────────────────────────────────
+    # ─── SECCIÓN 11: Soporte ──────────────────────────────────────
     story.append(Spacer(1, 18))
-    story.append(Paragraph("10.  Soporte y contacto", S["h1"]))
+    story.append(Paragraph("11.  Soporte y contacto", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     contact_data = [
-        ["Bugs y sugerencias",    "jssalgadosa@unal.edu.co"],
-        ["Soporte técnico",        "jssalgadosa@unal.edu.co"],
-        ["WhatsApp (urgencias)",  "Pídelo a Johan directamente"],
+        ["Bugs y sugerencias",    "Administrador de tu clínica / titular NeuroSoft"],
+        ["Soporte técnico",        "Mismo canal de activación de licencia"],
+        ["Documentación",          "Manual PDF incluido en el instalador"],
     ]
     contact_table = Table(contact_data, colWidths=[5*cm, 11*cm])
     contact_table.setStyle(TableStyle([
@@ -860,11 +883,10 @@ def build_manual(out_path):
     story.append(Spacer(1, 30))
     thanks_box_data = [[
         Paragraph(
-            "<font size=14 color='#0D9488'><b>Gracias, Mayra ❤</b></font><br/><br/>"
-            "Tu feedback como profesional clínica activa es el insumo más valioso para "
-            "que NeuroSoft realmente sirva al trabajo neuropsicológico colombiano. Cada "
-            "bug que encuentres y cada sugerencia que hagas mejora el sistema para todos "
-            "los colegas que lo usarán cuando salga al público.<br/><br/>"
+            "<font size=14 color='#0D9488'><b>Gracias por ser beta tester</b></font><br/><br/>"
+            "Tu feedback como profesional clínico es el insumo más valioso para "
+            "refinar NeuroSoft antes del lanzamiento. Cada bug reportado y cada sugerencia "
+            "mejora el sistema para toda la comunidad neuropsicológica colombiana.<br/><br/>"
             "<b>¡Adelante con la prueba!</b>",
             ParagraphStyle("thanks", fontName="Helvetica", fontSize=11,
                            textColor=NAVY, leading=16, alignment=TA_CENTER)
@@ -896,5 +918,7 @@ def build_manual(out_path):
 
 if __name__ == "__main__":
     import sys
-    out = sys.argv[1] if len(sys.argv) > 1 else "MANUAL_BETA_TESTER_MAYRA.pdf"
+    from pathlib import Path
+    default = Path(__file__).resolve().parents[2] / "dist" / "MANUAL_BETA_TESTER.pdf"
+    out = sys.argv[1] if len(sys.argv) > 1 else str(default)
     build_manual(out)

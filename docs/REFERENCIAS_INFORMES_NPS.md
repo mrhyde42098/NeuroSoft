@@ -1,15 +1,15 @@
 # Referencias y estándar visual — Informes NPS NeuroSoft
 
-**Actualizado:** 5 jun 2026 · Estándar **IN&S + Pro sin bugs**
+**Actualizado:** 5 jun 2026 · Estándar **layout clínico + Pro sin bugs**
 
 ## Corpus de referencia
 
 | Archivo | Descripción |
 |---------|-------------|
-| [`referencias-informes/IN&S_WISC_guia.pdf`](referencias-informes/IN&S_WISC_guia.pdf) | Gold standard Johan — informe WISC infantil IN&S (5 págs) |
+| [`referencias-informes/guia_informe_wisc.pdf`](referencias-informes/guia_informe_wisc.pdf) | Gold standard Johan — informe WISC infantil (5 págs) |
 | `referencias-informes/` | Agregar aquí PDFs adicionales (adulto, medicolegal) |
 
-### Anatomía IN&S (extraída del PDF guía)
+### Anatomía del informe de referencia (extraída del PDF guía)
 
 1. **Header repetido** — Orden No, Fecha atención, F. entrega, título informe
 2. **Sociodemografía** — rejilla compacta (nombre, edad, escolaridad, remite, etc.)
@@ -22,7 +22,7 @@
 
 ## Estándar NeuroSoft implementado
 
-Híbrido **IN&S (layout clínico)** + **Pro (gráficas premium)**:
+Híbrido **layout clínico (layout clínico)** + **Pro (gráficas premium)**:
 
 | Regla | Detalle |
 |-------|---------|
@@ -89,7 +89,7 @@ Eres el agente de rediseño de informes NeuroSoft. OBLIGATORIO: modelo Composer 
 
 1. Lee docs/REFERENCIAS_INFORMES_NPS.md y todos los PDF en docs/referencias-informes/
 2. Ejecuta el skill /redisenar-informes
-3. El estándar es IN&S (layout clínico colombiano) + gráficas Pro (Z, campana, radar, KPI, discrepancias) SIN superposiciones
+3. El estándar es (layout clínico colombiano) + gráficas Pro (Z, campana, radar, KPI, discrepancias) SIN superposiciones
 4. Observación clínica ANTES de resultados. Máximo 2 gráficos por página.
 5. Unifica default a template=pro en API, InformesPage y emails
 6. No uses Haiku/Flash/llama3.1:8b para editar report_pro/

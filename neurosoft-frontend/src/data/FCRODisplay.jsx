@@ -1,4 +1,4 @@
-/* FCRO: lámina de protocolo (PNG) o SVG de respaldo */
+/* FCRO: lámina PNG (original + numerada superpuesta) o SVG de respaldo */
 
 import React, { useState } from "react";
 import { FCROFigure } from "./PatronFCRO.jsx";
@@ -13,21 +13,31 @@ export default function FCRODisplay({
   scoringMode = false,
 }) {
   const [useSvg, setUseSvg] = useState(false);
-  const src = scoringMode || showNumbers ? LAMINA_NUM : LAMINA;
+  const overlayNumbers = scoringMode || showNumbers;
 
   if (!useSvg) {
     return (
       <div className="w-full flex flex-col items-center gap-2">
-        <img
-          src={src}
-          alt="Figura Compleja de Rey-Osterrieth"
-          className="max-w-full h-auto object-contain bg-white"
-          style={{ maxHeight: scoringMode ? "min(58vh, 560px)" : "380px" }}
-          onError={() => setUseSvg(true)}
-        />
+        <div className="relative w-full" style={{ maxHeight: scoringMode ? "min(58vh, 560px)" : "380px" }}>
+          <img
+            src={LAMINA}
+            alt="Figura Compleja de Rey-Osterrieth — original"
+            className="w-full h-auto object-contain bg-white"
+            onError={() => setUseSvg(true)}
+          />
+          {overlayNumbers && (
+            <img
+              src={LAMINA_NUM}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+              style={{ opacity: 0.75, mixBlendMode: "multiply" }}
+            />
+          )}
+        </div>
         {scoringMode && (
           <p className="text-[9px] text-center" style={{ color: "var(--ns-muted)" }}>
-            Lámina Taylor (18 elementos) · Compare con el dibujo del paciente
+            Original + capa numerada (Taylor, 18 elementos)
           </p>
         )}
       </div>

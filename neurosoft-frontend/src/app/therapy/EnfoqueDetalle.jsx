@@ -90,16 +90,16 @@ export default function EnfoqueDetalle({ enfoque, onClose }) {
             </div>
           </div>
           <button onClick={onClose} aria-label="Cerrar" title="Cerrar (Esc)"
-            className="p-2 rounded-md hover:bg-gray-100" style={{ color: "var(--ns-muted)" }}>
+            className="p-2 rounded-md transition-all hover:opacity-80" style={{ color: "var(--ns-muted)" }}>
             <I name="close" />
           </button>
         </div>
 
         {/* ─── Tabs ─── */}
         <div className="border-b flex overflow-x-auto" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
-          {TABS.map(t => {
+          {TABS.filter(t => t.id === "resumen" || hasExtended[t.id]).map(t => {
             const isActive = tab === t.id;
-            const isMissing = t.id !== "resumen" && hasExtended[t.id] === false;
+            const isMissing = false;
             return (
               <button
                 key={t.id}
@@ -134,7 +134,7 @@ export default function EnfoqueDetalle({ enfoque, onClose }) {
         {/* ─── Footer ─── */}
         <div className="border-t p-3 text-center" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
           <p className="text-[10px]" style={{ color: "var(--ns-muted)" }}>
-            Contenido educativo curado · NeuroSoft App · Última revisión {enfoque.ultima_revision || "mayo 2026"}
+            Contenido educativo seleccionado · Última revisión {enfoque.ultima_revision || "mayo 2026"}
           </p>
         </div>
       </div>
@@ -325,24 +325,36 @@ function TabTecnicas({ enfoque }) {
   );
 }
 
+function youtubeVideoId(url) {
+  const m = (url || "").match(/(?:embed\/|v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function youtubeEmbedUrl(url) {
+  const id = youtubeVideoId(url);
+  return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1` : url;
+}
+
 function TabVideos({ enfoque }) {
   if (!enfoque.videos?.length) {
     return <EmptyState
       titulo="Videos formativos en preparación"
-      mensaje="Aquí encontrarás videos curados de profesores reconocidos del enfoque (autores, institutos, conferencias). Solo material con permisos públicos de YouTube."
+      mensaje="Aquí encontrarás videos seleccionados de profesores reconocidos del enfoque (autores, institutos, conferencias). Solo material con permisos públicos de YouTube."
     />;
   }
   return (
     <div className="space-y-5 max-w-3xl">
       <p className="text-xs" style={{ color: "var(--ns-muted)" }}>
-        Videos formativos curados. Reproducidos directamente desde YouTube — no se almacenan en NeuroSoft.
+        Videos formativos seleccionados. Reproducidos directamente desde YouTube — no se almacenan en NeuroSoft.
       </p>
       {enfoque.videos.map((v, i) => (
         <div key={i} className="rounded border overflow-hidden" style={{ borderColor: "var(--ns-card-b)" }}>
           <div className="aspect-video bg-black">
             <iframe
-              src={v.url_youtube}
+              src={youtubeEmbedUrl(v.url_youtube)}
               title={v.titulo}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
               style={{ width: "100%", height: "100%", border: "none" }}
             />
@@ -354,6 +366,12 @@ function TabVideos({ enfoque }) {
             </p>
             {v.descripcion && (
               <p className="text-xs mt-1.5" style={{ color: "var(--ns-text)" }}>{v.descripcion}</p>
+            )}
+            {youtubeVideoId(v.url_youtube) && (
+              <a href={`https://www.youtube.com/watch?v=${youtubeVideoId(v.url_youtube)}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] font-bold mt-2 hover:underline" style={{ color: PLUM }}>
+                <I name="open_in_new" className="text-sm" />Abrir en YouTube si no reproduce aquí
+              </a>
             )}
           </div>
         </div>

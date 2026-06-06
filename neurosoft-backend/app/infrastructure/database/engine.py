@@ -52,6 +52,7 @@ def _create_engine():
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA busy_timeout=5000")
         cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.close()
 
@@ -89,6 +90,7 @@ def init_database() -> None:
     _apply_additive_schema_patches()
     # FTS5: índice full-text para búsqueda rápida de pacientes
     _init_fts5_index()
+    _init_audit_log_append_only()
     logger.info("Base de datos inicializada: %s", settings.db_path)
 
 
@@ -141,6 +143,13 @@ def _apply_additive_schema_patches() -> None:
         ("patients",          "archived_at",      "DATETIME"),
         ("patients",          "archived_by",      "VARCHAR(36)"),
         ("patients",          "archived_reason",  "TEXT"),
+        # QW-6 etiquetas de paciente (JSON serializado en TEXT)
+        ("patients",          "etiquetas",        "TEXT"),
+        # Régimen de afiliación y país (registro ampliado)
+        ("patients",          "regimen",          "TEXT"),
+        ("patients",          "pais",             "TEXT"),
+        # Endpoint OpenAI-compatible para IA en línea (MedGemma, OpenRouter…)
+        ("ai_config",         "openai_base_url",  "TEXT"),
         ("evaluations",       "baremo_version",          "VARCHAR(30)"),
         ("evaluations",       "baremo_checksum",         "VARCHAR(64)"),
         # Campos de categoría/nota de informe inconcluso
@@ -257,6 +266,32 @@ def session_scope():
         raise
     finally:
         db.close()
+
+
+# ─────────────────────────────────────────────────────────────
+# Audit log — append-only (Res. 1995 trazabilidad)
+# ─────────────────────────────────────────────────────────────
+
+def _init_audit_log_append_only() -> None:
+    """Impide UPDATE/DELETE en audit_log a nivel SQLite."""
+    from sqlalchemy import text
+
+    with _engine.begin() as conn:
+        conn.execute(text("""
+            CREATE TRIGGER IF NOT EXISTS audit_log_no_update
+            BEFORE UPDATE ON audit_log
+            BEGIN
+                SELECT RAISE(ABORT, 'audit_log is append-only');
+            END
+        """))
+        conn.execute(text("""
+            CREATE TRIGGER IF NOT EXISTS audit_log_no_delete
+            BEFORE DELETE ON audit_log
+            BEGIN
+                SELECT RAISE(ABORT, 'audit_log is append-only');
+            END
+        """))
+    logger.info("Audit log: triggers append-only activos")
 
 
 # ─────────────────────────────────────────────────────────────

@@ -49,13 +49,16 @@ ai_router = APIRouter(prefix="/ai", tags=["IA"])
 # DTOs
 # ═══════════════════════════════════════════════════════════════════════
 
-VALID_PROVIDERS = ("auto", "gemini", "claude", "openai", "ollama")
+VALID_PROVIDERS = ("auto", "gemini", "claude", "openai", "ollama", "medgemma", "openrouter")
 
 DEFAULT_MODELS = {
-    "gemini": "gemini-1.5-flash-latest",
-    "claude": "claude-3-5-haiku-20241022",
-    "openai": "gpt-4o-mini",
+    "gemini": "gemini-2.5-flash",
+    "claude": "claude-haiku-4-5-20251001",
+    "openai": "gpt-4.1-mini",
+    "openrouter": "google/gemini-2.5-flash",
     "ollama": "llama3.1:8b",
+    # MedGemma en línea vía endpoint OpenAI-compatible (OpenRouter / HF / Vertex)
+    "medgemma": "google/medgemma-4b-it",
 }
 
 
@@ -64,6 +67,7 @@ class AIConfigDTO(BaseModel):
     api_key: str | None = None
     model: str | None = None
     ollama_url: str = "http://127.0.0.1:11434"
+    openai_base_url: str | None = None  # endpoint OpenAI-compatible (MedGemma en línea)
     temperature: int = 70
     max_tokens: int = 1024
     enable_cloud: bool = True
@@ -162,6 +166,7 @@ def get_ai_config(request: Request, db: DbSession):
         api_key_set=bool(cfg.api_key),
         model=cfg.model,
         ollama_url=cfg.ollama_url or "http://127.0.0.1:11434",
+        openai_base_url=getattr(cfg, "openai_base_url", None),
         temperature=cfg.temperature or 70,
         max_tokens=cfg.max_tokens or 1024,
         enable_cloud=cfg.enable_cloud if cfg.enable_cloud is not None else True,
@@ -179,6 +184,7 @@ def save_ai_config(dto: AIConfigDTO, request: Request, db: DbSession):
         cfg.api_key = dto.api_key.strip() or None
     cfg.model        = dto.model or DEFAULT_MODELS.get(dto.provider, "")
     cfg.ollama_url   = dto.ollama_url
+    cfg.openai_base_url = (dto.openai_base_url or "").strip() or None
     cfg.temperature  = max(0, min(100, dto.temperature))
     cfg.max_tokens   = max(64, min(8192, dto.max_tokens))
     cfg.enable_cloud = dto.enable_cloud
@@ -278,10 +284,26 @@ async def _call_claude(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> Ch
     return ChatResponseDTO(provider="claude", model=model, content=text, usage=data.get("usage"))
 
 
-async def _call_openai(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> ChatResponseDTO:
+async def _call_openai(cfg: AIConfigORM, req: ChatRequestDTO, system: str,
+                       provider_name: str = "openai") -> ChatResponseDTO:
+    """Llama a OpenAI o a cualquier endpoint OpenAI-compatible.
+
+    Para ``provider_name == "medgemma"`` se usa ``cfg.openai_base_url``
+    (OpenRouter, Hugging Face TGI, Vertex proxy, etc.) que sirve modelos
+    MedGemma en línea con el mismo contrato /chat/completions.
+    """
+    default_base = "https://api.openai.com/v1"
+    if provider_name == "openrouter":
+        default_base = "https://openrouter.ai/api/v1"
+    base = (getattr(cfg, "openai_base_url", None) or default_base).rstrip("/")
+    if provider_name == "medgemma" and not getattr(cfg, "openai_base_url", None):
+        raise AIProviderError(
+            "MedGemma en línea requiere un endpoint OpenAI-compatible. "
+            "Configura la URL base (ej. OpenRouter: https://openrouter.ai/api/v1)."
+        )
     if not cfg.api_key:
-        raise AIProviderError("Falta API key de OpenAI")
-    model = cfg.model or DEFAULT_MODELS["openai"]
+        raise AIProviderError("Falta la API key del proveedor en línea.")
+    model = cfg.model or DEFAULT_MODELS.get(provider_name, DEFAULT_MODELS["openai"])
     msgs = [{"role": "system", "content": system}]
     msgs += [{"role": m.role, "content": m.content} for m in req.messages if m.role != "system"]
     body = {
@@ -292,12 +314,12 @@ async def _call_openai(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> Ch
     }
     headers = {"Authorization": f"Bearer {cfg.api_key}", "content-type": "application/json"}
     async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
+        r = await client.post(base + "/chat/completions", json=body, headers=headers)
     if r.status_code >= 400:
-        raise AIProviderError(f"OpenAI {r.status_code}: {r.text[:300]}")
+        raise AIProviderError(f"{provider_name} {r.status_code}: {r.text[:300]}")
     data = r.json()
     text = data["choices"][0]["message"]["content"]
-    return ChatResponseDTO(provider="openai", model=model, content=text, usage=data.get("usage"))
+    return ChatResponseDTO(provider=provider_name, model=model, content=text, usage=data.get("usage"))
 
 
 async def _call_ollama(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> ChatResponseDTO:
@@ -346,6 +368,8 @@ async def _dispatch(cfg: AIConfigORM, req: ChatRequestDTO, system: str, override
     if provider == "gemini":  return await _call_gemini(cfg, req, system)
     if provider == "claude":  return await _call_claude(cfg, req, system)
     if provider == "openai":  return await _call_openai(cfg, req, system)
+    if provider == "medgemma": return await _call_openai(cfg, req, system, provider_name="medgemma")
+    if provider == "openrouter": return await _call_openai(cfg, req, system, provider_name="openrouter")
     if provider == "ollama":  return await _call_ollama(cfg, req, system)
     raise AIProviderError(f"Proveedor no soportado: {provider}")
 
@@ -396,7 +420,7 @@ async def improve(dto: ImproveTextDTO, request: Request, db: DbSession):
     elif dto.tone == "technical":
         instruction += " Usa registro técnico-académico."
 
-    text = sanitize_clinical_input(dto.text) if cfg.provider != "ollama" else dto.text
+    text = sanitize_clinical_input(dto.text)
     req = ChatRequestDTO(
         messages=[ChatMessageDTO(role="user", content=f"{instruction}\n\n---\n{text}")],
     )

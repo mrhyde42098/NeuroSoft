@@ -17,10 +17,10 @@
 :root {
   --ns-bg:      #FDFBF7;
   --ns-card:    #ffffff;
-  --ns-card-b:  #e4e2de20;
-  --ns-input:   #e4e2de40;
+  --ns-card-b:  #d4cfc640;
+  --ns-input:   #f0ede8;
   --ns-text:    #1e293b;
-  --ns-muted:   #64748b;
+  --ns-muted:   #475569;
   --ns-sidebar: rgba(255, 255, 255, 0.85);
   --ns-topbar:  #fdfbf7cc;
   --ns-subtle:  #f5f3ef;
@@ -193,6 +193,48 @@ a:focus-visible {
 html.ns-font-md   { font-size: 16px; }
 html.ns-font-lg   { font-size: 18px; }
 html.ns-font-xl   { font-size: 20px; }
+
+/* ─── §12.8 Modo descanso visual (reduce luz azul + calidez) ─────── */
+html.eye-rest-mode {
+  --ns-bg:      #f3ebe0;
+  --ns-card:    #faf5ec;
+  --ns-card-b:  #c4b5a0;
+  --ns-input:   #fffaf2;
+  --ns-text:    #2a2318;
+  --ns-muted:   #5c5248;
+  --ns-subtle:  #ebe2d4;
+  --ns-hover:   #e0d4c4;
+  --ns-topbar:  #f3ebe0ee;
+}
+html.eye-rest-mode.dark-mode {
+  --ns-bg:      #14110e;
+  --ns-card:    #1f1a15;
+  --ns-card-b:  #4a4035;
+  --ns-input:   #2a241c;
+  --ns-text:    #e8dfd2;
+  --ns-muted:   #b8a99a;
+  --ns-subtle:  #1a1612;
+  --ns-hover:   #2e2820;
+  --ns-topbar:  #14110eee;
+}
+html.eye-rest-mode::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483646;
+  background: rgba(255, 196, 120, 0.07);
+  mix-blend-mode: multiply;
+}
+html.eye-rest-mode.dark-mode::after {
+  background: rgba(255, 170, 80, 0.10);
+  mix-blend-mode: soft-light;
+}
+html.eye-rest-mode input:not([type="color"]):not([type="checkbox"]):not([type="radio"]),
+html.eye-rest-mode select,
+html.eye-rest-mode textarea {
+  border: 1.5px solid var(--ns-card-b) !important;
+}
 
 /* ─── Animaciones legacy (referenciadas por animate-[fadeIn_…]) ──── */
 @keyframes fadeIn {

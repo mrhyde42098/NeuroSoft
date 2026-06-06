@@ -11,6 +11,7 @@ Cobertura:
 - La variante 'inconcluso' renderiza con razón + nota.
 - La variante 'estandar' sigue funcionando (retrocompat).
 """
+
 from __future__ import annotations
 
 from datetime import date
@@ -21,9 +22,11 @@ import pytest
 # Fixture: ReportData rica (caso Jesús Viloria adaptado)
 # ──────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def report_data_rich():
     from app.infrastructure.report_service import ReportData
+
     return ReportData(
         institucion_nombre="Centro Neuropsicológico Universidad Nacional",
         institucion_nit="899999063",
@@ -73,47 +76,102 @@ def report_data_rich():
         eval_id="abc-def-12345-6789",
         protocolo="WISC-IV Colombia",
         resultados=[
-            {"test_id": "NiWiscDC", "test_nombre": "Diseño con Cubos",
-             "puntaje_bruto": 53, "puntaje_escalar": 11, "z_equivalente": 0.33,
-             "interpretacion": "Promedio", "dominio_cognitivo": "Visoespacial",
-             "tipo_metrica": "escalar"},
-            {"test_id": "NiWiscSem", "test_nombre": "Semejanzas",
-             "puntaje_bruto": 32, "puntaje_escalar": 11, "z_equivalente": 0.33,
-             "interpretacion": "Promedio", "dominio_cognitivo": "Comprensión Verbal",
-             "tipo_metrica": "escalar"},
-            {"test_id": "NiWiscVoc", "test_nombre": "Vocabulario",
-             "puntaje_bruto": 37, "puntaje_escalar": 6, "z_equivalente": -1.33,
-             "interpretacion": "Bajo", "dominio_cognitivo": "Comprensión Verbal",
-             "tipo_metrica": "escalar"},
-            {"test_id": "NiWiscCl", "test_nombre": "Claves",
-             "puntaje_bruto": 46, "puntaje_escalar": 8, "z_equivalente": -0.67,
-             "interpretacion": "Promedio", "dominio_cognitivo": "Velocidad de Procesamiento",
-             "tipo_metrica": "escalar"},
-            {"test_id": "NiWiscAri", "test_nombre": "Aritmética",
-             "puntaje_bruto": 21, "puntaje_escalar": 6, "z_equivalente": -1.33,
-             "interpretacion": "Limítrofe", "dominio_cognitivo": "Memoria de Trabajo",
-             "tipo_metrica": "escalar"},
+            {
+                "test_id": "NiWiscDC",
+                "test_nombre": "Diseño con Cubos",
+                "puntaje_bruto": 53,
+                "puntaje_escalar": 11,
+                "z_equivalente": 0.33,
+                "interpretacion": "Promedio",
+                "dominio_cognitivo": "Visoespacial",
+                "tipo_metrica": "escalar",
+            },
+            {
+                "test_id": "NiWiscSem",
+                "test_nombre": "Semejanzas",
+                "puntaje_bruto": 32,
+                "puntaje_escalar": 11,
+                "z_equivalente": 0.33,
+                "interpretacion": "Promedio",
+                "dominio_cognitivo": "Comprensión Verbal",
+                "tipo_metrica": "escalar",
+            },
+            {
+                "test_id": "NiWiscVoc",
+                "test_nombre": "Vocabulario",
+                "puntaje_bruto": 37,
+                "puntaje_escalar": 6,
+                "z_equivalente": -1.33,
+                "interpretacion": "Bajo",
+                "dominio_cognitivo": "Comprensión Verbal",
+                "tipo_metrica": "escalar",
+            },
+            {
+                "test_id": "NiWiscCl",
+                "test_nombre": "Claves",
+                "puntaje_bruto": 46,
+                "puntaje_escalar": 8,
+                "z_equivalente": -0.67,
+                "interpretacion": "Promedio",
+                "dominio_cognitivo": "Velocidad de Procesamiento",
+                "tipo_metrica": "escalar",
+            },
+            {
+                "test_id": "NiWiscAri",
+                "test_nombre": "Aritmética",
+                "puntaje_bruto": 21,
+                "puntaje_escalar": 6,
+                "z_equivalente": -1.33,
+                "interpretacion": "Limítrofe",
+                "dominio_cognitivo": "Memoria de Trabajo",
+                "tipo_metrica": "escalar",
+            },
             # Índices CI
-            {"test_id": "NiWISCIndComVer", "test_nombre": "ICV",
-             "puntaje_escalar": 98, "z_equivalente": -0.13,
-             "interpretacion": "Promedio", "dominio_cognitivo": "Comprensión Verbal",
-             "tipo_metrica": "ci"},
-            {"test_id": "NiWISCIndRazPer", "test_nombre": "IRP",
-             "puntaje_escalar": 105, "z_equivalente": 0.33,
-             "interpretacion": "Promedio", "dominio_cognitivo": "Razonamiento Perceptual",
-             "tipo_metrica": "ci"},
-            {"test_id": "NiWISCIndMemTra", "test_nombre": "IMT",
-             "puntaje_escalar": 86, "z_equivalente": -0.93,
-             "interpretacion": "Promedio Bajo", "dominio_cognitivo": "Memoria de Trabajo",
-             "tipo_metrica": "ci"},
-            {"test_id": "NiWISCIndVelPro", "test_nombre": "IVP",
-             "puntaje_escalar": 88, "z_equivalente": -0.80,
-             "interpretacion": "Promedio Bajo", "dominio_cognitivo": "Velocidad de Procesamiento",
-             "tipo_metrica": "ci"},
-            {"test_id": "NiWISCTot", "test_nombre": "CIT",
-             "puntaje_escalar": 93, "z_equivalente": -0.47,
-             "interpretacion": "Promedio", "dominio_cognitivo": "Global",
-             "tipo_metrica": "ci"},
+            {
+                "test_id": "NiWISCIndComVer",
+                "test_nombre": "ICV",
+                "puntaje_escalar": 98,
+                "z_equivalente": -0.13,
+                "interpretacion": "Promedio",
+                "dominio_cognitivo": "Comprensión Verbal",
+                "tipo_metrica": "ci",
+            },
+            {
+                "test_id": "NiWISCIndRazPer",
+                "test_nombre": "IRP",
+                "puntaje_escalar": 105,
+                "z_equivalente": 0.33,
+                "interpretacion": "Promedio",
+                "dominio_cognitivo": "Razonamiento Perceptual",
+                "tipo_metrica": "ci",
+            },
+            {
+                "test_id": "NiWISCIndMemTra",
+                "test_nombre": "IMT",
+                "puntaje_escalar": 86,
+                "z_equivalente": -0.93,
+                "interpretacion": "Promedio Bajo",
+                "dominio_cognitivo": "Memoria de Trabajo",
+                "tipo_metrica": "ci",
+            },
+            {
+                "test_id": "NiWISCIndVelPro",
+                "test_nombre": "IVP",
+                "puntaje_escalar": 88,
+                "z_equivalente": -0.80,
+                "interpretacion": "Promedio Bajo",
+                "dominio_cognitivo": "Velocidad de Procesamiento",
+                "tipo_metrica": "ci",
+            },
+            {
+                "test_id": "NiWISCTot",
+                "test_nombre": "CIT",
+                "puntaje_escalar": 93,
+                "z_equivalente": -0.47,
+                "interpretacion": "Promedio",
+                "dominio_cognitivo": "Global",
+                "tipo_metrica": "ci",
+            },
         ],
     )
 
@@ -122,6 +180,7 @@ def report_data_rich():
 def report_data_minimal():
     """ReportData con sólo los campos obligatorios — debe generar PDF mínimo."""
     from app.infrastructure.report_service import ReportData
+
     return ReportData(
         nombre_completo="Paciente Mínimo",
         numero_documento="0000000000",
@@ -133,8 +192,15 @@ def report_data_minimal():
 # Tests de cada variante
 # ──────────────────────────────────────────────────────────
 
-ALL_TEMPLATES = ["estandar", "pro", "pediatrico", "medicolegal",
-                 "junta_medica", "inconcluso", "paciente"]
+ALL_TEMPLATES = [
+    "estandar",
+    "pro",
+    "pediatrico",
+    "medicolegal",
+    "junta_medica",
+    "inconcluso",
+    "paciente",
+]
 
 
 @pytest.mark.integration
@@ -142,12 +208,15 @@ ALL_TEMPLATES = ["estandar", "pro", "pediatrico", "medicolegal",
 def test_generate_pdf_each_variant_returns_bytes(report_data_rich, template):
     """Cada variante produce un PDF no vacío con header válido."""
     from app.infrastructure.report_service import generate_report_pdf
+
     if template == "inconcluso":
         report_data_rich.informe_inconcluso_cat = "fatiga"
         report_data_rich.informe_inconcluso_nota = "Paciente cansado tras 90 min."
     pdf_bytes = generate_report_pdf(report_data_rich, template=template)
     assert isinstance(pdf_bytes, bytes), f"{template}: no es bytes"
-    assert len(pdf_bytes) > 1500, f"{template}: PDF demasiado pequeño ({len(pdf_bytes)} B)"
+    assert (
+        len(pdf_bytes) > 1500
+    ), f"{template}: PDF demasiado pequeño ({len(pdf_bytes)} B)"
     # Cabecera mágica PDF
     assert pdf_bytes[:4] == b"%PDF", f"{template}: cabecera PDF inválida"
     # Trailer válido (último kilobyte contiene %%EOF)
@@ -158,6 +227,7 @@ def test_generate_pdf_each_variant_returns_bytes(report_data_rich, template):
 def test_generate_pdf_unknown_template_falls_back_to_pro(report_data_rich):
     """Un nombre de plantilla desconocido cae a 'pro' sin lanzar."""
     from app.infrastructure.report_service import generate_report_pdf
+
     pdf_bytes = generate_report_pdf(report_data_rich, template="this-does-not-exist")
     assert isinstance(pdf_bytes, bytes)
     assert pdf_bytes[:4] == b"%PDF"
@@ -168,6 +238,7 @@ def test_generate_pdf_unknown_template_falls_back_to_pro(report_data_rich):
 def test_generate_pdf_minimal_data(report_data_minimal):
     """Con datos mínimos la variante Pro no debe fallar."""
     from app.infrastructure.report_service import generate_report_pdf
+
     pdf_bytes = generate_report_pdf(report_data_minimal, template="pro")
     assert isinstance(pdf_bytes, bytes)
     assert pdf_bytes[:4] == b"%PDF"
@@ -176,8 +247,9 @@ def test_generate_pdf_minimal_data(report_data_minimal):
 
 @pytest.mark.integration
 def test_generate_pdf_default_template_is_pro(report_data_rich):
-    """Sin parámetro template, el default es 'pro' (estándar IN&S+Pro)."""
+    """Sin parámetro template, el default es 'pro' (estándar NPS+Pro)."""
     from app.infrastructure.report_service import generate_report_pdf
+
     pdf_default = generate_report_pdf(report_data_rich)
     pdf_pro = generate_report_pdf(report_data_rich, template="pro")
     pdf_estandar = generate_report_pdf(report_data_rich, template="estandar")
@@ -190,6 +262,7 @@ def test_generate_pdf_default_template_is_pro(report_data_rich):
 def test_estandar_template_still_works(report_data_rich):
     """Retrocompatibilidad: la plantilla 'estandar' usa NeuroPDFGenerator clásico."""
     from app.infrastructure.report_service import generate_report_pdf
+
     pdf_bytes = generate_report_pdf(report_data_rich, template="estandar")
     assert pdf_bytes[:4] == b"%PDF"
     # El estándar suele ser más pequeño que la variante Pro (sin gráficos avanzados)
@@ -202,6 +275,7 @@ def test_estandar_template_still_works(report_data_rich):
 def test_junta_medica_is_compact(report_data_rich):
     """La variante Junta Médica no debería tener portada — PDF más compacto."""
     from app.infrastructure.report_service import generate_report_pdf
+
     pdf_junta = generate_report_pdf(report_data_rich, template="junta_medica")
     pdf_pro = generate_report_pdf(report_data_rich, template="pro")
     assert pdf_junta[:4] == b"%PDF"
@@ -217,6 +291,7 @@ def test_junta_medica_is_compact(report_data_rich):
 def test_inconcluso_with_category_and_note(report_data_rich):
     """La variante Inconcluso incluye razón y nota en el contenido."""
     from app.infrastructure.report_service import generate_report_pdf
+
     report_data_rich.informe_inconcluso_cat = "fatiga"
     report_data_rich.informe_inconcluso_nota = (
         "Paciente reporta fatiga significativa después de 90 minutos."
@@ -234,6 +309,7 @@ def test_inconcluso_with_category_and_note(report_data_rich):
 def test_variants_available_via_public_api():
     """La API pública expone la lista canónica de variantes."""
     from app.infrastructure.report_pro import VARIANTES_DISPONIBLES
+
     assert "pro" in VARIANTES_DISPONIBLES
     assert "pediatrico" in VARIANTES_DISPONIBLES
     assert "medicolegal" in VARIANTES_DISPONIBLES
@@ -247,10 +323,12 @@ def test_variants_available_via_public_api():
 # Tests de utilidades específicas
 # ──────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 def test_narrative_builds_synthesis_paragraphs(report_data_rich):
     """build_synthesis_paragraphs debe producir al menos 1 párrafo coherente."""
     from app.infrastructure.report_pro.narrative import build_synthesis_paragraphs
+
     paragraphs = build_synthesis_paragraphs(
         report_data_rich.resultados,
         paciente_nombre="Jesús",
@@ -264,6 +342,7 @@ def test_narrative_builds_synthesis_paragraphs(report_data_rich):
 def test_narrative_parses_recomendaciones_with_tags(report_data_rich):
     """parse_recomendaciones distingue [ESCOLAR], (alta), etc."""
     from app.infrastructure.report_pro.narrative import parse_recomendaciones
+
     grouped = parse_recomendaciones(report_data_rich.obs_recomendaciones)
     assert "Escolar" in grouped
     assert "Terapéutica" in grouped
@@ -277,6 +356,7 @@ def test_narrative_parses_recomendaciones_with_tags(report_data_rich):
 def test_strengths_weaknesses_extraction(report_data_rich):
     """Identifica correctamente Bajo (Vocabulario, Aritmética) como debilidades."""
     from app.infrastructure.report_pro.narrative import build_strengths_weaknesses
+
     weak, strong = build_strengths_weaknesses(report_data_rich.resultados)
     # Vocabulario y Aritmética con Z=-1.33 deben aparecer
     weak_names = " ".join(weak).lower()
@@ -334,11 +414,12 @@ def test_normograma_version_frontend_backend_lockstep():
     # (alias), y la versión literal está en la línea ``const NORMOGRAMA_VERSION = "X"``.
     assert "NORMOGRAMA_COLOMBIANO_VERSION" in src
     import re
+
     m = re.search(
         r'(?:const|let|var)\s+NORMOGRAMA_VERSION\s*=\s*["\']([^"\']+)["\']',
         src,
     )
     assert m, "Frontend debe declarar NORMOGRAMA_VERSION con literal de versión"
-    assert m.group(1) == NORMOGRAMA_VERSION, (
-        f"Desincronizado: backend={NORMOGRAMA_VERSION} frontend={m.group(1)}"
-    )
+    assert (
+        m.group(1) == NORMOGRAMA_VERSION
+    ), f"Desincronizado: backend={NORMOGRAMA_VERSION} frontend={m.group(1)}"

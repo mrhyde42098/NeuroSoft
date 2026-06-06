@@ -58,7 +58,7 @@ export default function ScoreInput({ testId, value, onChange, className = "", si
         onChange={onChange}
         className={`${isXl ? "w-28 h-16 text-3xl" : "w-20 h-12 text-2xl"} font-extrabold text-center rounded-2xl border-none ring-2 transition-all duration-200 outline-none`}
         style={{
-          background: "#efeeea",
+          background: "var(--ns-input)",
           color: status.type === "invalid" ? "#DC2626" : status.type === "warn" || status.type === "high" ? "#D97706" : "#0D9488",
           boxShadow: ringColor ? `0 0 0 3px ${ringColor}30` : "none",
         }}

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "ruta_semestre1",
+    "titulo": "Semestre 1 — Fundamentos NPS",
+    "descripcion": "Glosario base → tarjetas WISC → quiz WISC → artículo discrepancias.",
+    "duracion_estimada": "4-6 horas",
+    "pasos": [
+      { "orden": 1, "titulo": "Glosario ICV/IRP/IMT/IVP", "page": "aprender_glosario", "hint": "Filtra psicometria_wisc" },
+      { "orden": 2, "titulo": "Tarjetas WISC-IV", "page": "aprender_estudiar", "hint": "Tema wisc_iv" },
+      { "orden": 3, "titulo": "Quiz WISC-IV", "page": "aprender_quiz", "hint": "quiz_wisc_iv" },
+      { "orden": 4, "titulo": "Artículo ICV-IRP", "page": "aprender_articulos", "hint": "art_icv_irp" },
+      { "orden": 5, "titulo": "Simulador TDAH infantil", "page": "aprender_simulador", "hint": "sim_tdah_inf" }
+    ]
+  },
+  {
+    "id": "ruta_am",
+    "titulo": "Adulto Mayor — Demencias",
+    "descripcion": "Neuronorma, MoCA, demencias y protocolo evaluación DCL.",
+    "duracion_estimada": "5-7 horas",
+    "pasos": [
+      { "orden": 1, "titulo": "Artículo MoCA Colombia", "page": "aprender_articulos", "hint": "art_moca_colombia" },
+      { "orden": 2, "titulo": "Artículo Neuronorma", "page": "aprender_articulos", "hint": "art_neuronorma_guia" },
+      { "orden": 3, "titulo": "Quiz Neuronorma", "page": "aprender_quiz", "hint": "quiz_neuronorma_am" },
+      { "orden": 4, "titulo": "Quiz Demencias", "page": "aprender_quiz", "hint": "quiz_demencias" },
+      { "orden": 5, "titulo": "Protocolo DCL/Demencia", "page": "aprender_protocolos", "hint": "eval_dcl_demencia" },
+      { "orden": 6, "titulo": "Simulador Alzheimer", "page": "aprender_simulador", "hint": "sim_alzheimer_am" }
+    ]
+  },
+  {
+    "id": "ruta_etica",
+    "titulo": "Ética y normativa Colombia",
+    "descripcion": "Marco legal, HC, validez y redacción informe.",
+    "duracion_estimada": "3-4 horas",
+    "pasos": [
+      { "orden": 1, "titulo": "Quiz ética Colombia", "page": "aprender_quiz", "hint": "quiz_etica_colombia" },
+      { "orden": 2, "titulo": "Artículo Res. 1995 HC", "page": "aprender_articulos", "hint": "art_res1995_hc" },
+      { "orden": 3, "titulo": "Artículo informe NPS", "page": "aprender_articulos", "hint": "art_informe_nps_estructura" },
+      { "orden": 4, "titulo": "Artículo validez medicolegal", "page": "aprender_articulos", "hint": "art_validez_sintomas_medicolegal" },
+      { "orden": 5, "titulo": "Quiz validez síntomas", "page": "aprender_quiz", "hint": "quiz_validez_sintomas" },
+      { "orden": 6, "titulo": "Protocolo crisis suicida", "page": "aprender_protocolos", "hint": "intervencion_crisis_suicida" }
+    ]
+  },
+  {
+    "id": "ruta_adulto_joven",
+    "titulo": "Adulto Joven — Clínica y WAIS",
+    "descripcion": "WAIS, depresión, ansiedad y evaluación laboral.",
+    "duracion_estimada": "4-5 horas",
+    "pasos": [
+      { "orden": 1, "titulo": "Quiz WAIS adulto", "page": "aprender_quiz", "hint": "quiz_wais_adulto" },
+      { "orden": 2, "titulo": "Protocolo WAIS queja cognitiva", "page": "aprender_protocolos", "hint": "eval_wais_adulto_joven" },
+      { "orden": 3, "titulo": "Simulador depresión postparto", "page": "aprender_simulador", "hint": "sim_depresion_adu" },
+      { "orden": 4, "titulo": "Simulador TAG", "page": "aprender_simulador", "hint": "sim_tag_adu" },
+      { "orden": 5, "titulo": "Artículo DSM-5 + CIE-10", "page": "aprender_articulos", "hint": "art_impresion_dsm5_cie10" }
+    ]
+  }
+]

@@ -12,6 +12,7 @@ Los repositorios son los únicos que saben de SQLAlchemy.
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import UTC, date, datetime
 
@@ -22,6 +23,23 @@ from app.domain.entities.models import Paciente, PacienteId
 from app.infrastructure.database.orm_models import PatientORM
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_etiquetas(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    try:
+        data = json.loads(raw)
+        if isinstance(data, list):
+            return [str(x).strip() for x in data if str(x).strip()][:12]
+    except (json.JSONDecodeError, TypeError):
+        pass
+    return []
+
+
+def _dump_etiquetas(tags: list[str] | None) -> str | None:
+    clean = [str(t).strip() for t in (tags or []) if str(t).strip()][:12]
+    return json.dumps(clean, ensure_ascii=False) if clean else None
 
 
 class PatientRepository:
@@ -249,6 +267,8 @@ class PatientRepository:
             motivo_consulta=p.motivo_consulta,
             remite=p.remite,
             eps=p.eps,
+            regimen=getattr(p, "regimen", None),
+            pais=getattr(p, "pais", None),
             orden_medica_no=p.orden_medica_no,
             discapacidad=p.discapacidad,
             codigo_rips=p.codigo_rips,
@@ -257,6 +277,7 @@ class PatientRepository:
             numero_sesiones=p.numero_sesiones,
             donante=p.donante,
             via_atencion=getattr(p, "via_atencion", None) or "mixto",
+            etiquetas=_dump_etiquetas(getattr(p, "etiquetas", None)),
             created_at=p.created_at,
             updated_at=p.updated_at,
             is_active=p.is_active,
@@ -269,12 +290,13 @@ class PatientRepository:
             "primer_nombre","segundo_nombre","primer_apellido","segundo_apellido",
             "sexo","estado_civil","telefono","correo","direccion","ciudad","localidad",
             "estrato","escolaridad","lateralidad","ocupacion","acompanante","grupo_etnico",
-            "motivo_consulta","remite","eps","orden_medica_no","discapacidad",
+            "motivo_consulta","remite","eps","regimen","pais","orden_medica_no","discapacidad",
             "codigo_rips","cups","finalidad_consulta","numero_sesiones","donante",
             "via_atencion",
         ]
         for c in campos:
-            setattr(orm, c, getattr(p, c))
+            setattr(orm, c, getattr(p, c, None))
+        orm.etiquetas = _dump_etiquetas(getattr(p, "etiquetas", None))
         orm.updated_at = datetime.now(UTC)
 
     @staticmethod
@@ -309,6 +331,8 @@ class PatientRepository:
             motivo_consulta=orm.motivo_consulta,
             remite=orm.remite,
             eps=orm.eps,
+            regimen=getattr(orm, "regimen", None),
+            pais=getattr(orm, "pais", None),
             orden_medica_no=orm.orden_medica_no,
             discapacidad=orm.discapacidad,
             codigo_rips=orm.codigo_rips,
@@ -317,6 +341,7 @@ class PatientRepository:
             numero_sesiones=orm.numero_sesiones or 1,
             donante=bool(orm.donante),
             via_atencion=getattr(orm, "via_atencion", None) or "mixto",
+            etiquetas=_parse_etiquetas(getattr(orm, "etiquetas", None)),
             created_at=orm.created_at or datetime.now(UTC),
             updated_at=orm.updated_at or datetime.now(UTC),
             is_active=bool(orm.is_active),

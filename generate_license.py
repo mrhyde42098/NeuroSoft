@@ -21,6 +21,7 @@ import hashlib
 import json
 import os
 import secrets
+import sys
 import tkinter as tk
 from datetime import datetime, timedelta, timezone
 from tkinter import messagebox, ttk
@@ -263,4 +264,33 @@ class LicenseGeneratorApp:
 
 
 if __name__ == "__main__":
-    LicenseGeneratorApp()
+    import argparse
+    import csv
+
+    parser = argparse.ArgumentParser(description="Generador de licencias NeuroSoft")
+    parser.add_argument("--batch", type=int, help="Generar N claves (CSV en stdout)")
+    parser.add_argument("--type", choices=["perpetual", "trial", "beta", "master"], default="beta")
+    parser.add_argument("--days", type=int, default=90, help="Días (solo trial)")
+    parser.add_argument("--prefix", default="BETA", help="Prefijo para nombre en lote")
+    parser.add_argument("--out", help="Archivo CSV de salida (opcional)")
+    args, _ = parser.parse_known_args()
+
+    if args.batch:
+        rows = []
+        for i in range(1, args.batch + 1):
+            name = f"{args.prefix}-{i:04d}"
+            email = f"{args.prefix.lower()}-{i:04d}@beta.neurosoft.local"
+            key = _generate_key(args.type, name, email, "", args.days if args.type == "trial" else 0)
+            rows.append({"idx": i, "type": args.type, "name": name, "email": email, "key": key})
+        if args.out:
+            with open(args.out, "w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=["idx", "type", "name", "email", "key"])
+                w.writeheader()
+                w.writerows(rows)
+            print(f"Generadas {len(rows)} claves → {args.out}")
+        else:
+            w = csv.DictWriter(sys.stdout, fieldnames=["idx", "type", "name", "email", "key"])
+            w.writeheader()
+            w.writerows(rows)
+    else:
+        LicenseGeneratorApp()

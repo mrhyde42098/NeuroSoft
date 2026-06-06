@@ -28,7 +28,7 @@ import PruebasDisponiblesPage from "../aprender/PruebasDisponiblesPage.jsx";
 
 export default function ConfigPage({_setPage}){
   const toast = useToast();
-  const{highContrast,fontScale,setHighContrast,setFontScale}=useA11y();
+  const{highContrast,fontScale,eyeRest,setHighContrast,setFontScale,setEyeRest}=useA11y();
   const{user}=useAuth();
   const isAdmin=user?.role==="admin";
   const[privOpen,setPrivOpen]=useState(false);
@@ -90,7 +90,7 @@ export default function ConfigPage({_setPage}){
   </main></>;
   if(ld)return<><TopBar title="Configuración"/><main className="p-8 flex items-center justify-center h-96"><div className="animate-spin w-8 h-8 border-4 border-teal-200 border-t-teal-600 rounded-full"/></main></>;
   return(<><TopBar title="Configuración del Sistema"><span className="text-xs text-gray-400">Datos institucionales y preferencias</span></TopBar>
-  <main className="p-8 max-w-5xl mx-auto space-y-6">
+  <main className="p-8 max-w-7xl mx-auto space-y-6">
     <MsgBanner msg={msg==="ok"?"ok":msg} onDismiss={msg&&msg!=="ok"?()=>setMsg(""):null}/>
     {/* Navegación por secciones temáticas */}
     <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-card)" }}>
@@ -305,6 +305,20 @@ export default function ConfigPage({_setPage}){
           <span className="text-sm font-medium">{highContrast?"Activado":"Desactivado"}</span>
         </label>
       </div>
+      {/* Modo descanso visual */}
+      <div className="space-y-3">
+        <p className="text-sm font-bold" style={{color:"var(--ns-text)"}}>Modo descanso visual</p>
+        <p className="text-xs" style={{color:"var(--ns-muted)"}}>
+          Reduce la luz azul con tonos cálidos, mayor contraste en campos y un filtro suave sobre la pantalla.
+          Útil para sesiones largas de evaluación o trabajo nocturno.
+        </p>
+        <label className="flex items-center gap-3 cursor-pointer w-fit">
+          <div onClick={()=>setEyeRest(!eyeRest)} className={`relative w-12 h-6 rounded-full transition-colors ${eyeRest?"bg-amber-600":"bg-gray-300"}`}>
+            <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${eyeRest?"translate-x-6":""}`}/>
+          </div>
+          <span className="text-sm font-medium">{eyeRest?"Activado":"Desactivado"}</span>
+        </label>
+      </div>
       {/* Escala de fuente */}
       <div className="space-y-3">
         <p className="text-sm font-bold" style={{color:"var(--ns-text)"}}>Tamaño de texto de la interfaz</p>
@@ -324,6 +338,7 @@ export default function ConfigPage({_setPage}){
         <p className="text-xs font-bold uppercase tracking-wider" style={{color:"var(--ns-muted)"}}>Atajos de teclado activos</p>
         <div className="grid grid-cols-2 gap-2 text-xs" style={{color:"var(--ns-muted)"}}>
           <span><kbd className="px-1.5 py-0.5 rounded text-xs font-mono" style={{background:"var(--ns-card)",border:"1px solid var(--ns-card-b)"}}>Alt+H</kbd> Toggle alto contraste</span>
+          <span><kbd className="px-1.5 py-0.5 rounded text-xs font-mono" style={{background:"var(--ns-card)",border:"1px solid var(--ns-card-b)"}}>Alt+E</kbd> Toggle descanso visual</span>
           <span><kbd className="px-1.5 py-0.5 rounded text-xs font-mono" style={{background:"var(--ns-card)",border:"1px solid var(--ns-card-b)"}}>Alt++</kbd> Aumentar fuente</span>
           <span><kbd className="px-1.5 py-0.5 rounded text-xs font-mono" style={{background:"var(--ns-card)",border:"1px solid var(--ns-card-b)"}}>Alt+-</kbd> Reducir fuente</span>
         </div>

@@ -210,7 +210,7 @@ class LicenseStatus:
         if self.is_trial:
             return f"VERSIÓN DE PRUEBA — {self.days_remaining or '?'} días restantes"
         if self.is_beta:
-            return "VERSIÓN BETA — NeuroSoft App"
+            return "VERSIÓN BETA — USO EVALUATIVO"
         return ""
 
     def to_dict(self) -> dict:
@@ -283,17 +283,38 @@ class LicenseStatus:
                     logger.warning("Firma RSA invalida: %s", exc)
                     return False, "Firma de licencia invalida."
 
+            # Decodificar payload generado por generate_license.py
+            type_rev = {0: "perpetual", 1: "trial", 2: "beta", 3: "master"}
+            ltype = type_rev.get(payload[1], "perpetual")
+            issued_ts = int.from_bytes(payload[2:6], "big")
+            trial_days = int.from_bytes(payload[6:8], "big")
+            issued_at = datetime.fromtimestamp(issued_ts, tz=UTC)
+            expires_at = None
+            if ltype == "trial" and trial_days > 0:
+                expires_at = (issued_at + timedelta(days=trial_days)).isoformat()
+            elif ltype == "beta":
+                # Beta sin expiración en clave; revocación manual vía nueva clave
+                expires_at = None
+
+            features = ["full_access", "unlimited_evals"]
+            if ltype in ("trial", "beta"):
+                features = ["full_access", "limited_evals"]
+            elif ltype == "master":
+                features = ["full_access", "no_watermark", "unlimited_evals"]
+            else:
+                features = ["full_access", "no_watermark", "unlimited_evals"]
+
             # En modo dev (sin clave publica) o con firma valida
             if _PUBLIC_KEY_PEM is None or signature_valid:
                 license_data = {
-                    "type": "perpetual",
+                    "type": ltype,
                     "licensee": "Licencia importada",
                     "email": "",
                     "doc": "",
                     "machine_id": _machine_id(),
-                    "issued_at": datetime.now(UTC).isoformat(),
-                    "expires_at": None,
-                    "features": ["full_access", "no_watermark", "unlimited_evals"],
+                    "issued_at": issued_at.isoformat(),
+                    "expires_at": expires_at,
+                    "features": features,
                 }
                 _success = _write_license_file(license_data)
                 self._data = license_data

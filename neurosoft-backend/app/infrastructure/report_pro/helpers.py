@@ -563,7 +563,7 @@ def field_grid(
     size: float = TYPE.body_sm,
     placeholder: str = "—",
 ) -> float:
-    """Rejilla de campos etiquetados con borde (estilo ficha IN&S).
+    """Rejilla de campos etiquetados con borde (estilo ficha clínica NPS).
 
     Cada celda muestra ``ETIQUETA`` arriba (caption) y el valor abajo (body).
     Dibuja borde externo + hairlines internas. Retorna el ``y`` inferior.
@@ -641,11 +641,11 @@ def info_box(
     accent: tuple[float, float, float] = ACCENT,
     fill: tuple[float, float, float] = WHITE,
 ) -> float:
-    """Caja etiquetada estilo IN&S: encabezado de campo + valor en caja con borde.
+    """Caja etiquetada estilo ficha clínica: encabezado de campo + valor en caja con borde.
 
     Muestra ``placeholder`` (en cursiva, gris) cuando el valor está vacío, para
     que todas las áreas figuren en el informe aunque no se diligencien — igual
-    que el formato IN&S. El texto del valor se imprime **verbatim**.
+    que el formato informe NPS. El texto del valor se imprime **verbatim**.
 
     Retorna el ``y`` inferior de la caja.
     """

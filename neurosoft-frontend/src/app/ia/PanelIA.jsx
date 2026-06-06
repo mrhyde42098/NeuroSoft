@@ -107,9 +107,9 @@ const PROVIDERS = [
       "Pégala aquí y guarda.",
     ],
     models: [
-      { id: "gemini-2.0-flash-exp", label: "Gemini 2.0 Flash Exp (recomendado)", recommended: true },
-      { id: "gemini-1.5-flash",     label: "Gemini 1.5 Flash (rápido)" },
-      { id: "gemini-1.5-pro",       label: "Gemini 1.5 Pro (máxima calidad)" },
+      { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash (recomendado)", recommended: true },
+      { id: "gemini-2.5-pro",   label: "Gemini 2.5 Pro (máxima calidad)" },
+      { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
     ],
   },
   {
@@ -133,9 +133,9 @@ const PROVIDERS = [
       "Pégala aquí y guarda.",
     ],
     models: [
-      { id: "claude-3-5-haiku-20241022",  label: "Claude 3.5 Haiku (rápido, económico)", recommended: true },
-      { id: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet (más capaz)" },
-      { id: "claude-3-opus-20240229",     label: "Claude 3 Opus (máxima calidad)" },
+      { id: "claude-haiku-4-5-20251001",  label: "Claude Haiku 4.5 (rápido)", recommended: true },
+      { id: "claude-sonnet-4-6",          label: "Claude Sonnet 4.6 (equilibrio clínico)" },
+      { id: "claude-opus-4-6",            label: "Claude Opus 4.6 (máxima calidad)" },
     ],
   },
   {
@@ -159,9 +159,9 @@ const PROVIDERS = [
       "Pégala aquí y guarda.",
     ],
     models: [
-      { id: "gpt-4o-mini", label: "GPT-4o mini (rápido, económico)", recommended: true },
-      { id: "gpt-4o",      label: "GPT-4o (más capaz)" },
-      { id: "gpt-4-turbo", label: "GPT-4 Turbo" },
+      { id: "gpt-4.1-mini", label: "GPT-4.1 mini (rápido, económico)", recommended: true },
+      { id: "gpt-4.1",      label: "GPT-4.1 (redacción clínica)" },
+      { id: "o3-mini",      label: "o3-mini (razonamiento)" },
     ],
   },
   {
@@ -185,10 +185,62 @@ const PROVIDERS = [
       "O usa el botón «Setup automático» de abajo.",
     ],
     models: [
-      { id: "llama3.1:8b", label: "Llama 3.1 8B", recommended: true },
-      { id: "alibayram/medgemma:4b", label: "MedGemma 4B (clínico)", recommended: false },
-      { id: "meditron:7b", label: "Meditron 7B (clínico)", recommended: false },
+      { id: "llama3.3", label: "Llama 3.3 70B (si hay RAM)", recommended: false },
+      { id: "llama3.2:3b", label: "Llama 3.2 3B (ligero)", recommended: true },
+      { id: "alibayram/medgemma:4b", label: "MedGemma 4B (clínico local)" },
+      { id: "qwen2.5:7b", label: "Qwen 2.5 7B" },
     ],
+  },
+  {
+    id: "medgemma",
+    label: "MedGemma (en línea)",
+    short: "MedGemma",
+    logoLetter: "✚",
+    color: "#0EA5E9",
+    gradient: "linear-gradient(135deg,#0EA5E9,#22D3EE)",
+    description: "Modelo clínico MedGemma de Google servido en línea vía un endpoint OpenAI-compatible (OpenRouter, Hugging Face, Vertex). Requiere URL base + clave.",
+    badge: "Clínico",
+    badgeColor: "#0EA5E9",
+    keyPrefix: null,
+    keyHint: "Clave del proveedor del endpoint (ej. OpenRouter sk-or-…)",
+    keyUrl: "https://openrouter.ai/google/medgemma-4b-it",
+    keyUrlLabel: "Ver MedGemma en OpenRouter →",
+    keySteps: [
+      "Crea una cuenta en un proveedor OpenAI-compatible que sirva MedGemma (ej. OpenRouter u Hugging Face).",
+      "Copia la URL base del endpoint (OpenRouter: https://openrouter.ai/api/v1).",
+      "Genera una API key en ese proveedor y pégala en «Clave API».",
+      "En «Modelo» usa el id exacto (ej. google/medgemma-4b-it) y guarda.",
+    ],
+    models: [
+      { id: "google/medgemma-4b-it", label: "MedGemma 4B-IT (clínico)", recommended: true },
+      { id: "google/medgemma-27b-text-it", label: "MedGemma 27B (texto)" },
+    ],
+  },
+  {
+    id: "openrouter",
+    label: "OpenRouter (multi-modelo)",
+    short: "OpenRouter",
+    logoLetter: "◎",
+    color: "#7C3AED",
+    gradient: "linear-gradient(135deg,#7C3AED,#EC4899)",
+    description: "Acceso a decenas de modelos (incl. gratuitos) vía una sola API. Compatible OpenAI.",
+    badge: "Varios gratis",
+    badgeColor: "#059669",
+    keyPrefix: "sk-or-",
+    keyHint: "Clave sk-or-… desde openrouter.ai/keys",
+    keyUrl: "https://openrouter.ai/keys",
+    keyUrlLabel: "Obtener clave en OpenRouter →",
+    keySteps: [
+      "Cree cuenta en openrouter.ai y genere una API key.",
+      "Use URL base: https://openrouter.ai/api/v1",
+      "Elija modelo (ej. google/gemini-2.5-flash, meta-llama/llama-3.3-70b-instruct:free).",
+    ],
+    models: [
+      { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", recommended: true },
+      { id: "meta-llama/llama-3.3-70b-instruct:free", label: "Llama 3.3 70B (gratis)" },
+      { id: "google/medgemma-4b-it", label: "MedGemma 4B" },
+    ],
+    openaiBaseUrl: "https://openrouter.ai/api/v1",
   },
   {
     id: "auto",
@@ -303,7 +355,7 @@ function ApiKeyInput({ prov, value, onChange }) {
           <button
             type="button"
             onClick={() => setShow(s => !s)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-all"
+            className="p-1.5 rounded-lg transition-all hover:opacity-80"
             style={{ color: "var(--ns-muted)" }}
             title={show ? "Ocultar" : "Mostrar"}
           >
@@ -443,7 +495,7 @@ function StatusChip({ ok, label }) {
     <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full ${
       ok === true  ? "bg-emerald-100 text-emerald-700"
     : ok === false ? "bg-rose-100 text-rose-700"
-    :                "bg-gray-100 text-gray-500"
+    :                "opacity-60"
     }`}>
       <span className={`w-1.5 h-1.5 rounded-full ${
         ok === true ? "bg-emerald-500" : ok === false ? "bg-rose-500" : "bg-gray-400"
@@ -702,8 +754,8 @@ export function AIConfigPage() {
                 </div>
               </div>
 
-              {/* API Key (solo para cloud providers) */}
-              {selProv.keyPrefix !== null && (
+              {/* API Key (cloud providers + MedGemma en línea) */}
+              {(selProv.keyPrefix !== null || selProv.id === "medgemma" || selProv.id === "openrouter") && (
                 <div className="space-y-2">
                   <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: "var(--ns-muted)" }}>
                     Clave API
@@ -716,6 +768,24 @@ export function AIConfigPage() {
                     value={cfg.api_key || ""}
                     onChange={val => setCfg({ ...cfg, api_key: val })}
                   />
+                </div>
+              )}
+
+              {/* Endpoint OpenAI-compatible (MedGemma en línea) */}
+              {(selProv.id === "medgemma" || selProv.id === "openrouter") && (
+                <div>
+                  <label className="text-xs font-extrabold uppercase tracking-wider block mb-1.5"
+                    style={{ color: "var(--ns-muted)" }}>URL base del endpoint (OpenAI-compatible)</label>
+                  <input
+                    value={cfg.openai_base_url || ""}
+                    onChange={e => setCfg({ ...cfg, openai_base_url: e.target.value })}
+                    placeholder="https://openrouter.ai/api/v1"
+                    className="w-full px-3 py-2.5 rounded-xl text-sm font-mono"
+                    style={{ background: "var(--ns-input)", color: "var(--ns-text)", border: "1.5px solid var(--ns-card-b)", outline: "none" }}
+                  />
+                  <p className="text-[10px] mt-1" style={{ color: "var(--ns-muted)" }}>
+                    Debe terminar antes de <code>/chat/completions</code>. Ej. OpenRouter: <code>https://openrouter.ai/api/v1</code>.
+                  </p>
                 </div>
               )}
 
@@ -750,7 +820,7 @@ export function AIConfigPage() {
                       </span>
                     )}
                     <button onClick={checkOllama}
-                      className="ml-auto text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-gray-100 flex items-center gap-1"
+                      className="ml-auto text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 transition-all hover:opacity-80"
                       style={{ color: "var(--ns-muted)" }}>
                       <I name="refresh" className="text-sm" />Re-detectar
                     </button>
@@ -901,7 +971,7 @@ export function AIConfigPage() {
             {busy ? "Guardando…" : "Guardar configuración"}
           </Btn>
           <button onClick={testConnection} disabled={busy}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold text-sm hover:bg-gray-50 transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold text-sm transition-all disabled:opacity-50 hover:opacity-90"
             style={{ borderColor: "var(--ns-card-b)", color: "var(--ns-text)" }}>
             <I name="wifi_tethering" className="text-base" />
             Probar conexión

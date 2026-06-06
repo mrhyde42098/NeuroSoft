@@ -84,7 +84,7 @@ export default function GlosarioPage() {
   return (
     <>
       <TopBar title="Glosario clínico" />
-      <main className="p-8 max-w-6xl mx-auto space-y-5">
+      <main className="p-8 max-w-screen-2xl mx-auto space-y-5">
         <div className="flex items-center gap-3 mb-4">
           <I name="library_books" style={{ color: TEAL, fontSize: 26 }} />
           <div>
@@ -204,7 +204,7 @@ export default function GlosarioPage() {
                 )}
 
                 <p className="ns-eyebrow mb-1">Definición</p>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--ns-text)" }}>
+                <p className="text-[15px] leading-relaxed mb-4" style={{ color: "var(--ns-text)" }}>
                   {seleccionado.definicion}
                 </p>
 

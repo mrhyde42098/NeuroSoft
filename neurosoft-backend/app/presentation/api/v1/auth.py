@@ -15,11 +15,14 @@ DELETE /auth/users/{user_id}  → desactivar usuario (solo admin)
 from __future__ import annotations
 
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+
+from app.infrastructure.database.orm_models import UserORM
 
 from app.infrastructure.audit import record_event
 from app.infrastructure.auth.auth_service import (
@@ -156,7 +159,9 @@ def get_current_user(
     return user
 
 
-def require_admin(current_user=Depends(get_current_user)):
+def require_admin(
+    current_user: Annotated[UserORM, Depends(get_current_user)],
+) -> UserORM:
     """Dependencia que exige rol admin."""
     if current_user.role != "admin":
         raise HTTPException(
@@ -166,9 +171,9 @@ def require_admin(current_user=Depends(get_current_user)):
     return current_user
 
 
-# Anotaciones tipadas
-CurrentUser = Depends(get_current_user)
-AdminUser   = Depends(require_admin)
+# Anotaciones tipadas (FastAPI 0.136 + Pydantic 2.10)
+CurrentUser = Annotated[UserORM, Depends(get_current_user)]
+AdminUser = Annotated[UserORM, Depends(require_admin)]
 
 
 # ─────────────────────────────────────────────────────────────

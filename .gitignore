@@ -38,9 +38,32 @@ startup.log
 .idea/
 .DS_Store
 
-# Material interno IN&S / capacitación — no subir a GitHub (copyright + archivos >50MB)
+# Material interno de capacitación / capacitación — no subir a GitHub (copyright + archivos >50MB)
 Capacitaciones Clínicas/
 docs/referencias-informes/
+
+# Protocolos Pearson — extracciones de PDF (copyright; regenerables localmente)
+docs/generated/wisc_*.txt
+docs/generated/wais_*.txt
+docs/generated/*_extract.txt
+
+# Reactivos Pearson con claves de scoring — solo local (sync_reactivos_from_protocol.py)
+# El stub vacío en repo se commitea; si regeneras, NO hagas git add de este archivo.
+# Pre-commit: verificar que no contiene "clave": antes de commit.
+
+# Shards de baremos — regenerables en build (split_baremos_poblacion.py)
+neurosoft-backend/data/baremos_shards/
+
+# Licencias generadas (admin local)
+license_history.json
+licenses_*.csv
+*.nsupdate
+
+# Backups temporales de deps
+*.bak-*
+
+# Herramientas admin local (opcional; license_core es código, no datos)
+# tools/ se versiona; historial de claves NO
 
 # Claude Code — local (skills compartidas SÍ se commitean, settings local NO)
 .claude/settings.local.json

@@ -20,6 +20,16 @@ export default function ActivationPage({onActivated}) {
   const [busy,setBusy]=useState(false);
   const [msg,setMsg]=useState(null);
   const [status,setStatus]=useState(null);
+  const [brand,setBrand]=useState({nombre:"",subtitle:"Evaluación neuropsicológica clínica",logo_base64:null});
+
+  /* Marca institucional (configurable en Configuración → Institución) */
+  useEffect(()=>{
+    let cancelled = false;
+    api.get("/api/v1/config/branding").then(b=>{
+      if (!cancelled && b) setBrand(b);
+    }).catch(()=>{});
+    return ()=>{cancelled=true;};
+  },[]);
 
   /* Verificar si ya hay licencia valida */
   useEffect(()=>{
@@ -64,15 +74,21 @@ export default function ActivationPage({onActivated}) {
       <Card className="max-w-md w-full p-8 space-y-6 text-center">
         {/* Logo */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{background:`${TEAL}15`}}>
-            <I name="neurology" fill style={{color:TEAL,fontSize:36}}/>
-          </div>
+          {brand.logo_base64 ? (
+            <img src={brand.logo_base64} alt="" className="h-16 max-w-[200px] object-contain"/>
+          ) : (
+            <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{background:`${TEAL}15`}}>
+              <I name="neurology" fill style={{color:TEAL,fontSize:36}}/>
+            </div>
+          )}
         </div>
 
         <div>
-          <h1 className="ns-serif text-2xl font-bold">NeuroSoft App</h1>
+          <h1 className="ns-serif text-2xl font-bold">
+            {brand.nombre || "Activación del sistema"}
+          </h1>
           <p className="text-xs mt-1" style={{color:"var(--ns-muted)"}}>
-            Sistema de evaluación neuropsicológica clínica
+            {brand.subtitle}
           </p>
         </div>
 
@@ -119,9 +135,8 @@ export default function ActivationPage({onActivated}) {
 
         {/* Footer */}
         <div className="text-[10px] space-y-1" style={{color:"var(--ns-muted)"}}>
-          <p>© NeuroSoft App — Johan Salgado</p>
           <p>Herramienta de apoyo clínico. Ley 1090 de 2006.</p>
-          <p className="ns-serif-italic">Contacto: jssalgadosa@unal.edu.co</p>
+          <p>Los datos clínicos son responsabilidad del profesional tratante.</p>
         </div>
       </Card>
     </div>

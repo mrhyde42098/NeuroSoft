@@ -77,6 +77,7 @@ from app.presentation.api.v1.patients import router as patients_router
 
 # 📚 Referencias bibliográficas (§F2)
 from app.presentation.api.v1.referencias import referencias_router
+from app.presentation.api.v1.aprender import aprender_router
 
 # ── Rehabilitación 🆕 ─────────────────────────────────────────
 from app.presentation.api.v1.rehab import rehab_public_router, rehab_router
@@ -144,6 +145,9 @@ api_v1_router.include_router(license_router)
 
 # 📚 Referencias bibliográficas (§F2)
 api_v1_router.include_router(referencias_router)
+
+# 📖 Centro de Aprendizaje (P2)
+api_v1_router.include_router(aprender_router)
 
 # 📊 Reportes / Documentos / RIPS / Backups
 api_v1_router.include_router(reports_router)

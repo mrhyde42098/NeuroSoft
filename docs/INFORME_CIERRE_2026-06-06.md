@@ -1,12 +1,12 @@
 # Informe de cierre — NeuroSoft App
-**Fecha:** 6 de junio de 2026 (noche)  
+**Fecha:** 6 de junio de 2026 (noche) 
 **Alcance:** Consolidación post-PLAN_MAESTRO, OSS GitHub, Codex OSS, HC clínica, build beta.
 
 ---
 
 ## Resumen ejecutivo
 
-NeuroSoft queda **empaquetado para beta** con instalador regenerado, **1016 tests pytest en verde**, frontend lint+build OK, y repositorio público preparado para mantenimiento OSS. Se corrigió el flujo de HC (4 pasos, screening aparte), se retiró material IN&S del repo, y se envió solicitud **Codex para Open Source**.
+NeuroSoft queda **empaquetado para beta** con instalador regenerado, **1016 tests pytest en verde**, frontend lint+build OK, y repositorio público preparado para mantenimiento OSS. Se corrigió el flujo de HC (4 pasos, screening aparte), se retiró material de capacitación del repo, y se envió solicitud **Codex para Open Source**.
 
 ---
 
@@ -29,7 +29,7 @@ Pipeline: `npm run build` → `py_compile` → `python build.py --skip-frontend 
 | **HC 4 pasos** | Revertido wizard de 7 pasos; MMSE/escalas van en Screening, no en HC |
 | **Informe Pro** | Restaurada sección «Resumen para la Familia» en variante `pro` (8 tests integración OK) |
 | **GitHub OSS** | README badges, CONTRIBUTING, issue templates, script `abrir-todo-codex-oss.ps1` |
-| **Material IN&S** | Eliminado del repo + `.gitignore`; permanece solo en local |
+| **Material de capacitación** | Eliminado del repo + `.gitignore`; permanece solo en local |
 | **Codex OSS** | Formulario enviado (org configurado, maintainer principal) |
 
 ---
@@ -67,6 +67,6 @@ Pipeline: `npm run build` → `py_compile` → `python build.py --skip-frontend 
 
 ## Repositorio
 
-- **URL:** https://github.com/mrhyde42098/NeuroSoft  
-- **Licencia:** Apache 2.0  
+- **URL:** https://github.com/mrhyde42098/NeuroSoft 
+- **Licencia:** Apache 2.0 
 - **Maintainer:** @mrhyde42098

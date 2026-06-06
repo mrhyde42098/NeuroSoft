@@ -1,20 +1,20 @@
-# Verificación IN&S — PDFs vs JSON vs clinical.js
+# Verificación — PDFs vs JSON vs clinical.js
 
-**Fecha:** 5 jun 2026  
-**Fuente clínica autoritativa:** `Capacitaciones Clínicas/drive-download-20260322T041708Z-3-001/`  
-**PDFs principales:** `WISC IV IN&S.pdf` (23 págs) · `WAIS III IN&S.pdf` (17 págs)
+**Fecha:** 5 jun 2026 
+**Fuente clínica autoritativa:** `Capacitaciones Clínicas/drive-download-20260322T041708Z-3-001/` 
+**PDFs principales:** `WISC IV .pdf` (23 págs) · `WAIS III .pdf` (17 págs)
 
 ---
 
 ## Veredicto
 
-| Capa | ¿Coincide con manual IN&S? | Acción |
+| Capa | ¿Coincide con manual de protocolo? | Acción |
 |---|---|---|
 | **`wisc_iv_protocolo.json` / `wais_iii_protocolo.json`** | ✅ **Sí** (verificado muestra) | Usar como fuente para implementación |
 | **`clinical.js` → REACTIVOS** | ❌ **No** en varios subtests | Reemplazar desde JSON (no inventar) |
 | **Imágenes parciales que enviaste** | ✅ Coinciden con PDF extraído | Válidas como control cruzado |
 
-**Conclusión:** Lo que vamos a implementar debe salir del **JSON en `Capacitaciones Clínicas/protocolos/`** (que ya refleja los PDF IN&S), **no** del contenido actual de `clinical.js`.
+**Conclusión:** Lo que vamos a implementar debe salir del **JSON en `Capacitaciones Clínicas/protocolos/`** (que ya refleja los PDF de protocolo), **no** del contenido actual de `clinical.js`.
 
 ---
 
@@ -22,8 +22,8 @@
 
 | Archivo | Tamaño | Rol en NeuroSoft |
 |---|---|---|
-| **WISC IV IN&S.pdf** | 1.6 MB | Protocolo scoring WISC-IV — **fuente reactivos infantil Pearson** |
-| **WAIS III IN&S.pdf** | 976 KB | Protocolo scoring WAIS-III — **fuente reactivos adulto joven** |
+| **WISC IV .pdf** | 1.6 MB | Protocolo scoring WISC-IV — **fuente reactivos infantil Pearson** |
+| **WAIS III .pdf** | 976 KB | Protocolo scoring WAIS-III — **fuente reactivos adulto joven** |
 | Protocolo Adulto Joven 2024.pdf | 815 KB | Orden batería adulto joven (no WISC/WAIS ítems) |
 | Protocolo Adulto Mayor 2024.pdf | 887 KB | Orden batería AM / Neuronorma |
 | Protocolo Niños Complementario.pdf/.docx | 1.5 MB | Suplementarios infantiles |
@@ -31,7 +31,7 @@
 | Estímulos Protocolos adulto mayor.pdf | 171 KB | Láminas TMT/estímulos AM |
 | TRAIL MAKING TEST *.pdf (3 archivos) | 152–679 KB | TMT Neuronorma + estímulos |
 
-Los PDF WISC/WAIS IN&S son los que alimentan el sprint REACTIVOS. Los demás ya tienen JSON espejo en `Capacitaciones Clínicas/protocolos/` (adulto joven, AM, complementario, casos especiales).
+Los PDF WISC/WAIS son los que alimentan el sprint REACTIVOS. Los demás ya tienen JSON espejo en `Capacitaciones Clínicas/protocolos/` (adulto joven, AM, complementario, casos especiales).
 
 ---
 
@@ -39,7 +39,7 @@ Los PDF WISC/WAIS IN&S son los que alimentan el sprint REACTIVOS. Los demás ya 
 
 ### 2. Semejanzas (`NiWiscSem`)
 
-**PDF IN&S + imágenes + JSON** — alineados:
+**PDF de protocolo + imágenes + JSON** — alineados:
 
 | # | Par (PDF/JSON) | `clinical.js` actual |
 |---|---|---|
@@ -75,12 +75,12 @@ Los PDF WISC/WAIS IN&S son los que alimentan el sprint REACTIVOS. Los demás ya 
 
 **PDF** (pág. protocolo + imagen): ítems 1-10 incluyen pie, nariz, comida, orejas, edad, patas perro, día después jueves, monedas, mes después marzo…
 
-**JSON:** 33 ítems con preguntas completas.  
+**JSON:** 33 ítems con preguntas completas. 
 **clinical.js:** 33 placeholders `"Reactivo N — ver protocolo"`.
 
 ### Comprensión (`NiWiscCom`)
 
-PDF confirma preguntas oficiales (cepillarse dientes, verduras, cinturones, policía uniforme, cartera en tienda…).  
+PDF confirma preguntas oficiales (cepillarse dientes, verduras, cinturones, policía uniforme, cartera en tienda…). 
 **clinical.js:** 18 preguntas — **alineadas en espíritu** con PDF (V4 las reescribió); validar numeración exacta vs JSON (21 ítems en JSON).
 
 ---
@@ -103,7 +103,7 @@ JSON `wais_iii_protocolo.json` → `AdSemWais` tiene los 19 pares oficiales con 
 
 ### Vocabulario, Información, Comprensión, Aritmética, Figuras Incompletas
 
-PDF WAIS extraíble parcialmente (OCR layout). JSON contiene texto completo verificado manualmente contra estructura IN&S.  
+PDF WAIS extraíble parcialmente (OCR layout). JSON contiene texto completo verificado manualmente contra estructura . 
 **clinical.js:** todos placeholder `requires_protocol_text:true`.
 
 ---
@@ -130,8 +130,8 @@ PDF WAIS extraíble parcialmente (OCR layout). JSON contiene texto completo veri
 Scripts de verificación reutilizables:
 
 ```bash
-python docs/scripts/extract_ins_pdfs.py
-python docs/scripts/verify_ins_vs_json.py
+python docs/scripts/extract_protocol_pdfs.py
+python docs/scripts/verify_protocolo_vs_json.py
 python docs/scripts/audit_reactivos_gap.py
 ```
 
@@ -141,7 +141,7 @@ Extractos PDF: `docs/generated/wisc_*.txt`, `wais_*.txt`
 
 ## Nota legal
 
-PDFs IN&S incluyen footer Instituto Neurociencias IN&S SAS — son **formato de aplicación/scoring** del clínico licenciado Pearson, no para redistribución pública. Implementación vía `pearsonProtected.js` + consentimiento único.
+PDFs incluyen footer Instituto Neurociencias SAS — son **formato de aplicación/scoring** del clínico licenciado Pearson, no para redistribución pública. Implementación vía `pearsonProtected.js` + consentimiento único.
 
 ---
 

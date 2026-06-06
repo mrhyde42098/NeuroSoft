@@ -167,6 +167,8 @@ class NeuroPDFGeneratorPro:
 
     def generate(self, data) -> bytes:
         """Construye y retorna los bytes del PDF."""
+        from app.core.branding import clinical_brand
+
         ensure_fonts_registered()
 
         buffer = io.BytesIO()
@@ -174,18 +176,18 @@ class NeuroPDFGeneratorPro:
 
         from reportlab.lib.pagesizes import A4
         c = NumberedCanvas(buffer, pagesize=A4)
+        brand = (data.institucion_nombre or "").strip() or clinical_brand()
         c.setTitle(f"Informe Neuropsicológico — {data.nombre_completo}")
-        c.setAuthor(data.profesional_nombre or "NeuroSoft")
+        c.setAuthor(data.profesional_nombre or brand)
         c.setSubject(f"Evaluación Neuropsicológica — {self.VARIANT_LABEL}")
-        c.setCreator("NeuroSoft App")
-        # F9.3 — Keywords/Producer/ModDate para indexación y trazabilidad.
+        c.setCreator(brand)
         c.setKeywords(
-            "NeuroSoft,Neuropsicología,Informe,{},{}".format(
+            "Neuropsicología,Informe,{},{}".format(
                 data.codigo_cie10 or "sin-CIE10",
                 data.eval_id[:8] if getattr(data, "eval_id", "") else "sin-id",
             )
         )
-        c.setProducer("NeuroSoft App — Generador de Informes Clínicos v2.0")
+        c.setProducer(f"{brand} — Informes clínicos")
 
         self._build_pages(c, data)
 
@@ -204,7 +206,7 @@ class NeuroPDFGeneratorPro:
             c.showPage()
 
         # Informe COMPLETO / ORIGINAL: consigna verbatim lo que el profesional
-        # diligencia, con todas las áreas presentes (estilo IN&S). NO usa
+        # diligencia, con todas las áreas presentes (estilo ficha clínica). NO usa
         # narrativa generada por IA — eso queda reservado a las variantes
         # cortas (paciente, junta médica, etc.).
         y = self._page_top_with_header(c, data)
@@ -437,7 +439,7 @@ class NeuroPDFGeneratorPro:
             font_name=FONT_SANS_ITALIC, size=TYPE.micro + 0.5, color=SLATE,
         )
 
-        # Línea funcional IN&S: orden + fechas (centro)
+        # Línea funcional del informe: orden + fechas (centro)
         orden = (data.orden_no or "").strip()
         if not orden and getattr(data, "eval_id", ""):
             orden = str(data.eval_id)[:12]
@@ -482,7 +484,7 @@ class NeuroPDFGeneratorPro:
 
     def _draw_footer_factory(self, data):
         """Devuelve una closure ``(c, page_num, total_pages) → None``."""
-        institucion = data.institucion_nombre or "NeuroSoft App"
+        institucion = (data.institucion_nombre or "").strip() or "Consultorio"
         eval_id = (getattr(data, "eval_id", "") or "")[:8]
 
         def _draw(c, page_num: int, total_pages: int) -> None:
@@ -603,7 +605,7 @@ class NeuroPDFGeneratorPro:
         """Renderiza una lista de (etiqueta, valor) como ``info_box`` en columnas.
 
         Muestra TODAS las cajas aunque el valor esté vacío (placeholder), igual
-        que el formato IN&S. Pagina por filas para no partir una caja.
+        que el formato informe NPS. Pagina por filas para no partir una caja.
         """
         L = LAYOUT
         col_w = (L.content_w - (cols - 1) * gap) / cols
@@ -646,7 +648,7 @@ class NeuroPDFGeneratorPro:
         return self._render_boxes(c, data, antec, y, cols=2) - 4
 
     def _section_historia_psicosocial(self, c, data, y: float) -> float:
-        """Historia familiar, social y funcional (estilo IN&S)."""
+        """Historia familiar, social y funcional (estilo ficha clínica)."""
         items = [
             ("Vive con", data.vive_con),
             ("Actividades básicas cotidianas (ABC)", data.abc),
@@ -723,7 +725,7 @@ class NeuroPDFGeneratorPro:
     def _section_analisis_dominio(self, c, data, y: float) -> float:
         """Análisis cualitativo por dominio cognitivo — texto verbatim del clínico.
 
-        Réplica del bloque "Resultados por área" del formato IN&S: cada dominio
+        Réplica del bloque "Resultados por área" del formato informe NPS: cada dominio
         se consigna aunque no se diligencie. Es el análisis que el profesional
         escribe a partir de los puntajes; NO se genera con IA.
         """

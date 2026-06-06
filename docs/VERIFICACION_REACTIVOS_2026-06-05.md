@@ -1,6 +1,6 @@
 # Verificación reactivos WISC/WAIS — 2026-06-05
 
-Listado generado desde `clinical.js` + protocolos JSON.  
+Listado generado desde `clinical.js` + protocolos JSON. 
 Regenerar: `python docs/scripts/dump_reactivos_verify.py` (salida UTF-8 en consola).
 
 ## Protocolos JSON (7 archivos)
@@ -15,7 +15,7 @@ Regenerar: `python docs/scripts/dump_reactivos_verify.py` (salida UTF-8 en conso
 | protocolos_casos_especiales.json | protocolos_alternos_casos_especiales | Protocolos Alternos Casos Especiales | "" |
 | protocolos_memoria_verbal.json | memoria_verbal | Protocolos de Memoria Verbal | "" |
 
-- Sin texto `IN&S`, `institutonys`, NIT 901.192.434 en protocolos.
+- Sin texto ``, `institutonys`, NIT 901.192.434 en protocolos.
 - Mojibake corregido (UTF-8); ej. FÚTBOL, Último, épico, ítems × ensayos.
 - Espejo: `neurosoft-frontend/src/data/protocols/` y `neurosoft-backend/data/protocols/`.
 
@@ -98,7 +98,7 @@ Matriz 1-26 — cuadernillo.
 
 ### AdDDir
 
-**Directos:** 1-7/6-3 … 2-7-5-8-6-2-5-8-4 / 7-1-3-9-4-2-5-6-8  
+**Directos:** 1-7/6-3 … 2-7-5-8-6-2-5-8-4 / 7-1-3-9-4-2-5-6-8 
 **Inversos:** 2-4/5-7 … 9-4-3-7-6-2-5-8 / 7-2-8-1-9-6-5-3
 
 ### AdWAISL (7 niveles × 3 ensayos distintos)

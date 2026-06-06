@@ -23,7 +23,7 @@ import AIAsistente from "../ia/AIAsistente.jsx";
 import { ShareButton, SecondOpinionButton } from "../compartir/PanelCompartir.jsx";
 import { OBS_TEMPLATES } from "../../data/clinical.js";
 import { DISCREPANCY_PAIRS } from "../../data/ui.js";
-import DomainAnalysis from "./DomainAnalysis.jsx";
+import DomainAnalysisLazy from "./DomainAnalysisLazy.jsx";
 import { useReservorio } from "../../hooks/useReservorio.js";
 import ClinicalInterpretationPanel from "./ClinicalInterpretationPanel.jsx";
 import ClinicalDisclaimer from "./ClinicalDisclaimer.jsx";
@@ -331,7 +331,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
         {/* ─── INTERPRETACIÓN CLÍNICA ASISTIDA ─── */}
         <ClinicalInterpretationPanel resultados={res?.resultados||[]} edad={res?.patient_info?.edad_anios??evalCtx?.edad??null}/>
         {/* ─── ANÁLISIS POR DOMINIOS COGNITIVOS (Fase F.2) ─── */}
-        <DomainAnalysis subtests={subtests}/>
+        <DomainAnalysisLazy subtests={subtests}/>
         {/* Tabla de resultados */}
         <Card className="overflow-hidden"><table className="w-full text-sm"><thead style={{background:"var(--ns-subtle)"}}><tr><th className="px-4 py-3 text-left font-bold">Prueba</th><th className="px-3 py-3 text-center font-bold">PD</th><th className="px-3 py-3 text-center font-bold">PE</th><th className="px-3 py-3 text-center font-bold">Z</th><th className="px-3 py-3 text-left font-bold">Nivel</th><th className="px-4 py-3 text-left font-bold">Dominio</th></tr></thead>
           <tbody>{(res?.resultados||[]).filter(r=>r.puntaje_bruto!==9999).map((r,i)=><tr key={r.test_id} className={`border-b border-gray-50 ${i%2?"bg-gray-50/30":""}`}><td className="px-4 py-2.5 font-bold text-xs">{r.test_nombre}</td><td className="px-3 py-2.5 text-center text-xs">{r.puntaje_bruto!=null?r.puntaje_bruto:"—"}</td><td className="px-3 py-2.5 text-center font-extrabold text-xs" style={{color:lc(r.interpretacion)}}>{r.puntaje_escalar!=null?Math.round(r.puntaje_escalar):"—"}</td><td className="px-3 py-2.5 text-center text-xs font-mono" style={{color:lc(r.interpretacion)}}>{r.z_equivalente!=null?(r.z_equivalente>0?"+":"")+r.z_equivalente.toFixed(1):"—"}</td><td className="px-3 py-2.5"><span className="px-2 py-0.5 text-[10px] font-bold rounded" style={{background:`${lc(r.interpretacion)}15`,color:lc(r.interpretacion)}}>{r.interpretacion}</span></td><td className="px-4 py-2.5 text-gray-400 italic text-[10px]">{r.dominio_cognitivo}</td></tr>)}</tbody></table>

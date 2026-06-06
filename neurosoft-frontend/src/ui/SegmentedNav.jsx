@@ -52,9 +52,9 @@ export default function SegmentedNav({ items, current, onSelect, getStatus }) {
             key={it.test_id || i}
             type="button"
             onClick={() => onSelect(i)}
-            title={it.nombre}
-            className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-xs transition-colors w-full ${
-              active ? "font-bold" : "font-medium opacity-80"
+            title={`${i + 1}. ${it.nombre}${it.dominio ? " · " + it.dominio : ""}`}
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-[13px] transition-colors w-full ${
+              active ? "font-bold" : "font-medium opacity-90"
             }`}
             style={{
               background: active ? "rgba(13,148,136,0.12)" : "transparent",
@@ -62,16 +62,18 @@ export default function SegmentedNav({ items, current, onSelect, getStatus }) {
             }}
           >
             <span
-              className="w-2 h-2 rounded-full shrink-0"
+              className="w-2.5 h-2.5 rounded-full shrink-0"
               style={{ background: dotColor }}
               aria-hidden
             />
-            <span className="font-mono text-[11px] tracking-tight shrink-0 w-10">
+            <span className="font-mono text-[10px] tracking-tight shrink-0 w-9 text-center px-1 py-0.5 rounded"
+              style={{ background: active ? "rgba(13,148,136,0.18)" : "var(--ns-subtle)", color: active ? "#0D9488" : "var(--ns-muted)" }}>
               {abbr(it.test_id, it.nombre)}
             </span>
-            <span className="truncate opacity-70 hidden xl:inline">
-              {it.dominio || ""}
-            </span>
+            <span className="flex-1 min-w-0 truncate">{it.nombre}</span>
+            {it.es_escala_diferida && (
+              <span className="text-[9px] font-bold uppercase shrink-0 px-1 py-0.5 rounded bg-sky-100 text-sky-700">Escala</span>
+            )}
           </button>
         );
       })}
