@@ -1,0 +1,118 @@
+# Configura descripción, topics e issues públicos para la solicitud Codex OSS.
+# Se ejecuta una vez: Actions → "Bootstrap Codex OSS" → Run workflow
+name: Bootstrap Codex OSS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/bootstrap-codex-oss.yml
+
+permissions:
+  issues: write
+  administration: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Actualizar About y topics del repo
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const description =
+              "OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.";
+            const topics = [
+              "neuropsychology",
+              "healthcare",
+              "fastapi",
+              "react",
+              "python",
+              "colombia",
+              "open-source",
+              "clinical-software",
+              "sqlite",
+              "mental-health",
+            ];
+
+            await github.rest.repos.update({
+              owner,
+              repo,
+              description,
+              homepage: "https://github.com/mrhyde42098/NeuroSoft",
+            });
+
+            await github.request("PUT /repos/{owner}/{repo}/topics", {
+              owner,
+              repo,
+              headers: {
+                Accept: "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+              },
+              names: topics,
+            });
+
+            core.info("About y topics actualizados.");
+
+      - name: Crear issues de roadmap (si no existen)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const planned = [
+              {
+                title: "[roadmap]: E2E Playwright paciente → evaluación → informe Pro",
+                labels: ["roadmap"],
+                body: `Flujo crítico de regresión antes de releases beta.
+
+- [ ] Crear paciente sintético
+- [ ] Aplicar subtest WISC con baremo conocido
+- [ ] Generar informe Pro y validar CI esperado
+
+Ref: docs/ESTADO_VIVO.md`,
+              },
+              {
+                title: "[roadmap]: Etiquetas/tags en panel de pacientes",
+                labels: ["roadmap"],
+                body: `Quick win pendiente del roadmap 2026. Permitir filtrar pacientes por etiquetas
+clínicas (TDAH, adulto mayor, remisión EPS, etc.).
+
+Prioridad: P1`,
+              },
+              {
+                title: "[feature]: Placeholders visuales de estímulos WISC/WAIS en evaluación",
+                labels: ["enhancement"],
+                body: `Mejorar fidelidad del flujo de aplicación mostrando estímulos desde
+stimuli_manifest.json. Sin copiar material con copyright en el repo.
+
+Ref: docs/stimuli/STIMULI_INVENTORY.md`,
+              },
+            ];
+
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: "all",
+              per_page: 100,
+            });
+            const titles = new Set(existing.map((i) => i.title));
+
+            for (const issue of planned) {
+              if (titles.has(issue.title)) {
+                core.info(`Issue ya existe: ${issue.title}`);
+                continue;
+              }
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title: issue.title,
+                body: issue.body,
+                labels: issue.labels,
+              });
+              core.info(`Issue creado: ${issue.title}`);
+            }

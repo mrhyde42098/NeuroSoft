@@ -6,22 +6,27 @@ Formulario: https://openai.com/es-419/form/codex-for-oss/
 
 - [ ] Perfil GitHub **público**: https://github.com/mrhyde42098
 - [ ] Repo **público**: https://github.com/mrhyde42098/NeuroSoft
-- [ ] En GitHub → repo → **About** (engranaje): pegar descripción y topics de abajo
-- [ ] Crear 3 issues desde plantillas (opcional, 5 min): ver sección Issues
+- [ ] **About + 3 issues automáticos** (un clic): ver sección «Paso 1» abajo
 - [ ] Email = cuenta **ChatGPT** con la que usas Codex
-- [ ] **Organization ID**: https://platform.openai.com/settings/organization/general
+- [ ] **Organization ID**: ejecutar `powershell scripts/abrir-codex-oss.ps1` o abrir el enlace del Paso 2
 
-### About del repo (copiar en GitHub)
+### Paso 1 — About e issues (automático, 1 clic)
 
-**Description:**
-```
-OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.
+1. Abre: https://github.com/mrhyde42098/NeuroSoft/actions/workflows/bootstrap-codex-oss.yml
+2. Clic en **Run workflow** → **Run workflow** (rama `main`)
+3. Espera ~30 s (círculo verde). Eso configura descripción, topics y crea 3 issues.
+
+Si no ves «Actions», en el repo ve a **Settings → Actions → General** y permite workflows.
+
+### Paso 2 — Organization ID de OpenAI (solo tú puedes verlo)
+
+Ejecuta en PowerShell desde la raíz del proyecto:
+
+```powershell
+.\scripts\abrir-codex-oss.ps1
 ```
 
-**Topics:**
-```
-neuropsychology healthcare fastapi react python colombia open-source clinical-software sqlite mental-health
-```
+Se abren el formulario y la página de OpenAI. Copia el **Organization ID** (`org-...`) y pégalo en el formulario.
 
 ---
 
