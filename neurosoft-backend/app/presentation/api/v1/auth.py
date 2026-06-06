@@ -300,6 +300,8 @@ _WINDOW_SECONDS = int(_os.getenv("NEUROSOFT_LOGIN_WINDOW_SECONDS", "60"))
 
 def _check_rate_limit(client_ip: str) -> None:
     """Lanza 429 si el IP excede el límite de intentos de login."""
+    if _os.getenv("NEUROSOFT_E2E") == "1" or _MAX_ATTEMPTS <= 0:
+        return
     now = _time.time()
     attempts = _LOGIN_ATTEMPTS.get(client_ip, [])
     # Limpiar intentos fuera de la ventana

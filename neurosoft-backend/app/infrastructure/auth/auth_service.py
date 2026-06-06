@@ -421,10 +421,14 @@ class UserRepository:
             # proceso con esa flag podia sobrescribir la contraseña del
             # usuario beta (rol=profesional) sin auth.
             _reset_beta_pwd = os.getenv("NEUROSOFT_RESET_BETA_PASSWORD", "0")
-            if _reset_beta_pwd == "1":
+            _e2e = os.getenv("NEUROSOFT_E2E", "0") == "1"
+            if _reset_beta_pwd == "1" and _e2e:
+                beta.hashed_password = hash_password(password)
+                logger.info("E2E: contraseña beta sincronizada (NEUROSOFT_E2E=1).")
+            elif _reset_beta_pwd == "1":
                 logger.warning(
                     "NEUROSOFT_RESET_BETA_PASSWORD está activa pero es IGNORADA "
-                    "(eliminado en Sprint 0, S0.5). Use /auth/change-password."
+                    "(solo aplica con NEUROSOFT_E2E=1). Use /auth/change-password."
                 )
             self._db.commit()
             return beta

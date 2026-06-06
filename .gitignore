@@ -15,6 +15,8 @@ vendor/
 # Frontend
 neurosoft-frontend/node_modules/
 neurosoft-frontend/dist/
+neurosoft-frontend/test-results/
+neurosoft-frontend/playwright-report/
 
 # Outputs de tests / samples (regenerables)
 neurosoft-backend/docs/casos-clinicos/muestras-20-casos/
@@ -28,7 +30,6 @@ neurosoft-backend/data/stimuli_assets/**/*.png
 *.db
 *.db-shm
 *.db-wal
-*.sqlite
 *.sqlite3
 .env
 startup.log
