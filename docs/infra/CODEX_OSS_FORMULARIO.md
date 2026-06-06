@@ -2,45 +2,42 @@
 
 Formulario: https://openai.com/es-419/form/codex-for-oss/
 
-## Antes de enviar (checklist)
+## Antes de enviar — UN SOLO COMANDO
 
-- [ ] Perfil GitHub **público**: https://github.com/mrhyde42098
-- [ ] Repo **público**: https://github.com/mrhyde42098/NeuroSoft
-- [ ] **About + 3 issues automáticos** (un clic): ver sección «Paso 1» abajo
-- [ ] Email = cuenta **ChatGPT** con la que usas Codex
-- [ ] **Organization ID**: ejecutar `powershell scripts/abrir-codex-oss.ps1` o abrir el enlace del Paso 2
-
-### Paso 1 — Issues automáticos (sin login extra si ya hiciste push)
-
-El workflow **Bootstrap Codex OSS** crea los 3 issues al correr.
-
-1. Abre: https://github.com/mrhyde42098/NeuroSoft/actions/workflows/bootstrap-codex-oss.yml
-2. Si la última corrida está en **rojo**, clic **Run workflow** → **Run workflow**
-3. Espera el círculo **verde** (~1 min)
-
-### Paso 1b — About y topics (solo si la descripción sigue diciendo "Software neuropsicologico")
-
-GitHub no deja cambiar el About sin iniciar sesión. Opción más fácil:
-
-1. Entra a https://github.com/login (tu cuenta `mrhyde42098`)
-2. Abre https://github.com/mrhyde42098/NeuroSoft
-3. A la derecha, engranaje ⚙ junto a **About**
-4. Pega en **Description:**
-   `OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.`
-5. En **Topics** agrega: `neuropsychology` `healthcare` `fastapi` `react` `python` `colombia` `open-source` `clinical-software` `sqlite` `mental-health`
-6. **Save changes**
-
-*(Alternativa con token: `powershell scripts/configurar-github-oss.ps1 -GitHubToken ghp_...`)*
-
-### Paso 2 — Organization ID de OpenAI (solo tú puedes verlo)
-
-Ejecuta en PowerShell desde la raíz del proyecto:
+Desde la carpeta del proyecto (`D:\NeuroSoftApp`):
 
 ```powershell
-.\scripts\abrir-codex-oss.ps1
+powershell -ExecutionPolicy Bypass -File scripts/abrir-todo-codex-oss.ps1
 ```
 
-Se abren el formulario y la página de OpenAI. Copia el **Organization ID** (`org-...`) y pégalo en el formulario.
+Eso abre en el navegador (con tu sesión de GitHub ya iniciada):
+
+1. El repo → para editar **About**
+2. **3 issues** ya rellenados → solo **Submit** en cada pestaña
+3. El **formulario Codex OSS** de OpenAI
+4. La página del **Organization ID** (`org-...`)
+
+### Si no estás logueado en GitHub
+
+1. Abre https://github.com/login e inicia sesión como `mrhyde42098`
+2. Vuelve a ejecutar el script de arriba
+
+### About — qué pegar (pestaña 1)
+
+En el engranaje ⚙ junto a **About** (columna derecha del repo):
+
+**Description:**
+```
+OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.
+```
+
+**Topics:** `neuropsychology` `healthcare` `fastapi` `react` `python` `colombia` `open-source` `clinical-software` `sqlite` `mental-health`
+
+→ **Save changes**
+
+### Organization ID (pestaña OpenAI)
+
+En platform.openai.com copia el ID que empieza con `org-...` y pégalo en el formulario.
 
 ---
 
