@@ -38,6 +38,10 @@ startup.log
 .idea/
 .DS_Store
 
+# Material interno IN&S / capacitación — no subir a GitHub (copyright + archivos >50MB)
+Capacitaciones Clínicas/
+docs/referencias-informes/
+
 # Claude Code — local (skills compartidas SÍ se commitean, settings local NO)
 .claude/settings.local.json
 session_logs/
