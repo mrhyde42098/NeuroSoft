@@ -180,7 +180,7 @@ export default function Sidebar({
         </div>
 
         {/* Navegación agrupada */}
-        <nav className="flex flex-col gap-3 flex-grow overflow-y-auto">
+        <nav className="flex flex-col gap-3 flex-grow overflow-y-auto" aria-label="Menú principal">
           {GROUPS.map((g, gi) => (
             <div key={gi} className="flex flex-col gap-1">
               <p

@@ -68,7 +68,6 @@ export default defineConfig({
     stdout: process.env.CI ? "pipe" : "ignore",
     stderr: process.env.CI ? "pipe" : "ignore",
     env: {
-      ...process.env,
       NEUROSOFT_DB_PATH: E2E_DB,
       NEUROSOFT_ADMIN_PASSWORD: process.env.NS_PASS || "neurosoft2025",
       NEUROSOFT_RESET_BETA_PASSWORD: "1",

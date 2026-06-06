@@ -101,7 +101,7 @@ jobs:
         run: npm run build
 
       - name: Run E2E smoke tests
-        run: npx playwright test --reporter=line,github
+        run: npx playwright test --project=smoke --project=a11y --reporter=line
         env:
           CI: "true"
           PYTHON: python
