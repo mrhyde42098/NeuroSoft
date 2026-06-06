@@ -78,6 +78,34 @@ jobs:
               --cov-report=term-missing:skip-covered \
               --junitxml=pytest-results.xml
 
+      - name: Resumen de tests fallidos
+        if: failure()
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          p = Path("pytest-results.xml")
+          if not p.exists():
+              print("No pytest-results.xml")
+              raise SystemExit(0)
+          root = ET.parse(p).getroot()
+          fails = []
+          for case in root.iter("testcase"):
+              if case.find("failure") is not None or case.find("error") is not None:
+                  fails.append(f"{case.get('classname')}::{case.get('name')}")
+          print(f"FAILED ({len(fails)}):")
+          for line in fails[:30]:
+              print(" -", line)
+          PY
+
+      - name: Upload pytest results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-${{ matrix.python }}
+          path: neurosoft-backend/pytest-results.xml
+          if-no-files-found: ignore
+
       - name: Upload coverage artefact
         if: matrix.python == '3.11'
         uses: actions/upload-artifact@v4
