@@ -65,8 +65,6 @@ export default defineConfig({
     port: PORT,
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,
-    stdout: process.env.CI ? "pipe" : "ignore",
-    stderr: process.env.CI ? "pipe" : "ignore",
     env: {
       NEUROSOFT_DB_PATH: E2E_DB,
       NEUROSOFT_ADMIN_PASSWORD: process.env.NS_PASS || "neurosoft2025",
