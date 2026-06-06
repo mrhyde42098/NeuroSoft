@@ -1,27 +1,31 @@
-# docs/ — Documentación del proyecto NeuroSoft
+# docs/ — Documentación NeuroSoft App
 
-Esta carpeta agrupa documentación histórica, planning, samples y scripts auxiliares. El código fuente y los entregables del build NO viven aquí.
+## Empieza aquí
 
-## Estructura
+| Prioridad | Archivo |
+|---|---|
+| 🟢 | [`INDICE_MAESTRO.md`](INDICE_MAESTRO.md) |
+| 🟢 | [`ESTADO_VIVO.md`](ESTADO_VIVO.md) |
+| 🟢 | [`PUNTO_INFLEXION_2026-06-05.md`](PUNTO_INFLEXION_2026-06-05.md) |
 
-| Carpeta | Contenido | Cuándo consultar |
-|---|---|---|
-| `audits/` | Auditorías de código históricas (bugs, refactor, seguridad) | Buscar el origen de un fix o un regresión histórica |
-| `beta/` | Guías y manuales del beta tester (PDF + MD) | Cuando se prepara un release a beta tester |
-| `historic-prompts/` | Prompts antiguos para sesiones de Claude / diseño | Solo si hace falta retomar contexto de una sesión vieja |
-| `legal/` | Habeas Data, registro INVIMA, marco normativo Colombia | Antes de tocar manejo de datos sensibles o lanzar comercial |
-| `planning/` | Roadmaps clínicos, investigación, plan de implementación | Para decidir prioridades de feature o cambios mayores |
-| `samples/` | PDFs de muestra de informes (todas las variantes Pro) | Mostrar al beta tester o documentar diseño actual |
-| `scripts/` | Scripts auxiliares para generar PDFs (manual, brochure, dossier) | Para regenerar entregables después de cambios visuales |
+## Estructura (jun 2026)
 
-## Reglas
+| Carpeta | Contenido |
+|---|---|
+| `historico/` | Auditorías archivadas, prompts viejos, mapa carpetas raíz |
+| `audits/` | Auditorías mayo 2025 |
+| `planning/` | Roadmaps originales — **estado real en ESTADO_VIVO** |
+| `casos-clinicos/` | Ground truth, validación baremos |
+| `beta/` | Guías beta tester |
+| `legal/` | Habeas Data, INVIMA |
+| `seguridad/` | Modelo de amenazas |
+| `arquitectura/` | Flujo datos, mapa módulos |
 
-1. **Raíz del proyecto**: solo `README.md` + `CLAUDE.md`. Cualquier otro `.md` debería terminar aquí.
-2. **`dist/`**: solo `NeuroSoft.exe`, `NeuroSoft-Setup.exe` y `MANUAL_BETA_TESTER.pdf` (el que el instalador empaqueta).
-3. **Auditorías**: archivar con fecha (`AUDIT_YYYY-MM-DD.md`). Nunca borrar — son histórico de decisiones.
+## Reglas de organización
 
-## Genéricos a tener a la mano
+1. **Raíz del repo:** solo `README.md` + `CLAUDE.md` + archivos de build. Los `AUDIT_*.md` van a `docs/historico/audits/`.
+2. **No borrar** auditorías ni roadmaps — archivar en `historico/`.
+3. **Actualizar** `ESTADO_VIVO.md` al cerrar cada sprint.
+4. **`dist/`:** artefactos de build (gitignored).
 
-- **CLAUDE.md raíz** — instrucciones para sesiones de Claude Code (qué ya existe, qué NO recomendar).
-- **`docs/planning/CLINICAL_ROADMAP.md`** — estado vivo del roadmap clínico.
-- **`docs/legal/HABEAS_DATA.md`** — política de manejo de datos clínicos.
+Ver [`historico/CARPETAS_RAIZ.md`](historico/CARPETAS_RAIZ.md) para el mapa completo del monorepo.

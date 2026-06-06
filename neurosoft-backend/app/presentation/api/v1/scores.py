@@ -31,6 +31,7 @@ from app.core.exceptions import (
     DomainError,
     PatientNotFoundError,
 )
+from app.presentation.api.v1.auth import CurrentUser, get_patient_for_user
 from app.presentation.dependencies import (
     DbSession,
     GetObsUC,
@@ -71,7 +72,10 @@ def _handle(e: Exception):
 def score_evaluation(
     dto: ScoringRequestDTO,
     uc: ScoreEvalUC,
+    db: DbSession,
+    user=CurrentUser,
 ) -> ScoringResponseDTO:
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return uc.execute(dto)
     except Exception as e:
@@ -90,7 +94,10 @@ def score_evaluation(
 def score_preview(
     dto: SingleScoreRequestDTO,
     uc: ScorePreviewUC,
+    db: DbSession,
+    user=CurrentUser,
 ) -> ResultadoPruebaDTO | None:
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return uc.execute(dto)
     except Exception as e:
@@ -133,7 +140,10 @@ def list_tests(
 def upsert_observation(
     dto: ObservationUpsertDTO,
     uc: UpsertObsUC,
+    db: DbSession,
+    user=CurrentUser,
 ) -> ObservationResponseDTO:
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return uc.execute(dto)
     except Exception as e:
@@ -148,9 +158,12 @@ def upsert_observation(
 )
 def get_observations(
     patient_id: str,
+    db: DbSession,
     evaluation_id: str | None = Query(default=None),
     uc: GetObsUC = ...,
+    user=CurrentUser,
 ) -> ObservationsCompleteDTO:
+    get_patient_for_user(patient_id, db, user)
     return uc.execute(patient_id, evaluation_id)
 
 
@@ -169,6 +182,7 @@ def get_observations(
 def get_grober_curve(
     patient_id: str,
     db: DbSession,
+    user=CurrentUser,
 ):
     """
     Construye la curva de memoria Grober para el frontend.
@@ -179,6 +193,8 @@ def get_grober_curve(
     from sqlalchemy import desc
 
     from app.infrastructure.database.orm_models import EvaluationORM
+
+    get_patient_for_user(patient_id, db, user)
 
     # Pruebas Grober en orden de la curva
     GROBER_SEQUENCE = [

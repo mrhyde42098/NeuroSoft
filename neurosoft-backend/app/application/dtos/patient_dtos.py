@@ -70,6 +70,24 @@ class PatientCreateDTO(BaseModel):
     finalidad_consulta: str | None = None
     numero_sesiones:    int = Field(default=1, ge=1)
     donante:            bool = False
+    via_atencion:       str = Field(
+        default="mixto",
+        description="Comma-separated: neuropsicologia, psicoterapia, rehabilitacion, mixto",
+    )
+
+    @field_validator("via_atencion")
+    @classmethod
+    def validate_via_atencion(cls, v: str) -> str:
+        allowed = {"neuropsicologia", "psicoterapia", "rehabilitacion", "mixto"}
+        parts = [p.strip().lower() for p in v.split(",") if p.strip()]
+        if not parts:
+            return "mixto"
+        for p in parts:
+            if p not in allowed:
+                raise ValueError(
+                    f"via_atencion inválida '{p}'. Válidos: {sorted(allowed)}"
+                )
+        return ",".join(parts)
 
     @field_validator("sexo")
     @classmethod
@@ -139,6 +157,7 @@ class PatientUpdateDTO(BaseModel):
     motivo_consulta:    str | None = None
     codigo_rips:        str | None = None
     eps:                str | None = None
+    via_atencion:       str | None = None
 
 
 # ============================================================
@@ -173,6 +192,7 @@ class PatientResponseDTO(BaseModel):
     motivo_consulta:    str | None
     codigo_rips:        str | None
     eps:                str | None
+    via_atencion:       str = "mixto"
 
     # Campos calculados por el backend
     age_years:      int

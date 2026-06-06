@@ -4,6 +4,7 @@
 
 import React, { useState } from "react";
 import { Card, I, TopBar } from "../../ui/primitives.jsx";
+import SectionCard from "../../ui/SectionCard.jsx";
 import { TEAL, _NAVY } from "../../ui/tokens.js";
 import { CHANGELOG } from "../../data/changelog.js";
 import {
@@ -164,22 +165,12 @@ export default function HelpPage({ section = null }) {
                   Cada versión incluye las novedades y mejoras incorporadas.
                 </p>
                 {CHANGELOG.map((entry) => (
-                  <Card key={entry.version} className="p-5 border-l-4" style={{ borderColor: entry.color }}>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${entry.color}20` }}>
-                        <I name={entry.icono} fill className="text-lg" style={{ color: entry.color }} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-extrabold" style={{ color: "var(--ns-text)" }}>v{entry.version}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold"
-                            style={{ background: `${entry.color}20`, color: entry.color }}>
-                            {new Date(entry.fecha).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" })}
-                          </span>
-                        </div>
-                        <p className="text-xs mt-0.5" style={{ color: "var(--ns-muted)" }}>{entry.titulo}</p>
-                      </div>
-                    </div>
+                  <SectionCard
+                    key={entry.version}
+                    title={`v${entry.version} — ${entry.titulo}`}
+                    icon={entry.icono}
+                    eyebrow={new Date(entry.fecha).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" })}
+                  >
                     <ul className="space-y-1.5">
                       {entry.cambios.map((c, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--ns-text)" }}>
@@ -188,7 +179,7 @@ export default function HelpPage({ section = null }) {
                         </li>
                       ))}
                     </ul>
-                  </Card>
+                  </SectionCard>
                 ))}
                 <Card className="p-4 border-dashed text-center" style={{ background: "var(--ns-subtle)" }}>
                   <I name="update" className="text-2xl mb-1" style={{ color: "var(--ns-muted)" }} />
@@ -267,19 +258,16 @@ export default function HelpPage({ section = null }) {
                 </Card>
 
                 {/* Variables de ajuste obligatorias */}
-                <Card className="p-5 border-l-4" style={{ borderColor: "#fb923c" }}>
-                  <p className="text-xs font-extrabold uppercase tracking-wider mb-3" style={{ color: "#7c2d12" }}>
-                    {REGLAS_AJUSTE.titulo}
-                  </p>
+                <SectionCard title={REGLAS_AJUSTE.titulo} icon="tune" eyebrow="Neuronorma Colombia">
                   <ul className="space-y-2">
                     {REGLAS_AJUSTE.bullets.map((b, i) => (
                       <li key={i} className="flex items-start gap-2 text-xs leading-relaxed" style={{ color: "var(--ns-text)" }}>
-                        <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#fb923c" }} />
+                        <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: TEAL }} />
                         {b}
                       </li>
                     ))}
                   </ul>
-                </Card>
+                </SectionCard>
 
                 {/* 10 pruebas con normas colombianas */}
                 <div>

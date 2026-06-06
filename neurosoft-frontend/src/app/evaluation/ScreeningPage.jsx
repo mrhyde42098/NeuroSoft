@@ -19,6 +19,9 @@ import { TEAL } from "../../ui/tokens.js";
 import { SCREENING_FORMS } from "../../data/screening.js";
 import { useToast } from "../../contexts.jsx";
 import ScreeningWizard from "./ScreeningWizard.jsx";
+import ValidezPanel from "./ValidezPanel.jsx";
+/* Variantes legacy ocultas en el picker (misma abreviatura que la versión canónica). */
+const SCREENING_PICKER_EXCLUDE = new Set(["NPIQ_FLAT", "ZARIT"]);
 
 function scoreLikertItem(form, scores, i) {
   /* §M2-fix: parseInt SIEMPRE con radix 10 — Likert es 0-N, sin ambigüedad. */
@@ -29,13 +32,19 @@ function scoreLikertItem(form, scores, i) {
 }
 
 /* ─── Calcula total + interpretación según tipo de instrumento ─── */
-function computeResult(form, scores) {
+function computeResult(form, scores, opts = {}) {
+  const normKey = opts.normProfile || form.defaultNormProfile || "internacional";
+  const activeCutoff =
+    form.normProfiles?.[normKey]?.cutoff ?? form.cutoff;
   if (form.kind === "likert_flat") {
     let total = 0;
     form.items.forEach((_, i) => {
       const v = scoreLikertItem(form, scores, i);
       if (v != null) total += v;
     });
+    const ctx = opts.clinicalContext || form.defaultClinicalContext || "clinica";
+    const clinicalCutoff =
+      form.clinicalCutoffs?.[ctx] ?? form.clinicalCutoff;
     const sev = form.severity.find((s) => total <= s.max) ||
                 form.severity[form.severity.length - 1];
     /* Red flags: ítems específicos con respuesta ≥1 */
@@ -67,8 +76,9 @@ function computeResult(form, scores) {
       total,
       label: sev.label,
       color: sev.color,
-      cutoff: form.clinicalCutoff,
-      aboveCutoff: total >= form.clinicalCutoff,
+      cutoff: clinicalCutoff,
+      aboveCutoff: total >= clinicalCutoff,
+      normLabel: ctx === "ap_colombia" ? "Corte AP Colombia (≥7)" : "Corte clínica (≥10)",
       redFlags,
       subescalaScores,
     };
@@ -82,16 +92,24 @@ function computeResult(form, scores) {
     0,
   );
   const label =
-    total >= form.cutoff ? "Normal"
-    : total >= form.cutoff - 4 ? "Deterioro Leve"
-    : total >= form.cutoff - 10 ? "Deterioro Moderado"
+    total >= activeCutoff ? "Normal"
+    : total >= activeCutoff - 4 ? "Deterioro Leve"
+    : total >= activeCutoff - 10 ? "Deterioro Moderado"
     : "Deterioro Severo";
   const color =
     label === "Normal" ? TEAL
     : label === "Deterioro Leve" ? "#f59e0b"
     : label === "Deterioro Moderado" ? "#ea580c"
     : "#dc2626";
-  return { total, label, color, cutoff: form.cutoff, aboveCutoff: false, redFlags: [] };
+  return {
+    total,
+    label,
+    color,
+    cutoff: activeCutoff,
+    normLabel: form.normProfiles?.[normKey]?.label,
+    aboveCutoff: false,
+    redFlags: [],
+  };
 }
 
 export default function ScreeningPage() {
@@ -103,6 +121,8 @@ export default function ScreeningPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [obs, setObs] = useState("");
+  const [normProfile, setNormProfile] = useState("");
+  const [clinicalContext, setClinicalContext] = useState("");
 
   useEffect(() => {
     api.get("/api/v1/patients/panel")
@@ -112,7 +132,14 @@ export default function ScreeningPage() {
   }, []);
 
   const form = SCREENING_FORMS[test];
-  const result = useMemo(() => computeResult(form, scores), [form, scores]);
+  useEffect(() => {
+    if (form?.defaultNormProfile) setNormProfile(form.defaultNormProfile);
+    if (form?.defaultClinicalContext) setClinicalContext(form.defaultClinicalContext);
+  }, [test, form]);
+  const result = useMemo(
+    () => computeResult(form, scores, { normProfile, clinicalContext }),
+    [form, scores, normProfile, clinicalContext],
+  );
 
   const setBin = (d, i, v) => setScores((s) => ({ ...s, [`${d}_${i}`]: v }));
   const setLik = (i, v) => setScores((s) => ({ ...s, [`item_${i}`]: v }));
@@ -349,52 +376,54 @@ export default function ScreeningPage() {
       <main className="p-8 space-y-6 max-w-6xl mx-auto">
         <MsgBanner msg={msg === "ok" ? "ok" : msg} onDismiss={msg && msg !== "ok" ? () => setMsg("") : null} />
 
-        {/* F8.2: Wizard de motivo de consulta — sugiere batería inicial */}
-        <ScreeningWizard
-          onPickTest={(tid) => { setTest(tid); setScores({}); setObs(""); }}
-          edadInicial={null}
-        />
-
-        {/* Selector de instrumento: tarjeta por categoría clínica */}
-        <Card className="p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <I name="tune" className="text-lg" style={{ color: TEAL }} />
-            <h3 className="font-bold text-sm" style={{ color: "var(--ns-text)" }}>Seleccionar instrumento</h3>
-            <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${TEAL}15`, color: TEAL }}>
-              {Object.keys(SCREENING_FORMS).length} escalas disponibles
-            </span>
+        <details className="rounded-xl border" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-card)" }}>
+          <summary className="px-5 py-3 cursor-pointer text-sm font-bold flex items-center gap-2">
+            <I name="assistant" style={{ color: TEAL }} />Asistente de selección (opcional)
+          </summary>
+          <div className="px-5 pb-5">
+            <ScreeningWizard
+              onPickTest={(tid) => { setTest(tid); setScores({}); setObs(""); }}
+              edadInicial={null}
+            />
           </div>
-          <div className="space-y-3">
+        </details>
+
+        <details className="rounded-xl border" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-card)" }}>
+          <summary className="px-5 py-3 cursor-pointer text-sm font-bold flex items-center gap-2">
+            <I name="gavel" style={{ color: "#f59e0b" }} />Validez de síntomas (peritaje)
+          </summary>
+          <div className="p-4">
+            <ValidezPanel onInsertObs={(txt) => setObs((o) => (o ? `${o}\n\n${txt}` : txt))} />
+          </div>
+        </details>
+
+        <div className="grid grid-cols-12 gap-6">
+        <Card className="p-4 col-span-12 lg:col-span-4 h-fit">
+          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--ns-muted)" }}>Categorías</p>
+          <div className="space-y-1">
             {[
-              { title: "Cognitivo",    icon: "psychology",         domains: ["Cognitivo", "Severidad demencia"] },
-              { title: "Emocional",    icon: "sentiment_sad",      domains: ["Depresión", "Ansiedad", "Ansiedad / Depresión", "Ansiedad infantil"] },
-              { title: "TDAH",         icon: "bolt",               domains: ["TDAH / oposicionista", "TDAH escolar", "TDAH adultos"] },
-              { title: "Conductual",   icon: "manage_accounts",    domains: ["TEA (screening temprano)", "Síntomas neuropsiquiátricos"] },
-              { title: "Funcional",    icon: "accessibility_new",  domains: ["Funcionalidad básica", "Funcionalidad instrumental", "Sobrecarga del cuidador"] },
-              { title: "Trauma / PTSD", icon: "crisis_alert",      domains: ["Trauma / PTSD"] },
+              { title: "Cognitivo", icon: "psychology", domains: ["Cognitivo", "Cognitivo ejecutivo", "Severidad demencia"] },
+              { title: "Emocional", icon: "sentiment_sad", domains: ["Depresión", "Ansiedad", "Ansiedad / Depresión", "Ansiedad infantil"] },
+              { title: "TDAH", icon: "bolt", domains: ["TDAH / oposicionista", "TDAH escolar", "TDAH adultos"] },
+              { title: "Conductual", icon: "manage_accounts", domains: ["TEA (screening temprano)", "Síntomas neuropsiquiátricos"] },
+              { title: "Funcional", icon: "accessibility_new", domains: ["Funcionalidad básica", "Funcionalidad instrumental", "Sobrecarga del cuidador"] },
+              { title: "Trauma", icon: "crisis_alert", domains: ["Trauma / PTSD"] },
             ].map((group) => {
               const matching = Object.keys(SCREENING_FORMS)
+                .filter((k) => !SCREENING_PICKER_EXCLUDE.has(k))
                 .filter((k) => group.domains.includes(SCREENING_FORMS[k].domain));
               if (matching.length === 0) return null;
               return (
-                <div key={group.title} className="flex items-center gap-2 flex-wrap p-3 rounded-lg"
-                  style={{ background: "var(--ns-subtle)" }}>
-                  <div className="flex items-center gap-1.5 shrink-0" style={{ minWidth: 120 }}>
-                    <I name={group.icon} className="text-sm" style={{ color: TEAL }} />
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: "var(--ns-muted)" }}>
-                      {group.title}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
+                <div key={group.title} className="mb-3">
+                  <p className="text-[10px] font-extrabold uppercase flex items-center gap-1 mb-1" style={{ color: TEAL }}>
+                    <I name={group.icon} className="text-sm" />{group.title}
+                  </p>
+                  <div className="flex flex-col gap-1">
                     {matching.map((k) => (
-                      <button key={k}
-                        onClick={() => { setTest(k); setScores({}); setObs(""); }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${test === k ? "text-white shadow-md" : "hover:shadow-sm"}`}
-                        title={SCREENING_FORMS[k].name}
-                        style={test === k
-                          ? { background: TEAL, boxShadow: `0 4px 12px -4px ${TEAL}60` }
-                          : { background: "var(--ns-card)", color: "var(--ns-muted)", border: "1px solid var(--ns-card-b)" }}>
-                        {SCREENING_FORMS[k].abbr}
+                      <button key={k} type="button" onClick={() => { setTest(k); setScores({}); setObs(""); }}
+                        className={`text-left px-2 py-1.5 rounded-lg text-xs font-bold ${test === k ? "text-white" : ""}`}
+                        style={test === k ? { background: TEAL } : { background: "var(--ns-subtle)", color: "var(--ns-text)" }}>
+                        {SCREENING_FORMS[k].abbr} — {SCREENING_FORMS[k].name?.slice(0, 28)}
                       </button>
                     ))}
                   </div>
@@ -403,7 +432,7 @@ export default function ScreeningPage() {
             })}
           </div>
         </Card>
-
+        <div className="col-span-12 lg:col-span-8 space-y-4">
         <Card className="p-5">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4">
             <div className="flex-1">
@@ -414,6 +443,25 @@ export default function ScreeningPage() {
                   <p className="text-[10px]" style={{ color: "var(--ns-muted)" }}>{form.domain} · {form.ageRange}</p>
                 </div>
               </div>
+              {form.normProfiles && (
+                <div className="sm:w-56">
+                  <Label className="text-xs">Perfil normativo</Label>
+                  <Sel value={normProfile} onChange={(e) => setNormProfile(e.target.value)} className="text-xs">
+                    {Object.entries(form.normProfiles).map(([k, v]) => (
+                      <option key={k} value={k}>{v.label || k} (corte {v.cutoff})</option>
+                    ))}
+                  </Sel>
+                </div>
+              )}
+              {form.clinicalCutoffs && (
+                <div className="sm:w-48">
+                  <Label className="text-xs">Contexto PHQ</Label>
+                  <Sel value={clinicalContext} onChange={(e) => setClinicalContext(e.target.value)} className="text-xs">
+                    <option value="ap_colombia">Atención primaria CO (≥7)</option>
+                    <option value="clinica">Clínica estándar (≥10)</option>
+                  </Sel>
+                </div>
+              )}
               <Label>Paciente</Label>
               <Sel value={patId} onChange={(e) => setPatId(e.target.value)}>
                 <option value="">— Seleccione —</option>
@@ -453,6 +501,9 @@ export default function ScreeningPage() {
           <Txta value={obs} onChange={(e) => setObs(e.target.value)}
             placeholder="Observaciones clínicas durante la aplicación..." />
         </Card>
+
+        </div>
+        </div>
 
         <div className="flex gap-3 justify-end">
           <Btn v="outline" onClick={exportScreening}>

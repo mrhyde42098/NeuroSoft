@@ -19,8 +19,14 @@ import {
 import ReactivePanel from "./ReactivePanel.jsx";
 import ScoreInput from "./ScoreInput.jsx";
 import StimulusDisplay from "./StimulusDisplay.jsx";
+import { itemMappedStimuli } from "./stimulusHelpers.js";
+import { NativeStimuli } from "../../data/stimuli.jsx";
 import OrdenClinicoBanner from "./OrdenClinicoBanner.jsx"; // §M-6
 import GuideFormatter from "./GuideFormatter.jsx";
+import FloatingTimer from "../../ui/FloatingTimer.jsx";
+import SegmentedNav from "../../ui/SegmentedNav.jsx";
+import GuideAccordion from "../../ui/GuideAccordion.jsx";
+import SectionCard from "../../ui/SectionCard.jsx";
 import { ADAPTATIONS, SATTLER_FORMS, estimateCITFromShortForm } from "../../utils/sattlerShortForms.js";
 import { getNeuronormaInfo, NEURONORMA_COLOMBIA_REF } from "../../data/neuronormaColombia.js";
 import { getSubtest } from "../../data/protocolLoader.js";
@@ -29,21 +35,25 @@ import { getSubtest } from "../../data/protocolLoader.js";
 const DRAFT_KEY = (patientId, proto) => `ns_eval_draft_${patientId || "sin_paciente"}_${proto}`;
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días — luego expira
 
-export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
+export default function EvalApplyPage({setPage,_setPage,nav,evalCtx,_setEvalCtx}){
+  const goPage = setPage || _setPage;
  /* §M3-fix: toast + confirm modal (reemplazan alert/window.confirm). */
  const toast=useToast();const confirm=useConfirm();
- const[patients,setPatients]=useState([]);const[patId,setPatId]=useState(evalCtx?.patientId||safeLS.get("ns_sel_patient")||"");
- const[tests,setTests]=useState([]);const[cur,setCur]=useState(0);const[puntajes,setPuntajes]=useState(evalCtx?.puntajes||{});const[obs,setObs]=useState(evalCtx?.obs||{});
+const sanitizePuntajes=(raw={})=>Object.fromEntries(
+  Object.entries(raw).filter(([,v])=>v!=null&&v!==""&&Number(v)!==9999).map(([k,v])=>[k,String(v)])
+);
+const[patients,setPatients]=useState([]);const[patId,setPatId]=useState(evalCtx?.patientId||safeLS.get("ns_sel_patient")||"");
+const[tests,setTests]=useState([]);const[cur,setCur]=useState(0);const[puntajes,setPuntajes]=useState(()=>sanitizePuntajes(evalCtx?.puntajes));const[obs,setObs]=useState(evalCtx?.obs||{});
  /* §autosave: estado del borrador (timestamp de último guardado, si hubo restore). */
  const[draftSavedAt,setDraftSavedAt]=useState(null);
  const[draftRestoredFrom,setDraftRestoredFrom]=useState(null);/* ISO date string si se restauró un draft */
  const[timer,setTimer]=useState(0);const[timerOn,setTimerOn]=useState(false);const[retentionTick,setRetentionTick]=useState(Date.now());const ref=useRef(null);
- const[mode,setMode]=useState("apply");const[guiaOpen,setGuiaOpen]=useState(false);const[guiaTab,setGuiaTab]=useState("conductas");
+ const[mode,setMode]=useState("apply");const[portadaOk,setPortadaOk]=useState(false);const[guiaOpen,setGuiaOpen]=useState(false);const[guiaTab,setGuiaTab]=useState("conductas");
  const[proto,setProto]=useState("wisc_iv");
  const[adaptacion,setAdaptacion]=useState("estandar");
  const[itemScores,setItemScores]=useState({});/* Reactive item-level scores */
  const[conductas_checked,setConducChecked]=useState({});/* §4.2: conductas seleccionadas por test_id */
- const protos={wisc_iv:{nombre:"WISC-IV",tests:[{test_id:"NiWiscDC",nombre:"Diseño con Cubos",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:120},{test_id:"NiWiscSem",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"NiWiscRDD",nombre:"Retención de Dígitos",dominio:"Memoria de Trabajo"},{test_id:"NiWiscConD",nombre:"Conceptos con Dibujos",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCl",nombre:"Claves",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWiscVoc",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"NiWiscLN",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"NiWiscMat",nombre:"Matrices",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCom",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"NiWiscBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWisFigInc",nombre:"Figuras Incompletas",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:20,es_suplementaria:true},{test_id:"NiWiscAri",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:30,es_suplementaria:true},{test_id:"NiWisInf",nombre:"Información",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisPalCon",nombre:"Palabras en Contexto",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisReg",nombre:"Registros",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:45,es_suplementaria:true},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},wais_iii:{nombre:"WAIS-III",tests:[{test_id:"AdWAISFI",nombre:"Figuras Incompletas",dominio:"Organización Perceptual",has_timer:true,tiempo_max:20},{test_id:"AdWAISV",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"AdSDWais",nombre:"Clave de Números",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"AdWAISCC",nombre:"Cubos",dominio:"Organización Perceptual",has_timer:true,tiempo_max:120},{test_id:"AdWAISA",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:60},{test_id:"AdMatr",nombre:"Matrices",dominio:"Organización Perceptual"},{test_id:"AdDDir",nombre:"Dígitos",dominio:"Memoria de Trabajo"},{test_id:"AdWAISI",nombre:"Información",dominio:"Comprensión Verbal"},{test_id:"AdWAISC",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"AdBusSim + ViBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdWAISL",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},ninos_comp:{nombre:"Niños Complementario",tests:[{test_id:"NiEniE1 + NiEniE2 + NiEniE3 + NiEniE4 = NiEniLT",nombre:"Curva Memoria ENI-2",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"NiIntObj",nombre:"Integración de Objetos",dominio:"Praxias/Gnosias"},{test_id:"NiRecEmo",nombre:"Expresiones Faciales",dominio:"Praxias/Gnosias"},{test_id:"NiFigHum",nombre:"Figura Humana",dominio:"Praxias/Gnosias"},{test_id:"NiRDD",nombre:"Dígitos directos ENI-2",dominio:"Atención"},{test_id:"NiTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"NiTestPC_R",nombre:"CARAS-R",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiENICDib",nombre:"Cancelación Dibujos",dominio:"Atención"},{test_id:"NiFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"NiENIDen",nombre:"Denominación",dominio:"Lenguaje"},{test_id:"NiFA",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"NiPrec",nombre:"Lectura en Voz Alta",dominio:"Lectura"},{test_id:"NiLVS",nombre:"Lectura Silenciosa",dominio:"Lectura"},{test_id:"NiCopTxt",nombre:"Copia de Texto",dominio:"Escritura"},{test_id:"NiRecEscrita",nombre:"Recuperación Escrita",dominio:"Escritura"},{test_id:"NiCalcEscrito",nombre:"Cálculo Escrito",dominio:"Matemáticas"},{test_id:"NiENICMen",nombre:"Cálculo Mental",dominio:"Matemáticas"},{test_id:"NiSt_Edades",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"NiENISInv",nombre:"Serie Inversa/Dígitos Inversos",dominio:"Función Ejecutiva"},{test_id:"NiFM",nombre:"Fluidez M",dominio:"Función Ejecutiva"}]},adulto_mayor:{nombre:"Adulto Mayor",tests:[{test_id:"EscKertesz",nombre:"Kertesz/FBI",dominio:"Escalas"},{test_id:"EscQueja",nombre:"Queja Subjetiva Memoria",dominio:"Escalas"},{test_id:"EscYesavage",nombre:"Yesavage",dominio:"Escalas"},{test_id:"EscLawton",nombre:"Lawton",dominio:"Escalas"},{test_id:"MMSE",nombre:"MMSE Orientación",dominio:"Orientación"},{test_id:"GBTotal",nombre:"Grober & Buschke",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"SDMT",nombre:"SDMT",dominio:"Atención",has_timer:true,tiempo_max:90},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"InstrConflICO",nombre:"Instrucciones Conflictivas",dominio:"Atención"},{test_id:"AdFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidP",nombre:"Fluidez P",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"Denom48",nombre:"Denominación 48 ítems",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Función Ejecutiva"},{test_id:"RefranesICO",nombre:"Refranes INECO",dominio:"Función Ejecutiva"},{test_id:"StroopAM",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"GoNoGoICO",nombre:"Go No Go INECO",dominio:"Función Ejecutiva"}]},adulto_joven:{nombre:"Adulto Joven Batería",tests:[{test_id:"EscSTAI",nombre:"STAI",dominio:"Escalas"},{test_id:"AdBeck",nombre:"Beck",dominio:"Escalas"},{test_id:"EscASRS",nombre:"ASRS",dominio:"Escalas"},{test_id:"AdCVLT",nombre:"CVLT",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdSDWais",nombre:"Claves WAIS-III",dominio:"Atención",has_timer:true,tiempo_max:120},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"AdFCRO_Rey",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidM",nombre:"Fluidez M",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"BNT",nombre:"BNT",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas WAIS-III",dominio:"Función Ejecutiva"},{test_id:"AdStroop_Corr",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"AdMatr",nombre:"Matrices",dominio:"Función Ejecutiva"}]}};
+ const protos={wisc_iv:{nombre:"WISC-IV",tests:[{test_id:"NiWiscDC",nombre:"Diseño con Cubos",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:120},{test_id:"NiWiscSem",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"NiWiscRDD",nombre:"Retención de Dígitos",dominio:"Memoria de Trabajo"},{test_id:"NiWiscConD",nombre:"Conceptos con Dibujos",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCl",nombre:"Claves",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWiscVoc",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"NiWiscLN",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"NiWiscMat",nombre:"Matrices",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCom",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"NiWiscBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWisFigInc",nombre:"Figuras Incompletas",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:20,es_suplementaria:true},{test_id:"NiWiscAri",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:30,es_suplementaria:true},{test_id:"NiWisInf",nombre:"Información",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisPalCon",nombre:"Palabras en Contexto",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisReg",nombre:"Registros",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:45,es_suplementaria:true},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},wais_iii:{nombre:"WAIS-III",tests:[{test_id:"AdWAISFI",nombre:"Figuras Incompletas",dominio:"Organización Perceptual",has_timer:true,tiempo_max:20},{test_id:"AdWAISV",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"AdSDWais",nombre:"Clave de Números",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"AdWAISCC",nombre:"Cubos",dominio:"Organización Perceptual",has_timer:true,tiempo_max:120},{test_id:"AdWAISA",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:60},{test_id:"AdMatr",nombre:"Matrices",dominio:"Organización Perceptual"},{test_id:"AdDDir",nombre:"Dígitos",dominio:"Memoria de Trabajo"},{test_id:"AdWAISI",nombre:"Información",dominio:"Comprensión Verbal"},{test_id:"AdWAISC",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"AdBusSim + ViBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdWAISL",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},ninos_comp:{nombre:"Niños Complementario",tests:[{test_id:"NiEniE1 + NiEniE2 + NiEniE3 + NiEniE4 = NiEniLT",nombre:"Curva Memoria ENI-2",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"NiIntObj",nombre:"Integración de Objetos",dominio:"Praxias/Gnosias"},{test_id:"NiRecEmo",nombre:"Expresiones Faciales",dominio:"Praxias/Gnosias"},{test_id:"NiFigHum",nombre:"Figura Humana",dominio:"Praxias/Gnosias"},{test_id:"NiRDD",nombre:"Dígitos directos ENI-2",dominio:"Atención"},{test_id:"NiTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"NiTestPC_R",nombre:"CARAS-R",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiENICDib",nombre:"Cancelación Dibujos",dominio:"Atención"},{test_id:"NiFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"NiENIDen",nombre:"Denominación",dominio:"Lenguaje"},{test_id:"NiFA",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"NiPrec",nombre:"Lectura en Voz Alta",dominio:"Lectura"},{test_id:"NiLVS",nombre:"Lectura Silenciosa",dominio:"Lectura"},{test_id:"NiCopTxt",nombre:"Copia de Texto",dominio:"Escritura"},{test_id:"NiRecEscrita",nombre:"Recuperación Escrita",dominio:"Escritura"},{test_id:"NiCalcEscrito",nombre:"Cálculo Escrito",dominio:"Matemáticas"},{test_id:"NiENICMen",nombre:"Cálculo Mental",dominio:"Matemáticas"},{test_id:"NiSt_Edades",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"NiENISInv",nombre:"Serie Inversa/Dígitos Inversos",dominio:"Función Ejecutiva"},{test_id:"NiFM",nombre:"Fluidez M",dominio:"Función Ejecutiva"}]},adulto_mayor:{nombre:"Adulto Mayor",tests:[{test_id:"EscKertesz",nombre:"Kertesz/FBI",dominio:"Escalas"},{test_id:"EscQueja",nombre:"Queja Subjetiva Memoria",dominio:"Escalas"},{test_id:"EscYesavage",nombre:"Yesavage",dominio:"Escalas"},{test_id:"EscLawton",nombre:"Lawton",dominio:"Escalas"},{test_id:"MMSE",nombre:"MMSE Orientación",dominio:"Orientación"},{test_id:"GBTotal",nombre:"Grober & Buschke",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"SDMT",nombre:"SDMT",dominio:"Atención",has_timer:true,tiempo_max:90},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"InstrConflICO",nombre:"Instrucciones Conflictivas",dominio:"Atención"},{test_id:"AdFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidP",nombre:"Fluidez P",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"Denom48",nombre:"Denominación 48 ítems",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Función Ejecutiva"},{test_id:"RefranesICO",nombre:"Refranes INECO",dominio:"Función Ejecutiva"},{test_id:"StroopAM",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"GoNoGoICO",nombre:"Go No Go INECO",dominio:"Función Ejecutiva"}]},validez:{nombre:"Validez de síntomas (peritaje)",tests:[{test_id:"REY15",nombre:"Rey 15-Item Test",dominio:"Validez de síntomas"},{test_id:"TOMM",nombre:"TOMM",dominio:"Validez de síntomas"}]},adulto_joven:{nombre:"Adulto Joven Batería",tests:[{test_id:"EscSTAI",nombre:"STAI",dominio:"Escalas"},{test_id:"AdBeck",nombre:"Beck",dominio:"Escalas"},{test_id:"EscASRS",nombre:"ASRS",dominio:"Escalas"},{test_id:"AdCVLT",nombre:"CVLT",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdSDWais",nombre:"Claves WAIS-III",dominio:"Atención",has_timer:true,tiempo_max:120},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"AdFCRO_Rey",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidM",nombre:"Fluidez M",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"BNT",nombre:"BNT",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas WAIS-III",dominio:"Función Ejecutiva"},{test_id:"AdStroop_Corr",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"AdMatr",nombre:"Matrices",dominio:"Función Ejecutiva"}]}};
  const retentionScope=`${evalCtx?.evaluationId||evalCtx?.id||patId||"sin_paciente"}_${proto}`;
  /* §H5-fix: validar que el timestamp sea un entero plausible (epoch ms
   * desde 2020 hasta dentro de 1h en el futuro). Si storage está
@@ -149,13 +159,13 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
   * editando un input/textarea (no robar foco al clínico que escribe PD). */
  useEffect(()=>{const handler=(e)=>{if(e.code!=="Space")return;const tag=(e.target?.tagName||"").toLowerCase();if(tag==="input"||tag==="textarea"||tag==="select")return;const curT=tests[cur];if(!curT?.has_timer)return;e.preventDefault();setTimerOn(o=>!o)};window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)},[cur,tests]);
  useEffect(()=>{const id=setInterval(()=>setRetentionTick(Date.now()),1000);return()=>clearInterval(id)},[]);
+ useEffect(()=>{setPortadaOk(false)},[patId,proto]);
  /* §M6-fix: NO borrar el timestamp cuando un PD pasa de tener valor a
   * vacío. Si el clínico corrige por error y borra el PD, antes se
   * reiniciaba el intervalo de recobro diferido (invalidación silente
   * clínica). Solo establecemos el timestamp; nunca lo eliminamos
   * desde aquí (solo el reset explícito del clínico debería). */
  useEffect(()=>{if(typeof localStorage==="undefined")return;tests.forEach(x=>{if(x.hito!=="codificacion")return;const key=getRetentionStorageKey(retentionScope,x.test_id);if(isClinicalTestDone(x,puntajes)){if(!localStorage.getItem(key))localStorage.setItem(key,String(Date.now()))}});setRetentionTick(Date.now())},[puntajes,tests,retentionScope]);
- const fmt=s=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
  const t=tests[cur];const done=Object.keys(puntajes).filter(k=>puntajes[k]!=="");
  const dc=d=>({"Comprensión Verbal":"#0D9488","Razonamiento Perceptual":"#006a6a","Memoria de Trabajo":"#943700","Velocidad de Proceso":"#7d2d00","Organización Perceptual":"#006a6a","Velocidad de Procesamiento":"#7d2d00","Memoria Verbal":"#006a6a","Praxias":"#943700","Praxias/Gnosias":"#943700","Atención":"#7d2d00","Memoria Visual":"#006a6a","Lenguaje":"#0D9488","Lectura":"#0D9488","Escritura":"#0D9488","Matemáticas":"#943700","Función Ejecutiva":"#534AB7","Escalas":"#888780","Orientación":"#888780"}[d]||"#0D9488");
  const cond=t?CONDUCTAS[t.test_id]||[]:[];
@@ -257,6 +267,7 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  <Sel value={patId} onChange={e=>setPatId(e.target.value)} className="text-xs w-44 sm:w-52">{!patId&&<option value="">— Paciente —</option>}{patients.map(p=><option key={p.id} value={p.id}>{p.nombre_completo||`${p.primer_nombre} ${p.primer_apellido}`}</option>)}</Sel>
  <Sel value={proto} onChange={e=>{setProto(e.target.value)}} className="text-xs w-28 sm:w-32">{Object.entries(protos).map(([k,v])=><option key={k} value={k}>{v.nombre}</option>)}</Sel>
  <Sel value={adaptacion} onChange={e=>setAdaptacion(e.target.value)} className="text-xs w-32 sm:w-40" title="Adaptación para casos especiales (Protocolos Alternos )">{Object.entries(ADAPTATIONS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}</Sel>
+ {goPage&&<Btn className="text-xs whitespace-nowrap" onClick={()=>goPage("screening")}><I name="fact_check" className="text-sm mr-1"/>Screening</Btn>}
  <Btn v="danger" className="text-xs whitespace-nowrap" onClick={handleFinalizar}>Finalizar</Btn>
  </TopBar>
  {/* Sub-header: modo de aplicación + progreso */}
@@ -310,11 +321,10 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  citEstimado=estimateCITFromShortForm(sum,adapt.forma_corta);
  }
  }
- return(<div className="px-6 pt-4"><Card className="p-4 border-l-4 flex flex-wrap items-start gap-3" style={{borderColor:"#7c3aed",background:"rgba(124,58,237,0.06)"}}>{/* §dark-mode-fix */}
- <I name="accessibility_new" className="text-xl text-purple-600 mt-0.5"/>
+ return(<div className="px-6 pt-4"><SectionCard eyebrow="Adaptación" title={adapt.label} icon="accessibility_new">
+ <div className="flex flex-wrap items-start gap-3">
  <div className="flex-1 min-w-[280px]">
- <p className="text-sm font-bold text-purple-700">Adaptación activa: {adapt.label}</p>
- <p className="text-xs text-purple-700/80 mt-1">{adapt.description}</p>
+ <p className="text-xs mt-1" style={{color:"var(--ns-muted)"}}>{adapt.description}</p>
  {fc&&<p className="text-[10px] mt-2" style={{color:"var(--ns-muted)"}}>
  <b>{fc.name}</b> ({fc.abbr}) — Subtests: {fc.subtests.map(s=>s.label).join(", ")}.
  Citar Sattler (2010) en el informe.
@@ -326,41 +336,31 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  <p className="text-3xl font-extrabold text-purple-700">{citEstimado}</p>
  <p className="text-[10px] text-purple-600">{fc.abbr}</p>
  </div>}
- </Card></div>);})()}
+ </div>
+ </SectionCard></div>);})()}
  {/* ─── Sugerencia de protocolo por edad ─── */}
- {protoSug&&protoSug.protocoloId!==proto&&<div className="px-6 pt-4"><Card className="p-4 border-l-4 flex items-center justify-between" style={{borderColor:TEAL,background:`${TEAL}10`}}>
- <div className="flex items-start gap-3"><I name="auto_awesome" fill style={{color:TEAL}} className="text-xl mt-0.5"/>
- <div><p className="text-sm font-bold" style={{color:TEAL}}>Sugerencia automática según edad ({protoSug.edad} años → {protoSug.nombre})</p>
- <p className="text-xs mt-0.5" style={{color:"var(--ns-muted)"}}>Protocolo recomendado: <strong>{protos[protoSug.protocoloId]?.nombre||protoSug.protocoloId}</strong> · Tiempo estimado {protoSug.tiempo_min}-{protoSug.tiempo_max} min · Core: {protoSug.core.slice(0,4).join(" · ")}{protoSug.core.length>4?"…":""}</p>
- </div>
- </div>
- <div className="flex gap-2">
- <button onClick={()=>setProtoSug(null)} className="px-3 py-1.5 rounded-full text-xs font-bold text-gray-500 hover:bg-white">Descartar</button>
- <Btn onClick={()=>setProto(protoSug.protocoloId)} className="text-xs">Aplicar sugerencia</Btn>
- </div>
- </Card></div>}
- {waitingRecobro&&<div className="px-6 pt-4"><Card className="p-4 border-l-4 flex flex-wrap items-center gap-3" style={{borderColor:"#f97316",background:"rgba(249,115,22,0.08)"}}>
- <I name="timer" className="text-orange-500 text-xl"/>
- <div className="flex-1 min-w-[240px]">
- <p className="text-sm font-bold text-orange-700">{waitingRecobro.status.missingCodificacion?`Complete primero ${waitingRecobro.status.codificacion?.nombre||"la codificacion"}`:`Faltan ${formatRetentionRemaining(waitingRecobro.status.remainingMs)} para aplicar ${waitingRecobro.test.nombre}`}</p>
- <p className="text-xs text-orange-700/80">Hasta entonces, se sugiere completar {fillerSuggestion?.nombre||"otra prueba de atencion o funcion ejecutiva"}.</p>
- </div>
- {fillerSuggestion&&<button onClick={()=>goToTest(tests.findIndex(x=>x.test_id===fillerSuggestion.test_id))} className="px-3 py-1.5 rounded-full text-xs font-bold bg-white text-orange-700 hover:bg-orange-50">Ir a sugerida</button>}
- </Card></div>}
+ {protoSug&&protoSug.protocoloId!==proto&&<div className="px-6 pt-4"><SectionCard eyebrow="Sugerencia" title={`Protocolo según edad (${protoSug.edad} años → ${protoSug.nombre})`} icon="auto_awesome" headerRight={<div className="flex gap-2"><button onClick={()=>setProtoSug(null)} className="px-3 py-1.5 rounded-full text-xs font-bold text-gray-500 hover:bg-white">Descartar</button><Btn onClick={()=>setProto(protoSug.protocoloId)} className="text-xs">Aplicar sugerencia</Btn></div>}>
+ <p className="text-xs" style={{color:"var(--ns-muted)"}}>Protocolo recomendado: <strong>{protos[protoSug.protocoloId]?.nombre||protoSug.protocoloId}</strong> · Tiempo estimado {protoSug.tiempo_min}-{protoSug.tiempo_max} min · Core: {protoSug.core.slice(0,4).join(" · ")}{protoSug.core.length>4?"…":""}</p>
+ </SectionCard></div>}
+ {waitingRecobro&&<div className="px-6 pt-4"><SectionCard eyebrow="Recobro" title={waitingRecobro.status.missingCodificacion?`Complete primero ${waitingRecobro.status.codificacion?.nombre||"la codificación"}`:`Faltan ${formatRetentionRemaining(waitingRecobro.status.remainingMs)} para ${waitingRecobro.test.nombre}`} icon="timer" headerRight={fillerSuggestion?<button onClick={()=>goToTest(tests.findIndex(x=>x.test_id===fillerSuggestion.test_id))} className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 hover:bg-orange-100">Ir a sugerida</button>:null}>
+ <p className="text-xs" style={{color:"var(--ns-muted)"}}>Hasta entonces, se sugiere completar {fillerSuggestion?.nombre||"otra prueba de atención o función ejecutiva"}.</p>
+ </SectionCard></div>}
  <main className="p-6"><div className="flex flex-col xl:flex-row gap-6 max-w-screen-2xl mx-auto">
  {/* === MODO APLICACIÓN === */}
- {mode==="apply"&&<><div className="flex-1 min-w-0 space-y-4">
+ {mode==="apply"&&patId&&!portadaOk&&done.length===0&&<div className="flex-1 max-w-lg mx-auto w-full"><SectionCard eyebrow="Protocolo" title={protos[proto].nombre} subtitle={`${tests.length} prueba${tests.length!==1?"s":""} en este protocolo`}>
+ <p className="text-sm mb-4" style={{color:"var(--ns-text)"}}>Paciente: <strong>{(()=>{const p=patients.find(x=>x.id===patId);return p?(p.nombre_completo||`${p.primer_nombre||""} ${p.primer_apellido||""}`.trim()):"—"})()}</strong></p>
+ <div className="flex flex-wrap gap-3">
+ <Btn onClick={()=>setPortadaOk(true)}><I name="play_arrow" fill className="text-sm mr-1"/>Comenzar aplicación</Btn>
+ {goPage&&<Btn className="text-xs" onClick={()=>goPage("screening")}><I name="fact_check" className="text-sm mr-1"/>Ir a Screening</Btn>}
+ </div>
+ </SectionCard></div>}
+ {mode==="apply"&&(portadaOk||done.length>0)&&<><div className="flex-1 min-w-0 space-y-4">
  {/* El banner por prueba actual sólo aplica si la codificación ya
  * fue iniciada (interval timer activo). Si nunca se hizo, mostrar
  * un mensaje suave informativo en vez del banner alarmista. */}
- {currentRetention.isBlocked&&!currentRetention.missingCodificacion&&<Card className="p-4 border-l-4 flex flex-wrap items-center gap-3" style={{borderColor:"#f97316",background:"rgba(249,115,22,0.08)"}}>
- <I name="hourglass_top" className="text-orange-500 text-xl"/>
- <div className="flex-1 min-w-[220px]">
- <p className="text-sm font-bold text-orange-700">Recobro en espera: faltan {formatRetentionRemaining(currentRetention.remainingMs)}</p>
- <p className="text-xs text-orange-700/80">El intervalo mínimo protege la validez del recobro diferido.</p>
- </div>
- <button disabled title="Recobro pendiententervalo mínimo" className="px-3 py-1.5 rounded-full text-xs font-bold bg-gray-200 text-gray-400 cursor-not-allowed">Aplicar recobro</button>
- </Card>}
+ {currentRetention.isBlocked&&!currentRetention.missingCodificacion&&<SectionCard eyebrow="Recobro" title={`En espera: ${formatRetentionRemaining(currentRetention.remainingMs)}`} icon="hourglass_top">
+ <p className="text-xs" style={{color:"var(--ns-muted)"}}>El intervalo mínimo protege la validez del recobro diferido.</p>
+ </SectionCard>}
  {currentRetention.isBlocked&&currentRetention.missingCodificacion&&<Card className="p-3 flex flex-wrap items-center gap-3" style={{background:"var(--ns-subtle)"}}>
  <I name="info" className="text-base" style={{color:TEAL}}/>
  <p className="text-xs flex-1" style={{color:"var(--ns-muted)"}}>Esta es una prueba de recobro. Aplique primero <b>{currentRetention.codificacion?.nombre||"la codificación"}</b> para iniciar el intervalo de retención.</p>
@@ -383,63 +383,13 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
   {t.has_timer&&<span className="text-xs" style={{color:"var(--ns-muted)"}}>Tiempo maximo: {t.tiempo_max||"—"}s · {t.hito?HITO_LABELS[t.hito]||t.hito:""}</span>}
   {t.has_timer&&(()=>{const st=getSubtest(t.test_id);if(!st?.items)return null;const times=[...new Set(st.items.map(i=>i.tiempo_seg).filter(Boolean))];return times.length?<span className="text-xs mt-0.5 font-semibold" style={{color:"#d97706"}}>Por item: {times.map(t=>t+"s").join(" · ")}</span>:null})()}
   </div>
-  {/* Cronometro responsive: escala con el ancho disponible */}
-  <div className="shrink-0" style={{minWidth:100,minHeight:t.has_timer?100:0}}>
-  {t.has_timer&&(()=>{
-    const max=t.tiempo_max||300;
-    const pct=Math.min(timer/max,1);
-    const remaining=Math.max(0,max-timer);
-    const over=timer>max;
-    const warning=!over&&pct>=0.85;
-    const ringColor=over?"#ef4444":warning?"#f59e0b":"#2dd4bf";
-    const size=120;
-    const R=52;
-    const C=2*Math.PI*R;
-    const circleSize={width:`clamp(100px,12vw,${size}px)`,height:`clamp(100px,12vw,${size}px)`};
-    return(<div className={`flex items-center gap-3 xl:gap-5 px-4 xl:px-6 py-4 rounded-2xl shrink-0 ${over?"ns-pulse-red":""}`}
-      style={{background:over?"linear-gradient(135deg,#7f1d1d,#1e293b)":"linear-gradient(135deg,#0f2a3d,#1e293b)",boxShadow:over?"0 0 60px -12px #ef4444":"0 8px 24px -8px rgba(13,148,136,0.4)"}}>
-      <div className="relative flex items-center justify-center shrink-0" style={circleSize}>
-        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 120 120">
-          <defs>
-            <linearGradient id="ns-clk-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor={ringColor}/>
-              <stop offset="100%" stopColor={ringColor} stopOpacity="0.5"/>
-            </linearGradient>
-          </defs>
-          <circle cx="60" cy="60" r={R} fill="transparent" stroke="#1e3a4d" strokeWidth="7"/>
-          <circle cx="60" cy="60" r={R} fill="transparent"
-            stroke="url(#ns-clk-grad)" strokeWidth="7"
-            strokeDasharray={`${pct*C} ${C}`}
-            strokeLinecap="round"
-            style={{transition:"stroke-dasharray 0.4s ease-out, stroke 0.3s"}}/>
-        </svg>
-        <div className="flex flex-col items-center pointer-events-none">
-          <span className="text-xl xl:text-2xl font-mono font-extrabold text-white tabular-nums leading-none">{fmt(timer)}</span>
-          {t.tiempo_max&&<span className="text-[10px] mt-1 font-mono" style={{color:over?"#fca5a5":"#94a3b8"}}>
-            {over?"+"+fmt(timer-max):fmt(remaining)}
-          </span>}
-        </div>
-      </div>
-      <div className="flex flex-col items-stretch gap-2">
-        <div className="flex gap-1.5 xl:gap-2">
-          <button onClick={()=>setTimerOn(true)} disabled={timerOn} className="w-9 h-9 xl:w-11 xl:h-11 rounded-xl bg-teal-600 text-white flex items-center justify-center active:scale-90 hover:bg-teal-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-teal-900/30" title="Iniciar (Espacio)" aria-label="Iniciar cronometro"><I name="play_arrow" fill className="text-lg xl:text-xl"/></button>
-          <button onClick={()=>setTimerOn(false)} disabled={!timerOn} className="w-9 h-9 xl:w-11 xl:h-11 rounded-xl bg-amber-500 text-white flex items-center justify-center active:scale-90 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-amber-900/30" title="Pausa" aria-label="Pausar cronometro"><I name="pause" fill className="text-lg xl:text-xl"/></button>
-          <button onClick={()=>{setTimerOn(false);setTimer(0)}} className="w-9 h-9 xl:w-11 xl:h-11 rounded-xl bg-slate-600 text-white flex items-center justify-center active:scale-90 hover:bg-slate-500 transition-all" title="Reiniciar" aria-label="Reiniciar cronometro a cero"><I name="restart_alt" className="text-lg xl:text-xl"/></button>
-        </div>
-        <span className={`text-[9px] xl:text-[10px] font-bold uppercase tracking-widest text-center px-1.5 xl:px-2 py-1 rounded-lg ${over?"bg-red-500/20 text-red-200":warning?"bg-amber-500/20 text-amber-200":timerOn?"bg-teal-500/20 text-teal-200":"bg-slate-500/20 text-slate-300"}`}>
-          {over?"TIEMPO EXCEDIDO":warning?"Casi se acaba":timerOn?"Grabando":"En pausa"}
-        </span>
-      </div>
-    </div>);
-  })()}
-  </div>
-  {/* PD compacto con validacion visual */}
   <div className="flex items-center gap-2 shrink-0">
   <span className="text-xs font-bold uppercase tracking-wider text-gray-400">PD</span>
   <ScoreInput
     testId={t.test_id}
     value={puntajes[t.test_id]||""}
     onChange={e=>setPuntajes(p=>({...p,[t.test_id]:e.target.value}))}
+    size="xl"
   />
   </div>
  </div>
@@ -448,25 +398,24 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  {/* §M-6 ── Banner de orden clínico + timer de recobro ── */}
  <OrdenClinicoBanner testIdActual={t.test_id.split(" ")[0].trim()} completados={retentionTimes} />
 
- {/* ── Estímulos de la prueba ── */}
- {estimulos.length>0&&<Card className="p-5"><StimulusDisplay testId={t.test_id.split(" ")[0].trim()} stimuli={estimulos}/></Card>}
+ {/* ── Referencia visual nativa (SVG) o material subido en Config ── */}
+ {(()=>{
+  const tid=t.test_id.split(" ")[0].trim();
+  const mapped=itemMappedStimuli(estimulos,tid);
+  const reactive=REACTIVOS[t.test_id];
+  const hideDupNative=reactive?.type==="items"&&(tid==="NiWiscDC"||tid==="AdWAISCC");
+  const showStim=mapped.length>0||(NativeStimuli[tid]&&!hideDupNative&&reactive?.type!=="fcro");
+  return showStim?(<Card className="p-5"><StimulusDisplay testId={tid} stimuli={mapped}/></Card>):null;
+ })()}
 
  {/* ── REACTIVOS — ahora en el área principal ── */}
- {REACTIVOS[t.test_id]&&<ReactivePanel testId={t.test_id} puntajes={puntajes} setPuntajes={setPuntajes} itemScores={itemScores} setItemScores={setItemScores}/>}
+ {REACTIVOS[t.test_id]&&<ReactivePanel testId={t.test_id.split(" ")[0].trim()} puntajes={puntajes} setPuntajes={setPuntajes} itemScores={itemScores} setItemScores={setItemScores} estimulos={itemMappedStimuli(estimulos,t.test_id.split(" ")[0].trim())}/>}
 
  {/* ── Instrucciones de administración (colapsable) ── */}
- {INSTRUCCIONES[t.test_id]&&<Card className="p-5 space-y-3 border-l-4 border-teal-400">
- <details open={!REACTIVOS[t.test_id]}>
- <summary className="flex items-center gap-2 cursor-pointer select-none"><I name="menu_book" className="text-teal-600 text-lg"/><h3 className="font-bold text-sm text-teal-800">Administración y Tips</h3></summary>
- <div className="space-y-2.5 mt-3">
-  <div><p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider mb-1"><I name="inventory_2" className="text-[10px] mr-0.5"/>Materiales</p><p className="text-xs text-gray-700 leading-snug">{INSTRUCCIONES[t.test_id].mat}</p></div>
-  <div><p className="text-[10px] font-extrabold text-teal-600 uppercase tracking-wider mb-1"><I name="play_circle" className="text-[10px] mr-0.5"/>Instrucción</p><p className="text-xs text-gray-700 leading-snug">{INSTRUCCIONES[t.test_id].inst}</p></div>
-  <div><p className="text-[10px] font-extrabold text-red-600 uppercase tracking-wider mb-1"><I name="block" className="text-[10px] mr-0.5"/>Discontinuación</p><p className="text-xs text-gray-700 leading-snug">{INSTRUCCIONES[t.test_id].disc}</p></div>
-  <div><p className="text-[10px] font-extrabold text-teal-600 uppercase tracking-wider mb-1"><I name="lightbulb" className="text-[10px] mr-0.5"/>Tips Clínicos</p><p className="text-xs text-gray-700 leading-snug">{INSTRUCCIONES[t.test_id].tip}</p></div>
-  <div className="pt-2 border-t border-gray-100"><p className="text-[10px] font-extrabold text-purple-600 uppercase tracking-wider mb-1"><I name="calculate" className="text-[10px] mr-0.5"/>Calificación</p><p className="text-xs text-gray-700 font-semibold">{INSTRUCCIONES[t.test_id].puntaje}</p></div>
- </div>
- </details>
- </Card>}
+ {INSTRUCCIONES[t.test_id]&&(()=>{const ix=INSTRUCCIONES[t.test_id];const guideText=`Materiales: ${ix.mat}\nInstrucción: ${ix.inst}\nDiscontinuación: ${ix.disc}\nCalificación: ${ix.puntaje}\nTips clínicos: ${ix.tip}`;return(
+ <SectionCard title="Administración y Tips" icon="menu_book">
+  <GuideAccordion text={guideText} defaultOpen="instruccion"/>
+ </SectionCard>);})()}
 
  {/* Footer navegación */}
  <Card className="p-4">
@@ -552,9 +501,9 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  )}
  </Card>
  {/* Navegador de pruebas */}
- <Card className="overflow-hidden flex flex-col" style={{maxHeight:"380px"}}><div className="p-4 border-b border-gray-100"><h3 className="font-bold text-sm flex items-center gap-2"><I name="list_alt" style={{color:TEAL}}/>Navegador</h3></div>
-  <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">{tests.map((x,i)=>{const dn=puntajes[x.test_id]!=null&&puntajes[x.test_id]!=="";const ic=i===cur;return<button key={x.test_id} onClick={()=>{setCur(i);setTimer(0);setTimerOn(false)}} className={`flex items-center gap-3 p-2.5 rounded-xl w-full text-left transition-all ${ic?"bg-teal-50 border-l-4 border-teal-600":""} hover:bg-gray-50`}><I name={dn?"check_circle":ic?"radio_button_checked":"circle"} fill={dn||ic} className={`text-base ${dn?"text-teal-600":ic?"text-teal-600":"text-gray-300"}`}/><div className="flex-1 min-w-0"><p className={`text-sm font-bold truncate ${ic?"text-teal-600":"text-gray-700"}`}>{x.nombre}</p><p className="text-xs text-gray-400 uppercase truncate">{x.dominio}</p></div>{dn&&<span className="text-xs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded shrink-0">PD:{puntajes[x.test_id]}</span>}</button>})}</div>
- </Card>
+ <SectionCard eyebrow="Navegador" title="Subtests" collapsible defaultOpen>
+  <SegmentedNav items={tests} current={cur} onSelect={(i)=>{setCur(i);setTimer(0);setTimerOn(false)}} getStatus={(x)=>{const v=puntajes[x.test_id];if(v!=null&&v!==""&&Number(v)!==9999)return "done";return "empty";}} />
+ </SectionCard>
  </div></>}
  {/* === MODO REGISTRO (TABLA) === */}
  {mode==="table"&&<div className="flex-1"><Card className="overflow-hidden"><table className="w-full text-sm"><thead style={{background:"#f5f3ef"}}><tr><th className="px-4 py-3 text-left font-bold w-8">#</th><th className="px-4 py-3 text-left font-bold">Prueba</th><th className="px-4 py-3 text-left font-bold w-48">Dominio</th><th className="px-4 py-3 text-center font-bold w-24">PD</th><th className="px-4 py-3 text-left font-bold">Observaciones</th><th className="px-2 py-3 w-10"></th></tr></thead>
@@ -586,5 +535,7 @@ export default function EvalApplyPage({_setPage,nav,evalCtx,_setEvalCtx}){
  {guiaTab==="hc"&&<div className="space-y-4">{Object.entries(GUIA_HC).map(([k,v])=><div key={k}><p className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mb-1">{k.replace(/_/g," ")}</p><p className="text-xs text-gray-600 leading-relaxed">{v}</p></div>)}</div>}
  </Card>}
  </div>
- </div></main></>);
+ </div></main>
+ <FloatingTimer visible={mode==="apply"&&t?.has_timer&&portadaOk} timer={timer} timerOn={timerOn} maxTime={t?.tiempo_max||300} onStart={()=>setTimerOn(true)} onPause={()=>setTimerOn(false)} onReset={()=>{setTimerOn(false);setTimer(0)}} />
+ </>);
 }

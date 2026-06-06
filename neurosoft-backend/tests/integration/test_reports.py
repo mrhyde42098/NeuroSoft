@@ -175,6 +175,18 @@ def test_generate_pdf_minimal_data(report_data_minimal):
 
 
 @pytest.mark.integration
+def test_generate_pdf_default_template_is_pro(report_data_rich):
+    """Sin parámetro template, el default es 'pro' (estándar IN&S+Pro)."""
+    from app.infrastructure.report_service import generate_report_pdf
+    pdf_default = generate_report_pdf(report_data_rich)
+    pdf_pro = generate_report_pdf(report_data_rich, template="pro")
+    pdf_estandar = generate_report_pdf(report_data_rich, template="estandar")
+    assert pdf_default[:4] == b"%PDF"
+    assert len(pdf_default) > len(pdf_estandar) * 2
+    assert abs(len(pdf_default) - len(pdf_pro)) < 800
+
+
+@pytest.mark.integration
 def test_estandar_template_still_works(report_data_rich):
     """Retrocompatibilidad: la plantilla 'estandar' usa NeuroPDFGenerator clásico."""
     from app.infrastructure.report_service import generate_report_pdf
@@ -301,7 +313,7 @@ def test_footer_includes_normograma_version():
     # versión aparece en el módulo y que el factory no lanza excepciones.
     src = open("app/infrastructure/report_pro/base.py", encoding="utf-8").read()
     assert "Normograma {NORMOGRAMA_VERSION}" in src
-    assert "Confidencial — Ley 1581/2012" in src
+    assert "Confidencial · Ley 1581/2012" in src
 
 
 @pytest.mark.integration

@@ -342,13 +342,15 @@ export default function SesionSOAPForm({ sessionId, patientId, planId, onSaved, 
  * ═══════════════════════════════════════════════════════════════════════ */
 function TelepsicologiaTools({ sessionId, isLocked }) {
   const toast = useToast();
+  const [customUrl, setCustomUrl] = React.useState("");
   /* Token determinístico desde sessionId (8 chars). Si sessionId no
    * existe aún (sesión nueva), generamos uno aleatorio para esta vista. */
   const token = React.useMemo(() => {
     if (sessionId) return `neurosoft-${sessionId.slice(0, 8)}`;
     return `neurosoft-${Math.random().toString(36).slice(2, 10)}`;
   }, [sessionId]);
-  const url = `https://meet.jit.si/${token}`;
+  const jitsiUrl = `https://meet.jit.si/${token}`;
+  const url = customUrl.trim() || jitsiUrl;
 
   const copiar = async () => {
     try {
@@ -369,8 +371,17 @@ function TelepsicologiaTools({ sessionId, isLocked }) {
     <div className="mt-2 rounded p-2 text-xs"
       style={{ background: "rgba(13,148,136,0.06)", border: "1px solid rgba(13,148,136,0.18)" }}>
       <p className="font-bold mb-1" style={{ color: "#0D9488" }}>
-        Sala de videollamada (Jitsi)
+        Videollamada (Jitsi, Meet o Zoom)
       </p>
+      <input
+        type="url"
+        value={customUrl}
+        onChange={(e) => setCustomUrl(e.target.value)}
+        disabled={isLocked}
+        placeholder="Pegar link Meet/Zoom o usar Jitsi por defecto"
+        className="w-full text-[10px] font-mono mb-2 px-2 py-1.5 rounded border"
+        style={{ background: "var(--ns-input)", borderColor: "var(--ns-card-b)", color: "var(--ns-text)" }}
+      />
       <p className="font-mono text-[10px] mb-2 break-all" style={{ color: "var(--ns-muted)" }}>
         {url}
       </p>

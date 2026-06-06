@@ -9,11 +9,14 @@ import {
 } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 import { safeLS } from "../../utils/safeLS.js";
+import SectionCard from "../../ui/SectionCard.jsx";
+import { REGIMENES, ASEGURADORES_COLOMBIA, requiereAutorizacion } from "../../data/aseguradoresColombia.js";
+import { CUPS_PSICOLOGIA } from "../../data/cupsPsicologia.js";
 
 const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
-export default function AgendaPage({ setPage:_setPage }) {
+export default function AgendaPage({ setPage }) {
   const [stats, setStats] = useState(null);
   const [week, setWeek] = useState([]);
   const [ld, setLd] = useState(true);
@@ -29,6 +32,9 @@ export default function AgendaPage({ setPage:_setPage }) {
     fecha: new Date().toISOString().split("T")[0],
     hora_inicio: "09:00", hora_fin: "10:00",
     tipo_cita: "evaluacion", motivo: "", recordar: true,
+    eps: "", regimen: "", autorizacion_no: "", cups: "",
+    modalidad: "presencial", discapacidad: "",
+    contacto_telefono: "", contacto_correo: "",
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -97,7 +103,11 @@ export default function AgendaPage({ setPage:_setPage }) {
     setSaving(true);
     setMsg("");
     try {
-      await api.post("/api/v1/agenda/", f);
+      const body = { ...f };
+      delete body.recordar;
+      ["eps", "regimen", "autorizacion_no", "cups", "discapacidad", "contacto_telefono", "contacto_correo", "motivo"]
+        .forEach((k) => { if (!body[k]) delete body[k]; });
+      await api.post("/api/v1/agenda/", body);
       setMsg("ok");
       setShowForm(false);
       load();
@@ -175,21 +185,25 @@ export default function AgendaPage({ setPage:_setPage }) {
         )}
 
         {showForm && (
-          <Card className="p-6 border-l-4 border-teal-600">
-            <h3 className="text-lg font-bold mb-4">
-              <I name="calendar_add_on" className="text-teal-600 mr-2" />Nueva Cita
-            </h3>
+          <SectionCard eyebrow="Agenda" title="Nueva cita" icon="calendar_add_on">
             <MsgBanner msg={msg === "ok" ? "ok" : msg} onDismiss={msg && msg !== "ok" ? () => setMsg("") : null} />
             <div className="grid grid-cols-6 gap-4">
               <div className="col-span-2"><Label>Paciente</Label>
-                <Sel value={f.patient_id} onChange={(e) => set("patient_id", e.target.value)}>
-                  <option value="">Seleccionar...</option>
-                  {patients.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`}
-                    </option>
-                  ))}
-                </Sel>
+                <div className="flex gap-2">
+                  <Sel value={f.patient_id} onChange={(e) => set("patient_id", e.target.value)} className="flex-1">
+                    <option value="">Seleccionar...</option>
+                    {patients.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`}
+                      </option>
+                    ))}
+                  </Sel>
+                  {setPage && (
+                    <Btn v="outline" className="text-xs shrink-0" onClick={() => setPage("register")}>
+                      <I name="person_add" />Nuevo
+                    </Btn>
+                  )}
+                </div>
               </div>
               <div><Label>Fecha</Label><Input type="date" value={f.fecha} onChange={(e) => set("fecha", e.target.value)} /></div>
               <div><Label>Inicio</Label><Input type="time" value={f.hora_inicio} onChange={(e) => set("hora_inicio", e.target.value)} /></div>
@@ -202,17 +216,55 @@ export default function AgendaPage({ setPage:_setPage }) {
                   <option value="entrevista">Entrevista</option>
                 </Sel>
               </div>
+              <div><Label>Modalidad</Label>
+                <Sel value={f.modalidad} onChange={(e) => set("modalidad", e.target.value)}>
+                  <option value="presencial">Presencial</option>
+                  <option value="telepsicologia">Telepsicología</option>
+                  <option value="telefonica">Telefónica</option>
+                </Sel>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4 mt-4">
+              <div><Label>Régimen</Label>
+                <Sel value={f.regimen} onChange={(e) => set("regimen", e.target.value)}>
+                  <option value="">— Sin especificar —</option>
+                  {REGIMENES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                </Sel>
+              </div>
+              <div><Label>EPS / Asegurador</Label>
+                <Sel value={f.eps} onChange={(e) => set("eps", e.target.value)}>
+                  <option value="">— Particular —</option>
+                  {ASEGURADORES_COLOMBIA.map((a) => <option key={a.codigo} value={a.nombre}>{a.nombre}</option>)}
+                </Sel>
+              </div>
+              <div><Label>CUPS</Label>
+                <Sel value={f.cups} onChange={(e) => set("cups", e.target.value)}>
+                  <option value="">— Seleccionar —</option>
+                  {CUPS_PSICOLOGIA.map((c) => <option key={c.codigo} value={`${c.codigo} - ${c.nombre}`}>{c.codigo} — {c.nombre}</option>)}
+                </Sel>
+              </div>
+              <div><Label>Nº autorización{requiereAutorizacion(f.regimen) ? " *" : ""}</Label>
+                <Input value={f.autorizacion_no} onChange={(e) => set("autorizacion_no", e.target.value)} placeholder="Requerido EPS" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 mt-4">
+              <div><Label>Contacto teléfono</Label><Input value={f.contacto_telefono} onChange={(e) => set("contacto_telefono", e.target.value)} /></div>
+              <div><Label>Contacto correo</Label><Input type="email" value={f.contacto_correo} onChange={(e) => set("contacto_correo", e.target.value)} /></div>
+              <div><Label>Discapacidad (si aplica)</Label><Input value={f.discapacidad} onChange={(e) => set("discapacidad", e.target.value)} placeholder="Ninguna" /></div>
             </div>
             <div className="mt-4">
               <Label>Motivo</Label>
               <Input value={f.motivo} onChange={(e) => set("motivo", e.target.value)} placeholder="Ej: Evaluación WISC-IV" />
             </div>
+            <p className="text-[11px] mt-3" style={{ color: "var(--ns-muted)" }}>
+              Recordatorios: notificación del navegador 15 min antes (activar arriba). Para SMS/correo automático, configure SMTP en Configuración → Comunicaciones.
+            </p>
             <div className="flex justify-end mt-4">
-              <Btn onClick={create} disabled={saving || !f.patient_id}>
+              <Btn onClick={create} disabled={saving || !f.patient_id || (requiereAutorizacion(f.regimen) && !f.autorizacion_no)}>
                 {saving ? "Guardando..." : "Agendar Cita"}
               </Btn>
             </div>
-          </Card>
+          </SectionCard>
         )}
 
         {ld ? (

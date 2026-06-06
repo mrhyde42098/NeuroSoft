@@ -137,6 +137,11 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
                           title="Historial">
                           <I name="history" className="text-lg" />
                         </button>
+                        <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-purple-600 hover:text-white text-gray-400 transition-all"
+                          onClick={() => { localStorage.setItem("ns_sel_patient", p.id); setPage("compare"); }}
+                          title="Pre-Post">
+                          <I name="compare_arrows" className="text-lg" />
+                        </button>
                       </div>
                     </td>
                   </tr>

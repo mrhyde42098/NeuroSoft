@@ -14,6 +14,8 @@ DELETE /auth/users/{user_id}  → desactivar usuario (solo admin)
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
@@ -28,6 +30,8 @@ from app.infrastructure.auth.auth_service import (
     decode_refresh_token,
 )
 from app.presentation.dependencies import DbSession, db_session
+
+logger = logging.getLogger(__name__)
 
 auth_router = APIRouter(prefix="/auth", tags=["Autenticación"])
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -241,14 +245,37 @@ def get_patient_for_user(
                 ),
             )
             db.commit()
-        except Exception:
+        except Exception as audit_exc:
             db.rollback()
+            logger.warning(
+                "No se pudo registrar audit cross-tenant: %s", audit_exc,
+            )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permiso para acceder a este paciente.",
         )
 
     return patient
+
+
+def get_evaluation_for_user(
+    evaluation_id: str,
+    db: Session,
+    user,
+) -> object:
+    """
+    Carga una evaluación y valida que `user` puede acceder vía el paciente.
+    """
+    from app.infrastructure.database.orm_models import EvaluationORM
+
+    ev = db.query(EvaluationORM).filter_by(id=evaluation_id).first()
+    if ev is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Evaluación no encontrada.",
+        )
+    get_patient_for_user(ev.patient_id, db, user)
+    return ev
 
 
 # ─────────────────────────────────────────────────────────────

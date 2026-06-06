@@ -12,7 +12,7 @@
  * IDs válidos (data/screening.js):
  *   MMSE, MoCA, ACE3, PHQ9, GAD7, SNAPIV, SCARED5, ZARIT7, BAI, HADS,
  *   NPIQ_FLAT, BARTHEL, FAQ, VANDERBILT, MCHAT, CDR, GDS15, STAI,
- *   SCARED41, NPIQ, ASRS, CONNERS_ABR, ZARIT, FAB, IESR, PCL5
+ *   SCARED41, NPIQ, ASRS, CONNERS_ABR, ZARIT, FAB, IFS, IESR, PCL5
  * ═══════════════════════════════════════════════════════════════════════ */
 
 /**
@@ -136,7 +136,30 @@ export const REGLAS_SCREENING = [
     ],
     edadMin: 50,
     poblacion: ["adulto_mayor"],
-    screeningIds: ["MoCA", "MMSE", "ACE3", "GDS15", "FAQ", "BARTHEL"],
+    screeningIds: ["MoCA", "MMSE", "ACE3", "IFS", "GDS15", "FAQ", "BARTHEL"],
+  },
+  {
+    id: "bvftd_am",
+    titulo: "Sospecha DFT / función frontal",
+    razon: "IFS Colombia (corte 17.5) discrimina mejor bvFTD vs Alzheimer/depresión",
+    keywords: [
+      /\b(dft|frontotemporal|pick|conducta|apat[ií]a|desinhib)/i,
+      /\b(funci[oó]n\s+ejecutiva|frontal)/i,
+    ],
+    edadMin: 45,
+    poblacion: ["adulto_mayor", "adulto_joven"],
+    screeningIds: ["IFS", "MoCA", "ACE3"],
+  },
+  {
+    id: "forense_validez",
+    titulo: "Contexto medicolegal / peritaje",
+    razon: "Validez de síntomas obligatoria antes de batería completa (Slick 1999)",
+    keywords: [
+      /\b(peritaje|forense|indemnizaci[oó]n|pensi[oó]n|laboral|simulaci[oó]n|litigio)/i,
+    ],
+    poblacion: ["adulto_joven", "adulto_mayor"],
+    screeningIds: ["PHQ9", "GAD7"],
+    notaValidez: "Aplicar protocolo Evaluación → Validez (REY15 + TOMM)",
   },
   {
     id: "depresion_am",

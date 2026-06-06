@@ -28,6 +28,15 @@ npx vite build --mode development   # confirma que compila
 
 ---
 
+## Sistema de diseño — Editorial Clínico (DS-5)
+
+- **Prohibido** `border-l-4 border-*-400` (look “cajita IA”). Usar `SectionCard` de `src/ui/SectionCard.jsx`.
+- Colores solo desde `src/ui/tokens.js` y variables CSS `--ns-*`.
+- Componentes reutilizables: `StatTile`, `ActionTile`, `FloatingTimer`, `SegmentedNav`, `GuideAccordion`, `Popover`.
+- Jerarquía por tipografía (Lora serif en títulos), no por barras de color.
+
+---
+
 ## Estructura de carpetas
 
 ```

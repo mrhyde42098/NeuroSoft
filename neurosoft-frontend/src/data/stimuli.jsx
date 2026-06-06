@@ -5,7 +5,7 @@
 
 import React from "react";
 import { CubosPoster } from "./PatronesCubos.jsx";
-import { FCROFigure } from "./PatronFCRO.jsx";
+import FCRODisplay from "./FCRODisplay.jsx";
 
 export const NativeStimuli={
   NiWiscDC:()=><CubosPoster test="wisc"/>,
@@ -52,9 +52,9 @@ export const NativeStimuli={
       <text x="90" y="235" textAnchor="middle" fontSize="9" fill="#64748b">Referencia · evalúa según criterios Koppitz/Goodenough</text>
     </g></svg>
   ),
-  NiFCROCop:()=><FCROFigure showNumbers={true}/>,
-  NiFCRORec:()=><FCROFigure showNumbers={true}/>,
-  AdFCRORec:()=><FCROFigure showNumbers={true}/>,
+  NiFCROCop:()=><FCRODisplay/>,
+  NiFCRORec:()=><FCRODisplay/>,
+  AdFCRORec:()=><FCRODisplay/>,
   MMSE:()=>(
     /* Pentágonos del MMSE */
     <svg viewBox="0 0 220 140" className="w-full h-full"><g stroke="#1e293b" strokeWidth="2" fill="#fff">

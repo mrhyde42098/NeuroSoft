@@ -1,6 +1,9 @@
 ---
 name: mejorar-informe-pdf
 description: Plan estructurado para rediseñar el informe clínico PDF que genera NeuroSoft. El actual es genérico; queremos uno de calidad profesional con narrativa coherente, gráficos clínicos serios y diseño limpio. Usar cuando Johan pida trabajar en el informe PDF o cuando se quiera ofrecer una variante de plantilla nueva.
+
+> **Implementación activa:** usar primero `/redisenar-informes` (skill de ejecución con estándar IN&S+Pro).
+> Referencia: `docs/REFERENCIAS_INFORMES_NPS.md`
 ---
 
 # Rediseño del informe clínico PDF

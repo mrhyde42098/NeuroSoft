@@ -145,15 +145,15 @@ export default function DenominacionClavesActivity({ params = {}, onFinish, onCa
       {/* Claves progresivas */}
       <div className="space-y-2">
         {revealed >= 1 && (
-          <div className="p-3 rounded-xl flex items-start gap-2 border-l-4" style={{borderColor:"#f59e0b",background:"#fffbeb"}}>
-            <I name="category" className="text-amber-600 shrink-0"/>
-            <p className="text-sm text-amber-800"><b>Clave semántica:</b> {item.semantic}</p>
+          <div className="p-3 rounded-xl flex items-start gap-2 border" style={{borderColor:"var(--ns-card-b)",background:"var(--ns-subtle)"}}>
+            <I name="category" className="shrink-0" style={{color:TEAL}}/>
+            <p className="text-sm" style={{color:"var(--ns-text)"}}><b>Clave semántica:</b> {item.semantic}</p>
           </div>
         )}
         {revealed >= 2 && (
-          <div className="p-3 rounded-xl flex items-start gap-2 border-l-4" style={{borderColor:"#f97316",background:"#fff7ed"}}>
-            <I name="record_voice_over" className="text-orange-600 shrink-0"/>
-            <p className="text-sm text-orange-800"><b>Clave fonémica:</b> {item.phonemic}</p>
+          <div className="p-3 rounded-xl flex items-start gap-2 border" style={{borderColor:"var(--ns-card-b)",background:"var(--ns-subtle)"}}>
+            <I name="record_voice_over" className="shrink-0" style={{color:TEAL}}/>
+            <p className="text-sm" style={{color:"var(--ns-text)"}}><b>Clave fonémica:</b> {item.phonemic}</p>
           </div>
         )}
       </div>

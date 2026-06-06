@@ -27,6 +27,20 @@ from app.presentation.dependencies import DbSession
 estimulos_router = APIRouter(prefix="/estimulos", tags=["Estímulos"])
 
 
+def _is_pdf_capacitacion(orm: EstimuloORM) -> bool:
+    """Recortes de PDFs de capacitación — no se sirven en evaluación."""
+    tid = orm.test_id or ""
+    nombre = (orm.nombre or "").upper()
+    return (
+        "Stim_p" in tid
+        or tid.startswith("NiWiscStim")
+        or tid.startswith("AdStim")
+        or tid.startswith("EstímuloStim")
+        or "IN&S" in nombre
+        or (orm.descripcion and ".pdf" in str(orm.descripcion))
+    )
+
+
 # ─────────────────────────────────────────────────────────────
 # DTOs
 # ─────────────────────────────────────────────────────────────
@@ -166,12 +180,14 @@ def listar_estimulos(
 
 @estimulos_router.get("/por_test/{test_id}", response_model=list[EstimuloResponseDTO])
 def estimulos_por_test(test_id: str, db: DbSession):
+    """Estímulos subidos para esta subprueba (excluye recortes PDF de capacitación)."""
     items = (
         db.query(EstimuloORM)
         .filter_by(activo=True, test_id=test_id)
         .order_by(EstimuloORM.orden)
         .all()
     )
+    items = [o for o in items if not _is_pdf_capacitacion(o)]
     return [_orm_to_dto(o, include_content=True) for o in items]
 
 

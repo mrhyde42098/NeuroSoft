@@ -44,6 +44,7 @@ from app.domain.entities.models import ResultadoPrueba
 def _hc_to_response(orm) -> ClinicalHistoryResponseDTO:
     fields = [
         "id", "patient_id", "numero_documento", "fecha_atencion", "codigo_cie10",
+        "codigo_cie11",
         "motivo_consulta", "edad_materna", "no_gestacion", "riesgos", "cual_riesgo",
         "estres_prenatal", "gestacion", "semanas", "tipo_parto", "peso_gr", "talla_cm",
         "condiciones_neonatales", "incubadora", "sosten_cefalico", "sedestacion",
@@ -91,11 +92,16 @@ class UpsertClinicalHistoryUseCase:
         p = dto.plan_atencion
         o = dto.observaciones
 
+        from app.domain.clinical_engine.cie_mapping_service import resolve_cie11_code
+
+        cie11 = dto.codigo_cie11 or resolve_cie11_code(dto.codigo_cie10)
+
         fields = dict(
             patient_id=dto.patient_id,
             numero_documento=patient.numero_documento,
             fecha_atencion=dto.fecha_atencion,
             codigo_cie10=dto.codigo_cie10,
+            codigo_cie11=cie11,
             # Desarrollo
             motivo_consulta=d.motivo_consulta, edad_materna=d.edad_materna,
             no_gestacion=d.no_gestacion, riesgos=d.riesgos, cual_riesgo=d.cual_riesgo,

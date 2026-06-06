@@ -1,21 +1,51 @@
 # CLAUDE.md — NeuroSoft (raíz del proyecto)
 
+> **Actualizado:** 5 jun 2026 · Refs clínicas + skills estado vivo + prep reactivos WISC/WAIS
+
+## Punto de entrada IA (leer en este orden)
+
+1. **`docs/PUNTO_INFLEXION_2026-06-05.md`** — traspaso completo para retomar en otro chat
+2. **`docs/ESTADO_VIVO.md`** — qué está ✅ hecho vs ❌ pendiente (fuente de verdad)
+3. **`docs/INDICE_MAESTRO.md`** — mapa de toda la documentación
+4. **`docs/historico/CARPETAS_RAIZ.md`** — qué hace cada carpeta del monorepo
+5. Este archivo (`CLAUDE.md`) — reglas de stack y qué NO recomendar
+
+**Auditorías:** `docs/historico/audits/` (ya no en raíz).  
+**Roadmaps viejos:** `docs/planning/` — consultar estado real en `ESTADO_VIVO.md`.
+
+### Regla obligatoria para toda IA
+
+Al **cerrar** un sprint, roadmap item o fix significativo:
+
+1. Actualizar `docs/ESTADO_VIVO.md` (marcar ✅/❌ con fecha).
+2. Si el cambio afecta traspaso entre chats → una línea en `docs/PUNTO_INFLEXION_2026-06-05.md`.
+3. **No** reescribir `CLAUDE.md` en cada tarea — solo con `/actualizar-contexto-ia` cuando Johan lo pida.
+
+Usar skill `/actualizar-estado-vivo` al terminar trabajo de roadmap/sprint.
+
+---
+
 ## Qué es este repo
 
 Proyecto monorepo de **NeuroSoft App** — sistema de evaluación neuropsicológica clínica para profesionales en Colombia. Estructura:
 
 ```
 D:\NeuroSoftApp\
-├── neurosoft-backend\          ← FastAPI + SQLAlchemy + SQLite (tiene su propio CLAUDE.md)
-├── neurosoft-frontend\         ← React + Vite + Tailwind (tiene su propio CLAUDE.md)
-├── installer\                  ← Inno Setup script (NeuroSoft.iss)
-├── vendor\ollama\              ← OllamaSetup.exe (1.3 GB, ignored por git)
-├── dist\                       ← artefactos de build (.exe, setup, manual, PDF)
-├── build.py                    ← pipeline PyInstaller
-├── neurosoft.spec              ← spec de PyInstaller
-├── neurosoft.ico               ← icono de la app
-└── .claude\                    ← skills, settings, memoria del proyecto
+├── neurosoft-backend\          ← FastAPI + motor clínico (CLAUDE.md propio)
+├── neurosoft-frontend\         ← React SPA (CLAUDE.md propio)
+├── Capacitaciones Clínicas\    ← Protocolos WISC/WAIS fuente (JSON)
+├── docs\                       ← ESTADO_VIVO, PUNTO_INFLEXION, infra, histórico
+├── archive\                    ← Legacy (Excel VBA, scripts one-off)
+├── installer\                  ← Inno Setup → NeuroSoft-Setup.exe
+├── vendor\ollama\              ← OllamaSetup.exe (~1.3 GB, gitignored)
+├── mcp-servers\baremos\        ← MCP opcional para consultar baremos en Claude Code
+├── dist\ / build\              ← Artefactos PyInstaller (gitignored)
+├── build.py / launcher.py      ← Pipeline desktop (NO mover de raíz)
+├── neurosoft.spec              ← Spec PyInstaller
+└── .claude\                    ← Skills + agente clinical-engine-reviewer
 ```
+
+**Mapa detallado:** `docs/historico/CARPETAS_RAIZ.md` · **Build/instalador:** `docs/infra/BUILD_Y_DISTRIBUCION.md`
 
 ---
 
@@ -26,15 +56,18 @@ Este proyecto YA tiene configurada infraestructura significativa de desarrollo. 
 ### ✅ Skills ya creadas en `.claude/skills/`
 - `audit-completo` — auditoría sistemática de bugs (4 niveles de severidad, smoke-test estático tras §audit-meta-2026-05)
 - `auditar-baremos` — compara baremos de BD_NEURO_MAESTRA.json con literatura
-- `build-mayra` — pipeline completo de empaquetado (alias histórico, renombrado a `build-beta-tester`)
+- `build-beta-tester` — pipeline completo de empaquetado para beta testers
 - `checkpoint` — snapshot rápido del proyecto (commit local + tag)
 - `competencia-software` — investiga TheraNest/SimplePractice/Quenza para mejorar UX
 - `dark-mode-fix` — reemplaza colores hardcoded por CSS vars
 - `exportar-sesion` — exporta resumen markdown de la sesión actual
-- `feedback-mayra` — procesa reportes de beta testers a TODOs
+- `feedback-beta-tester` — procesa reportes de beta testers a TODOs
+- `actualizar-estado-vivo` — marca ✅/❌ en ESTADO_VIVO al cerrar sprint/roadmap
+- `actualizar-contexto-ia` — sync on-demand de PUNTO_INFLEXION/CLAUDE (ahorra tokens)
 - `investigar-clinica` — agente investigador clínico (papers 2022-2026)
 - `investigar-terapia` — investigador específico de psicoterapia
 - `mejorar-informe-pdf` — plan para rediseñar el informe PDF
+- `redisenar-informes` — **ejecuta** el estándar visual IN&S+Pro (Composer/Opus 4.8 mínimo)
 - `snapshot-paciente` — genera fixtures JSON para tests de regresión clínica
 
 **Cualquier "agente de análisis de baremos / investigación / build / refactor" propuesto YA existe como skill. Verifícalo antes.**
@@ -45,10 +78,10 @@ Este proyecto YA tiene configurada infraestructura significativa de desarrollo. 
   - `no-empty: warn` con `allowEmptyCatch: true` (patrón intencional)
   - `react-hooks/rules-of-hooks: error`
 - **Build pipeline con lint-gate**: `npm run build` ejecuta `npm run lint && vite build` — si lint falla, no se construye. NO recomiendes añadir esto.
-- **`py_compile` check** en `/build-mayra` antes de PyInstaller.
+- **`py_compile` check** en `/build-beta-tester` antes de PyInstaller.
 
 ### ✅ Testing ya configurado
-- **pytest** en `neurosoft-backend/tests/` — 27 tests del clinical engine pasan
+- **pytest** en `neurosoft-backend/tests/` — **1011 tests** pasan (jun 2026)
 - **Playwright E2E** en `neurosoft-frontend/e2e/` (`smoke.spec.js`)
 - Casos clínicos verificados (Caso 1 y 2 en `neurosoft-backend/CLAUDE.md`)
 - **NO recomendar** Jest, Vitest, Cypress, Mocha — usamos Playwright.
@@ -160,12 +193,17 @@ Auditoría completa Excel → motor + sprint de mejoras clínicas:
 - **P3 M-4 Telepsicología básica:** componente `TelepsicologiaTools` en `SesionSOAPForm` — cuando modalidad="telepsicologia" muestra link Jitsi determinístico por sessionId, botón abrir sala, copiar al portapapeles, recordatorio consentimiento Ley 1090.
 - **P1 aprenderContent.js expandido:** 60 términos glosario (12 categorías), 50 tarjetas spaced, 3 quizzes×10 preguntas, 6 artículos extensos (Discrepancia ICV-IRP, TDAH vs Ansiedad, Alzheimer vs Pseudodemencia, RCI cuándo NO usar, Impresión DSM-5+CIE-10, Validez de síntomas medicolegal).
 
-### 📋 Lo que SÍ podría faltar (próximo sprint)
-- **GitHub Actions / CI** — pipeline automatizado (tests Python + lint frontend + Playwright).
-- **Glosario tooltips en InformesPage** (extender de EvalResultsPage al panel de informes).
-- **Ampliar `aprenderContent.js`** a 80 términos / 125 tarjetas / 8 quizzes / 10 artículos (parcialmente alcanzado).
-- **M-2 Simulador de casos clínicos** (vignettes con baremos reales para que estudiantes practiquen interpretación).
-- **GADS-CTAs y NiCDI** — verificar comportamiento con baremos `edad_sexo` y `puntaje_doble_resultado` en tests.
+### ✅ Sprint junio 2026 — V0–V6 + hardening (cerrado)
+
+- **V0–V5:** ver `docs/AUDITORIA_PDFs.md` (23 hallazgos PDF/reactivos/motor).
+- **V6:** hotfix `cfg.scoring` en `ReactivePanel.jsx`.
+- **Audit 5 jun:** IDOR HC/scores/reports, advertencias etarias acumulativas, strategies edge cases.
+- **Build:** `dist/NeuroSoft.exe` 47 MB · `NeuroSoft-Setup.exe` 1.4 GB.
+
+### 📋 Pendiente real (ver `docs/ESTADO_VIVO.md`)
+
+- E2E manual beta · dark mode `evaluation/` · placeholders REACTIVOS · glosario en InformesPage
+- QW-6 etiquetas pacientes · QW-8 backup programado · test flaky backups
 
 ---
 
@@ -187,6 +225,10 @@ Ejecutables con `/nombre` desde Claude Code:
 | **`/exportar-sesion`** | Exporta resumen md de la sesión actual para retomar en otro chat |
 | **`/snapshot-paciente`** | Crea fixture JSON de un caso clínico para tests de regresión |
 | **`/mejorar-informe-pdf`** | Plan estructurado para rediseñar el informe PDF |
+| **`/redisenar-informes`** | Implementa/mantiene estándar PDF IN&S+Pro — ver `docs/REFERENCIAS_INFORMES_NPS.md` |
+| **`/organizar-repo`** | Auditoría de auditorías: ordenar docs, ESTADO_VIVO, limpiar raíz |
+| **`/actualizar-estado-vivo`** | Al cerrar sprint/roadmap: actualizar ESTADO_VIVO (+ línea en PUNTO_INFLEXION si aplica) |
+| **`/actualizar-contexto-ia`** | Sync on-demand de archivos de lectura IA (solo cuando Johan lo pida) |
 
 ### Cómo crear nuevas skills
 
@@ -250,12 +292,62 @@ Comandos **denegados**:
 
 ## Referencias clínicas centrales
 
-- **Arango-Lasprilla, J. C. & Rivera, D. (Eds.). (2017).** *Neuropsicología en Colombia: Datos normativos, estado actual y retos a futuro.* — Fuente principal de los baremos colombianos para 10 pruebas.
-- **Jacobson & Truax (1991)** — Reliable Change Index (RCI) usado en Pre–Post.
-- **Ley 1090 de 2006** — Código Deontológico del Psicólogo en Colombia (responsabilidad profesional, art. 2 y 36).
-- **Ley 1581 de 2012** — Habeas Data Colombia (datos clínicos sensibles).
-- **Ley 1616 de 2013** — Ley de Salud Mental.
-- **Resolución 1995 de 1999** — Historia clínica (trazabilidad, firma irreversible).
+> Fuentes **documentadas en el repo** — no inventar DOI/ISBN. Detalle por prueba: `docs/casos-clinicos/AUDITORIA_55_TESTS_SOLO_MOTOR.md`, `docs/casos-clinicos/AUDITORIA_EXCEL_VS_MOTOR.md`, `docs/manuales-ocr/EXTRACCION_WISC-IV_WAIS-III.md`.
+
+### Baremos Colombia (Neuronorma / motor)
+
+| Fuente | Uso en NeuroSoft | Doc interno |
+|---|---|---|
+| **Arango-Lasprilla, J. C. & Rivera, D. (Eds.). (2017).** *Neuropsicología en Colombia: Datos normativos, estado actual y retos a futuro.* UAM, Manizales. | TMT AM, FCRO AM, FluidP/Anim, ViDeno/ViSem, Stroop AM, SDMT, WAIS-III AM | `AUDITORIA_55_TESTS` §4 |
+| **Peña-Casanova et al. (2009).** Neuronorma (España) → adaptación Colombia en Arango-Lasprilla (2017) | Grober AM, varios z-score AM | `AUDITORIA_55_TESTS` §5 |
+| **Arango-Lasprilla et al. (2015).** Validación adulto joven | `AdTMT_AB`, `AdFCRO_Rey`, `AdStroop_Corr`, `AdCVLT` | `AUDITORIA_EXCEL_VS_MOTOR` |
+| **Excel histórico** `MISISTEMAV1.xlsm` (archivado en `archive/legacy/`) | 97/102 tests match 100% con motor | `AUDITORIA_EXCEL_VS_MOTOR` |
+
+### WISC-IV / WAIS-III (Pearson / Manual Moderno — copyright)
+
+| Fuente | ISBN (en `pearsonProtected.js`) | Protocolo JSON |
+|---|---|---|
+| **Wechsler (2007). WISC-IV Manual de Aplicación** | 978-968-426-987-0 | `Capacitaciones Clínicas/protocolos/wisc_iv_protocolo.json` |
+| **Wechsler (1997). WAIS-III Manual de Aplicación** | 978-968-426-984-9 | `Capacitaciones Clínicas/protocolos/wais_iii_protocolo.json` |
+| OCR manuales aplicación | — | `docs/manuales-ocr/EXTRACCION_WISC-IV_WAIS-III.md` |
+
+Ítems verbatim protegidos por `pearsonProtected.js` + consentimiento único al instalar.
+
+### Escalas clínicas frecuentes (solo motor, post-Excel)
+
+| Test ID | Fuente original (auditada) |
+|---|---|
+| `MMSE` | Folstein, Folstein & McHugh (1975). *J Psychiatr Res*, 12(3), 189-198. Validación CO: Rosselli et al. (2000) |
+| `EscYesavage` | Yesavage et al. (1983). *J Psychiatr Res*, 17(1), 37-49. CO: Pedraza et al. (2014) |
+| `AdBeck` / `EscBeck` | Beck, Steer & Brown (1996). BDI-II. CO: Posada-Villa et al. (2008) |
+| `EscLawton` | Lawton & Brody (1969). *The Gerontologist*, 9(3), 179-186 |
+| `EscKertesz` | Kertesz, Davidson & Fox (1997). FBI. CO: Henao-Arboleda et al. (2010) |
+| `GoNoGoICO`…`RefranesICO` | Torralva et al. (2009). INECO Frontal Screening. *JINS*, 15(5), 777-786 |
+| `Denom48` | Boston Naming Test. CO: Allegri et al. (1997), Pedraza et al. (2012) |
+| `NiCDI` | Kovacs (1992). CDI. CO: Aguirre-Acevedo et al. (2008) |
+| `NiGADSCTAs` | Gilliam (2001). GADS |
+| `NiEniE1+E2+E3+E4` | Matute, Rosselli, Ardila & Ostrosky-Solís (2014). ENI-2 |
+| `ViGrober*` / `GBTotal` | Grober & Buschke (1987). *Dev Neuropsychol*, 3(1), 13-36 |
+| `NiFCROCop` / `NiFCRORec` | Rey (1941); adaptación infantil Bernstein & Waber (1996); CO: Rosselli et al. (2004) |
+| `SDMT` | Smith (1982). WPS. CO: Arango-Lasprilla et al. (2015) |
+| `NiSt_*` | Golden (1978). Stroop. CO: Matute et al. (2007) |
+
+### Métodos estadísticos y normativo
+
+| Referencia | Uso |
+|---|---|
+| **Jacobson & Truax (1991).** RCI | Pre–Post, cambio confiable |
+| **Ley 1090 de 2006** | Deontología psicólogo CO (PDF informe) |
+| **Ley 1581 de 2012** | Habeas Data — `docs/legal/HABEAS_DATA.md` |
+| **Ley 1616 de 2013** | Salud mental |
+| **Resolución 1995 de 1999** | HC — audit log ORM — `docs/MONITOREO_AUDIT_LOG.md` |
+| **Resolución 1888 de 2025** | IHCE (futuro, no implementado) — `docs/planning/ROADMAP_2026.md` |
+
+### Casos ground-truth verificados
+
+- **Caso 1 (Jesús, 16a11m WISC-IV):** `neurosoft-backend/CLAUDE.md` + fixtures `tests/fixtures/casos_ground_truth/`
+- **Caso 2 (María Elena, AM):** idem — 134 escalares en CI
+- Reporte: `docs/casos-clinicos/CASOS_GROUND_TRUTH.md`
 
 ---
 

@@ -228,8 +228,18 @@ function ResourceCard({ recurso, destacado }) {
   const cat = BIBLIOTECA_CATEGORIAS.find(c => c.id === recurso.categoria);
   const acento = cat?.color || TEAL;
 
+  const abrir = () => {
+    if (recurso.url) window.open(recurso.url, "_blank", "noopener,noreferrer");
+    else if (recurso.doi) window.open(`https://doi.org/${recurso.doi}`, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <article className="p-5 rounded-md border transition-all hover:shadow-sm"
+    <article
+      role={recurso.url || recurso.doi ? "button" : undefined}
+      tabIndex={recurso.url || recurso.doi ? 0 : undefined}
+      onClick={recurso.url || recurso.doi ? abrir : undefined}
+      onKeyDown={recurso.url || recurso.doi ? (e) => { if (e.key === "Enter") abrir(); } : undefined}
+      className={`p-5 rounded-md border transition-all hover:shadow-sm ${recurso.url || recurso.doi ? "cursor-pointer" : ""}`}
       style={{
         background: "var(--ns-card)",
         borderColor: "var(--ns-card-b)",
@@ -272,8 +282,8 @@ function ResourceCard({ recurso, destacado }) {
 
       <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "var(--ns-card-b)" }}>
         <span className="text-[10px] flex items-center gap-1" style={{ color: "var(--ns-muted)" }}>
-          <I name="local_library" className="text-xs" />
-          {recurso.formato}
+          <I name={recurso.url || recurso.doi ? "open_in_new" : "local_library"} className="text-xs" />
+          {recurso.url || recurso.doi ? "Abrir referencia" : recurso.formato}
         </span>
       </div>
     </article>

@@ -39,6 +39,7 @@ from app.presentation.api.v1.clinical_extras import (
     rips_catalog_router,
     wisc_router,
 )
+from app.presentation.api.v1.cie11 import cie11_router
 from app.presentation.api.v1.clinical_history import (
     backup_router,
     cie10_router,
@@ -48,6 +49,7 @@ from app.presentation.api.v1.clinical_history import (
     guide_router,
     hc_router,
 )
+from app.presentation.api.v1.cups import cups_router
 from app.presentation.api.v1.companions import companions_router  # §M-7
 from app.presentation.api.v1.reservorio import router as reservorio_router  # Sprint D
 from app.presentation.api.v1.consentimientos import consentimientos_router
@@ -104,6 +106,8 @@ api_v1_router.include_router(evol_router)
 api_v1_router.include_router(consentimientos_router)
 api_v1_router.include_router(guide_router)
 api_v1_router.include_router(cie10_router)
+api_v1_router.include_router(cie11_router)
+api_v1_router.include_router(cups_router)
 api_v1_router.include_router(rips_catalog_router)
 
 # 🧪 Evaluación / Scoring / Reactivos / Observaciones / Estímulos

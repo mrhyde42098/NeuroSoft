@@ -45,6 +45,8 @@ class JuntaMedicaGenerator(NeuroPDFGeneratorPro):
     VARIANT_SUBTITLE = "Documento Ejecutivo para Interconsulta / Junta"
     USE_COVER = False
     INCLUDE_ANNEX = False
+    CHART_MODULES = ("kpi_discrepancies", "score_table")
+    MAX_CHART_BLOCKS_PER_PAGE = 2
 
     def _build_pages(self, c, data) -> None:
         y = self._page_top_with_header(c, data)

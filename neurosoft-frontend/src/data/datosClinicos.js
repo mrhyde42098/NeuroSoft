@@ -772,7 +772,11 @@ export const DSM5_DIAGNOSES = {
   F431: { nombre: "Trastorno por estrés postraumático (TEPT)",        dsm5: "Trastornos asociados a trauma" },
   F438: { nombre: "Trastorno de estrés agudo",                        dsm5: "Trastornos asociados a trauma" },
   F432: { nombre: "Trastorno de adaptación",                          dsm5: "Trastornos asociados a trauma" },
-  F438C:{ nombre: "TEPT complejo (CIE-11 6B41) — por trauma crónico", dsm5: "Trastornos asociados a trauma (CIE-11)" },
+  F438C:{ nombre: "TEPT complejo (CIE-11 6B41) — por trauma crónico", dsm5: "Trastornos asociados a trauma (CIE-11)", cie11: "6B41" },
+  F94P:  { nombre: "Trastorno de duelo prolongado (DSM-5-TR)", dsm5: "Trastornos relacionados con trauma y factores de estrés", cie11: "6B42" },
+  R4581: { nombre: "Comportamiento suicida actual — encuentro inicial", dsm5: "Otros problemas de atención clínica (DSM-5-TR)", z: true },
+  R4582: { nombre: "Antecedentes de conducta suicida", dsm5: "Otros problemas de atención clínica (DSM-5-TR)", z: true },
+  R4583: { nombre: "Autolesiones no suicidas actuales", dsm5: "Otros problemas de atención clínica (DSM-5-TR)", z: true },
   // NEUROLÓGICOS / POST-INFECCIOSOS
   U099: { nombre: "Condición post-COVID / Secuelas Long COVID",        dsm5: "TNC inducido por condición médica" },
   F068: { nombre: "TNC leve debido a condición médica (post-COVID, post-ACV, etc.)", dsm5: "Trastornos neurocognitivos" },

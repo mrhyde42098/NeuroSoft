@@ -21,11 +21,18 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+import re
 
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import Response
+from pydantic import BaseModel, Field, field_validator
+
+from app.infrastructure.consent_pdf import build_consent_pdf, pdf_from_consent_record
 from app.infrastructure.database.orm_models import ConsentimientoORM, PatientORM
+from app.infrastructure.email_service import Attachment, is_configured, send_email
 from app.presentation.dependencies import DbSession
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 consentimientos_router = APIRouter(prefix="/consentimientos", tags=["Consentimientos"])
 
@@ -159,6 +166,27 @@ class PendientesDTO(BaseModel):
     firmados: list[str]
 
 
+class EnviarConsentimientoDTO(BaseModel):
+    patient_id: str
+    tipo: str
+    to: list[str] = Field(..., min_length=1)
+    consentimiento_id: str | None = None  # None = plantilla; id = copia firmada
+
+    @field_validator("to")
+    @classmethod
+    def _validate_emails(cls, v):
+        for addr in v:
+            if not _EMAIL_RE.match((addr or "").strip()):
+                raise ValueError(f"Correo inválido: {addr!r}")
+        return v
+
+
+class EnviarConsentimientoResponse(BaseModel):
+    ok: bool
+    log_id: str | None = None
+    error: str | None = None
+
+
 # ─────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────
@@ -273,6 +301,107 @@ def pendientes_paciente(patient_id: str, db: DbSession):
         pendientes=pendientes,
         firmados=sorted(firmados_vigentes),
     )
+
+
+@consentimientos_router.get("/pdf/plantilla/{tipo}")
+def pdf_plantilla_consentimiento(tipo: str, patient_id: str, db: DbSession):
+    """PDF imprimible del texto vigente (sin firma) para firma presencial."""
+    if tipo not in TEXTOS_VIGENTES:
+        raise HTTPException(404, f"Tipo desconocido. Válidos: {TIPOS_VALIDOS}")
+    pat = db.query(PatientORM).filter_by(id=patient_id).first()
+    if not pat:
+        raise HTTPException(404, "Paciente no encontrado")
+    meta = TEXTOS_VIGENTES[tipo]
+    pdf = build_consent_pdf(
+        titulo=meta["titulo"],
+        texto=meta["texto"],
+        version=meta["version"],
+        patient=pat,
+        borrador=True,
+    )
+    fname = f"consentimiento_{tipo}_{pat.numero_documento or 'paciente'}.pdf"
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{fname}"'},
+    )
+
+
+@consentimientos_router.get("/{item_id}/pdf")
+def pdf_consentimiento_firmado(item_id: str, db: DbSession):
+    """PDF del consentimiento ya firmado (incluye firma si existe)."""
+    orm = db.query(ConsentimientoORM).filter_by(id=item_id).first()
+    if not orm:
+        raise HTTPException(404, "Consentimiento no encontrado")
+    pat = db.query(PatientORM).filter_by(id=orm.patient_id).first()
+    pdf = pdf_from_consent_record(orm, pat, TEXTOS_VIGENTES)
+    fname = f"consentimiento_firmado_{orm.tipo}_{item_id[:8]}.pdf"
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{fname}"'},
+    )
+
+
+@consentimientos_router.post("/enviar-email", response_model=EnviarConsentimientoResponse)
+def enviar_consentimiento_email(dto: EnviarConsentimientoDTO, db: DbSession):
+    """
+    Envía el consentimiento por correo (plantilla o copia firmada).
+    Requiere SMTP configurado en Ajustes → Comunicaciones.
+    """
+    if dto.tipo not in TEXTOS_VIGENTES:
+        raise HTTPException(422, f"Tipo inválido. Válidos: {TIPOS_VALIDOS}")
+    pat = db.query(PatientORM).filter_by(id=dto.patient_id).first()
+    if not pat:
+        raise HTTPException(404, "Paciente no encontrado")
+    if not is_configured(db):
+        raise HTTPException(503, "SMTP no configurado. Vaya a Ajustes → Comunicaciones.")
+
+    nombre = " ".join(filter(None, [pat.primer_nombre, pat.primer_apellido]))
+    if dto.consentimiento_id:
+        orm = db.query(ConsentimientoORM).filter_by(id=dto.consentimiento_id).first()
+        if not orm or orm.patient_id != dto.patient_id:
+            raise HTTPException(404, "Consentimiento no encontrado")
+        meta_titulo = TEXTOS_VIGENTES.get(orm.tipo, {}).get("titulo", orm.tipo)
+        pdf = pdf_from_consent_record(orm, pat, TEXTOS_VIGENTES)
+        subject = f"Copia firmada — {meta_titulo} — {nombre}"
+        body = (
+            f"Adjunto encontrará la copia del consentimiento informado firmado "
+            f"para {nombre} (doc. {pat.numero_documento}).\n\n"
+            "Conserve este documento para su expediente.\n\n"
+            "— NeuroSoft"
+        )
+        fname = f"consentimiento_firmado_{orm.tipo}.pdf"
+    else:
+        meta = TEXTOS_VIGENTES[dto.tipo]
+        pdf = build_consent_pdf(
+            titulo=meta["titulo"],
+            texto=meta["texto"],
+            version=meta["version"],
+            patient=pat,
+            borrador=True,
+        )
+        subject = f"Consentimiento informado — {meta['titulo']} — {nombre}"
+        body = (
+            f"Adjunto el documento de consentimiento para revisión y firma "
+            f"de {nombre}.\n\n"
+            "Puede imprimirlo y firmarlo en consultorio, o firmarlo digitalmente "
+            "desde NeuroSoft (Historia Clínica → Consentimientos).\n\n"
+            "— NeuroSoft"
+        )
+        fname = f"consentimiento_{dto.tipo}.pdf"
+
+    result = send_email(
+        db,
+        to=dto.to,
+        subject=subject,
+        body=body,
+        attachments=[Attachment(filename=fname, content=pdf, mime_type="application/pdf")],
+        tipo="consentimiento",
+        patient_id=dto.patient_id,
+        documento_id=dto.consentimiento_id,
+    )
+    return EnviarConsentimientoResponse(ok=result.ok, log_id=result.log_id, error=result.error)
 
 
 @consentimientos_router.patch("/{item_id}/revocar", response_model=ConsentimientoResponseDTO)

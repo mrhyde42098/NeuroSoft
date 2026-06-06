@@ -178,7 +178,7 @@ def send_report_email(
                 institucion=inst,
                 profesional=prof,
             )
-            pdf_bytes = generate_report_pdf(report_data)
+            pdf_bytes = generate_report_pdf(report_data, template="pro")
             fname = (
                 f"InformeNPS_{(pat.primer_apellido or '').strip()}"
                 f"_{pat.numero_documento}.pdf"

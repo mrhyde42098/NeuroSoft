@@ -60,7 +60,9 @@ app/
 
 **REGLA ABSOLUTA:** Ningún cambio en `strategies.py` o `engine.py` sin verificar que los tests pasan. Estos calculan escalares clínicos reales.
 
-**NUNCA modificar:** `data/BD_NEURO_MAESTRA.json` (168 pruebas, 112,643 claves de baremo). Es la fuente de verdad clínica. Si detectas un posible error en los datos, **PREGUNTAR PRIMERO** antes de modificar.
+**NUNCA modificar:** `data/BD_NEURO_MAESTRA.json` (**173 pruebas**, ~114.586 claves de baremo). Es la fuente de verdad clínica. Si detectas un posible error en los datos, **PREGUNTAR PRIMERO** antes de modificar.
+
+**Estado del proyecto:** leer `../docs/ESTADO_VIVO.md` y `../docs/PUNTO_INFLEXION_2026-06-05.md` antes de proponer features.
 
 ---
 

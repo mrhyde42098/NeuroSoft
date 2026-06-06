@@ -164,7 +164,7 @@ Cada amenaza tiene: vector, activo afectado, probabilidad, impacto, mitigación 
 
 1. **Inmediato (S0.x)**: S0.1-S0.8 ✅ todos completos.
 2. **Corto plazo (Sprint 1)**: cifrado at-rest, PHI en audit log PHI-safe (S0.3 ya), sentinel 9999.
-3. **Mediano plazo (Sprints 2-3)**: capa protegida Pearson, scrub IN&S, plantillas documentales, narrative.py, dark mode + A11y.
+3. **Mediano plazo (Sprints 2-3)**: capa protegida Pearson, scrub institucional, plantillas documentales, narrative.py, dark mode + A11y.
 4. **Largo plazo (Sprint 4)**: 2FA, Sentry, backups AES-256, DRP, 35+ baremos.
 
 ## 9. Revisión y aprobación

@@ -43,8 +43,13 @@ SLATE_LIGHT = (0.580, 0.639, 0.722)
 
 #: Crema/papel (#FAF7F0)
 CREAM = (0.980, 0.969, 0.941)
-#: Fondo de banda decorativa (#F1F5F9)
-SURFACE = (0.945, 0.961, 0.976)
+#: Fondo de banda decorativa — papel cálido editorial (#F6F4EF).
+#: Antes era un azul-gris frío (#F1F5F9) que daba aspecto de "dashboard IA".
+SURFACE = (0.965, 0.957, 0.937)
+#: Hairline cálida para reglas finas editoriales (#D8D3C9).
+HAIRLINE = (0.847, 0.827, 0.788)
+#: Acento editorial profundo — teal sobrio para reglas y eyebrows (#0E6A62).
+ACCENT = (0.055, 0.416, 0.384)
 
 #: Blanco / negro puros
 WHITE = (1.0, 1.0, 1.0)
@@ -96,15 +101,20 @@ FONT_SERIF_ITALIC = "NSSerif-Italic"
 # Tamaños de tipografía por jerarquía
 @dataclass(frozen=True)
 class TypeScale:
-    """Tamaños en puntos."""
-    title_hero: float = 26.0     # Portada principal
-    title_h1: float = 18.0       # Sección mayor
-    title_h2: float = 13.0       # Subsección
-    title_h3: float = 10.5       # Bloque dentro de subsección
-    body: float = 8.5            # Cuerpo principal
-    body_sm: float = 7.5         # Cuerpo secundario / dos columnas
-    caption: float = 6.5         # Pies, leyendas
-    micro: float = 5.5           # Marca de agua, footers
+    """Tamaños en puntos.
+
+    Escala subida (jun-2026) para legibilidad clínica: el cuerpo era demasiado
+    pequeño (8.5/7.5). Ahora el cuerpo principal es ~10.5 pt, cercano a un
+    informe impreso real. Las leyendas de gráficos siguen pequeñas.
+    """
+    title_hero: float = 28.0     # Portada principal
+    title_h1: float = 19.0       # Sección mayor
+    title_h2: float = 14.0       # Subsección
+    title_h3: float = 11.5       # Bloque dentro de subsección
+    body: float = 10.5           # Cuerpo principal (narrativa verbatim)
+    body_sm: float = 9.0         # Cuerpo secundario / dos columnas
+    caption: float = 7.5         # Pies, etiquetas de campo
+    micro: float = 6.0           # Footers, leyendas de gráficos
 
 
 TYPE = TypeScale()

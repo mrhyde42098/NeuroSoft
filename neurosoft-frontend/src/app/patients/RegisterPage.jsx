@@ -29,6 +29,7 @@ export default function RegisterPage({ setPage }) {
     motivo_consulta: "", remite: "", eps: "", orden_medica_no: "",
     discapacidad: "", codigo_rips: "", cups: "", finalidad_consulta: "",
     numero_sesiones: 1, donante: false,
+    via_atencion: "mixto",
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -85,12 +86,24 @@ export default function RegisterPage({ setPage }) {
       ].forEach(k => { if (body[k] === "") delete body[k]; });
       await api.post("/api/v1/patients/", body);
       setMsg("ok");
-      setTimeout(() => setPage("patients"), 1200);
+      const dest = {
+        neuro: "evaluation",
+        clinica: "therapy",
+        rehab: "rehab",
+        mixto: "patients",
+      }[f.via_atencion] || "patients";
+      setTimeout(() => setPage(dest), 1200);
     } catch (e) { setMsg(_parseError(e)); }
     setSaving(false);
   };
 
-  const secs = ["Identificación", "Contacto y Demografía", "Datos de Consulta"];
+  const secs = ["Identificación", "Contacto y Demografía", "Datos de Consulta", "Vía de atención"];
+  const VIA_OPTS = [
+    { id: "neuro", label: "Evaluación neuropsicológica", desc: "Batería NPS, informes y baremos", icon: "psychology" },
+    { id: "clinica", label: "Psicoterapia clínica", desc: "Sesiones SOAP, planes terapéuticos", icon: "self_improvement" },
+    { id: "rehab", label: "Rehabilitación cognitiva", desc: "Plan y actividades de rehab", icon: "fitness_center" },
+    { id: "mixto", label: "Mixto / por definir", desc: "Decidir módulo después del intake", icon: "hub" },
+  ];
   const reqErr = (field) => msg && msg !== "ok" && msg.includes(_fieldNames[field] || field);
   const errCls = (field) => reqErr(field) ? "!border-red-400 !bg-red-50/50" : "";
 
@@ -214,6 +227,37 @@ export default function RegisterPage({ setPage }) {
           </Card>
         )}
 
+        {sec === 3 && (
+          <Card className="p-8 space-y-6">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <I name="route" style={{ color: TEAL }} />Vía de atención
+            </h3>
+            <p className="text-sm" style={{ color: "var(--ns-muted)" }}>
+              Define el flujo inicial tras guardar. Puedes cambiar de módulo en cualquier momento desde el panel del paciente.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {VIA_OPTS.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => set("via_atencion", v.id)}
+                  className="text-left p-4 rounded-xl border-2 transition-all"
+                  style={{
+                    borderColor: f.via_atencion === v.id ? TEAL : "var(--ns-card-b)",
+                    background: f.via_atencion === v.id ? `${TEAL}08` : "var(--ns-card)",
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <I name={v.icon} style={{ color: TEAL }} />
+                    <span className="font-bold text-sm">{v.label}</span>
+                  </div>
+                  <p className="text-xs" style={{ color: "var(--ns-muted)" }}>{v.desc}</p>
+                </button>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {sec === 2 && (
           <Card className="p-8 space-y-8">
             <h3 className="text-lg font-bold flex items-center gap-2">
@@ -263,7 +307,7 @@ export default function RegisterPage({ setPage }) {
                 <I name="chevron_left" className="text-sm" />Anterior
               </Btn>
             )}
-            {sec < 2 && (
+            {sec < secs.length - 1 && (
               <Btn v="outline" onClick={() => setSec(s => s + 1)}>
                 Siguiente<I name="chevron_right" className="text-sm" />
               </Btn>

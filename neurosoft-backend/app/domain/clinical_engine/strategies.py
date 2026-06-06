@@ -6,22 +6,35 @@ Las 15 estrategias de calificación del Motor NeuroSoft.
 Strategy Pattern: cada clase encapsula UN algoritmo de calificación.
 Todas implementan la misma interfaz `IScoringStrategy.calculate()`.
 
-Mapa de cobertura (168 variables):
-    RangoPuntajeStrategy       → 65 pruebas  (WISC-IV, KABC, ENI-2, EAD)
-    DesconocidoStrategy        → 23 pruebas  (adulto_mayor con rango etario)
-    WaisRangeStrategy          → 19 pruebas  (WAIS-III subescalas)
-    SumaAIndiceStrategy        → 14 pruebas  (WISC-IV índices CI)
-    ZScoreStrategy             → 7 pruebas   (FCRO, TMT, CARAS)
-    PuntajeDirectoATStrategy   → 6 pruebas   (Spence, GADS)
-    PuntajeDoblResultadoStrategy → 5 pruebas (GADS subescalas)
-    EscolaridadPC50Strategy    → 4 pruebas   (Dígitos, Claves adulto joven)
-    PuntajeDirectoStrategy     → 2 pruebas   (Vineland)
-    ClasificacionFijaStrategy  → 2 pruebas   (Beck BDI-II)
-    EdadSexoStrategy           → 1 prueba    (CDI depresión infantil)
-    ZScoreMultipleStrategy     → 1 prueba    (CARAS-R)
-    AjusteStroopStrategy       → 1 prueba    (Stroop corrección)
-    ComparativoStrategy        → 1 prueba    (CVLT memoria)
-    BaremoPEStrategy           → 1 prueba    (Torre de Londres)
+Mapa de cobertura (173 pruebas en BD_NEURO_MAESTRA.json, 114,586 claves):
+
+  Subtests principales
+    RangoPuntajeStrategy        → ~65 pruebas (WISC-IV, KABC, ENI-2, EAD)
+    DesconocidoStrategy         → ~33 pruebas (Neuronorma Colombia AM)
+    WaisRangeStrategy           → ~21 pruebas (WAIS-III subescalas)
+    SumaAIndiceStrategy         → ~14 pruebas (WISC-IV y WAIS-III índices)
+    ZScoreStrategy              →  ~7 pruebas (FCRO, TMT, CARAS)
+    PuntajeDirectoATStrategy    →  ~6 pruebas (Spence, GADS)
+    PuntajeDoblResultadoStrategy →  ~5 pruebas (GADS subescalas)
+    EscolaridadPC50Strategy     →  ~5 pruebas (Dígitos, Claves adulto joven)
+    PuntajeDirectoStrategy      →  ~2 pruebas (Vineland)
+    ClasificacionFijaStrategy   →  ~6 pruebas (Beck BDI-II, Yesavage, MMSE,
+                                                Lawton, GoNoGo, Refranes)
+    EdadSexoStrategy            →  ~3 pruebas (CDI, GADS-CTAs)
+    ZScoreMultipleStrategy      →  ~1 prueba  (CARAS-R)
+    AjusteStroopStrategy        →  ~1 prueba  (Stroop corrección)
+    ComparativoStrategy         →  ~1 prueba  (CVLT memoria)
+    BaremoPEStrategy            →  ~1 prueba  (Torre de Londres)
+
+Los conteos exactos se actualizan automáticamente con `baremos_loader._meta`;
+los valores listados arriba son aproximados y reflejan el estado al cierre
+de la auditoría v5 (mayo 2026). Para el inventario autoritativo ver
+`baremos_loader.list_strategies_coverage()` o el header del JSON maestro.
+
+§v5-auditoría (2026-06-05): el conteo histórico de 168 pruebas quedó
+obsoleto tras la eliminación de los 10 tests Grober legacy en la
+auditoría Excel→motor. La BD_NEURO_MAESTRA actual tiene 173 pruebas
+con 114,586 claves de baremo (header del JSON también actualizado).
 """
 
 from __future__ import annotations
@@ -391,7 +404,9 @@ class PuntajeDoblResultadoStrategy(IScoringStrategy):
                     float(v) for k, v in valor.items()
                     if k != "Percentil" and isinstance(v, (int, float))
                 ]
-                pe = numeric_vals[0] if numeric_vals else 0.0
+                if not numeric_vals:
+                    return _not_found(prueba, pd, llave)
+                pe = numeric_vals[0]
             percentil = valor.get("Percentil")
         return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
                              tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(int(pd)),
@@ -638,7 +653,9 @@ class ComparativoStrategy(IScoringStrategy):
             for i in range(1, 6)
             if isinstance(prueba.baremos.get(f"E{i}", [0]), list)
         )
-        z = round(((float(pd) / max_lista) - 0.5) / 0.15, 2) if max_lista > 0 else 0.0
+        if max_lista <= 0:
+            return _not_found(prueba, pd, "total_lista")
+        z = round(((float(pd) / max_lista) - 0.5) / 0.15, 2)
         return ScoringOutput(test_id=prueba.id, test_nombre=prueba.nombre,
                              tipo_metrica=prueba.tipo_metrica, puntaje_bruto=float(pd),
                              puntaje_escalar=z, llave_usada="total_lista",
@@ -658,7 +675,7 @@ class BaremoPEStrategy(IScoringStrategy):
             return _sin_dato(prueba)
         llave = str(int(pd))
         valor = prueba.baremos.get(llave)
-        if valor is None or not isinstance(valor, list):
+        if valor is None or not isinstance(valor, list) or len(valor) == 0:
             return _not_found(prueba, pd, llave)
         pe = float(valor[0])
         meta = {col: valor[i] for i, col in enumerate(self._COLS) if i < len(valor)}

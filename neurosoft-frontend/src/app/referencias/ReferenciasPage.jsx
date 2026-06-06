@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../api/client.js";
 import { Card, I, Input, Sel, TopBar, Spinner } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
+import SectionCard from "../../ui/SectionCard.jsx";
 
 const TIPO_LABELS = {
   libro: "Libro", articulo: "Artículo", manual: "Manual",
@@ -108,19 +109,12 @@ export default function ReferenciasPage() {
           {refs.map(r => {
             const discColor = DISCIPLINA_COLORS[r.disciplina] || TEAL;
             return (
-              <Card key={r.id} className="p-5 border-l-4" style={{ borderLeftColor: discColor }}>
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex-1">
-                    <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: discColor }}>
-                      {r.categoria?.replace(/_/g, " ") || "General"}
-                    </p>
-                    <h3 className="font-bold text-sm leading-snug" style={{ color: "var(--ns-text)" }}>
-                      {r.titulo}
-                    </h3>
-                    <p className="text-xs ns-serif-italic mt-0.5" style={{ color: "var(--ns-muted)" }}>
-                      {r.autores} ({r.anio})
-                    </p>
-                  </div>
+              <SectionCard
+                key={r.id}
+                title={r.titulo}
+                eyebrow={r.categoria?.replace(/_/g, " ") || "General"}
+                subtitle={`${r.autores} (${r.anio})`}
+                headerRight={
                   <div className="flex gap-2 shrink-0">
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-bold"
                       style={{ background: discColor + "15", color: discColor }}>
@@ -133,8 +127,8 @@ export default function ReferenciasPage() {
                       </span>
                     )}
                   </div>
-                </div>
-
+                }
+              >
                 {r.resumen && (
                   <p className="text-xs leading-relaxed mb-2" style={{ color: "var(--ns-text)" }}>
                     {r.resumen}
@@ -176,7 +170,7 @@ export default function ReferenciasPage() {
                     })()}
                   </div>
                 )}
-              </Card>
+              </SectionCard>
             );
           })}
         </div>

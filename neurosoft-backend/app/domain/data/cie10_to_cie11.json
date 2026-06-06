@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "descripcion": "Mapeo complementario CIE-10 → CIE-11 (NeuroSoft). RIPS sigue CIE-10 hasta confirmación MinSalud.",
+    "fuente": "Transición OMS / Res. 1442-2024 Colombia [VERIFICAR tabla Sispro]",
+    "nota": "Sincronizado con neurosoft-frontend/src/data/cie11Map.js"
+  },
+  "F32": { "cie11": "6A70", "nombre11": "Trastorno depresivo único" },
+  "F320": { "cie11": "6A70.0", "nombre11": "Episodio depresivo único, leve" },
+  "F321": { "cie11": "6A70.1", "nombre11": "Episodio depresivo único, moderado" },
+  "F322": { "cie11": "6A70.2", "nombre11": "Episodio depresivo único, grave" },
+  "F90": { "cie11": "6A05", "nombre11": "Trastorno por déficit de atención con hiperactividad" },
+  "F900": { "cie11": "6A05.0", "nombre11": "TDAH, presentación combinada" },
+  "F909": { "cie11": "6A05.2", "nombre11": "TDAH, presentación combinada (sin especificación)" },
+  "F84": { "cie11": "6A02", "nombre11": "Trastorno del espectro autista" },
+  "F840": { "cie11": "6A02.0", "nombre11": "TEA sin discapacidad intelectual" },
+  "F431": { "cie11": "6B40", "nombre11": "Trastorno por estrés postraumático" },
+  "F438C": { "cie11": "6B41", "nombre11": "Trastorno de estrés postraumático complejo" },
+  "F43": { "cie11": "6B40", "nombre11": "Trastorno por estrés postraumático" },
+  "G30": { "cie11": "6D80", "nombre11": "Demencia por enfermedad de Alzheimer" },
+  "G3184": { "cie11": "6D70", "nombre11": "Deterioro cognitivo leve" },
+  "F03": { "cie11": "6D86", "nombre11": "Demencia, no especificada" },
+  "F94": { "cie11": "6B42", "nombre11": "Trastorno de duelo prolongado" },
+  "F94P": { "cie11": "6B42", "nombre11": "Trastorno de duelo prolongado (DSM-5-TR)" },
+  "F809": { "cie11": "6A03", "nombre11": "Trastorno del desarrollo del aprendizaje, no especificado [VERIFICAR]" },
+  "F80": { "cie11": "6A03", "nombre11": "Trastornos del desarrollo del aprendizaje [VERIFICAR]" },
+  "F41": { "cie11": "6B00", "nombre11": "Trastorno de ansiedad generalizada [VERIFICAR]" },
+  "F410": { "cie11": "6B00", "nombre11": "Trastorno de ansiedad generalizada [VERIFICAR]" }
+}

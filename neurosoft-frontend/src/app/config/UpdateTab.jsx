@@ -14,6 +14,7 @@ import React, { useState } from "react";
 import { api } from "../../api/client.js";
 import { useToast } from "../../contexts.jsx";
 import { Btn, Card, I, MsgBanner } from "../../ui/primitives.jsx";
+import SectionCard from "../../ui/SectionCard.jsx";
 import { TEAL } from "../../ui/tokens.js";
 import { safeLS } from "../../utils/safeLS.js";
 import WhatNewModal from "../dashboard/WhatNewModal.jsx";
@@ -135,15 +136,7 @@ export default function UpdateTab() {
       {error && <MsgBanner msg={error} onDismiss={() => setError(null)} />}
 
       {result && (
-        <Card className="p-5 border-l-4" style={{ borderColor: "#10b981", background: "rgba(16,185,129,0.06)" }}>
-          <div className="flex items-center gap-3">
-            <I name="check_circle" fill className="text-2xl" style={{ color: "#10b981" }} />
-            <div>
-              <p className="font-bold text-sm" style={{ color: "#065f46" }}>Actualizacion aplicada</p>
-              <p className="text-xs" style={{ color: "#047857" }}>El sistema se reiniciara en unos segundos para aplicar los cambios.</p>
-            </div>
-          </div>
-        </Card>
+        <SectionCard title="Actualización aplicada" icon="check_circle" eyebrow="Éxito" subtitle="El sistema se reiniciará en unos segundos para aplicar los cambios." />
       )}
 
       <Card className="p-5" style={{ background: "var(--ns-subtle)" }}>

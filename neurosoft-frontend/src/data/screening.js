@@ -46,9 +46,16 @@ export const SCREENING_FORMS = {
     domain: "Cognitivo",
     maxScore: 30, cutoff: 26,
     ageRange: "Adulto / adulto mayor",
+    normProfiles: {
+      internacional: { cutoff: 26, label: "Estándar internacional (<26)" },
+      colombia_primaria: { cutoff: 21, label: "Bogotá primaria (Pineros 2018)" },
+      colombia_bachillerato: { cutoff: 23, label: "Bogotá bachillerato" },
+      colombia_universitario: { cutoff: 24, label: "Bogotá universitarios" },
+    },
+    defaultNormProfile: "internacional",
     /* Cortes adicionales validados en Bogotá (Pedraza et al. 2014/2016):
      *   ≤20 → DCL  ·  ≤17 → demencia leve. Ajustar según escolaridad. */
-    notes: "Validación Bogotá: ≤20 sugiere DCL; ≤17 sugiere demencia leve.",
+    notes: "Validación Bogotá: ≤20 sugiere DCL; ≤17 sugiere demencia leve. Use perfil normativo por escolaridad.",
     domains: [
       { name: "Visuoespacial/Ejecutivo", max: 5, items: ["TMT-B adaptado", "Copia cubo", "Reloj: contorno", "Reloj: números", "Reloj: agujas"] },
       { name: "Identificación", max: 3, items: ["León", "Rinoceronte", "Camello"] },
@@ -69,6 +76,11 @@ export const SCREENING_FORMS = {
     domain: "Cognitivo",
     maxScore: 100, cutoff: 82,
     ageRange: "Adulto / adulto mayor",
+    normProfiles: {
+      internacional: { cutoff: 82, label: "Internacional ACE-III" },
+      colombia: { cutoff: 87, label: "Colombia Ospina 2015 (ACE-R)" },
+    },
+    defaultNormProfile: "colombia",
     domains: [
       { name: "Atención", max: 18, items: [
         "Día", "Fecha", "Mes", "Año", "Estación",
@@ -125,7 +137,9 @@ export const SCREENING_FORMS = {
       { max: 19, label: "Moderada-severa",   color: "#ea580c" },
       { max: 27, label: "Severa",            color: "#dc2626" },
     ],
-    clinicalCutoff: 10, // ≥10 → considerar derivación a salud mental
+    clinicalCutoff: 10,
+    clinicalCutoffs: { ap_colombia: 7, clinica: 10 },
+    defaultClinicalContext: "ap_colombia",
     /* Ítem 9 = ideación suicida; cualquier respuesta ≥1 amerita
      * exploración inmediata por el clínico. */
     redFlagItems: [8],
@@ -1066,6 +1080,27 @@ export const SCREENING_FORMS = {
    * Cada subtarea puntúa 0-3. Total 0-18.
    * Corte ≤12: sugestivo de disfunción frontal.
    * Versión adaptada al español con normas colombianas (Arango-Lasprilla 2015). */
+  IFS: {
+    name: "INECO Frontal Screening (IFS) — versión Colombia",
+    abbr: "IFS",
+    kind: "binary_domains",
+    domain: "Cognitivo ejecutivo",
+    maxScore: 30,
+    cutoff: 17.5,
+    ageRange: "Adulto / adulto mayor",
+    license: "Torralva et al. 2009. Validación Colombia: Romero-Vanegas et al. 2014 (corte 17.5/30).",
+    notes: "Corte Colombia 17.5 (sens 92.8%, esp 86.3%). Diferencia DFT vs Alzheimer/depresión. No sustituye evaluación completa.",
+    domains: [
+      { name: "Programación motora", max: 3, items: ["Luria 3/3", "2/3", "1/3", "0/3"] },
+      { name: "Conflicto", max: 3, items: ["Opuestas sin error", "1 error", "2 errores", "≥3 errores"] },
+      { name: "Flexibilidad", max: 3, items: ["Fluidez ≥12", "9-11", "6-8", "<6"] },
+      { name: "Abstracción", max: 3, items: ["3/3 refranes", "2/3", "1/3", "0/3"] },
+      { name: "Go/No-Go", max: 3, items: ["Sin errores", "1 error", "2 errores", "≥3 errores"] },
+      { name: "Atención espacial", max: 3, items: ["3/3", "2/3", "1/3", "0/3"] },
+      { name: "Memoria de trabajo", max: 3, items: ["Directa+inversa OK", "solo directa", "solo inversa", "falla ambas"] },
+      { name: "Inhibición", max: 3, items: ["Stroop adaptado OK", "leve", "moderado", "severo"] },
+    ],
+  },
   FAB: {
     name: "Frontal Assessment Battery (FAB) — Batería de Evaluación Frontal",
     abbr: "FAB",
@@ -1463,6 +1498,7 @@ export const SCREENING_INDEX = {
   MoCA:        { constructo: "cognitivo_global",    poblacion_objetivo: ["adulto", "adulto_mayor"] },
   ACE3:        { constructo: "cognitivo_global",    poblacion_objetivo: ["adulto", "adulto_mayor"] },
   MOCABasic:   { constructo: "cognitivo_global",    poblacion_objetivo: ["adulto_mayor"], notas_poblacion: "Diseñado para escolaridad ≤5 años" },
+  IFS:         { constructo: "cognitivo_ejecutivo", poblacion_objetivo: ["adulto", "adulto_mayor"], notas_poblacion: "Corte CO 17.5" },
   FAB:         { constructo: "cognitivo_ejecutivo", poblacion_objetivo: ["adulto", "adulto_mayor"] },
   CDR:         { constructo: "demencia_severidad",  poblacion_objetivo: ["adulto_mayor"] },
 

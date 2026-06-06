@@ -1,6 +1,6 @@
 /* src/app/evaluation/ClinicalDisclaimer.jsx — Disclaimer clínico para informes y UI */
 import React from "react";
-import { I } from "../../ui/primitives.jsx";
+import SectionCard from "../../ui/SectionCard.jsx";
 
 export default function ClinicalDisclaimer({ modo = "banner", className = "" }) {
   const contenido = {
@@ -15,14 +15,14 @@ export default function ClinicalDisclaimer({ modo = "banner", className = "" }) 
 
   if (modo === "banner") {
     return (
-      <div className={`flex items-start gap-3 p-4 rounded-xl border-l-4 ${className}`}
-           style={{ background: "#fff7ed", borderColor: "#f97316" }}>
-        <I name="medical_services" className="text-orange-500 text-lg shrink-0 mt-0.5"/>
-        <div>
-          <p className="text-xs font-bold text-orange-700 mb-1">{t.titulo}</p>
-          <p className="text-[10px] text-orange-700/80 leading-relaxed">{t.texto}</p>
-        </div>
-      </div>
+      <SectionCard
+        title={t.titulo}
+        icon="medical_services"
+        eyebrow="Responsabilidad profesional"
+        className={className}
+      >
+        <p className="text-xs leading-relaxed" style={{ color: "var(--ns-text)" }}>{t.texto}</p>
+      </SectionCard>
     );
   }
 

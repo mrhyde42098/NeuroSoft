@@ -12,9 +12,14 @@ from collections.abc import Sequence
 from reportlab.pdfbase import pdfmetrics
 
 from .theme import (
+    ACCENT,
     FONT_SANS,
     FONT_SANS_BOLD,
+    FONT_SANS_ITALIC,
+    FONT_SERIF,
     FONT_SERIF_BOLD,
+    FONT_SERIF_ITALIC,
+    HAIRLINE,
     LAYOUT,
     NAVY,
     SLATE,
@@ -232,36 +237,44 @@ def section_title(
     y: float,
     *,
     subtitle: str | None = None,
-    accent: tuple[float, float, float] = TEAL,
+    accent: tuple[float, float, float] = ACCENT,
 ) -> float:
-    """Título de sección H1 con barra de acento + subtítulo opcional.
+    """Encabezado de sección — estilo editorial clínico.
 
-    Estilo:
-        ▌ TÍTULO EN MAYÚSCULAS, SERIF
-          subtítulo, sans, slate
+    Antes: ``▌ TÍTULO EN MAYÚSCULAS SERIF`` (pesado, aspecto de plantilla).
+    Ahora: una *kicker rule* corta de acento, el título en serif en
+    caja mixta (sin gritar en mayúsculas), un subtítulo en cursiva y una
+    hairline cálida a todo el ancho. Más cercano a un informe clínico real
+    que a un dashboard.
+
+    Sólo consume espacio hacia abajo desde ``y`` (no dibuja por encima),
+    para no solaparse con el contenido previo.
     """
     L = LAYOUT
-    # Barra de acento vertical
+    # Kicker: regla corta de acento como "eyebrow" editorial
     c.setFillColorRGB(*accent)
-    c.rect(L.margin, y - TYPE.title_h1 - 2, 3, TYPE.title_h1 + 4, fill=1, stroke=0)
-    # Título
+    c.rect(L.margin, y - 3, 28, 2.2, fill=1, stroke=0)
+    y -= 13
+    # Título en serif, caja mixta (respeta el casing que envía el caller)
+    size_t = TYPE.title_h1 - 2.0  # ~16 pt — refinado, no monumental
     draw_text(
-        c, title.upper(), L.margin + 10, y - TYPE.title_h1 + 2,
-        font_name=FONT_SERIF_BOLD, size=TYPE.title_h1, color=NAVY,
+        c, title, L.margin, y - size_t,
+        font_name=FONT_SERIF_BOLD, size=size_t, color=NAVY,
     )
-    y -= TYPE.title_h1 + 2
+    y -= size_t + 5
     if subtitle:
         draw_text(
-            c, subtitle, L.margin + 10, y - 10,
-            font_name=FONT_SANS, size=TYPE.caption, color=SLATE,
+            c, subtitle, L.margin, y - TYPE.caption,
+            font_name=FONT_SERIF_ITALIC, size=TYPE.caption + 0.5, color=SLATE,
         )
-        y -= 12
-    # Línea inferior fina
-    y -= 6
-    c.setStrokeColorRGB(*SLATE_LIGHT)
-    c.setLineWidth(0.4)
+        y -= TYPE.caption + 7
+    else:
+        y -= 2
+    # Hairline cálida a todo el ancho
+    c.setStrokeColorRGB(*HAIRLINE)
+    c.setLineWidth(0.7)
     c.line(L.margin, y, L.page_w - L.margin, y)
-    return y - 12
+    return y - 13
 
 
 def section_subtitle(c, title: str, y: float) -> float:
@@ -300,18 +313,16 @@ def chart_title(
         ``y`` actualizado tras dibujar el título.
     """
     L = LAYOUT
-    # Bullet cuadrado TEAL como ancla visual
-    c.setFillColorRGB(*TEAL)
-    c.rect(L.margin, y - 9, 3, 9, fill=1, stroke=0)
+    # Eyebrow: nombre del gráfico en sans-bold, caja mixta, ancla discreta
     draw_text(
-        c, title, L.margin + 8, y - 8,
-        font_name=FONT_SERIF_BOLD, size=TYPE.body, color=NAVY,
+        c, title, L.margin, y - 8,
+        font_name=FONT_SANS_BOLD, size=TYPE.body + 0.5, color=NAVY,
     )
-    y -= 14
+    y -= 13
     if note:
         draw_text(
-            c, note, L.margin + 8, y - 7,
-            font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE,
+            c, note, L.margin, y - 7,
+            font_name=FONT_SANS_ITALIC, size=TYPE.micro + 0.5, color=SLATE,
         )
         y -= 10
     return y - 2
@@ -540,6 +551,139 @@ def callout(
     return y - box_h - 4
 
 
+def field_grid(
+    c,
+    items: Sequence[tuple[str, str]],
+    x: float,
+    y: float,
+    w: float,
+    *,
+    cols: int = 3,
+    row_h: float = 34.0,
+    size: float = TYPE.body_sm,
+    placeholder: str = "—",
+) -> float:
+    """Rejilla de campos etiquetados con borde (estilo ficha IN&S).
+
+    Cada celda muestra ``ETIQUETA`` arriba (caption) y el valor abajo (body).
+    Dibuja borde externo + hairlines internas. Retorna el ``y`` inferior.
+    """
+    if not items:
+        return y
+    n = len(items)
+    rows = (n + cols - 1) // cols
+    col_w = w / cols
+    grid_h = rows * row_h
+
+    # Fondo + borde externo
+    c.setFillColorRGB(*WHITE)
+    c.setStrokeColorRGB(*HAIRLINE)
+    c.setLineWidth(0.7)
+    c.rect(x, y - grid_h, w, grid_h, fill=1, stroke=1)
+
+    # Hairlines internas
+    c.setStrokeColorRGB(*HAIRLINE)
+    c.setLineWidth(0.4)
+    for r in range(1, rows):
+        ly = y - r * row_h
+        c.line(x, ly, x + w, ly)
+    for cc in range(1, cols):
+        lx = x + cc * col_w
+        c.line(lx, y - grid_h, lx, y)
+
+    pad = 7.0
+    for idx, (label, value) in enumerate(items):
+        r = idx // cols
+        cc = idx % cols
+        cx = x + cc * col_w
+        cy = y - r * row_h
+        draw_text(
+            c, label.upper(), cx + pad, cy - pad - TYPE.caption + 2,
+            font_name=FONT_SANS_BOLD, size=TYPE.caption, color=ACCENT,
+        )
+        val = value if (value and str(value).strip() and str(value) not in ("N/A", "")) else placeholder
+        val_str = _truncate_to_width(str(val), FONT_SANS, size, col_w - 2 * pad)
+        draw_text(
+            c, val_str, cx + pad, cy - row_h + pad + 2,
+            font_name=FONT_SANS, size=size, color=NAVY,
+        )
+    return y - grid_h
+
+
+def measure_info_box(
+    value: str,
+    w: float,
+    *,
+    size: float = TYPE.body,
+    label_lines: int = 1,
+    placeholder: str = "No reportado",
+) -> float:
+    """Altura total que ocuparía un ``info_box`` con este contenido y ancho."""
+    pad = 9.0
+    inner_w = w - 2 * pad
+    text = value if (value and str(value).strip() and str(value) not in ("N/A", "-", "(-)")) else placeholder
+    body_lines = wrap_text(str(text), inner_w, FONT_SANS, size)
+    body_h = max(1, len(body_lines)) * size * 1.42
+    label_h = label_lines * (TYPE.caption + 4)
+    return pad + label_h + body_h + pad
+
+
+def info_box(
+    c,
+    label: str,
+    value: str,
+    x: float,
+    y: float,
+    w: float,
+    *,
+    size: float = TYPE.body,
+    placeholder: str = "No reportado",
+    accent: tuple[float, float, float] = ACCENT,
+    fill: tuple[float, float, float] = WHITE,
+) -> float:
+    """Caja etiquetada estilo IN&S: encabezado de campo + valor en caja con borde.
+
+    Muestra ``placeholder`` (en cursiva, gris) cuando el valor está vacío, para
+    que todas las áreas figuren en el informe aunque no se diligencien — igual
+    que el formato IN&S. El texto del valor se imprime **verbatim**.
+
+    Retorna el ``y`` inferior de la caja.
+    """
+    pad = 9.0
+    inner_w = w - 2 * pad
+    is_empty = not (value and str(value).strip() and str(value) not in ("N/A", "-", "(-)"))
+    text = placeholder if is_empty else str(value)
+    body_lines = wrap_text(text, inner_w, FONT_SANS, size)
+    body_h = max(1, len(body_lines)) * size * 1.42
+    label_h = TYPE.caption + 4
+    box_h = pad + label_h + body_h + pad
+
+    # Caja
+    c.setFillColorRGB(*fill)
+    c.setStrokeColorRGB(*HAIRLINE)
+    c.setLineWidth(0.7)
+    c.roundRect(x, y - box_h, w, box_h, 3, fill=1, stroke=1)
+    # Acento lateral
+    c.setFillColorRGB(*accent)
+    c.rect(x, y - box_h, 2.4, box_h, fill=1, stroke=0)
+
+    # Etiqueta (eyebrow)
+    draw_text(
+        c, label.upper(), x + pad, y - pad - TYPE.caption + 2,
+        font_name=FONT_SANS_BOLD, size=TYPE.caption, color=accent,
+    )
+    # Valor
+    cy = y - pad - label_h - size
+    color = SLATE_LIGHT if is_empty else NAVY
+    fnt = FONT_SANS_ITALIC if is_empty else FONT_SANS
+    c.setFillColorRGB(*color)
+    c.setFont(font(fnt), size)
+    for line in body_lines:
+        c.drawString(x + pad, cy, line)
+        cy -= size * 1.42
+    return y - box_h
+
+
 def kpi_card(
     c,
     label: str,
@@ -717,7 +861,7 @@ def two_column_blocks(
     y_left = y
     y_right = y
     y_left = ensure(c, y_left, 40)
-    y_left = block_header(c, left_title, y_left, color=left_color)
+    y_left = block_header(c, left_title, y_left, color=left_color, x=x_left)
     if not left_items:
         y_left = draw_paragraph(
             c, "—", x_left, y_left - 4, col_w,
@@ -729,7 +873,7 @@ def two_column_blocks(
             y_left = ensure(c, y_left, 32)
             y_left = bullet(c, frase, x_left, y_left - 2, col_w) - 2
     y_right = ensure(c, y_right, 40)
-    y_right = block_header(c, right_title, y_right, color=right_color)
+    y_right = block_header(c, right_title, y_right, color=right_color, x=x_right)
     if not right_items:
         y_right = draw_paragraph(
             c, "—", x_right, y_right - 4, col_w,

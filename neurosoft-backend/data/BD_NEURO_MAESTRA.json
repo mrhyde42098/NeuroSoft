@@ -70017,7 +70017,7 @@
       },
       "AdWAISC": {
         "id": "AdWAISC",
-        "nombre": "COMRENSIÓN",
+        "nombre": "COMPRENSIÓN",
         "tipo_calculo": "wais_range",
         "tipo_metrica": "escalar",
         "baremos": {
@@ -73269,7 +73269,7 @@
       },
       "AdWAISICP": {
         "id": "AdWAISICP",
-        "nombre": "CI DEL INDICE ORGNIZACIÓN PERCEPTIVA",
+        "nombre": "CI DEL INDICE ORGANIZACIÓN PERCEPTIVA",
         "tipo_calculo": "suma_a_indice",
         "tipo_metrica": "ci",
         "baremos": {

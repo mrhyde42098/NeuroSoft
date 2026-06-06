@@ -52,7 +52,7 @@ const FUENTE_META = {
   otro:                 { lb: "Otra fuente",           c: "#475569", autores: "—", anio: null },
 };
 
-export default function PruebasDisponiblesPage() {
+export default function PruebasDisponiblesPage({ embedded = false }) {
   const toast = useToast();
   const [catalogo, setCatalogo] = useState(null);
   const [error, setError] = useState(null);
@@ -137,9 +137,9 @@ export default function PruebasDisponiblesPage() {
 
   return (
     <>
-      <TopBar title="Aprender · Pruebas disponibles" />
-      <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-7"
-        style={{ background: "var(--ns-bg)", minHeight: "100vh" }}>
+      {!embedded && <TopBar title="Aprender · Pruebas disponibles" />}
+      <main className={`p-6 lg:p-8 max-w-7xl mx-auto space-y-7 ${embedded ? "" : ""}`}
+        style={{ background: embedded ? "transparent" : "var(--ns-bg)", minHeight: embedded ? "auto" : "100vh" }}>
 
         {/* Header editorial */}
         <div className="ns-section-rule">

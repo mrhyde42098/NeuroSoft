@@ -9,7 +9,7 @@ Tu trabajo es transformar el feedback informal (email, WhatsApp, mensaje de voz 
 
 ## Cuándo activarte
 
-Usuario escribió `/feedback-mayra`, `/feedback` seguido de:
+Usuario escribió `/feedback-beta-tester`, `/feedback` seguido de:
 - El texto pegado de un email o WhatsApp
 - Una transcripción de mensaje de voz
 - Una descripción libre del problema

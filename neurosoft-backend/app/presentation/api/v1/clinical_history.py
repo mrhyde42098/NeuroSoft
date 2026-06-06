@@ -50,7 +50,11 @@ from app.domain.entities.configuration import (
     get_cie10_categorias,
 )
 from app.infrastructure.database.engine import get_session
-from app.presentation.api.v1.auth import require_admin
+from app.presentation.api.v1.auth import (
+    CurrentUser,
+    get_patient_for_user,
+    require_admin,
+)
 
 
 def _db():
@@ -79,7 +83,9 @@ hc_router = APIRouter(prefix="/clinical-history", tags=["Historia Clínica"])
 def upsert_clinical_history(
     dto: ClinicalHistoryUpsertDTO,
     db: Session = Depends(get_session),
+    user=CurrentUser,
 ):
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return UpsertClinicalHistoryUseCase(db).execute(dto)
     except Exception as e:
@@ -88,7 +94,12 @@ def upsert_clinical_history(
 
 @hc_router.get("/{patient_id}", response_model=Optional[ClinicalHistoryResponseDTO],
                summary="Obtener Historia Clínica de un paciente")
-def get_clinical_history(patient_id: str, db: Session = Depends(get_session)):
+def get_clinical_history(
+    patient_id: str,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
+    get_patient_for_user(patient_id, db, user)
     return GetClinicalHistoryUseCase(db).by_patient(patient_id)
 
 
@@ -98,21 +109,22 @@ def get_clinical_history(patient_id: str, db: Session = Depends(get_session)):
                    "Genera un PDF imprimible con la HC + datos sociodemográficos del paciente. "
                    "No requiere evaluación previa — útil para EPS/IPS que piden HC sola."
                ))
-def generate_hc_pdf(patient_id: str, db: Session = Depends(get_session)):
+def generate_hc_pdf(
+    patient_id: str,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
     """§QW-4: PDF de HC sola (sin evaluación). ReportLab inline."""
     from fastapi.responses import Response
 
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
         ConfigInstitucionORM,
-        PatientORM,
         ProfessionalORM,
     )
     from app.infrastructure.hc_pdf_service import generate_clinical_history_pdf
 
-    pat = db.get(PatientORM, patient_id)
-    if not pat:
-        raise HTTPException(404, detail="Paciente no encontrado.")
+    pat = get_patient_for_user(patient_id, db, user)
     hc = (db.query(ClinicalHistoryORM)
           .filter(ClinicalHistoryORM.patient_id == patient_id)
           .order_by(ClinicalHistoryORM.fecha_atencion.desc())
@@ -144,8 +156,11 @@ def get_interpretation_suggestions(
     patient_id: str,
     evaluation_id: str | None = Query(default=None),
     db: Session = Depends(get_session),
+    user=CurrentUser,
 ):
     from app.infrastructure.database.orm_models import EvaluationORM
+
+    get_patient_for_user(patient_id, db, user)
 
     if not evaluation_id:
         ev = (db.query(EvaluationORM)
@@ -169,7 +184,12 @@ evol_router = APIRouter(prefix="/evolucion", tags=["Evolución Terapia NPs"])
 @evol_router.post("/", response_model=EvolTerapiaResponseDTO,
                   status_code=201,
                   summary="Registrar sesión de evolución terapéutica")
-def create_evolucion(dto: EvolTerapiaCreateDTO, db: Session = Depends(get_session)):
+def create_evolucion(
+    dto: EvolTerapiaCreateDTO,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return CreateEvolTerapiaUseCase(db).execute(dto)
     except Exception as e:
@@ -178,7 +198,12 @@ def create_evolucion(dto: EvolTerapiaCreateDTO, db: Session = Depends(get_sessio
 
 @evol_router.get("/{patient_id}", response_model=list[EvolTerapiaResponseDTO],
                  summary="Historial de sesiones de un paciente")
-def get_evolucion(patient_id: str, db: Session = Depends(get_session)):
+def get_evolucion(
+    patient_id: str,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
+    get_patient_for_user(patient_id, db, user)
     return GetEvolTerapiaUseCase(db).by_patient(patient_id)
 
 
@@ -412,7 +437,12 @@ docs_router = APIRouter(prefix="/documents", tags=["Documentos"])
 @docs_router.post("/comprobante-asistencia", response_model=DocumentoResponseDTO,
                   status_code=201,
                   summary="Generar comprobante de asistencia a cita")
-def comprobante_asistencia(dto: ComprobanteAsistenciaDTO, db: Session = Depends(get_session)):
+def comprobante_asistencia(
+    dto: ComprobanteAsistenciaDTO,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return GenerateDocumentUseCase(db).comprobante_asistencia(dto)
     except Exception as e:
@@ -422,7 +452,12 @@ def comprobante_asistencia(dto: ComprobanteAsistenciaDTO, db: Session = Depends(
 @docs_router.post("/remision", response_model=DocumentoResponseDTO,
                   status_code=201,
                   summary="Generar formulario de remisión/interconsulta")
-def remision(dto: RemisionDTO, db: Session = Depends(get_session)):
+def remision(
+    dto: RemisionDTO,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
+    get_patient_for_user(dto.patient_id, db, user)
     try:
         return GenerateDocumentUseCase(db).remision(dto)
     except Exception as e:
@@ -431,7 +466,12 @@ def remision(dto: RemisionDTO, db: Session = Depends(get_session)):
 
 @docs_router.get("/{patient_id}",
                  summary="Documentos generados para un paciente")
-def list_documents(patient_id: str, db: Session = Depends(get_session)):
+def list_documents(
+    patient_id: str,
+    db: Session = Depends(get_session),
+    user=CurrentUser,
+):
+    get_patient_for_user(patient_id, db, user)
     from app.infrastructure.database.orm_models import DocumentoEmitidoORM
     docs = (db.query(DocumentoEmitidoORM)
             .filter_by(patient_id=patient_id)

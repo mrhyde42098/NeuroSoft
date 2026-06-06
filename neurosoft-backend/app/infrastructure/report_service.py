@@ -155,6 +155,15 @@ class ReportData:
     # Código CIE-10 (de clinical_histories.codigo_cie10)
     codigo_cie10: str = ""
     codigo_cie10_desc: str = ""
+    codigo_cie11: str = ""
+
+    # Campos therapy_closure (informe de cierre psicoterapéutico)
+    therapy_plan: dict = field(default_factory=dict)
+    therapy_objectives: list[dict] = field(default_factory=list)
+    therapy_sessions_count: int = 0
+    therapy_risk_history: list[dict] = field(default_factory=list)
+    therapy_motivo_cierre: str = ""
+    therapy_nota_cierre: str = ""
 
     # Aviso legal
     aviso_legal: str = (
@@ -964,20 +973,21 @@ def _lookup_cie10_desc(code: str) -> str:
     return ""
 
 
-def generate_report_pdf(report_data: ReportData, template: str = "estandar") -> bytes:
+def generate_report_pdf(report_data: ReportData, template: str = "pro") -> bytes:
     """Punto de entrada público.
 
     Args:
         report_data: instancia poblada de ReportData.
-        template:    identificador de plantilla. Valores soportados:
-                     ``"estandar"`` (NeuroPDFGenerator histórico) y las
-                     variantes Pro: ``"pro"``, ``"pediatrico"``,
-                     ``"medicolegal"``, ``"junta_medica"``, ``"inconcluso"``.
-                     Cualquier valor desconocido cae a ``"estandar"``.
+        template:    identificador de plantilla. Default ``"pro"`` (estándar
+                     visual IN&S + gráficas premium). ``"estandar"`` conserva
+                     el generador histórico. Variantes Pro: ``"pediatrico"``,
+                     ``"medicolegal"``, ``"junta_medica"``, ``"inconcluso"``,
+                     ``"paciente"``, ``"therapy_closure"``.
+                     Cualquier valor desconocido cae a ``"pro"``.
     Returns:
         bytes con el PDF generado.
     """
-    key = (template or "estandar").strip().lower()
+    key = (template or "pro").strip().lower()
     if key == "estandar":
         return NeuroPDFGenerator().generate(report_data)
     try:
@@ -991,6 +1001,91 @@ def generate_report_pdf(report_data: ReportData, template: str = "estandar") -> 
     return generate_pro_pdf(report_data, template=key)
 
 
+def _load_therapy_closure_context(
+    db,
+    patient_id: str,
+    therapy_plan_id: str | None = None,
+) -> dict:
+    """Carga plan terapéutico, objetivos, sesiones y riesgo para therapy_closure."""
+    from app.infrastructure.database.orm_models import (
+        RiskAssessmentORM,
+        TherapyObjectiveORM,
+        TherapyPlanORM,
+        TherapySessionORM,
+    )
+
+    q = db.query(TherapyPlanORM).filter(TherapyPlanORM.patient_id == patient_id)
+    if therapy_plan_id:
+        plan = q.filter(TherapyPlanORM.id == therapy_plan_id).first()
+    else:
+        plan = (
+            q.filter(TherapyPlanORM.estado == "cerrado")
+            .order_by(TherapyPlanORM.fecha_cierre.desc())
+            .first()
+        ) or q.order_by(TherapyPlanORM.fecha_inicio.desc()).first()
+
+    if not plan:
+        return {}
+
+    objetivos = (
+        db.query(TherapyObjectiveORM)
+        .filter_by(plan_id=plan.id)
+        .order_by(TherapyObjectiveORM.orden, TherapyObjectiveORM.fecha_inicio)
+        .all()
+    )
+    sesiones_count = (
+        db.query(TherapySessionORM)
+        .filter_by(patient_id=patient_id, plan_id=plan.id)
+        .count()
+    )
+    if sesiones_count == 0:
+        sesiones_count = (
+            db.query(TherapySessionORM)
+            .filter_by(patient_id=patient_id)
+            .count()
+        )
+
+    riesgos = (
+        db.query(RiskAssessmentORM)
+        .filter_by(patient_id=patient_id)
+        .order_by(RiskAssessmentORM.fecha)
+        .all()
+    )
+
+    return {
+        "therapy_plan": {
+            "enfoque_principal": plan.enfoque_principal or "",
+            "diagnostico_principal": plan.diagnostico_principal or "",
+            "diagnostico_secundario": plan.diagnostico_secundario or "",
+            "codigo_cie11": getattr(plan, "codigo_cie11", None) or "",
+            "motivo_consulta": plan.motivo_consulta or "",
+            "fecha_inicio": plan.fecha_inicio.isoformat() if plan.fecha_inicio else "",
+            "fecha_cierre": plan.fecha_cierre.isoformat() if plan.fecha_cierre else "",
+            "duracion_estimada_sesiones": plan.duracion_estimada_sesiones or "—",
+        },
+        "therapy_objectives": [
+            {
+                "descripcion": o.descripcion,
+                "progreso_pct": o.progreso_pct or 0,
+                "estado": o.estado or "activo",
+                "criterios_medibles": o.criterios_medibles or "",
+            }
+            for o in objetivos
+        ],
+        "therapy_sessions_count": sesiones_count,
+        "therapy_risk_history": [
+            {
+                "fecha": r.fecha.isoformat() if r.fecha else "",
+                "nivel": r.nivel,
+                "instrumento": r.instrumento,
+            }
+            for r in riesgos
+        ],
+        "therapy_motivo_cierre": plan.motivo_cierre or "",
+        "therapy_nota_cierre": plan.nota_cierre or "",
+    }
+
+
 def build_report_data_from_db(
     patient,
     clinical_history,
@@ -998,6 +1093,9 @@ def build_report_data_from_db(
     institucion,
     profesional,
     observations: dict = None,
+    db=None,
+    therapy_plan_id: str | None = None,
+    include_therapy: bool = False,
 ) -> ReportData:
     """
     Construye un ReportData a partir de los objetos del dominio.
@@ -1010,6 +1108,9 @@ def build_report_data_from_db(
         profesional:       Profesional (puede ser None)
         observations:      dict {dominio: texto} de la tabla observations (puede ser None)
                            Complementa campos vacíos en clinical_history.
+        db:                Sesión SQLAlchemy opcional — requerida para therapy_closure.
+        therapy_plan_id:   UUID del plan terapéutico a documentar en cierre.
+        include_therapy:   Si True, carga plan/objetivos/sesiones del paciente.
     """
     def _get(obj, attr, default=""):
         val = getattr(obj, attr, default) or default
@@ -1026,6 +1127,19 @@ def build_report_data_from_db(
 
     hc = clinical_history
     ev = evaluation_record
+
+    therapy_ctx: dict = {}
+    if db is not None and include_therapy and patient is not None:
+        patient_id = getattr(patient, "id", None)
+        if patient_id:
+            therapy_ctx = _load_therapy_closure_context(db, str(patient_id), therapy_plan_id)
+
+    cie11_code = ""
+    if hc and getattr(hc, "codigo_cie11", None):
+        cie11_code = str(hc.codigo_cie11)
+    elif hc and getattr(hc, "codigo_cie10", None):
+        from app.domain.clinical_engine.cie_mapping_service import resolve_cie11_code
+        cie11_code = resolve_cie11_code(hc.codigo_cie10) or ""
 
     return ReportData(
         # Institución
@@ -1091,9 +1205,18 @@ def build_report_data_from_db(
         obs_funcionalidad=_get(hc, 'obs_funcionalidad') if hc else "",
         obs_recomendaciones=_obs_field(_get(hc, 'obs_recomendaciones') if hc else "", "recomendaciones"),
 
-        # CIE-10
+        # CIE-10 / CIE-11
         codigo_cie10=_get(hc, 'codigo_cie10') if hc else "",
         codigo_cie10_desc=_lookup_cie10_desc(_get(hc, 'codigo_cie10') if hc else ""),
+        codigo_cie11=cie11_code,
+
+        # Terapia (therapy_closure)
+        therapy_plan=therapy_ctx.get("therapy_plan", {}),
+        therapy_objectives=therapy_ctx.get("therapy_objectives", []),
+        therapy_sessions_count=therapy_ctx.get("therapy_sessions_count", 0),
+        therapy_risk_history=therapy_ctx.get("therapy_risk_history", []),
+        therapy_motivo_cierre=therapy_ctx.get("therapy_motivo_cierre", ""),
+        therapy_nota_cierre=therapy_ctx.get("therapy_nota_cierre", ""),
 
         # Resultados — el ORM guarda JSON en `resultados_json` (no hay attr `resultados`).
         # Hay que deserializarlo; si no, la sección de resultados del PDF queda vacía.

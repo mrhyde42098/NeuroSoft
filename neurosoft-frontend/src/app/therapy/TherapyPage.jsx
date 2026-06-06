@@ -41,7 +41,7 @@ const RIESGO_BADGE = {
   intento_reciente:  { label: "Intento reciente",  color: "#FFFFFF",         bg: "#7F1D1D" },
 };
 
-export default function TherapyPage() {
+export default function TherapyPage({ setPage }) {
   const toast = useToast();
   const [patients, setPatients] = useState([]);
   const [patId, setPatId] = useState(() => safeLS.get("ns_sel_patient") || "");
@@ -124,6 +124,11 @@ export default function TherapyPage() {
             </option>
           ))}
         </Sel>
+        {setPage && (
+          <Btn v="outline" className="text-xs" onClick={() => setPage("register")}>
+            <I name="person_add" className="text-sm" />Nuevo paciente
+          </Btn>
+        )}
         <Btn v="outline" className="text-xs" onClick={() => setShowCatalog(true)}>
           <I name="menu_book" className="text-sm" />Enfoques
         </Btn>
@@ -448,7 +453,7 @@ function CatalogoModal({ onClose, filter, setFilter, enfoques }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(2px)" }}
-      onClick={onClose}>
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div onClick={e => e.stopPropagation()}
         className="w-full max-w-4xl max-h-[85vh] rounded-lg shadow-2xl flex flex-col overflow-hidden"
         style={{ background: "var(--ns-card)" }}>

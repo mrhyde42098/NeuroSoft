@@ -100,6 +100,7 @@ class ClinicalHistoryUpsertDTO(BaseModel):
     patient_id: UUIDStr
     fecha_atencion: date
     codigo_cie10: str = "F809"
+    codigo_cie11: str | None = None
     # Optimistic locking: el cliente envía la versión que tiene.
     # Si no coincide con la BD, se lanza ConcurrencyError (409).
     # En un CREATE (nueva HC) enviar None o 0.
@@ -133,6 +134,7 @@ class ClinicalHistoryResponseDTO(BaseModel):
     numero_documento: str
     fecha_atencion: date
     codigo_cie10: str
+    codigo_cie11: str | None = None
     row_version: int = 1   # Para optimistic locking — el cliente lo reenvía en el siguiente save
     # Los 4 tabs aplanados para facilitar el frontend
     motivo_consulta: str

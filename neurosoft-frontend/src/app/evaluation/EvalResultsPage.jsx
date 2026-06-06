@@ -11,6 +11,7 @@ import {
   RECOMMENDATIONS_LIB, DIAGNOSTIC_ALGORITHMS, DSM5_DIAGNOSES,
   INCONCLUSO_REASONS, evaluarAlgoritmo,
 } from "../../data/datosClinicos.js";
+import { formatDualCoding, mapCie10ToCie11 } from "../../data/cie11Map.js";
 import {
   Btn, Card, I, Input, Label, Sel, TopBar, Txta,
 } from "../../ui/primitives.jsx";
@@ -26,6 +27,7 @@ import DomainAnalysis from "./DomainAnalysis.jsx";
 import { useReservorio } from "../../hooks/useReservorio.js";
 import ClinicalInterpretationPanel from "./ClinicalInterpretationPanel.jsx";
 import ClinicalDisclaimer from "./ClinicalDisclaimer.jsx";
+import SectionCard from "../../ui/SectionCard.jsx";
 import { validatePediatricObservations, isChildAge } from "../../utils/pediatricValidator.js";
 import { analyzeWiscDiscrepancy, computeICG_ICC, interpretCI, buildDiscrepancyReportText } from "../../utils/wiscDiscrepancy.js";
 import { safeLS } from "../../utils/safeLS.js";
@@ -229,13 +231,9 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
     <main className="p-6"><div className="grid grid-cols-12 gap-6">
       <div className="col-span-12 lg:col-span-7 space-y-5">
         {/* ─── ALERTAS CLÍNICAS ─── */}
-        {alertas.length>0&&<Card className="p-5 border-l-4 border-red-500" style={{background:"rgba(239,68,68,0.08)"}}>
-          <div className="flex items-start gap-3"><I name="warning" fill className="text-red-500 text-2xl mt-0.5 shrink-0"/>
-            <div className="flex-1"><h4 className="text-sm font-extrabold text-red-700 mb-2">⚠ Alertas Clínicas ({alertas.length})</h4>
-              <p className="text-xs text-red-600 mb-2">Se detectaron puntajes en rango clínicamente significativo. Revisar y considerar intervención.</p>
+        {alertas.length>0&&<SectionCard title={`Alertas clínicas (${alertas.length})`} icon="warning" eyebrow="Atención" subtitle="Puntajes en rango clínicamente significativo. Revisar y considerar intervención." className="!border-red-200">
               <div className="flex flex-wrap gap-1.5">{alertas.slice(0,6).map((r,i)=><span key={i} className="text-[10px] font-bold px-2 py-1 rounded-full" style={{background:lc(r.interpretacion)+"20",color:lc(r.interpretacion)}}>{r.test_nombre}: {r.interpretacion}</span>)}{alertas.length>6&&<span className="text-[10px] font-bold px-2 py-1 rounded-full bg-red-100 text-red-700">+{alertas.length-6} más</span>}</div>
-            </div></div>
-        </Card>}
+        </SectionCard>}
         {/* Advertencias */}
         {res?.advertencias?.length>0&&<Card className="p-4 space-y-1" style={{background:"rgba(245,158,11,0.08)",borderLeft:"3px solid #f59e0b"}}>{res.advertencias.map((w,i)=><p key={i} className="text-xs flex items-center gap-2" style={{color:"#92400e"}}><I name="warning" className="text-sm" style={{color:"#f59e0b"}}/>{w}</p>)}</Card>}
         {/* Índices compuestos */}
@@ -261,12 +259,8 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
             />
           </Card>}
         {/* ─── DISCREPANCIA MAYOR ≥23 puntos (regla del sistema) ─── */}
-        {wiscAnalysis?.isMajor&&<Card className="p-5 border-l-4" style={{borderColor:"#dc2626",background:"rgba(239,68,68,0.07)"}}>
-          <div className="flex items-start gap-3">
-            <I name="warning" fill className="text-2xl text-red-600 mt-0.5 shrink-0"/>
-            <div className="flex-1">
-              <h4 className="text-sm font-extrabold text-red-700 mb-1">Discrepancia mayor entre índices (≥{wiscAnalysis.threshold} puntos)</h4>
-              <p className="text-xs text-red-700 leading-relaxed mb-3">
+        {wiscAnalysis?.isMajor&&<SectionCard title={`Discrepancia mayor entre índices (≥${wiscAnalysis.threshold} pts)`} icon="warning" eyebrow="WISC/WAIS" className="!border-red-200">
+              <p className="text-xs leading-relaxed mb-3" style={{color:"var(--ns-text)"}}>
                 Rango de {wiscAnalysis.range} puntos entre <b>{wiscAnalysis.highest.name}={wiscAnalysis.highest.value}</b> y <b>{wiscAnalysis.lowest.name}={wiscAnalysis.lowest.value}</b>.
                 El CIT pierde su valor como resumen unitario. Se reportan los índices alternativos:
               </p>
@@ -292,9 +286,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
                 <p className="text-[9px] text-gray-500 mt-2">ICG/ICC son <b>estimaciones</b> calculadas como promedio aritmético. Para el valor oficial consultar tablas Flanagan &amp; Kaufman (2009).</p>
                 <button onClick={()=>{navigator.clipboard?.writeText(wiscReportText);toast.success("Texto copiado al portapapeles")}} className="text-[10px] font-bold px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-500 mt-2">Copiar texto</button>
               </details>
-            </div>
-          </div>
-        </Card>}
+        </SectionCard>}
         {/* ─── CALCULADORA DE DISCREPANCIAS ─── */}
         {discrepancias.length>0&&<Card className="p-6"><h3 className="text-sm font-extrabold mb-4 flex items-center gap-2"><I name="compare_arrows" style={{color:TEAL}}/>Análisis de Discrepancias entre Índices</h3>
           <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="text-left" style={{color:"var(--ns-muted)"}}><th className="pb-2 font-bold">Par</th><th className="pb-2 font-bold text-center">Valor A</th><th className="pb-2 font-bold text-center">Valor B</th><th className="pb-2 font-bold text-center">Diferencia</th><th className="pb-2 font-bold">Significancia</th></tr></thead>
@@ -357,7 +349,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
             <div className="flex-1"><p className="text-xs font-semibold">{c.pregunta}</p></div>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{background:TEAL+"20",color:TEAL}}>peso {c.peso}</span>
           </label>})}</div>
-          <div className="p-4 rounded-xl border-l-4" style={{background:`${colorN}10`,borderColor:colorN}}>
+          <div className="p-4 rounded-xl border" style={{background:`${colorN}10`,borderColor:colorN}}>
             <div className="flex items-center justify-between mb-2"><p className="text-sm font-extrabold" style={{color:colorN}}>Sospecha {evalRes.nivel.toUpperCase()} · Score {Math.round(evalRes.ratio*100)}%</p>
               <button onClick={()=>{const txt=`${alg.nombre}: ${evalRes.interpretacion}\n\nCriterios cumplidos:\n${evalRes.criterios_cumplidos.map(c=>"• "+c).join("\n")||"(ninguno)"}\n\nCriterios por confirmar:\n${evalRes.criterios_faltantes.map(c=>"• "+c).join("\n")||"(ninguno)"}`;setObsT(o=>({...o,impresion_diagnostica:(o.impresion_diagnostica?o.impresion_diagnostica+"\n\n":"")+txt}))}} className="text-[10px] font-bold px-3 py-1 rounded-full" style={{background:TEAL,color:"#fff"}}>→ A observaciones</button>
             </div>
@@ -368,7 +360,8 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
         {/* ─── DSM-5 / CIE-10 PICKER — Impresión final estructurada (Fase F.1) ─── */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <h3 className="text-sm font-extrabold flex items-center gap-2"><I name="medical_information" style={{color:TEAL}}/>Códigos DSM-5 / CIE-10 — Impresión final</h3>
+            <h3 className="text-sm font-extrabold flex items-center gap-2"><I name="medical_information" style={{color:TEAL}}/>Códigos DSM-5 / CIE-10 (+ CIE-11 complementario)</h3>
+            <p className="text-[10px] w-full mb-2" style={{color:"var(--ns-muted)"}}>RIPS y facturación EPS siguen CIE-10. CIE-11 se muestra como referencia de transición (Res. 1442/2024).</p>
             <Input value={dsmQ} onChange={e=>setDsmQ(e.target.value)} placeholder="Buscar código o diagnóstico…" className="text-xs w-64"/>
           </div>
           <p className="text-[10px] mb-3" style={{color:"var(--ns-muted)"}}>Seleccione uno o más códigos para la impresión diagnóstica final. Los seleccionados se insertan en "Impresión Diagnóstica" con formato estructurado.</p>
@@ -377,7 +370,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
               <input type="checkbox" checked={checked} onChange={e=>setDsmPicks(p=>e.target.checked?[...p,code]:p.filter(x=>x!==code))} className="mt-0.5"/>
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] font-bold truncate"><span className="font-mono" style={{color:TEAL}}>{code}</span> · {d.nombre}</p>
-                <p className="text-[9px] truncate" style={{color:"var(--ns-muted)"}}>{d.dsm5}{d.ci_rango?` · CI ${d.ci_rango}`:""}</p>
+                <p className="text-[9px] truncate" style={{color:"var(--ns-muted)"}}>{d.dsm5}{d.ci_rango?` · CI ${d.ci_rango}`:""}{d.cie11?` · CIE-11 ${d.cie11}`:mapCie10ToCie11(code)?` · CIE-11 ${mapCie10ToCie11(code).cie11}`:""}</p>
               </div>
             </label>})}
           </div>
@@ -385,7 +378,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
             <p className="text-[10px]" style={{color:"var(--ns-muted)"}}>{dsmPicks.length} seleccionado{dsmPicks.length===1?"":"s"}</p>
             <div className="flex gap-2">
               <button onClick={()=>setDsmPicks([])} className="text-[10px] font-bold px-3 py-1 rounded-full" style={{color:"var(--ns-muted)",background:"var(--ns-subtle)"}}>Limpiar</button>
-              <button disabled={dsmPicks.length===0} onClick={()=>{const txt="Impresión diagnóstica final (DSM-5 / CIE-10):\n"+dsmPicks.map(c=>{const d=DSM5_DIAGNOSES[c];return`• ${c} — ${d.nombre}${d.dsm5?` [${d.dsm5}]`:""}`}).join("\n");setObsT(o=>({...o,impresion_diagnostica:(o.impresion_diagnostica?o.impresion_diagnostica+"\n\n":"")+txt}))}} className="text-[10px] font-bold px-3 py-1 rounded-full disabled:opacity-40" style={{background:TEAL,color:"#fff"}}>→ A impresión diagnóstica</button>
+              <button disabled={dsmPicks.length===0} onClick={()=>{const txt="Impresión diagnóstica final (DSM-5 / CIE-10 / CIE-11 ref.):\n"+dsmPicks.map(c=>{const d=DSM5_DIAGNOSES[c];const dual=formatDualCoding(c,d.nombre);return`• ${dual}${d.dsm5?` [${d.dsm5}]`:""}`}).join("\n");setObsT(o=>({...o,impresion_diagnostica:(o.impresion_diagnostica?o.impresion_diagnostica+"\n\n":"")+txt}))}} className="text-[10px] font-bold px-3 py-1 rounded-full disabled:opacity-40" style={{background:TEAL,color:"#fff"}}>→ A impresión diagnóstica</button>
             </div>
           </div>
         </Card>
@@ -468,8 +461,9 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
             <option value="medicolegal">Medicolegal</option>
             <option value="junta_medica">Junta Médica (corta)</option>
             <option value="inconcluso">Inconclusa</option>
+            <option value="paciente">Paciente (lenguaje claro)</option>
             <option value="therapy_closure">Cierre terapéutico</option>
-            <option value="estandar">Estándar (legado)</option>
+            <option value="estandar">Clásico (legado)</option>
           </Sel>
           <Btn className="flex-1 text-xs" onClick={downloadPdf} disabled={genPdf||!puedeDescargarPDF} title={razonBloqueoPDF||`Descargar PDF (plantilla: ${pdfTemplate})`}>{genPdf?"Generando...":"PDF"}</Btn>
           <Btn v="outline" className="text-xs" onClick={downloadDocx} disabled={genDocx||!evalId} title="Informe editable en Word"><I name="description" className="text-sm"/>{genDocx?"...":"DOCX"}</Btn>

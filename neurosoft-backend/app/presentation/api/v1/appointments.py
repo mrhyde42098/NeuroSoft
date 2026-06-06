@@ -49,6 +49,14 @@ class AppointmentCreateDTO(BaseModel):
     tipo_cita:      str  = Field(default="evaluacion")
     motivo:         str | None = None
     notas_internas: str | None = None
+    eps:            str | None = None
+    regimen:        str | None = None
+    autorizacion_no: str | None = None
+    cups:           str | None = None
+    modalidad:      str | None = Field(default="presencial")
+    discapacidad:   str | None = None
+    contacto_telefono: str | None = None
+    contacto_correo:   str | None = None
 
     model_config = {
         "json_schema_extra": {"example": {
@@ -72,6 +80,14 @@ class AppointmentUpdateDTO(BaseModel):
     estado:         str | None  = None
     notas_internas: str | None  = None
     profesional_id: str | None  = None
+    eps:            str | None = None
+    regimen:        str | None = None
+    autorizacion_no: str | None = None
+    cups:           str | None = None
+    modalidad:      str | None = None
+    discapacidad:   str | None = None
+    contacto_telefono: str | None = None
+    contacto_correo:   str | None = None
 
 
 class PatientMiniDTO(BaseModel):
@@ -94,6 +110,14 @@ class AppointmentResponseDTO(BaseModel):
     motivo:          str | None
     estado:          str
     notas_internas:  str | None
+    eps:             str | None = None
+    regimen:         str | None = None
+    autorizacion_no: str | None = None
+    cups:            str | None = None
+    modalidad:       str | None = None
+    discapacidad:    str | None = None
+    contacto_telefono: str | None = None
+    contacto_correo:   str | None = None
     created_at:      str
     updated_at:      str | None
     # Datos del paciente embebidos para el calendario
@@ -149,6 +173,14 @@ def _orm_to_dto(orm) -> AppointmentResponseDTO:
         motivo=orm.motivo,
         estado=orm.estado or "programada",
         notas_internas=orm.notas_internas,
+        eps=getattr(orm, "eps", None),
+        regimen=getattr(orm, "regimen", None),
+        autorizacion_no=getattr(orm, "autorizacion_no", None),
+        cups=getattr(orm, "cups", None),
+        modalidad=getattr(orm, "modalidad", None),
+        discapacidad=getattr(orm, "discapacidad", None),
+        contacto_telefono=getattr(orm, "contacto_telefono", None),
+        contacto_correo=getattr(orm, "contacto_correo", None),
         created_at=orm.created_at.isoformat() if orm.created_at else "",
         updated_at=orm.updated_at.isoformat() if orm.updated_at else None,
         paciente_nombre=paciente_nombre,
@@ -199,6 +231,14 @@ def create_appointment(dto: AppointmentCreateDTO, db: DbSession):
         motivo=dto.motivo,
         estado="programada",
         notas_internas=dto.notas_internas,
+        eps=dto.eps,
+        regimen=dto.regimen,
+        autorizacion_no=dto.autorizacion_no,
+        cups=dto.cups,
+        modalidad=dto.modalidad,
+        discapacidad=dto.discapacidad,
+        contacto_telefono=dto.contacto_telefono,
+        contacto_correo=dto.contacto_correo,
         created_at=datetime.now(UTC),
         updated_at=datetime.now(UTC),
     )
@@ -455,8 +495,11 @@ def update_appointment(cita_id: str, dto: AppointmentUpdateDTO, db: DbSession):
         raise HTTPException(status_code=422,
             detail=f"tipo_cita inválido. Válidos: {TIPOS_VALIDOS}")
 
-    fields = ["fecha","hora_inicio","hora_fin","tipo_cita",
-              "motivo","estado","notas_internas","profesional_id"]
+    fields = [
+        "fecha", "hora_inicio", "hora_fin", "tipo_cita", "motivo", "estado",
+        "notas_internas", "profesional_id", "eps", "regimen", "autorizacion_no",
+        "cups", "modalidad", "discapacidad", "contacto_telefono", "contacto_correo",
+    ]
     for field in fields:
         val = getattr(dto, field, None)
         if val is not None:

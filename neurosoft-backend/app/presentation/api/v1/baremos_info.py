@@ -163,6 +163,27 @@ def get_overlays_list() -> list[dict[str, Any]]:
 
 
 @baremos_info_router.get(
+    "/pd-range/{test_id}",
+    summary="Rango heurístico de PD brutos para una prueba",
+    description=(
+        "Expone pd_min/pd_max inferidos de las claves del baremo cargado. "
+        "Útil como sanity check en la UI de captura; no reemplaza el motor clínico."
+    ),
+)
+def get_pd_range(test_id: str) -> dict[str, Any]:
+    from app.core.exceptions import BaremoNotFoundError
+
+    try:
+        loader = _loader()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Baremos no cargados: {e}")
+    try:
+        return loader.get_pd_sanity_range(test_id)
+    except BaremoNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Prueba '{test_id}' no encontrada.")
+
+
+@baremos_info_router.get(
     "/sources",
     summary="Fuentes normativas declaradas",
     description=(

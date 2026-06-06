@@ -68,7 +68,6 @@ _COGNITIVE_DOMAINS: dict[str, str] = {
     "NiENICDib": "Atención", "NiENICLet": "Atención",
     "NiENIEOra": "Lenguaje", "NiENISIns": "Lenguaje",
     "NiENIVLS": "Lenguaje", "NiENIVLVA": "Lenguaje",
-    "NiENIRHis": "Memoria",
     # Atención
     "NiTMTA": "Atención", "NiTMTB": "Funciones Ejecutivas",
     "NiSt_Edades": "Atención", "NiSt_Puntajes": "Atención",
@@ -220,6 +219,38 @@ class EngineResult:
 # MOTOR PRINCIPAL
 # ─────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────
+# Rangos de edad esperados por prefijo de test_id
+# (v5-auditoria: alerta clínica si se aplica un test fuera del
+# rango etario de la prueba — sin bloquear, sólo advierte)
+# ─────────────────────────────────────────────────────────────
+_EDAD_RANGO_POR_PREFIJO: tuple[tuple[str, int, int, str], ...] = (
+    # (prefijo, min, max, nombre_poblacion)
+    ("Ni", 4, 17, "infantil"),
+    ("Ad", 16, 64, "adulto_joven"),
+    ("Vi", 50, 100, "adulto_mayor"),
+)
+
+_ESCALAS_SIN_RANGO_ETARIO = {
+    # Escalas autoadministradas / escalas funcionales / escalas
+    # multidominio que no tienen restricción etaria dura.
+    "MMSE", "EscYesavage", "EscBeck", "EscLawton", "EscHDRS", "EscHAM_A",
+    "EscASRS", "EscPANAS", "FCSRT", "CVLTTotal", "GBTotal",
+    "TokenTest", "TowerOfLondon", "Denom48", "BNT",
+}
+
+
+def _rango_edad_esperado_para_test(test_id: str) -> tuple[int, int, str] | None:
+    """Retorna (min, max, poblacion) esperado para un test_id,
+    o None si es multi-poblacional o escala sin restricción etaria."""
+    if test_id in _ESCALAS_SIN_RANGO_ETARIO:
+        return None
+    for prefijo, mn, mx, pob in _EDAD_RANGO_POR_PREFIJO:
+        if test_id.startswith(prefijo):
+            return (mn, mx, pob)
+    return None
+
+
 class ClinicalEngine:
     """
     Motor de calificación neuropsicológica.
@@ -267,11 +298,11 @@ class ClinicalEngine:
         )
 
         for test_id, pd_raw in puntajes.items():
-            r, warn = self._score_single(test_id, pd_raw, patient_context)
+            r, warns = self._score_single(test_id, pd_raw, patient_context)
             if r is not None:
                 resultado.resultados.append(r)
-            if warn:
-                resultado.advertencias.append(warn)
+            if warns:
+                resultado.advertencias.extend(warns)
 
         logger.info(
             "Engine: %d pruebas calificadas para paciente %s (%d advertencias)",
@@ -296,36 +327,39 @@ class ClinicalEngine:
         test_id: str,
         pd_raw: Any,
         ctx: PatientContext,
-    ) -> tuple[ResultadoPrueba | None, str | None]:
+    ) -> tuple[ResultadoPrueba | None, list[str]]:
         """
-        Califica una prueba y retorna (ResultadoPrueba, advertencia_opcional).
+        Califica una prueba y retorna (ResultadoPrueba, advertencias).
         """
+        warns: list[str] = []
+
         # 1. Validar que el test existe
         prueba = self._loader.get_prueba_optional(test_id)
         if prueba is None:
             if test_id in _NON_BAREMO_TESTS:
                 logger.debug("Test '%s' omitido (screening/escala sin baremo).", test_id)
-                return None, None
-            warn = f"Test '{test_id}' no encontrado en BD_NEURO_MAESTRA.json."
-            logger.warning(warn)
-            return None, warn
+                return None, []
+            msg = f"Test '{test_id}' no encontrado en BD_NEURO_MAESTRA.json."
+            logger.warning(msg)
+            return None, [msg]
 
         # 2. Normalizar PD
         try:
             pd = float(pd_raw) if pd_raw is not None else 9999.0
         except (ValueError, TypeError):
-            warn = f"PD inválido para '{test_id}': {pd_raw!r}."
-            return None, warn
+            return None, [f"PD inválido para '{test_id}': {pd_raw!r}."]
 
         # 2b. Rechazar PD negativos (clínicamente inválidos)
         if pd < 0:
-            warn = f"PD negativo para '{test_id}': {pd}. Los puntajes brutos no pueden ser negativos."
-            logger.warning(warn)
-            return None, warn
+            msg = (
+                f"PD negativo para '{test_id}': {pd}. "
+                "Los puntajes brutos no pueden ser negativos."
+            )
+            logger.warning(msg)
+            return None, [msg]
 
         # 3. Ajuste de escolaridad (Adulto Mayor)
         pd_ajustado = pd
-        warn = None
         if ctx.poblacion == "adulto_mayor" and pd != 9999.0:
             ajuste = self._loader.get_ajuste_escolaridad(test_id, ctx.escolaridad)
             if ajuste != 0:
@@ -345,22 +379,36 @@ class ClinicalEngine:
                 escolaridad=ctx.escolaridad,
             )
         except Exception as exc:
-            warn = f"Error al calificar '{test_id}': {exc}"
-            logger.exception(warn)
-            return None, warn
+            msg = f"Error al calificar '{test_id}': {exc}"
+            logger.exception(msg)
+            return None, [msg]
 
         # 5. Agregar ajuste al metadata si hubo
         if pd_ajustado != pd:
             output.metadata["pd_original"] = pd
             output.metadata["pd_ajustado"] = pd_ajustado
 
+        # 5b. (v5-auditoria) Validación rango etario — alerta clínica no
+        # bloqueante. Si el test_id tiene un rango etario esperado por
+        # prefijo y la edad del paciente está fuera, advertimos al clínico.
+        # No modificamos el puntaje: la alerta se documenta en advertencias
+        # del ResultadoPrueba para que aparezca en el informe.
+        rango = _rango_edad_esperado_para_test(test_id)
+        if rango is not None:
+            min_edad, max_edad, pob_esperada = rango
+            if not (min_edad <= ctx.age.years <= max_edad):
+                msg = (
+                    f"'{prueba.nombre}' está baremado para {pob_esperada} "
+                    f"({min_edad}-{max_edad} años); paciente tiene "
+                    f"{ctx.age.years} años. Verificar que el baremo es "
+                    f"apropiado para esta edad."
+                )
+                logger.warning(msg)
+                warns.append(msg)
+
         # 6. Detectar PD fuera del rango del baremo (hallazgo CLIN-1).
-        # Cuando la strategy no pudo ubicar el PD en la tabla, el helper
-        # `_not_found` marca out_of_baremo=True. Antes se devolvía
-        # silenciosamente un resultado con escalar=None — ahora
-        # propagamos una advertencia visible al profesional.
         if output.metadata.get("out_of_baremo"):
-            warn = (
+            warns.append(
                 f"'{prueba.nombre}' (PD={pd}): fuera del rango del baremo "
                 f"para esta edad/llave — no se calificó."
             )
@@ -387,4 +435,4 @@ class ClinicalEngine:
             output.tipo_metrica = "escalar"
 
         resultado = output.to_resultado(dominio_cognitivo=_get_domain(test_id))
-        return resultado, warn
+        return resultado, warns

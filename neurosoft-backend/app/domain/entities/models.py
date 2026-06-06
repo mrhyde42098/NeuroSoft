@@ -72,6 +72,7 @@ class Paciente:
     finalidad_consulta: str | None = None
     numero_sesiones: int = 1
     donante: bool = False
+    via_atencion: str = "mixto"
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     is_active: bool = True

@@ -1,0 +1,99 @@
+{
+  "_meta": {
+    "descripcion": "Subconjunto CUPS psicología/neuropsicología — Colombia",
+    "fuente": "Resolución CUPS MinSalud [VERIFICAR vigente 2026]",
+    "nota": "Códigos semilla; validar contra catálogo oficial antes de producción RIPS"
+  },
+  "codigos": [
+    {
+      "codigo": "890308",
+      "nombre": "Consulta de primera vez por psicología",
+      "tipo": "consulta",
+      "verificar": true
+    },
+    {
+      "codigo": "890208",
+      "nombre": "Consulta de control o de seguimiento por psicología",
+      "tipo": "consulta",
+      "verificar": true
+    },
+    {
+      "codigo": "943102",
+      "nombre": "Psicoterapia individual por psicología",
+      "tipo": "terapia",
+      "verificar": true
+    },
+    {
+      "codigo": "943103",
+      "nombre": "Psicoterapia de pareja por psicología",
+      "tipo": "terapia",
+      "verificar": true
+    },
+    {
+      "codigo": "943104",
+      "nombre": "Psicoterapia familiar por psicología",
+      "tipo": "terapia",
+      "verificar": true
+    },
+    {
+      "codigo": "943105",
+      "nombre": "Psicoterapia de grupo por psicología",
+      "tipo": "terapia",
+      "verificar": true
+    },
+    {
+      "codigo": "944002",
+      "nombre": "Intervención en salud mental comunitaria, por psicología",
+      "tipo": "intervencion",
+      "verificar": true
+    },
+    {
+      "codigo": "944102",
+      "nombre": "Intervención en crisis, por psicología",
+      "tipo": "intervencion",
+      "verificar": true
+    },
+    {
+      "codigo": "944202",
+      "nombre": "Intervención en consumo de sustancias psicoactivas, por psicología",
+      "tipo": "intervencion",
+      "verificar": true
+    },
+    {
+      "codigo": "944302",
+      "nombre": "Intervención en violencia intrafamiliar, por psicología",
+      "tipo": "intervencion",
+      "verificar": true
+    },
+    {
+      "codigo": "944402",
+      "nombre": "Intervención en maltrato infantil, por psicología",
+      "tipo": "intervencion",
+      "verificar": true
+    },
+    {
+      "codigo": "890208",
+      "nombre": "Consulta de control por neuropsicología [VERIFICAR código específico]",
+      "tipo": "neuropsicologia",
+      "verificar": true
+    },
+    {
+      "codigo": "890308",
+      "nombre": "Consulta de primera vez por neuropsicología [VERIFICAR código específico]",
+      "tipo": "neuropsicologia",
+      "verificar": true
+    },
+    {
+      "codigo": "943102",
+      "nombre": "Valoración neuropsicológica integral [VERIFICAR CUPS dedicado]",
+      "tipo": "neuropsicologia",
+      "verificar": true
+    },
+    {
+      "codigo": "944502",
+      "nombre": "Intervención en rehabilitación neuropsicológica, por psicología",
+      "tipo": "rehabilitacion",
+      "verificar": true
+    }
+  ]
+}

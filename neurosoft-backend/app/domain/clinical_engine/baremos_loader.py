@@ -122,7 +122,13 @@ class BaremosLoader:
 
     def _parse(self, path: Path) -> None:
         raw_bytes = path.read_bytes()
-        raw = json.loads(raw_bytes.decode("utf-8"))
+        try:
+            raw = json.loads(raw_bytes.decode("utf-8"))
+        except json.JSONDecodeError as exc:
+            logger.exception("BD_NEURO_MAESTRA.json inválido en %s", path)
+            raise BaremoDatabaseNotLoadedError(
+                f"JSON de baremos corrupto o ilegible: {exc}"
+            ) from exc
 
         self._meta = raw.get("_meta", {})
         baterias = raw.get("baterias", {})
@@ -251,3 +257,43 @@ class BaremosLoader:
     def overrides_aplicados(self) -> list[str]:
         """Lista de test_ids con override activo. Para diagnóstico / logs."""
         return sorted(self._overrides_aplicados)
+
+    def get_pd_sanity_range(self, test_id: str) -> dict[str, Any]:
+        """
+        Rango heurístico min/max de PD brutos para validación en UI.
+
+        No sustituye las reglas del motor; sirve como sanity check rápido.
+        """
+        prueba = self.get_prueba(test_id)
+        baremos = prueba.baremos or {}
+        pds: set[int] = set()
+        for key in baremos:
+            sk = str(key).strip()
+            if not sk or sk.startswith("_"):
+                continue
+            if sk.isdigit():
+                if len(sk) <= 3:
+                    pds.add(int(sk))
+                else:
+                    for suffix_len in (3, 2, 1):
+                        try:
+                            suffix = int(sk[-suffix_len:])
+                            if 0 <= suffix <= 200:
+                                pds.add(suffix)
+                        except ValueError:
+                            continue
+        if not pds:
+            return {
+                "test_id": test_id,
+                "pd_min": None,
+                "pd_max": None,
+                "n_keys": len(baremos),
+                "heuristic": True,
+            }
+        return {
+            "test_id": test_id,
+            "pd_min": min(pds),
+            "pd_max": max(pds),
+            "n_keys": len(baremos),
+            "heuristic": True,
+        }

@@ -23,7 +23,7 @@ export default function EstimulosTab(){
   /* Bulk upload (drag-drop multiselección + ZIP) */
   const[bulkQueue,setBulkQueue]=useState([]);/* [{name, size, b64, mime}] */
   const[bulkDrag,setBulkDrag]=useState(false);const[bulkTest,setBulkTest]=useState("");const[bulkTipo,setBulkTipo]=useState("imagen");const[bulkBusy,setBulkBusy]=useState(false);
-  const testOptions=["NiWiscDC","NiWiscMat","NiFigHum","NiFCROCop","NiTMTA","NiTMTB","NiIntObj","NiRecEmo","GBTotal","CVLTTotal","SDMT","FluidP","FluidAnim","Denom48","BNT","StroopAM","StroopAJ","MMSE"];
+  const testOptions=["NiWiscDC","NiWiscSem","NiWiscVoc","NiWiscCom","NiWiscMat","NiWiscRDD","AdWAISCC","AdWAISV","AdSemWais","AdWAISC","AdMatr","NiFigHum","NiFCROCop","NiTMTA","NiTMTB","TOMM","REY15","GBTotal","CVLTTotal","SDMT","FluidP","FluidAnim","Denom48","BNT","StroopAM","StroopAJ","MMSE"];
   const load=async()=>{setLd(true);try{const d=await api.get(`/api/v1/estimulos/${filterTest?`?test_id=${filterTest}`:""}`);setItems(d||[])}catch{setItems([])}setLd(false)};
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>{load()},[filterTest]);

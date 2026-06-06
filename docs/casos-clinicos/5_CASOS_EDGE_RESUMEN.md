@@ -18,29 +18,27 @@
 ### Caso 21: Felipe Rincón
 - **Estado:** desercion
 - **Dx principal:** INCONCLUSO - Deserción prematura
-- **PDF:** `docs\casos-clinicos\muestras-20-casos\caso_21_Felipe_Rincón_doc80123456_20260603.pdf`
 - **Razón de deserción:** El paciente no asistió a la segunda sesión programada. Se intentó contacto telefónico (2 intentos) sin respuesta. Se envió comunicación escrita informando que el proceso queda inconcluso y puede retomarlo cuando lo considere.
 
 ### Caso 22: Carmen Velásquez
 - **Estado:** emergencia
 - **Dx principal:** F32.1 - Episodio depresivo moderado + RIESGO SUICIDA ALTO
-- **PDF:** `docs\casos-clinicos\muestras-20-casos\caso_22_Carmen_Velásquez_doc20123456_20260603.pdf`
 - **C-SSRS:** nivel ALTO
 
 ### Caso 23: Jorge Salazar
 - **Estado:** medicolegal
 - **Dx principal:** F07.2 - Síndrome post-concusional + demanda laboral activa
-- **PDF:** `docs\casos-clinicos\muestras-20-casos\caso_23_Jorge_Salazar_doc79555111_20260603.pdf`
 
 ### Caso 24: Andrea Gutiérrez
 - **Estado:** cierre_terapia
 - **Dx principal:** F41.1 - Trastorno de ansiedad generalizada + cierre terapéutico exitoso
-- **PDF:** `docs\casos-clinicos\muestras-20-casos\caso_24_Andrea_Gutiérrez_doc52999123_20260603.pdf`
 - **RCI:** Cambio CLÍNICAMENTE SIGNIFICATIVO y CONFIABLE ESTADÍSTICAMENTE (cambio=-16, RCI=-2.93)
 
 ### Caso 25: Tomás Restrepo
 - **Estado:** bateria_completa
 - **Dx principal:** F81.2 - Trastorno del cálculo + comorbilidad atencional
-- **PDF:** `docs\casos-clinicos\muestras-20-casos\caso_25_Tomás_Restrepo_doc1121000099_20260603.pdf`
 - **Total pruebas:** 31
 
+## Muestras PDF
+
+Los casos edge viven en la BD de desarrollo. Para PDF de QA visual usar `regenerar_muestras_minimas.py` (matriz 8 variantes en `docs/samples/informes-audit/`).

@@ -11,12 +11,12 @@
  * Numeración Taylor (18 elementos):
  *   1  Cruz exterior (superior izquierda)
  *   2  Rectángulo grande
- *   3  Cruz diagonal (X del rectángulo)
+ *   3  Diagonal única (↘) dentro del rectángulo grande
  *   4  Línea media horizontal
  *   5  Línea media vertical
  *   6  Pequeño rectángulo interno (cuadrante superior izquierdo)
  *   7  Segmento pequeño sobre el rectángulo
- *   8  Cuatro líneas paralelas (cuadrante superior izquierdo)
+ *   8  Cuatro líneas paralelas verticales (persianas del rect pequeño)
  *   9  Triángulo superior derecho (adosado arriba)
  *  10  Línea pequeña dentro del rectángulo (cuadrante sup-der)
  *  11  Círculo con 3 puntos
@@ -26,7 +26,7 @@
  *  15  Segmento horizontal dentro del triángulo 13
  *  16  Segmento horizontal dentro del rectángulo
  *  17  Cruz inferior derecha
- *  18  Cuadrado inferior izquierdo
+ *  18  Pequeño cuadrado adosado al vértice inferior-izquierdo
  *
  * Props:
  *   scores      — { e0..e17: number } puntuaciones 0 / 0.5 / 1 / 2
@@ -108,13 +108,24 @@ function CirculoTresPuntos({ idx, scores, highlight }) {
  *     en el cuadrante inferior derecho, como en la figura real.
  *   - La cruz inferior (elemento 17) está al centro-inferior del
  *     rectángulo, no abajo a la derecha.
- *   - El elemento 18 es una línea/tick inferior, no un cuadrado. */
+ *
+ * §fcro-fix-3-elementos (2026-06-05): se corrigieron tres discrepancias
+ * geométricas detectadas al comparar el SVG con la Figura Rey-Osterrieth
+ * del protocolo de referencia (Taylor 1991):
+ *   - Elemento 3 (idx 2): era la X completa dentro del rect grande; ahora
+ *     es UNA sola diagonal ↘ (sup-izq → inf-der), que es lo correcto.
+ *   - Elemento 8 (idx 7): eran 4 líneas horizontales dentro del rect
+ *     pequeño; ahora son 4 líneas VERTICALES (las "persianas" clásicas).
+ *   - Elemento 18 (idx 17): era una línea vertical sobresaliente del
+ *     vértice inf-izq; ahora es un pequeño CUADRADO 20×20 adosado a esa
+ *     esquina, como en la FCRO original. */
 export function FCROFigure({ scores = {}, showNumbers = true, highlight = -1, size = "md" }) {
-  const fontSize = size === "sm" ? 9 : 11;
+  const fontSize = size === "sm" ? 9 : size === "lg" ? 12 : 11;
+  const maxH = size === "sm" ? 180 : size === "lg" ? 520 : 360;
   return (
     <svg viewBox="0 0 560 320"
          className="w-full h-full"
-         style={{ maxHeight: size === "sm" ? 180 : 360 }}
+         style={{ maxHeight: maxH }}
          xmlns="http://www.w3.org/2000/svg">
       <rect x="0" y="0" width="560" height="320" fill="#FFFFFF" rx="4"/>
 
@@ -129,10 +140,11 @@ export function FCROFigure({ scores = {}, showNumbers = true, highlight = -1, si
         <rect x="155" y="80" width="280" height="160"/>
       </El>
 
-      {/* 3 · Cruz diagonal (X completa dentro del rectángulo) */}
+      {/* 3 · Diagonal única ↘ dentro del rectángulo grande (esquina sup-izq
+            a esquina inf-der), no la X completa. En la FCRO original sólo
+            hay una diagonal descendente. */}
       <El idx={2} scores={scores} highlight={highlight}>
         <line x1="155" y1="80"  x2="435" y2="240"/>
-        <line x1="435" y1="80"  x2="155" y2="240"/>
       </El>
 
       {/* 4 · Línea media horizontal */}
@@ -156,12 +168,13 @@ export function FCROFigure({ scores = {}, showNumbers = true, highlight = -1, si
         <line x1="132" y1="110" x2="132" y2="130"/>
       </El>
 
-      {/* 8 · Cuatro líneas horizontales DENTRO del rectángulo pequeño */}
+      {/* 8 · Cuatro líneas paralelas VERTICALES dentro del rect pequeño
+            (las "persianas" clásicas de la FCRO). No horizontales. */}
       <El idx={7} scores={scores} highlight={highlight}>
-        <line x1="110" y1="142" x2="155" y2="142"/>
-        <line x1="110" y1="154" x2="155" y2="154"/>
-        <line x1="110" y1="166" x2="155" y2="166"/>
-        <line x1="110" y1="178" x2="155" y2="178"/>
+        <line x1="118" y1="130" x2="118" y2="190"/>
+        <line x1="128" y1="130" x2="128" y2="190"/>
+        <line x1="138" y1="130" x2="138" y2="190"/>
+        <line x1="148" y1="130" x2="148" y2="190"/>
       </El>
 
       {/* 9 · Triángulo adosado sobre el borde superior, mitad derecha */}
@@ -216,11 +229,12 @@ export function FCROFigure({ scores = {}, showNumbers = true, highlight = -1, si
         <line x1="255" y1="210" x2="255" y2="230"/>
       </El>
 
-      {/* 18 · Línea vertical recta que baja desde el vértice inferior-izquierdo
-            del rectángulo grande hacia abajo-izquierda (como en la figura real,
-            es un trazo simple sobresaliente, no un cuadrado ni un tick). */}
+      {/* 18 · Pequeño cuadrado (rectángulo) adosado al vértice inferior-izquierdo
+            del rectángulo grande, hacia abajo y afuera (esquina exterior del
+            rect principal). En la FCRO original es un cuadrado 1×1, no una
+            línea. */}
       <El idx={17} scores={scores} highlight={highlight}>
-        <line x1="200" y1="240" x2="200" y2="290"/>
+        <rect x="140" y="240" width="20" height="20"/>
       </El>
 
       {/* Etiquetas numéricas — recolocadas para no superponerse con líneas */}

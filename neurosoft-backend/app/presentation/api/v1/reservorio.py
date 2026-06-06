@@ -2,7 +2,7 @@
 app/presentation/api/v1/reservorio.py
 ======================================
 Expone el banco de recomendaciones clínicas por cuadro clínico (reservorio
-IN&S) para consumo del frontend, eliminando la duplicación que existía con
+institucional) para consumo del frontend, eliminando la duplicación que existía con
 `datosClinicos.js::RECOMMENDATIONS_LIB`.
 
 Single source of truth = `app/domain/data/reservorio_recomendaciones.json`
@@ -60,17 +60,21 @@ def get_info() -> dict[str, Any]:
     data = _load_reservorio()
     grupos_meta = data.get("grupos", {})
     total = sum(len(g.get("cuadros", {})) for g in grupos_meta.values())
-    return {
+    from app.core.config import settings
+
+    info = {
         "version": data.get("version"),
         "source": data.get("source"),
         "notes": data.get("notes", []),
-        "path": str(_RESERVORIO_PATH),
         "total_cuadros": total,
         "cuadros_por_grupo": {
-            grp: len(info.get("cuadros", {}))
-            for grp, info in grupos_meta.items()
+            grp: len(g.get("cuadros", {}))
+            for grp, g in grupos_meta.items()
         },
     }
+    if settings.env != "production":
+        info["path"] = str(_RESERVORIO_PATH)
+    return info
 
 
 @router.get("/cuadros", summary="Lista de cuadros clínicos disponibles")

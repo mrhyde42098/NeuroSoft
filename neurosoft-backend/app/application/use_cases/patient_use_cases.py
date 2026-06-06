@@ -59,6 +59,7 @@ def _to_response(paciente: Paciente) -> PatientResponseDTO:
         motivo_consulta=paciente.motivo_consulta,
         codigo_rips=paciente.codigo_rips,
         eps=paciente.eps,
+        via_atencion=getattr(paciente, "via_atencion", None) or "mixto",
         age_years=age.years,
         age_months=age.months,
         age_display=age.display,
@@ -128,6 +129,7 @@ class RegisterPatientUseCase:
             finalidad_consulta=dto.finalidad_consulta,
             numero_sesiones=dto.numero_sesiones,
             donante=dto.donante,
+            via_atencion=dto.via_atencion,
         )
 
         saved = self._repo.save(paciente)

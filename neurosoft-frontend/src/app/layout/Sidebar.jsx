@@ -27,19 +27,19 @@ const GROUPS = [
   {
     title: "Clínica",
     items: [
-      { id: "dashboard", ic: "home",             lb: "Inicio" },
-      { id: "patients",  ic: "group",            lb: "Pacientes" },
-      { id: "agenda",    ic: "calendar_today",   lb: "Agenda" },
+      { id: "dashboard", ic: "home", lb: "Inicio" },
+      { id: "patients", ic: "group", lb: "Pacientes" },
+      { id: "agenda", ic: "calendar_today", lb: "Agenda" },
+      { id: "estadisticas", ic: "bar_chart", lb: "Estadísticas" },
     ],
   },
   {
     title: "Evaluación",
     items: [
-      { id: "evaluation", ic: "psychology",       lb: "Aplicar evaluación" },
-      { id: "screening",  ic: "checklist",        lb: "Screening" },
-      { id: "history",    ic: "history",          lb: "Historial" },
-      { id: "compare",    ic: "compare_arrows",   lb: "Pre–Post" },
-      { id: "reports",    ic: "description",      lb: "Informes" },
+      { id: "evaluation", ic: "psychology", lb: "Aplicar evaluación" },
+      { id: "screening", ic: "checklist", lb: "Screening" },
+      { id: "reports", ic: "description", lb: "Informes" },
+      { id: "rips", ic: "receipt_long", lb: "RIPS" },
     ],
   },
   {
@@ -57,23 +57,15 @@ const GROUPS = [
   {
     title: "Aprender",
     items: [
-      { id: "aprender",             ic: "school",         lb: "Centro de aprendizaje" },
-      { id: "biblioteca",           ic: "auto_stories",   lb: "Biblioteca clínica" },
-      { id: "aprender_glosario",    ic: "translate",      lb: "Glosario neuropsi" },
-      { id: "aprender_estudiar",    ic: "psychology",     lb: "Tarjetas estudio" },
-      { id: "aprender_quiz",        ic: "quiz",           lb: "Quizzes" },
-      { id: "aprender_articulos",   ic: "article",        lb: "Artículos clínicos" },
-      { id: "aprender_simulador",   ic: "psychology_alt", lb: "Simulador de casos" },
-      { id: "pruebas",              ic: "rule",           lb: "Pruebas disponibles" },
+      { id: "aprender", ic: "school", lb: "Centro de aprendizaje" },
     ],
   },
   {
     title: "Herramientas",
     items: [
-      { id: "ai",     ic: "smart_toy", lb: "Asistente IA" },
-      { id: "shares",       ic: "share",       lb: "Telemedicina" },
-      { id: "help",         ic: "help",        lb: "Ayuda" },
-      { id: "help_changelog", ic: "new_releases", lb: "Registro de cambios" },
+      { id: "ai", ic: "smart_toy", lb: "Asistente IA" },
+      { id: "shares", ic: "share", lb: "Telemedicina" },
+      { id: "help", ic: "help", lb: "Ayuda" },
     ],
   },
 ];
@@ -242,7 +234,7 @@ export default function Sidebar({
           * sombra contenida. Botón cuadrado-redondeado en lugar de píldora. */}
         <div className="mt-auto flex flex-col gap-3 pt-3">
           <button
-            onClick={() => setPage("evaluation")}
+            onClick={() => setPage("register")}
             className="w-full py-3 text-white rounded-md font-bold flex items-center justify-center gap-2 transition-all text-[13px] tracking-tight hover:opacity-90"
             style={{
               background: NAVY,
@@ -250,7 +242,7 @@ export default function Sidebar({
             }}
           >
             <I name="add" className="text-base" />
-            Nueva evaluación
+            Nuevo paciente
           </button>
           <div className="flex items-center justify-between px-2 gap-1">
             <button

@@ -280,7 +280,7 @@ al cambiar bundle hash.
 
 - ✅ **Sprint 0** (3 días): seguridad, multi-tenant, kill switches.
 - ✅ **Sprint 1**: motor clínico (edge cases, reclasificación, CIE-10).
-- ✅ **Sprint 2**: scrub IN&S, plantillas, screening, narrativa,
+- ✅ **Sprint 2**: scrub institucional, plantillas, screening, narrativa,
   capa protegida Pearson.
 - ✅ **Sprint 3** (este documento): UX versión paciente, dark mode,
   A11y, CI/CD.

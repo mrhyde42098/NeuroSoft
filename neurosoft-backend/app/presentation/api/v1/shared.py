@@ -41,6 +41,7 @@ from app.infrastructure.database.orm_models import (
     PatientORM,
     SharedReportORM,
 )
+from app.presentation.api.v1.auth import CurrentUser, get_evaluation_for_user
 from app.presentation.dependencies import DbSession
 
 logger = logging.getLogger("neurosoft.shared")
@@ -133,6 +134,15 @@ def _row_to_out(row: SharedReportORM) -> ShareOut:
     )
 
 
+def _safe_json_list(raw: str | None) -> list:
+    try:
+        parsed = json.loads(raw or "[]")
+        return parsed if isinstance(parsed, list) else []
+    except Exception:
+        logger.warning("JSON inválido en share (campos de evaluación)")
+        return []
+
+
 def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientORM | None) -> dict:
     """
     Serializa el informe SIN PHI (ni nombre, ni documento) para el viewer
@@ -160,9 +170,9 @@ def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientOR
         resultados = []
 
     if row.scope == "summary":
-        payload["puntos_fuertes"] = json.loads(ev.puntos_fuertes_json or "[]")
-        payload["puntos_debiles"] = json.loads(ev.puntos_debiles_json or "[]")
-        payload["advertencias"]   = json.loads(ev.advertencias_json or "[]")
+        payload["puntos_fuertes"] = _safe_json_list(ev.puntos_fuertes_json)
+        payload["puntos_debiles"] = _safe_json_list(ev.puntos_debiles_json)
+        payload["advertencias"]   = _safe_json_list(ev.advertencias_json)
     elif row.scope == "iq_only":
         # Filtrar sólo compuestos WISC/WAIS si están en resultados
         payload["iq"] = [
@@ -171,9 +181,9 @@ def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientOR
         ]
     else:  # full
         payload["resultados"]     = resultados
-        payload["puntos_fuertes"] = json.loads(ev.puntos_fuertes_json or "[]")
-        payload["puntos_debiles"] = json.loads(ev.puntos_debiles_json or "[]")
-        payload["advertencias"]   = json.loads(ev.advertencias_json or "[]")
+        payload["puntos_fuertes"] = _safe_json_list(ev.puntos_fuertes_json)
+        payload["puntos_debiles"] = _safe_json_list(ev.puntos_debiles_json)
+        payload["advertencias"]   = _safe_json_list(ev.advertencias_json)
 
     return payload
 
@@ -182,13 +192,15 @@ def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientOR
 # Endpoints protegidos (clínico autenticado)
 # ═══════════════════════════════════════════════════════════════════════
 @shared_router.post("", response_model=ShareOut)
-def create_share(payload: CreateShareIn, request: Request, db: DbSession):
+def create_share(
+    payload: CreateShareIn,
+    request: Request,
+    db: DbSession,
+    user=CurrentUser,
+):
     user_id = getattr(request.state, "user_id", "default")
 
-    # Validar evaluación existente
-    ev = db.query(EvaluationORM).filter_by(id=payload.evaluation_id).first()
-    if not ev:
-        raise HTTPException(404, "Evaluación no encontrada")
+    ev = get_evaluation_for_user(payload.evaluation_id, db, user)
 
     token = secrets.token_urlsafe(24)
     expires = _utc_now() + timedelta(hours=payload.ttl_hours)

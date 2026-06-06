@@ -162,6 +162,18 @@ def _apply_additive_schema_patches() -> None:
         ("clinical_histories", "hipotesis_pre_eval", "TEXT"),
         # Foto/avatar del profesional para mostrar en perfil e informes
         ("professionals",     "foto_base64",      "TEXT"),
+        # PLAN_MAESTRO migrations 007-009 (auto-upgrade para BDs sin Alembic)
+        ("patients",          "via_atencion",     "TEXT"),
+        ("clinical_histories", "codigo_cie11",    "TEXT"),
+        ("therapy_plans",     "codigo_cie11",     "TEXT"),
+        ("appointments",      "eps",              "TEXT"),
+        ("appointments",      "regimen",          "TEXT"),
+        ("appointments",      "autorizacion_no",  "TEXT"),
+        ("appointments",      "cups",             "TEXT"),
+        ("appointments",      "modalidad",        "TEXT"),
+        ("appointments",      "discapacidad",     "TEXT"),
+        ("appointments",      "contacto_telefono", "TEXT"),
+        ("appointments",      "contacto_correo",  "TEXT"),
     ]
     # §C5-fix: validación estricta de identificadores SQL.
     # Aunque `patches` está hardcoded internamente, evitamos cualquier

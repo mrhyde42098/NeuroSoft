@@ -22,6 +22,7 @@ import AdminKpisTab from "./AdminKpisTab.jsx";
 import PrivacyPolicyModal from "../legal/PrivacyPolicyModal.jsx";
 import ComunicacionesTab from "./ComunicacionesTab.jsx"; // §QW-2/3
 import UpdateTab from "./UpdateTab.jsx"; // §update-system
+import PruebasDisponiblesPage from "../aprender/PruebasDisponiblesPage.jsx";
 
 /* ══════════════ CONFIGURACIÓN ══════════════ */
 
@@ -104,7 +105,7 @@ export default function ConfigPage({_setPage}){
           title: "Datos clínicos",
           icon: "science",
           desc: "Materiales y estímulos para las evaluaciones",
-          items: [{i:5,ic:"image",l:"Estímulos"}],
+          items: [{i:5,ic:"image",l:"Estímulos"},{i:14,ic:"biotech",l:"Pruebas disponibles"}],
         },
         {
           title: "Sistema",
@@ -248,6 +249,7 @@ export default function ConfigPage({_setPage}){
       </div>})}</div>}
     </Card>}
     {tab===5&&<EstimulosTab/>}
+    {tab===14&&<div className="-mx-2"><PruebasDisponiblesPage embedded /></div>}
     {tab===6&&<BackupTab/>}
     {tab===7&&<AuditoriaTab/>}
     {tab===8&&<FormatosTab/>}
@@ -256,7 +258,7 @@ export default function ConfigPage({_setPage}){
     {tab===13&&<UpdateTab/>}
     {tab===11&&<Card className="p-8 space-y-6">
       <h3 className="text-lg font-bold flex items-center gap-2"><I name="privacy_tip" fill style={{color:TEAL}}/>Privacidad y Protección de Datos</h3>
-      <div className="p-5 rounded-2xl border-l-4 text-sm leading-relaxed" style={{background:`${TEAL}08`,borderColor:TEAL,color:"var(--ns-text)"}}>
+      <div className="p-5 rounded-2xl border text-sm leading-relaxed" style={{background:`${TEAL}08`,borderColor:TEAL,color:"var(--ns-text)"}}>
         <p className="font-bold mb-1 flex items-center gap-2"><I name="gavel" className="text-base" style={{color:TEAL}}/>Marco legal aplicable</p>
         <p className="text-xs" style={{color:"var(--ns-muted)"}}>NeuroSoft cumple con la Ley 1581 de 2012 (Protección de Datos Personales), el Decreto 1377 de 2013, la Resolución 1995 de 1999 (Historia Clínica Electrónica) y la Resolución 2654 de 2019 (Telesalud). El prestador de servicios es responsable del tratamiento adecuado de los datos de sus pacientes.</p>
       </div>

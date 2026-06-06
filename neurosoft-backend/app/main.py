@@ -217,6 +217,27 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.debug("Auto-install Ollama no disponible: %s", e)
 
+    # Estímulos PDF masivos: limpieza en background (no bloquea /health del .exe)
+    try:
+        import asyncio
+
+        async def _stimuli_cleanup_bg() -> None:
+            try:
+                from app.infrastructure.database.engine import get_session
+                from app.infrastructure.stimuli_bootstrap import bootstrap_stimuli
+
+                db = next(get_session())
+                try:
+                    bootstrap_stimuli(settings.db_path.parent, db)
+                finally:
+                    db.close()
+            except Exception as exc:
+                logger.warning("Bootstrap estímulos (background): %s", exc)
+
+        asyncio.create_task(_stimuli_cleanup_bg())
+    except Exception as e:
+        logger.debug("No se programó limpieza de estímulos: %s", e)
+
     yield  # ── La app corre aquí ──
 
     # ── SHUTDOWN ─────────────────────────────────────────────
@@ -452,9 +473,21 @@ async def auth_middleware(request: Request, call_next):
             finally:
                 _check_db.close()
         except Exception as _exc:  # noqa: BLE001
-            # Si el check falla por un motivo infra, permitimos avanzar al
-            # endpoint, que tiene su propia defensa en get_current_user.
-            logger.warning("No se pudo consultar la blacklist (%s). Continuando.", _exc)
+            from app.core.config import settings
+
+            if settings.env == "production":
+                return JSONResponse(
+                    status_code=503,
+                    content={
+                        "detail": "No se pudo validar la sesión. Intente de nuevo.",
+                        "code": "SESSION_CHECK_UNAVAILABLE",
+                    },
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            logger.warning(
+                "No se pudo consultar la blacklist (%s). Continuando (dev).",
+                _exc,
+            )
 
     # Propagar actor al ContextVar de auditoría para los listeners ORM
     try:

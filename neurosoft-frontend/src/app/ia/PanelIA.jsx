@@ -184,7 +184,11 @@ const PROVIDERS = [
       "Ollama se ejecuta automáticamente en http://127.0.0.1:11434.",
       "O usa el botón «Setup automático» de abajo.",
     ],
-    models: [], // se llenan con modelos locales detectados
+    models: [
+      { id: "llama3.1:8b", label: "Llama 3.1 8B", recommended: true },
+      { id: "alibayram/medgemma:4b", label: "MedGemma 4B (clínico)", recommended: false },
+      { id: "meditron:7b", label: "Meditron 7B (clínico)", recommended: false },
+    ],
   },
   {
     id: "auto",
@@ -780,6 +784,16 @@ export function AIConfigPage() {
                           className="text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1 disabled:opacity-50"
                           style={{ background: "var(--ns-subtle)", color: "var(--ns-text)" }}>
                           <I name="cloud_download" className="text-sm" />qwen2.5:7b
+                        </button>
+                        <button onClick={() => pullModel("alibayram/medgemma:4b")} disabled={pullBusy}
+                          className="text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1 disabled:opacity-50"
+                          style={{ background: "var(--ns-subtle)", color: "var(--ns-text)" }}>
+                          <I name="medical_services" className="text-sm" />MedGemma 4B
+                        </button>
+                        <button onClick={() => pullModel("meditron:7b")} disabled={pullBusy}
+                          className="text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1 disabled:opacity-50"
+                          style={{ background: "var(--ns-subtle)", color: "var(--ns-text)" }}>
+                          <I name="medical_services" className="text-sm" />Meditron 7B
                         </button>
                       </>
                     )}

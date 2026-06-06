@@ -11,6 +11,7 @@ Gráficos disponibles:
 * ``draw_z_profile``       — perfil Z horizontal por prueba (versión Pro).
 * ``draw_domain_radar``    — radar/spider de dominios cognitivos.
 * ``draw_normal_curve``    — curva gaussiana con perfil del paciente superpuesto.
+* ``draw_bell_curve_with_ci`` — campana de Gauss con bandas IC 90/95% para CIT.
 * ``draw_discrepancies``   — barras horizontales con líneas críticas (p<.05, p<.15).
 * ``draw_ci_kpi_row``      — fila de "tarjetas KPI" para los índices CI principales.
 
@@ -91,9 +92,20 @@ def draw_z_profile(
         )
         return yy - 22
 
+    # Título descriptivo del gráfico (sólo UNA vez, antes del header)
+    from .helpers import chart_title
+    y = chart_title(
+        c, "Perfil Z por prueba",
+        y, note=(
+            "Eje horizontal: puntaje Z (rango -3 a +3). Verde = zona normal; "
+            "rojo/naranja = debajo del promedio; azul = por encima."
+        ),
+    )
+
+    # Header (única vez — antes era llamado 2 veces y desperdiciaba 36 pts)
     y = _header(y)
 
-    # Bandas semánticas verticales muy sutiles
+    # Bandas semánticas verticales — dibujadas UNA vez por bloque de filas
     def _semantic_bands(top: float, bot: float) -> None:
         # rojo claro (-3 a -2)
         c.setFillColorRGB(0.99, 0.93, 0.93)
@@ -116,18 +128,6 @@ def draw_z_profile(
         x2 = track_x + (3 - Z_MIN) / z_range * track_w
         c.rect(x1, bot, x2 - x1, top - bot, fill=1, stroke=0)
 
-    # Título descriptivo del gráfico
-    from .helpers import chart_title
-    y = chart_title(
-        c, "Perfil Z por prueba",
-        y, note=(
-            "Eje horizontal: puntaje Z (rango -3 a +3). Verde = zona normal; "
-            "rojo/naranja = debajo del promedio; azul = por encima."
-        ),
-    )
-
-    y = _header(y)
-
     rows_drawn = 0
     band_top = y + 2
     for r in resultados:
@@ -137,7 +137,7 @@ def draw_z_profile(
 
         # Salto de página si hace falta
         if y - row_h < L.content_bottom + 30:
-            # cerrar banda
+            # cerrar banda actual
             _semantic_bands(band_top, y - 2)
             c.showPage()
             y = L.content_top
@@ -167,9 +167,9 @@ def draw_z_profile(
         bw = max(1.0, abs(bar_px - zero_px))
         c.setFillColorRGB(*color)
         c.rect(bx, y - bar_h + 1, bw, bar_h, fill=1, stroke=0)
-        # Punto en el extremo de la barra
+        # Círculo prominente en el extremo de la barra (más visible que el rect solo)
         c.setFillColorRGB(*color)
-        c.circle(bar_px, y - bar_h / 2 + 1, 1.6, fill=1, stroke=0)
+        c.circle(bar_px, y - bar_h / 2 + 1, 2.4, fill=1, stroke=0)
 
         # Label — truncado inteligente con elipsis según ancho real
         from .helpers import fit_text_to_width, human_test_name
@@ -423,14 +423,11 @@ def draw_domain_radar(
         c.setFillColorRGB(*semantic_color_for_z(domain_z[dom]))
         c.circle(px, py, 2.4, fill=1, stroke=0)
 
-    # Título del gráfico
-    # (movido al inicio de la función para que el lector vea el nombre ANTES del polígono)
-
     return cy - radius - 28
 
 
 # ──────────────────────────────────────────────────────────
-# 3) CURVA GAUSSIANA CON PERFIL DEL PACIENTE
+# 3) SEMÁFORO DE DOMINIOS (alternativa compacta al radar)
 # ──────────────────────────────────────────────────────────
 
 def draw_domain_traffic_light(
@@ -511,6 +508,10 @@ def draw_domain_traffic_light(
     return y - 4
 
 
+# ──────────────────────────────────────────────────────────
+# 4) CURVA NORMAL ESTÁNDAR — Z del paciente sobre la curva
+# ──────────────────────────────────────────────────────────
+
 def draw_normal_curve(
     c,
     resultados: Sequence[dict],
@@ -518,12 +519,15 @@ def draw_normal_curve(
     *,
     height: float = 100.0,
 ) -> float:
-    """Curva normal estándar (μ=0, σ=1) con marcadores Z del paciente."""
+    """Curva normal estándar (μ=0, σ=1) con marcadores Z del paciente.
+
+    NOTA: si hay CIT disponible, llamar a ``draw_bell_curve_with_ci`` que además
+    superpone la campana centrada en CIT con sus bandas IC 90%/95%.
+    """
     L = LAYOUT
     width = L.content_w
     bottom = y - height - 22
 
-    # Datos
     z_values = [r.get("z_equivalente") for r in resultados
                 if r.get("z_equivalente") is not None
                 and r.get("tipo_metrica") != "ci"]
@@ -556,16 +560,11 @@ def draw_normal_curve(
         pts.append((x_of(z), py))
 
     # Banda de zona normal sombreada (-1 a 1)
-    _band_pts = [(x_of(-1), bottom)]
-    for px, py in pts:
-        # estamos en zona [-1, 1]
-        pass  # construimos abajo
     c.saveState()
     try:
         c.setFillColorRGB(0.92, 0.98, 0.93)
         c.setFillAlpha(0.8)
     except Exception as _exc:
-        # §A4-fix: ReportLab antiguo — degradación silenciosa OK aquí pero loggeada.
         logger.debug("setFillAlpha no soportado en banda normal: %s", _exc)
     band_path = c.beginPath()
     band_path.moveTo(x_of(-1), bottom)
@@ -614,12 +613,7 @@ def draw_normal_curve(
         c.setFillColorRGB(*col)
         c.circle(px, ty, 1.6, fill=1, stroke=0)
 
-    # Título + leyenda
-    draw_text(
-        c, "Distribución del rendimiento (Z) del paciente sobre la curva normal estándar",
-        L.margin, y - 8,
-        font_name=FONT_SERIF, size=TYPE.title_h3, color=NAVY,
-    )
+    # Leyenda (sin título duplicado — el chart_title ya puso el título arriba)
     draw_text(
         c, f"n = {len(z_values)} pruebas con norma disponible",
         L.margin + width, y - 8,
@@ -656,100 +650,64 @@ def draw_bell_curve_with_ci(
     """Curva normal + bandas de intervalo de confianza 90% y 95% para el CIT.
 
     Si el CIT no está disponible, degrada a ``draw_normal_curve`` (sólo Z's).
-
-    Parámetros:
-        c: canvas ReportLab.
-        resultados: lista de dicts con ``puntaje_escalar``, ``tipo_metrica``.
-        y: posición vertical de inicio.
-        height: altura de la curva en pts.
-        se_cit: error estándar de medición del CIT. Por defecto 4.0 (Sattler
-            2010, WISC-IV full battery). Subir a 5-7 si es forma corta.
     """
     cit = _extract_cit(resultados)
     if cit is None:
         return draw_normal_curve(c, resultados, y, height=height)
 
-    # 1) Dibuja la curva normal estándar
     y_after = draw_normal_curve(c, resultados, y, height=height)
 
-    # 2) Sobre la curva, dibuja la campana CIT (μ=cit, σ=15)
     L = LAYOUT
     width = L.content_w
 
-    # Eje X de la curva va de Z = -3.5 a 3.5
     Z_MIN, Z_MAX = -3.5, 3.5
     def x_of(z: float) -> float:
         return L.margin + (z - Z_MIN) / (Z_MAX - Z_MIN) * width
 
-    # Transformar CIT a Z: Z_cit = (CIT - 100) / 15
-    z_cit = (cit - 100) / 15
-    z_cit_clipped = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_cit))
+    def _clip(z: float) -> float:
+        return max(Z_MIN + 0.05, min(Z_MAX - 0.05, z))
 
-    # Curva gaussiana centrada en z_cit
-    n = 100
-    sigma = 1.0
-    max_density = 1.0 / math.sqrt(2 * math.pi)
-    pts = []
-    for i in range(n + 1):
-        z = Z_MIN + (Z_MAX - Z_MIN) * i / n
-        density = math.exp(-((z - z_cit_clipped) ** 2) / (2 * sigma * sigma)) / (sigma * math.sqrt(2 * math.pi))
-        py = y_after + 22 + (density / max_density) * (height * 0.55)
-        pts.append((x_of(z), py))
+    # Baseline (eje X) de la curva normal — reconstruido desde el bottom real.
+    baseline = y_after + 20
 
-    # Dibujar la curva CIT (sin sombreado, sólo contorno)
-    c.setStrokeColorRGB(*TEAL)
-    c.setLineWidth(1.6)
-    path = c.beginPath()
-    path.moveTo(*pts[0])
-    for px, py in pts[1:]:
-        path.lineTo(px, py)
-    c.drawPath(path, stroke=1, fill=0)
-
-    # Banda IC 95% (línea más oscura, ancha)
-    ic_95_lo = cit - 1.96 * se_cit
-    ic_95_hi = cit + 1.96 * se_cit
-    z_95_lo = (ic_95_lo - 100) / 15
-    z_95_hi = (ic_95_hi - 100) / 15
-    z_95_lo = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_95_lo))
-    z_95_hi = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_95_hi))
-    x_95_lo = x_of(z_95_lo)
-    x_95_hi = x_of(z_95_hi)
-    c.setStrokeColorRGB(*NAVY)
-    c.setLineWidth(3.5)
+    # Banda IC 95% (ancha, navy translúcido) sobre la línea base
+    ic_95_lo, ic_95_hi = cit - 1.96 * se_cit, cit + 1.96 * se_cit
+    x_95_lo, x_95_hi = x_of(_clip((ic_95_lo - 100) / 15)), x_of(_clip((ic_95_hi - 100) / 15))
     c.setFillColorRGB(*NAVY)
-    c.setFillAlpha(0.20)
-    c.rect(x_95_lo, y_after + 22, x_95_hi - x_95_lo, 6, fill=1, stroke=0)
+    c.setFillAlpha(0.16)
+    c.rect(x_95_lo, baseline + 2, x_95_hi - x_95_lo, 8, fill=1, stroke=0)
     c.setFillAlpha(1.0)
 
-    # Banda IC 90% (línea más fina encima)
-    ic_90_lo = cit - 1.645 * se_cit
-    ic_90_hi = cit + 1.645 * se_cit
-    z_90_lo = (ic_90_lo - 100) / 15
-    z_90_hi = (ic_90_hi - 100) / 15
-    z_90_lo = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_90_lo))
-    z_90_hi = max(Z_MIN + 0.05, min(Z_MAX - 0.05, z_90_hi))
-    x_90_lo = x_of(z_90_lo)
-    x_90_hi = x_of(z_90_hi)
-    c.setStrokeColorRGB(*TEAL_DARK)
-    c.setLineWidth(2.0)
+    # Banda IC 90% (más estrecha, teal) encima de la 95%
+    ic_90_lo, ic_90_hi = cit - 1.645 * se_cit, cit + 1.645 * se_cit
+    x_90_lo, x_90_hi = x_of(_clip((ic_90_lo - 100) / 15)), x_of(_clip((ic_90_hi - 100) / 15))
     c.setFillColorRGB(*TEAL_DARK)
-    c.setFillAlpha(0.35)
-    c.rect(x_90_lo, y_after + 30, x_90_hi - x_90_lo, 4, fill=1, stroke=0)
+    c.setFillAlpha(0.40)
+    c.rect(x_90_lo, baseline + 4, x_90_hi - x_90_lo, 4, fill=1, stroke=0)
     c.setFillAlpha(1.0)
 
-    # Etiqueta del CIT y bandas
-    label_y = y_after + 42
+    # Marcador vertical del CIT observado
+    x_cit = x_of(_clip((cit - 100) / 15))
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(1.3)
+    c.line(x_cit, baseline, x_cit, baseline + 14)
+
+    # Etiqueta DEBAJO del eje (no se solapa con la curva ni con la sección
+    # siguiente — el bug previo devolvía un y por encima de lo dibujado).
+    label_y = y_after - 8
     draw_text(
-        c, f"IC 95% [{ic_95_lo:.0f}–{ic_95_hi:.0f}]  ·  IC 90% [{ic_90_lo:.0f}–{ic_90_hi:.0f}]  ·  CIT observado: {cit:.0f}",
+        c,
+        f"IC 95% [{ic_95_lo:.0f}–{ic_95_hi:.0f}]   ·   IC 90% [{ic_90_lo:.0f}–{ic_90_hi:.0f}]"
+        f"   ·   CIT observado: {cit:.0f}",
         L.margin, label_y,
         font_name=FONT_SANS, size=TYPE.micro + 0.5, color=NAVY,
     )
 
-    return label_y - 8
+    return label_y - 12
 
 
 # ──────────────────────────────────────────────────────────
-# 4) DISCREPANCIAS ENTRE ÍNDICES (WISC-IV / WAIS-III)
+# 5) DISCREPANCIAS ENTRE ÍNDICES (WISC-IV / WAIS-III)
 # ──────────────────────────────────────────────────────────
 
 DEFAULT_DISCREPANCY_PAIRS = [
@@ -786,7 +744,6 @@ def _extract_indices(resultados: Sequence[dict]) -> dict[str, int]:
         if score is None:
             continue
         raw_id = str(r.get("test_id", "")).lower()
-        # Buscar substring conocido
         for key, alias in mapping.items():
             if key in raw_id:
                 out.setdefault(alias, int(score))
@@ -807,7 +764,7 @@ def draw_discrepancies(
     if len(indices) < 2:
         return y  # No hay suficientes índices
 
-    # Título descriptivo
+    # Título descriptivo (única vez — antes se duplicaba con un H2 adicional)
     from .helpers import chart_title
     y = chart_title(
         c, "Discrepancias entre índices",
@@ -818,7 +775,6 @@ def draw_discrepancies(
         ),
     )
 
-    # Filtrar pares aplicables (con datos)
     rows = []
     max_diff = 0
     for a, b, name, c15, c05 in pairs:
@@ -835,25 +791,11 @@ def draw_discrepancies(
     val_w = 60
     chart_x = L.margin + label_w + val_w + 8
     chart_w = L.content_w - label_w - val_w - 16
-    # Eje: simétrico, ancho = max_diff * 1.3
     scale_max = max(20, math.ceil(max_diff * 1.3))
 
     def x_of(diff: float) -> float:
         return chart_x + chart_w / 2 + (diff / scale_max) * (chart_w / 2)
 
-    # Header
-    draw_text(
-        c, "Discrepancias entre índices",
-        L.margin, y, font_name=FONT_SERIF, size=TYPE.title_h2, color=NAVY,
-    )
-    y -= 14
-    draw_text(
-        c, "Diferencia = valor del primer índice − segundo. Líneas críticas según Wechsler (p<.15 ··· y p<.05 ───).",
-        L.margin, y, font_name=FONT_SANS, size=TYPE.micro + 0.5, color=SLATE,
-    )
-    y -= 14
-
-    # Eje y línea central
     row_h = 18
     chart_top = y
     chart_bottom = y - row_h * len(rows)
@@ -892,7 +834,6 @@ def draw_discrepancies(
 
         # Barra desde 0 hasta diff
         end_x = x_of(diff)
-        # Color por significancia
         abs_d = abs(diff)
         if abs_d >= c05:
             color = SEMANTIC_DEFICIT
@@ -929,7 +870,7 @@ def draw_discrepancies(
 
 
 # ──────────────────────────────────────────────────────────
-# 5) FILA DE "TARJETAS KPI" PARA ÍNDICES CI
+# 6) FILA DE "TARJETAS KPI" PARA ÍNDICES CI
 # ──────────────────────────────────────────────────────────
 
 def draw_ci_kpi_row(
@@ -952,7 +893,6 @@ def draw_ci_kpi_row(
     start_x = L.margin + (L.content_w - total_w) / 2
     card_h = 64
 
-    # Función local del helpers.kpi_card pero adaptada al contexto
     from .helpers import kpi_card, human_test_name  # local import para evitar ciclos
     for i, r in enumerate(indices_ci):
         bx = start_x + i * (card_w + gap)

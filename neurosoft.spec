@@ -41,6 +41,12 @@ baremo = BACKEND / "data" / "BD_NEURO_MAESTRA.json"
 if baremo.exists():
     datas.append((str(baremo), "data"))
 
+# Solo manifest (sin ~27 MB de PNG); evaluación = SVG nativos + uploads en Config
+stimuli_manifest = BACKEND / "data" / "stimuli_assets" / "stimuli_manifest.json"
+if stimuli_manifest.is_file():
+    datas.append((str(stimuli_manifest), "data/stimuli_assets"))
+    sys.stderr.write("[neurosoft.spec] stimuli_manifest.json incluido (sin PNG)\n")
+
 # Frontend compilado (Vite → /dist)
 if FRONTEND_DIST.is_dir():
     datas.append((str(FRONTEND_DIST), "static"))

@@ -56,6 +56,8 @@ class PatientORM(Base):
     finalidad_consulta = Column(String(50))
     numero_sesiones = Column(Integer, default=1)
     donante = Column(Boolean, default=False)
+    # Vía de atención: comma-separated neuropsicologia|psicoterapia|rehabilitacion|mixto
+    via_atencion = Column(String(120), nullable=False, default="mixto")
     created_at = Column(DateTime, default=_utc_now, nullable=False)
     updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
     is_active = Column(Boolean, default=True, nullable=False)
@@ -84,6 +86,7 @@ class ClinicalHistoryORM(Base):
     numero_documento = Column(String(20), nullable=False)
     fecha_atencion = Column(Date, nullable=False)
     codigo_cie10 = Column(String(10), default="F809")
+    codigo_cie11 = Column(String(15), nullable=True)
     # Pestaña 1: Desarrollo
     motivo_consulta = Column(Text, default="N/A")
     edad_materna = Column(String(10), default="N/A")
@@ -426,6 +429,14 @@ class AppointmentORM(Base):
     # estados: programada | confirmada | atendida | cancelada | no_asistio
     notas_internas   = Column(Text)    # Notas del profesional (no visibles al paciente)
     recordatorio_env = Column(Boolean, default=False)  # ¿Se envió recordatorio?
+    eps              = Column(String(100))
+    regimen          = Column(String(40))
+    autorizacion_no  = Column(String(50))
+    cups             = Column(String(20))
+    modalidad        = Column(String(30))
+    discapacidad     = Column(String(100))
+    contacto_telefono = Column(String(20))
+    contacto_correo  = Column(String(100))
     created_at       = Column(DateTime, default=_utc_now, nullable=False)
     updated_at       = Column(DateTime, default=_utc_now, onupdate=_utc_now)
     # Relaciones
@@ -833,6 +844,7 @@ class TherapyPlanORM(Base):
     enfoque_principal        = Column(String(40))  # cbt|sistemica|psicoanalitica|humanistica|emdr|act|mindfulness|logoterapia|gestalt|otro
     diagnostico_principal    = Column(String(20))  # código CIE-10
     diagnostico_secundario   = Column(String(20))
+    codigo_cie11             = Column(String(15), nullable=True)
     motivo_consulta          = Column(Text)
     duracion_estimada_sesiones = Column(Integer)   # sesiones estimadas por el clínico
     fecha_inicio             = Column(DateTime, default=_utc_now, nullable=False, index=True)

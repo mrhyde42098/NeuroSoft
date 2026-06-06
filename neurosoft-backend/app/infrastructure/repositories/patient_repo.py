@@ -256,6 +256,7 @@ class PatientRepository:
             finalidad_consulta=p.finalidad_consulta,
             numero_sesiones=p.numero_sesiones,
             donante=p.donante,
+            via_atencion=getattr(p, "via_atencion", None) or "mixto",
             created_at=p.created_at,
             updated_at=p.updated_at,
             is_active=p.is_active,
@@ -270,6 +271,7 @@ class PatientRepository:
             "estrato","escolaridad","lateralidad","ocupacion","acompanante","grupo_etnico",
             "motivo_consulta","remite","eps","orden_medica_no","discapacidad",
             "codigo_rips","cups","finalidad_consulta","numero_sesiones","donante",
+            "via_atencion",
         ]
         for c in campos:
             setattr(orm, c, getattr(p, c))
@@ -314,6 +316,7 @@ class PatientRepository:
             finalidad_consulta=orm.finalidad_consulta,
             numero_sesiones=orm.numero_sesiones or 1,
             donante=bool(orm.donante),
+            via_atencion=getattr(orm, "via_atencion", None) or "mixto",
             created_at=orm.created_at or datetime.now(UTC),
             updated_at=orm.updated_at or datetime.now(UTC),
             is_active=bool(orm.is_active),

@@ -21,6 +21,8 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response
 
+from app.core.exceptions import EvaluationNotFoundError
+from app.presentation.api.v1.auth import CurrentUser, get_evaluation_for_user
 from app.presentation.dependencies import (
     DbSession,
     EvaluationRepo,
@@ -28,6 +30,16 @@ from app.presentation.dependencies import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _find_evaluation(eval_repo: EvaluationRepo, eval_id: str):
+    try:
+        return eval_repo.find_by_id(eval_id)
+    except EvaluationNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Evaluación '{eval_id}' no encontrada.",
+        ) from None
 
 reports_router = APIRouter(prefix="/reports", tags=["Informes PDF"])
 
@@ -57,19 +69,24 @@ def generate_pdf(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
+    user=CurrentUser,
     template: Literal[
         "estandar", "pro", "pediatrico",
         "medicolegal", "junta_medica", "inconcluso",
         "therapy_closure", "paciente",
     ] = Query(
-        "estandar",
+        "pro",
         description=(
-            "Variante de plantilla del informe: 'estandar' (la histórica), "
-            "'pro' (premium adulto), 'pediatrico', 'medicolegal', "
+            "Variante de plantilla del informe: 'pro' (estándar IN&S+Pro), "
+            "'estandar' (legacy histórica), 'pediatrico', 'medicolegal', "
             "'junta_medica' (2 págs), 'inconcluso', "
             "'therapy_closure' (cierre de proceso terapéutico), "
             "'paciente' (lenguaje claro para el paciente y su familia)."
         ),
+    ),
+    therapy_plan_id: str | None = Query(
+        default=None,
+        description="UUID del plan terapéutico (solo template therapy_closure)",
     ),
 ):
     from app.infrastructure.database.orm_models import (
@@ -83,11 +100,8 @@ def generate_pdf(
         generate_report_pdf,
     )
 
-    # 1. Evaluación
-    try:
-        ev = eval_repo.find_by_id(eval_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail=f"Evaluación '{eval_id}' no encontrada.")
+    get_evaluation_for_user(eval_id, db, user)
+    ev = _find_evaluation(eval_repo, eval_id)
 
     # 2. Paciente (ORM directo para tener todos los campos)
     patient_orm = db.get(PatientORM, ev.patient_id)
@@ -126,6 +140,9 @@ def generate_pdf(
         institucion=institucion,
         profesional=profesional,
         observations=observations_dict,
+        db=db,
+        therapy_plan_id=therapy_plan_id,
+        include_therapy=(template == "therapy_closure"),
     )
 
     # 7. Generar PDF (con plantilla seleccionada)
@@ -172,6 +189,7 @@ def generate_docx(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
+    user=CurrentUser,
 ):
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -182,10 +200,8 @@ def generate_docx(
     from app.infrastructure.export_service import generate_report_docx
     from app.infrastructure.report_service import build_report_data_from_db
 
-    try:
-        ev = eval_repo.find_by_id(eval_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail=f"Evaluación '{eval_id}' no encontrada.")
+    get_evaluation_for_user(eval_id, db, user)
+    ev = _find_evaluation(eval_repo, eval_id)
 
     patient_orm = db.get(PatientORM, ev.patient_id)
     if patient_orm is None:
@@ -261,6 +277,7 @@ def generate_xlsx(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
+    user=CurrentUser,
 ):
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -271,10 +288,8 @@ def generate_xlsx(
     from app.infrastructure.export_service import generate_evaluation_xlsx
     from app.infrastructure.report_service import build_report_data_from_db
 
-    try:
-        ev = eval_repo.find_by_id(eval_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail=f"Evaluación '{eval_id}' no encontrada.")
+    get_evaluation_for_user(eval_id, db, user)
+    ev = _find_evaluation(eval_repo, eval_id)
 
     patient_orm = db.get(PatientORM, ev.patient_id)
     if patient_orm is None:
@@ -344,6 +359,7 @@ def preview_report_data(
     eval_repo: EvaluationRepo,
     patient_repo: PatientRepo,
     db: DbSession,
+    user=CurrentUser,
 ):
     from app.infrastructure.database.orm_models import (
         ClinicalHistoryORM,
@@ -352,10 +368,8 @@ def preview_report_data(
         ProfessionalORM,
     )
 
-    try:
-        ev = eval_repo.find_by_id(eval_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail="Evaluación no encontrada.")
+    get_evaluation_for_user(eval_id, db, user)
+    ev = _find_evaluation(eval_repo, eval_id)
 
     patient_orm = db.get(PatientORM, ev.patient_id)
     if not patient_orm:
@@ -466,6 +480,7 @@ def get_report_enrichment(
     eval_id: str,
     eval_repo: EvaluationRepo,
     db: DbSession,
+    user=CurrentUser,
 ):
     from app.application.use_cases.report_enrichment import (
         build_report_enrichment,
@@ -475,10 +490,8 @@ def get_report_enrichment(
         PatientORM,
     )
 
-    try:
-        ev = eval_repo.find_by_id(eval_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail="Evaluación no encontrada.")
+    get_evaluation_for_user(eval_id, db, user)
+    ev = _find_evaluation(eval_repo, eval_id)
 
     patient_orm = db.get(PatientORM, ev.patient_id)
     if not patient_orm:

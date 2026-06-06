@@ -19,18 +19,23 @@ const SANITY_RANGES = {
   ViTMTA: [0, 300], ViTMTB: [0, 500], ViRDD: [0, 12],
   ViRDInv: [0, 12], ViStP: [0, 120], ViStC: [0, 100],
   ViAni: [0, 40], ViSem: [0, 30], ViYesavage: [0, 15],
+  EscYesavage: [0, 15],
 };
 
-export default function ScoreInput({ testId, value, onChange, className = "" }) {
+const SENTINEL_NA = 9999;
+
+export default function ScoreInput({ testId, value, onChange, className = "", size = "md" }) {
   const range = SANITY_RANGES[testId];
   const num = value === "" || value === null || value === undefined ? null : Number(value);
+  const isXl = size === "xl";
 
   const status = useMemo(() => {
     if (num === null || isNaN(num)) return { type: "empty", icon: null, color: "", msg: "" };
+    if (num === SENTINEL_NA || num >= 9999) return { type: "invalid", icon: "error", color: "#DC2626", msg: "Use vacío si no aplicó la prueba" };
     if (num < 0) return { type: "invalid", icon: "error", color: "#DC2626", msg: "No puede ser negativo" };
     if (range) {
-      if (num > range[1] * 1.5) return { type: "warn", icon: "warning", color: "#D97706", msg: `Muy alto (máx ~${range[1]})` };
-      if (num > range[1]) return { type: "high", icon: "info", color: "#D97706", msg: `Alto (máx ~${range[1]})` };
+      if (num > range[1] * 1.5) return { type: "warn", icon: "warning", color: "#D97706", msg: `Muy alto (máx baremo ~${range[1]})` };
+      if (num > range[1]) return { type: "high", icon: "warning", color: "#D97706", msg: `Excede máx ~${range[1]} — verifique` };
     }
     return { type: "ok", icon: "check_circle", color: "#0D9488", msg: "" };
   }, [num, range]);
@@ -39,12 +44,19 @@ export default function ScoreInput({ testId, value, onChange, className = "" }) 
 
   return (
     <div className={`relative ${className}`}>
+      {isXl && (
+        <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--ns-muted)" }}>
+          Puntaje directo (PD)
+        </span>
+      )}
       <input
         data-testid="current-score-input"
         type="number"
+        min={0}
+        max={range ? range[1] * 2 : 500}
         value={value || ""}
         onChange={onChange}
-        className="w-20 h-12 text-2xl font-extrabold text-center rounded-2xl border-none ring-2 transition-all duration-200 outline-none"
+        className={`${isXl ? "w-28 h-16 text-3xl" : "w-20 h-12 text-2xl"} font-extrabold text-center rounded-2xl border-none ring-2 transition-all duration-200 outline-none`}
         style={{
           background: "#efeeea",
           color: status.type === "invalid" ? "#DC2626" : status.type === "warn" || status.type === "high" ? "#D97706" : "#0D9488",

@@ -1,0 +1,341 @@
+{
+  "generated": "2026-06-06",
+  "domains": {
+    "backend_app": {
+      "files": 125,
+      "lines": 42249,
+      "top_by_lines": [
+        {
+          "path": "neurosoft-backend/app/infrastructure/report_pro/narrative.py",
+          "lines": 1961
+        },
+        {
+          "path": "neurosoft-backend/app/domain/data/cie10_es.json",
+          "lines": 1823
+        },
+        {
+          "path": "neurosoft-backend/app/application/use_cases/rehab_use_cases.py",
+          "lines": 1311
+        },
+        {
+          "path": "neurosoft-backend/app/infrastructure/report_pro/base.py",
+          "lines": 1301
+        },
+        {
+          "path": "neurosoft-backend/app/infrastructure/report_service.py",
+          "lines": 1123
+        },
+        {
+          "path": "neurosoft-backend/app/infrastructure/database/orm_models.py",
+          "lines": 1054
+        },
+        {
+          "path": "neurosoft-backend/app/infrastructure/report_pro/charts.py",
+          "lines": 936
+        },
+        {
+          "path": "neurosoft-backend/app/main.py",
+          "lines": 857
+        },
+        {
+          "path": "neurosoft-backend/app/presentation/api/v1/ai.py",
+          "lines": 840
+        },
+        {
+          "path": "neurosoft-backend/app/infrastructure/report_pro/helpers.py",
+          "lines": 779
+        },
+        {
+          "path": "neurosoft-backend/app/domain/clinical_engine/strategies.py",
+          "lines": 684
+        },
+        {
+          "path": "neurosoft-backend/app/presentation/api/v1/therapy.py",
+          "lines": 673
+        },
+        {
+          "path": "neurosoft-backend/app/domain/clinical_engine/test_guide.py",
+          "lines": 659
+        },
+        {
+          "path": "neurosoft-backend/app/application/use_cases/clinical_history_use_cases.py",
+          "lines": 637
+        },
+        {
+          "path": "neurosoft-backend/app/presentation/api/v1/auth.py",
+          "lines": 634
+        }
+      ]
+    },
+    "backend_tests": {
+      "files": 93,
+      "lines": 14582,
+      "top_by_lines": [
+        {
+          "path": "neurosoft-backend/tests/unit/clinical_engine/test_engine_full.py",
+          "lines": 1118
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_rehab.py",
+          "lines": 709
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_habeas_data_export.py",
+          "lines": 471
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_security_hardening.py",
+          "lines": 457
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_repositories.py",
+          "lines": 447
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_patients_ownership.py",
+          "lines": 428
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_token_blacklist.py",
+          "lines": 404
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_update_endpoint.py",
+          "lines": 387
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_e2e_multi_tenant.py",
+          "lines": 333
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_reports.py",
+          "lines": 332
+        },
+        {
+          "path": "neurosoft-backend/tests/unit/clinical_engine/test_priority3_uncovered.py",
+          "lines": 320
+        },
+        {
+          "path": "neurosoft-backend/tests/unit/clinical_engine/test_priority_uncovered.py",
+          "lines": 309
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_signing_workflow.py",
+          "lines": 291
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_audit_phi.py",
+          "lines": 289
+        },
+        {
+          "path": "neurosoft-backend/tests/integration/test_security_primitives.py",
+          "lines": 245
+        }
+      ]
+    },
+    "frontend_src": {
+      "files": 130,
+      "lines": 47077,
+      "top_by_lines": [
+        {
+          "path": "neurosoft-frontend/src/data/protocols/wisc_iv_protocolo.json",
+          "lines": 2345
+        },
+        {
+          "path": "neurosoft-frontend/src/data/enfoquesExtendidos.js",
+          "lines": 1860
+        },
+        {
+          "path": "neurosoft-frontend/src/data/screening.js",
+          "lines": 1606
+        },
+        {
+          "path": "neurosoft-frontend/src/data/enfoquesTerapeuticos.js",
+          "lines": 1514
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/wais_iii_protocolo.json",
+          "lines": 1501
+        },
+        {
+          "path": "neurosoft-frontend/src/data/clinical.js",
+          "lines": 1217
+        },
+        {
+          "path": "neurosoft-frontend/src/app/ia/PanelIA.jsx",
+          "lines": 1180
+        },
+        {
+          "path": "neurosoft-frontend/src/data/plantillasDocumentales.js",
+          "lines": 1161
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/protocolos_memoria_verbal.json",
+          "lines": 1154
+        },
+        {
+          "path": "neurosoft-frontend/src/app/rehab/RehabPage.jsx",
+          "lines": 1092
+        },
+        {
+          "path": "neurosoft-frontend/src/data/datosClinicos.js",
+          "lines": 1045
+        },
+        {
+          "path": "neurosoft-frontend/src/data/aprenderContent.js",
+          "lines": 1013
+        },
+        {
+          "path": "neurosoft-frontend/src/data/wisc_iv_protocolo.json",
+          "lines": 768
+        },
+        {
+          "path": "neurosoft-frontend/src/app/reports/InformesPage.jsx",
+          "lines": 757
+        },
+        {
+          "path": "neurosoft-frontend/src/data/bibliotecaRecursos.js",
+          "lines": 737
+        }
+      ]
+    },
+    "docs": {
+      "files": 88,
+      "lines": 23649,
+      "top_by_lines": [
+        {
+          "path": "docs/casos-clinicos/RESULTADOS_VALIDACION.json",
+          "lines": 2043
+        },
+        {
+          "path": "docs/PLAN_MAESTRO_GLOBAL.md",
+          "lines": 1003
+        },
+        {
+          "path": "docs/scripts/generate_beta_guide_pdf.py",
+          "lines": 935
+        },
+        {
+          "path": "docs/planning/CLINICAL_ROADMAP.md",
+          "lines": 917
+        },
+        {
+          "path": "docs/scripts/generate_brochure_pdf.py",
+          "lines": 901
+        },
+        {
+          "path": "docs/scripts/generate_manual_pdf.py",
+          "lines": 900
+        },
+        {
+          "path": "docs/casos-clinicos/CASOS_GROUND_TRUTH.md",
+          "lines": 715
+        },
+        {
+          "path": "docs/audits/AUDITORIA_BUGS_2026-05-15.md",
+          "lines": 696
+        },
+        {
+          "path": "docs/manuales-ocr/EXTRACCION_WISC-IV_WAIS-III.md",
+          "lines": 656
+        },
+        {
+          "path": "docs/historico/sprints/PLAN_SPRINT_ESTETICA_V2.md",
+          "lines": 437
+        },
+        {
+          "path": "docs/planning/INVESTIGACION_COMPLETA_2026-05-13.md",
+          "lines": 429
+        },
+        {
+          "path": "docs/PUNTO_INFLEXION_2026-06-05.md",
+          "lines": 421
+        },
+        {
+          "path": "docs/MONITOREO_AUDIT_LOG.md",
+          "lines": 419
+        },
+        {
+          "path": "docs/historico/audits/AUDIT_2026-06-05.md",
+          "lines": 409
+        },
+        {
+          "path": "docs/scripts/sync_protocols_full.py",
+          "lines": 395
+        }
+      ]
+    },
+    "protocolos": {
+      "files": 7,
+      "lines": 6467,
+      "top_by_lines": [
+        {
+          "path": "Capacitaciones Clínicas/protocolos/wisc_iv_protocolo.json",
+          "lines": 2345
+        },
+        {
+          "path": "Capacitaciones Clínicas/protocolos/wais_iii_protocolo.json",
+          "lines": 1501
+        },
+        {
+          "path": "Capacitaciones Clínicas/protocolos/protocolos_memoria_verbal.json",
+          "lines": 1154
+        },
+        {
+          "path": "Capacitaciones Clínicas/protocolos/protocolos_casos_especiales.json",
+          "lines": 591
+        },
+        {
+          "path": "Capacitaciones Clínicas/protocolos/protocolo_ninos_complementario.json",
+          "lines": 361
+        },
+        {
+          "path": "Capacitaciones Clínicas/protocolos/protocolo_adulto_mayor.json",
+          "lines": 274
+        },
+        {
+          "path": "Capacitaciones Clínicas/protocolos/protocolo_adulto_joven.json",
+          "lines": 241
+        }
+      ]
+    },
+    "frontend_protocols": {
+      "files": 7,
+      "lines": 6467,
+      "top_by_lines": [
+        {
+          "path": "neurosoft-frontend/src/data/protocols/wisc_iv_protocolo.json",
+          "lines": 2345
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/wais_iii_protocolo.json",
+          "lines": 1501
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/protocolos_memoria_verbal.json",
+          "lines": 1154
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/protocolos_casos_especiales.json",
+          "lines": 591
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/protocolo_ninos_complementario.json",
+          "lines": 361
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/protocolo_adulto_mayor.json",
+          "lines": 274
+        },
+        {
+          "path": "neurosoft-frontend/src/data/protocols/protocolo_adulto_joven.json",
+          "lines": 241
+        }
+      ]
+    }
+  },
+  "totals": {
+    "files": 450,
+    "lines": 140491
+  }
+}

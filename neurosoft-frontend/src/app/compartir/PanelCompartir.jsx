@@ -43,6 +43,7 @@ export function ShareButton({ evaluationId }) {
   const [ttl, setTtl]   = useState(72);
   const [scope, setScope] = useState("summary");
   const [password, setPassword] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [link, setLink] = useState(null);
   const [err, setErr]   = useState("");
@@ -63,7 +64,11 @@ export function ShareButton({ evaluationId }) {
   };
 
   const copy = () => {
-    if (link) { navigator.clipboard.writeText(link); }
+    if (!link) return;
+    const extra = videoUrl.trim()
+      ? `\n\nSala de videollamada: ${videoUrl.trim()}`
+      : "";
+    navigator.clipboard.writeText(link + extra);
   };
 
   if (!evaluationId) return null;
@@ -120,6 +125,15 @@ export function ShareButton({ evaluationId }) {
                   </div>
                 </div>
 
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-500">Videollamada (opcional)</label>
+                  <input type="url"
+                    value={videoUrl} onChange={e => setVideoUrl(e.target.value)}
+                    placeholder="Link Meet, Zoom o Jitsi para acompañar el informe"
+                    className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"/>
+                  <p className="text-[9px] text-slate-400 mt-1">Se incluye al copiar el link. No se almacena en el servidor.</p>
+                </div>
+
                 {err && <div className="text-xs text-rose-700 bg-rose-50 p-2 rounded-lg">{err}</div>}
 
                 <button onClick={create} disabled={busy}
@@ -141,7 +155,12 @@ export function ShareButton({ evaluationId }) {
                 <p className="text-[10px] text-slate-500">
                   El link vence automáticamente. Puedes revocarlo desde el panel de telemedicina.
                 </p>
-                <button onClick={() => { setLink(null); setPassword(""); }}
+                {videoUrl.trim() && (
+                  <p className="text-[10px] text-slate-500">
+                    Videollamada: <code className="break-all">{videoUrl.trim()}</code>
+                  </p>
+                )}
+                <button onClick={() => { setLink(null); setPassword(""); setVideoUrl(""); }}
                   className="w-full py-2 rounded-xl border border-slate-300 text-xs">Generar otro</button>
               </>
             )}

@@ -77,6 +77,7 @@ class TherapyPlanCreateDTO(BaseModel):
     enfoque_principal: str | None = None
     diagnostico_principal: str | None = None
     diagnostico_secundario: str | None = None
+    codigo_cie11: str | None = None
     motivo_consulta: str | None = None
     duracion_estimada_sesiones: int | None = None
     fecha_revision: datetime | None = None
@@ -90,6 +91,7 @@ class TherapyPlanResponseDTO(BaseModel):
     enfoque_principal: str | None
     diagnostico_principal: str | None
     diagnostico_secundario: str | None
+    codigo_cie11: str | None = None
     motivo_consulta: str | None
     duracion_estimada_sesiones: int | None
     fecha_inicio: datetime
@@ -231,6 +233,7 @@ def _plan_to_dto(orm: TherapyPlanORM, objetivos: list[TherapyObjectiveORM]) -> T
         enfoque_principal=orm.enfoque_principal,
         diagnostico_principal=orm.diagnostico_principal,
         diagnostico_secundario=orm.diagnostico_secundario,
+        codigo_cie11=getattr(orm, "codigo_cie11", None),
         motivo_consulta=orm.motivo_consulta,
         duracion_estimada_sesiones=orm.duracion_estimada_sesiones,
         fecha_inicio=orm.fecha_inicio, fecha_revision=orm.fecha_revision,
@@ -268,6 +271,10 @@ def list_plans(
 @therapy_router.post("/plans", response_model=TherapyPlanResponseDTO, status_code=201,
                      summary="Crear plan terapéutico (con objetivos opcionales)")
 def create_plan(dto: TherapyPlanCreateDTO, db: DbSession, user=CurrentUser):
+    from app.domain.clinical_engine.cie_mapping_service import resolve_cie11_code
+
+    cie11 = dto.codigo_cie11 or resolve_cie11_code(dto.diagnostico_principal)
+
     plan = TherapyPlanORM(
         id=str(uuid.uuid4()),
         patient_id=dto.patient_id,
@@ -275,6 +282,7 @@ def create_plan(dto: TherapyPlanCreateDTO, db: DbSession, user=CurrentUser):
         enfoque_principal=dto.enfoque_principal,
         diagnostico_principal=dto.diagnostico_principal,
         diagnostico_secundario=dto.diagnostico_secundario,
+        codigo_cie11=cie11,
         motivo_consulta=dto.motivo_consulta,
         duracion_estimada_sesiones=dto.duracion_estimada_sesiones,
         fecha_revision=dto.fecha_revision,

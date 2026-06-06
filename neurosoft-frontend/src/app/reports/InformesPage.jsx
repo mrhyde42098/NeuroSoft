@@ -19,6 +19,17 @@ const STEPS = [
   { label: "Descargar",      icon: "download" },
 ];
 
+const PDF_TEMPLATES = [
+  { value: "pro", label: "★ Profesional (estándar)" },
+  { value: "pediatrico", label: "Pediátrica" },
+  { value: "medicolegal", label: "Medicolegal" },
+  { value: "junta_medica", label: "Junta Médica" },
+  { value: "inconcluso", label: "Inconclusa" },
+  { value: "paciente", label: "Paciente (lenguaje claro)" },
+  { value: "therapy_closure", label: "Cierre terapéutico" },
+  { value: "estandar", label: "Clásico (legado)" },
+];
+
 export default function InformesPage({ _setPage }) {
   const toast = useToast();
   const [patients, setPatients] = useState([]);
@@ -27,6 +38,7 @@ export default function InformesPage({ _setPage }) {
   const [ld, setLd] = useState(false);
   const [preview, setPreview] = useState(null);
   const [gen, setGen] = useState(null);
+  const [pdfTemplate, setPdfTemplate] = useState("pro");
   /* Overlay in-page para PDF (pywebview no soporta descarga vía a.download) */
   const [pdfOverlay, setPdfOverlay] = useState(null); // { url: blobUrl, filename, blob, evalId }
   const pdfIframeRef = useRef(null);
@@ -96,7 +108,12 @@ export default function InformesPage({ _setPage }) {
   const closePdfOverlay = () => {
     if (pdfOverlay) { URL.revokeObjectURL(pdfOverlay.url); setPdfOverlay(null); }
   };
-  const genPDF  = (id) => downloadBlob(`/api/v1/reports/pdf/${id}`,  `InformeNPS_${id.slice(0, 8)}.pdf`,  id, id);
+  const genPDF  = (id) => downloadBlob(
+    `/api/v1/reports/pdf/${id}?template=${encodeURIComponent(pdfTemplate)}`,
+    `InformeNPS_${pdfTemplate}_${id.slice(0, 8)}.pdf`,
+    id,
+    id,
+  );
   const genDOCX = (id) => downloadBlob(`/api/v1/reports/docx/${id}`, `InformeNPS_${id.slice(0, 8)}.docx`, `docx:${id}`);
   const genXLSX = (id) => downloadBlob(`/api/v1/reports/xlsx/${id}`, `Puntajes_${id.slice(0, 8)}.xlsx`,   `xlsx:${id}`);
 
@@ -454,6 +471,19 @@ export default function InformesPage({ _setPage }) {
                         <span className="ml-2 opacity-70">(hover/click para ver definición)</span>
                       </div>
                     )}
+                    <div className="flex items-center gap-2 mb-3">
+                      <Label className="text-xs shrink-0">Plantilla PDF</Label>
+                      <Sel
+                        value={pdfTemplate}
+                        onChange={e => setPdfTemplate(e.target.value)}
+                        className="text-xs flex-1"
+                        title="Variante del informe (default: Profesional)"
+                      >
+                        {PDF_TEMPLATES.map(t => (
+                          <option key={t.value} value={t.value}>{t.label}</option>
+                        ))}
+                      </Sel>
+                    </div>
                     {/* §M-5: bloqueado si faltan secciones críticas */}
                     <button onClick={() => genPDF(preview.eval_id)}
                       disabled={gen === preview.eval_id || preview.puede_descargar === false}
