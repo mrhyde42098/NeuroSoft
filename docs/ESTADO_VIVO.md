@@ -1,5 +1,5 @@
 # Estado vivo — NeuroSoft App
-**Última actualización:** 5 de junio de 2026 (PLAN_MAESTRO UI sprint)  
+**Última actualización:** 6 de junio de 2026 (cierre beta + OSS + build)  
 **Fuente de verdad** para saber qué está hecho vs qué falta.  
 **Regla IA:** al cerrar sprint/roadmap → skill `/actualizar-estado-vivo`. Sync contexto completo solo con `/actualizar-contexto-ia`.
 
@@ -9,11 +9,12 @@
 
 | Métrica | Valor |
 |---|---|
-| Tests pytest | **1011 passed** (1 flaky backup no relacionado) |
+| Tests pytest | **1016 passed** |
 | ESLint frontend | 0 warnings (`npm run lint`) |
 | Baremos | 173 pruebas, ~114.586 claves (`BD_NEURO_MAESTRA.json`) |
-| Build exe | ~47 MB · Setup ~1.4 GB (regenerado 5 jun 2026 post-PLAN_MAESTRO) |
+| Build exe | **47.3 MB** · Setup ~1.34 GB (regenerado 6 jun 2026) |
 | CI workflows | `.github/workflows/backend-ci.yml`, `frontend-ci.yml` |
+| GitHub OSS | https://github.com/mrhyde42098/NeuroSoft · Codex OSS enviado |
 
 ---
 
@@ -35,7 +36,7 @@
 |---|---|---|
 | S0 | Sistema diseño (StatTile, SectionCard, tokens) | ✅ |
 | S1 | Dashboard 3 zonas + Estadísticas + sidebar | ✅ |
-| S2 | Register vía_atención + HC CIE-11 dual + wizard 7 pasos | ✅ |
+| S2 | Register vía_atención + HC CIE-11 dual + HC 4 pasos (screening aparte) | ✅ |
 | S3 | Agenda EPS/CUPS/autorización | ✅ |
 | S4 | EvalApply FloatingTimer/SegmentedNav/portada | ✅ |
 | S5 | Screening dedup + layout vertical 2 cols | ✅ |
@@ -43,6 +44,8 @@
 | S7 | Terapia Meet/Zoom SOAP + PanelIA pulls | ✅ |
 | S8 | AprenderHub tabs + Config pruebas embebidas | ✅ |
 | CONS | Consentimiento PDF + email SMTP + firma digital | ✅ (OTP SMS opcional P2) |
+| OSS | Repo público, CONTRIBUTING, issues, sin material IN&S en git | ✅ |
+| PDF Pro | Resumen para la Familia en variante `pro` | ✅ (6 jun 2026) |
 
 ---
 

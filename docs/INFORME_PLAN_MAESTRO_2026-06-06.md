@@ -44,7 +44,7 @@ Se ejecutó el plan maestro de UI/UX y módulos clínicos priorizando calidad so
 |---|---|---|
 | PX-1 | Campo `via_atencion` + migración 007 | Enruta a neuro / terapia / rehab / mixto |
 | PX-2 | `RegisterPage` paso vía + redirect contextual | Tras guardar va al módulo correcto |
-| PX-3 | HC wizard **7 pasos** | Identificación → Motivo → Antecedentes → Familiar → Queja memoria → Examen mental → Plan |
+| PX-3 | HC **4 pasos** + screening aparte | Desarrollo → Antecedentes → Familiar → Plan; MMSE/escalas en módulo Screening |
 | CIE dual | `codigo_cie11` + API `/cie11/map` | Transición CIE-11 sin romper RIPS (CIE-10) |
 | Pre-Post | Botón en `PatientsPage` → `compare` | Seguimiento longitudinal |
 
@@ -130,14 +130,16 @@ Se ejecutó el plan maestro de UI/UX y módulos clínicos priorizando calidad so
 
 ---
 
-## 11. Build y artefactos
+## 11. Build y artefactos (regenerado 6 jun 2026 noche)
 
 | Artefacto | Ubicación |
 |---|---|
-| `NeuroSoft.exe` | `dist/NeuroSoft.exe` (~47 MB) |
+| `NeuroSoft.exe` | `dist/NeuroSoft.exe` (**47.3 MB**) |
 | `NeuroSoft-Setup.exe` | `dist/NeuroSoft-Setup.exe` (~1.34 GB, incluye Ollama separado) |
 
 Pipeline: `npm run build` → `py_compile` → `python build.py --skip-frontend --skip-ollama` → Inno Setup.
+
+**Informe de cierre ampliado:** `docs/INFORME_CIERRE_2026-06-06.md`
 
 ---
 
