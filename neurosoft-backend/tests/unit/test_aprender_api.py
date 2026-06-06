@@ -10,7 +10,8 @@ from fastapi.testclient import TestClient
 def client():
     from app.main import app
 
-    return TestClient(app)
+    with TestClient(app) as c:
+        yield c
 
 
 def test_aprender_stats(client):
