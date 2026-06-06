@@ -1,133 +1,19 @@
-# Configura descripción, topics e issues públicos para la solicitud Codex OSS.
-# Ejecutar: Actions → "Bootstrap Codex OSS" → Run workflow
 name: Bootstrap Codex OSS
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/bootstrap-codex-oss.yml
 
 permissions:
   issues: write
+  contents: read
 
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
     steps:
-      - name: Actualizar About y topics (si el token lo permite)
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            try {
-              await github.rest.repos.update({
-                owner,
-                repo,
-                description:
-                  "OSS neuropsychology platform for Colombia/LATAM — clinical scoring engine, Colombian norms, PDF reports, RIPS. FastAPI + React. 1000+ tests.",
-              });
-              await github.request("PUT /repos/{owner}/{repo}/topics", {
-                owner,
-                repo,
-                names: [
-                  "neuropsychology",
-                  "healthcare",
-                  "fastapi",
-                  "react",
-                  "python",
-                  "colombia",
-                  "open-source",
-                  "clinical-software",
-                  "sqlite",
-                  "mental-health",
-                ],
-              });
-              core.info("About y topics actualizados.");
-            } catch (e) {
-              core.warning(
-                "No se pudo actualizar About/topics con GITHUB_TOKEN: " + e.message
-              );
-            }
+      - uses: actions/checkout@v4
 
-      - name: Crear labels si faltan
+      - name: Crear labels e issues de roadmap
         uses: actions/github-script@v7
         with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            for (const name of ["roadmap", "enhancement", "bug"]) {
-              try {
-                await github.rest.issues.createLabel({
-                  owner,
-                  repo,
-                  name,
-                  color: name === "roadmap" ? "1d76db" : "0e8a16",
-                });
-              } catch (e) {
-                if (e.status !== 422) throw e;
-              }
-            }
-
-      - name: Crear issues de roadmap (si no existen)
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            const planned = [
-              {
-                title: "[roadmap]: E2E Playwright paciente → evaluación → informe Pro",
-                labels: ["roadmap"],
-                body: `Flujo crítico de regresión antes de releases beta.
-
-- [ ] Crear paciente sintético
-- [ ] Aplicar subtest WISC con baremo conocido
-- [ ] Generar informe Pro y validar CI esperado
-
-Ref: docs/ESTADO_VIVO.md`,
-              },
-              {
-                title: "[roadmap]: Etiquetas/tags en panel de pacientes",
-                labels: ["roadmap"],
-                body: `Quick win pendiente del roadmap 2026. Permitir filtrar pacientes por etiquetas
-clínicas (TDAH, adulto mayor, remisión EPS, etc.).
-
-Prioridad: P1`,
-              },
-              {
-                title: "[feature]: Placeholders visuales de estímulos WISC/WAIS en evaluación",
-                labels: ["enhancement"],
-                body: `Mejorar fidelidad del flujo de aplicación mostrando estímulos desde
-stimuli_manifest.json. Sin copiar material con copyright en el repo.
-
-Ref: docs/stimuli/STIMULI_INVENTORY.md`,
-              },
-            ];
-
-            const { data: existing } = await github.rest.issues.listForRepo({
-              owner,
-              repo,
-              state: "all",
-              per_page: 100,
-            });
-            const titles = new Set(existing.map((i) => i.title));
-
-            for (const issue of planned) {
-              if (titles.has(issue.title)) {
-                core.info(`Issue ya existe: ${issue.title}`);
-                continue;
-              }
-              await github.rest.issues.create({
-                owner,
-                repo,
-                title: issue.title,
-                body: issue.body,
-                labels: issue.labels,
-              });
-              core.info(`Issue creado: ${issue.title}`);
-            }
+          script-path: .github/scripts/bootstrap-codex-oss-issues.js
