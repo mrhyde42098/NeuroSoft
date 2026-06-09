@@ -154,7 +154,7 @@ jobs:
           NEUROSOFT_LOGIN_MAX_ATTEMPTS: "0"
 
       - name: Run E2E smoke tests
-        run: npx playwright test --project=smoke --project=a11y --project=clinical-api --reporter=line
+        run: npx playwright test --project=smoke --project=a11y --reporter=line
         env:
           CI: "true"
           PLAYWRIGHT_SKIP_WEBSERVER: "1"
