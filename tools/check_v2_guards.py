@@ -43,11 +43,11 @@ strict_errors = [e for e in errors if any(s.name in e for s in STRICT_CLEAN)]
 legacy_warnings = [e for e in errors if e not in strict_errors]
 
 if legacy_warnings:
-    print(f"V2 legacy debt ({len(legacy_warnings)} items — migrar gradualmente):\n")
+    print(f"V2 legacy debt ({len(legacy_warnings)} items - migrar gradualmente):\n")
     for e in legacy_warnings[:15]:
         print(f"  WARN {e}")
     if len(legacy_warnings) > 15:
-        print(f"  ... y {len(legacy_warnings) - 15} más")
+        print(f"  ... y {len(legacy_warnings) - 15} mas")
 
 if strict_errors:
     print("\nV2 strict violations (deben corregirse):\n")
