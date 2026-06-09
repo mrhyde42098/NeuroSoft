@@ -115,12 +115,15 @@ jobs:
       - name: Build dist (necesario para preview)
         run: npm run build
 
-      - name: Link dist para served_static_dir (dev_static_dir legacy)
+      - name: Sync dist para served_static_dir (dev_static_dir legacy)
         working-directory: ..
         run: |
-          mkdir -p neurosoft-backend/neurosoft-frontend
-          rm -rf neurosoft-backend/neurosoft-frontend/dist
-          cp -r neurosoft-frontend/dist neurosoft-backend/neurosoft-frontend/dist
+          set -euo pipefail
+          DEST="neurosoft-backend/neurosoft-frontend/dist"
+          mkdir -p "$(dirname "$DEST")"
+          rm -rf "$DEST"
+          cp -a neurosoft-frontend/dist "$DEST"
+          test -f "$DEST/index.html"
 
       - name: Prepare E2E database
         run: node e2e/prepare-e2e.mjs
