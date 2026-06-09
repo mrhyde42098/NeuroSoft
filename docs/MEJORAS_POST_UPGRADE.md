@@ -42,3 +42,15 @@ python docs/scripts/split_baremos_poblacion.py
 ```
 
 El loader detecta automáticamente `data/baremos_shards/manifest.json` junto al JSON maestro.
+
+## Integración Inspector General (7 jun 2026)
+
+| Área | Estado |
+|------|--------|
+| pytest suite | 1034+ passed |
+| ESLint | 0 errors (build gate OK) |
+| QW-6 etiquetas | ✅ backend + PatientsPage |
+| QW-8 backup schedule | ✅ migración 011 + BackupTab + scheduler + router único |
+| Alineación API jun-2026 | ✅ therapy PATCH, backup body, agenda mes + profesional_id |
+| InformesPage glosario | ✅ GlossaryLegend |
+| Build desktop | ✅ exe ~48 MB + Setup ~1.3 GB |

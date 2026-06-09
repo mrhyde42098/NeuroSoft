@@ -34,24 +34,10 @@ from app.application.dtos.rehab_dtos import (
     RehabShareResponseDTO,
     RehabSignDTO,
 )
-from app.core.exceptions import (
-    ApplicationError,
-    EvaluationAlreadySignedError,
-    PatientNotFoundError,
-)
+from app.core.exceptions import ApplicationError
 from app.presentation.dependencies import DbSession
 
 rehab_router = APIRouter(prefix="/rehab", tags=["♻️ Rehabilitación"])
-
-
-def _handle(e: Exception):
-    if isinstance(e, EvaluationAlreadySignedError):
-        raise HTTPException(status_code=409, detail=e.to_dict())
-    if isinstance(e, PatientNotFoundError):
-        raise HTTPException(status_code=404, detail=e.to_dict())
-    if isinstance(e, ApplicationError):
-        raise HTTPException(status_code=e.http_status or 422, detail=e.to_dict())
-    raise e
 
 
 # ─────────────────────────────────────────────────────────────
@@ -91,10 +77,7 @@ def list_activities(
 def create_plan(dto: RehabPlanCreateDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import CreateRehabPlanUseCase
 
-    try:
-        return CreateRehabPlanUseCase(db).execute(dto)
-    except Exception as e:
-        _handle(e)
+    return CreateRehabPlanUseCase(db).execute(dto)
 
 
 @rehab_router.get(
@@ -123,10 +106,7 @@ def get_plans_by_patient(
 def get_plan(plan_id: str, db: DbSession):
     from app.application.use_cases.rehab_use_cases import GetRehabPlanUseCase
 
-    try:
-        return GetRehabPlanUseCase(db).by_id(plan_id)
-    except Exception as e:
-        _handle(e)
+    return GetRehabPlanUseCase(db).by_id(plan_id)
 
 
 @rehab_router.patch(
@@ -137,10 +117,7 @@ def get_plan(plan_id: str, db: DbSession):
 def update_plan(plan_id: str, dto: RehabPlanUpdateDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import UpdateRehabPlanUseCase
 
-    try:
-        return UpdateRehabPlanUseCase(db).execute(plan_id, dto)
-    except Exception as e:
-        _handle(e)
+    return UpdateRehabPlanUseCase(db).execute(plan_id, dto)
 
 
 @rehab_router.post(
@@ -163,15 +140,12 @@ def sign_plan(
         )
     actor_id = getattr(request.state, "user_id", None)
     actor_label = getattr(request.state, "user_label", None)
-    try:
-        return SignRehabPlanUseCase(db).execute(
-            plan_id=plan_id,
-            actor_id=actor_id,
-            actor_label=actor_label,
-            note=body.note,
-        )
-    except Exception as e:
-        _handle(e)
+    return SignRehabPlanUseCase(db).execute(
+        plan_id=plan_id,
+        actor_id=actor_id,
+        actor_label=actor_label,
+        note=body.note,
+    )
 
 
 @rehab_router.post(
@@ -254,10 +228,7 @@ def share_plan(plan_id: str, body: RehabShareCreateDTO, request: Request, db: Db
 
     actor_id = getattr(request.state, "user_id", None) or "system"
     body.plan_id = plan_id  # asegurar consistencia
-    try:
-        return CreateRehabShareUseCase(db).execute(body, created_by=actor_id)
-    except Exception as e:
-        _handle(e)
+    return CreateRehabShareUseCase(db).execute(body, created_by=actor_id)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -274,10 +245,7 @@ def share_plan(plan_id: str, body: RehabShareCreateDTO, request: Request, db: Db
 def create_session(dto: RehabSessionCreateDTO, db: DbSession):
     from app.application.use_cases.rehab_use_cases import CreateRehabSessionUseCase
 
-    try:
-        return CreateRehabSessionUseCase(db).execute(dto)
-    except Exception as e:
-        _handle(e)
+    return CreateRehabSessionUseCase(db).execute(dto)
 
 
 @rehab_router.get(
@@ -354,10 +322,7 @@ def suggest_plan(evaluation_id: str, db: DbSession):
         SuggestPlanFromEvaluationUseCase,
     )
 
-    try:
-        return SuggestPlanFromEvaluationUseCase(db).execute(evaluation_id)
-    except Exception as e:
-        _handle(e)
+    return SuggestPlanFromEvaluationUseCase(db).execute(evaluation_id)
 
 
 # ═══════════════════════════════════════════════════════════════

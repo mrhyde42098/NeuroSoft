@@ -97,10 +97,32 @@ def _ln_items(sub: dict) -> list:
     return out
 
 
-def _mat_items(sub: dict) -> list:
+def _visual_consigna(sub: dict, n: int, *, matrices: bool) -> str:
+    inst = (sub.get("instruccion_general") or "").strip()
+    if matrices:
+        base = inst or "Señale cuál de las 5 opciones completa el diseño incompleto."
+        return f"{base} (lámina {n})."
+    base = inst or "Señale un dibujo de cada fila que forma un grupo con los de arriba."
+    return f"{base} (lámina {n})."
+
+
+def _visual_item(test_id: str, n: int, lamina, sub: dict, *, matrices: bool, clave=None) -> dict:
+    lamina_n = lamina if isinstance(lamina, int) else n
+    item = {
+        "n": n,
+        "lamina": lamina,
+        "consigna": _visual_consigna(sub, lamina_n, matrices=matrices),
+        "stimulus_ref": {"test_id": test_id, "item_id": str(lamina)},
+    }
+    if clave is not None:
+        item["clave"] = clave
+    return item
+
+
+def _mat_items(test_id: str, sub: dict) -> list:
     rc = sub.get("respuestas_correctas")
     if isinstance(rc, list):
-        return [{"n": i, "lamina": i, "clave": c} for i, c in enumerate(rc, 1)]
+        return [_visual_item(test_id, i, i, sub, matrices=True, clave=c) for i, c in enumerate(rc, 1)]
     if isinstance(rc, dict):
         order: list[tuple[str, int]] = []
         for label in ("A", "B", "C"):
@@ -110,9 +132,12 @@ def _mat_items(sub: dict) -> list:
             k = str(i)
             if k in rc:
                 order.append((k, rc[k]))
-        return [{"n": i, "lamina": lab, "clave": cl} for i, (lab, cl) in enumerate(order, 1)]
+        return [
+            _visual_item(test_id, i, lab, sub, matrices=True, clave=cl)
+            for i, (lab, cl) in enumerate(order, 1)
+        ]
     count = sub.get("items_count") or 0
-    return [{"n": i, "lamina": i} for i in range(1, count + 1)]
+    return [_visual_item(test_id, i, i, sub, matrices=True) for i in range(1, count + 1)]
 
 
 def _pistas_items(sub: dict) -> list:
@@ -127,9 +152,9 @@ def _pistas_items(sub: dict) -> list:
     return out
 
 
-def _cond_items(sub: dict) -> list:
+def _cond_items(test_id: str, sub: dict) -> list:
     count = sub.get("items_count") or 28
-    return [{"n": i, "lamina": i} for i in range(1, count + 1)]
+    return [_visual_item(test_id, i, i, sub, matrices=False) for i in range(1, count + 1)]
 
 
 def convert_subtest(test_id: str, sub: dict, proto_id: str) -> dict | None:
@@ -167,7 +192,7 @@ def convert_subtest(test_id: str, sub: dict, proto_id: str) -> dict | None:
             "scoring": [0, 1],
             "opciones": 5,
             "manualRef": sub.get("materiales", "Cuaderno de estímulos WISC-IV"),
-            "items": _mat_items(sub),
+            "items": _mat_items(test_id, sub),
         }
     if tipo == "verbal_pistas":
         return {
@@ -183,7 +208,7 @@ def convert_subtest(test_id: str, sub: dict, proto_id: str) -> dict | None:
             "scoring": [0, 1],
             "opciones": 0,
             "manualRef": sub.get("materiales", "Libreta de estímulos WISC-IV"),
-            "items": _cond_items(sub),
+            "items": _cond_items(test_id, sub),
         }
     # Aritmética y similares con pregunta + tiempo
     if sub.get("items") and any("pregunta" in x for x in sub["items"]):

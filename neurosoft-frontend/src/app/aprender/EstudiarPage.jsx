@@ -104,8 +104,8 @@ export default function EstudiarPage() {
           <div className="flex-1">
             <h2 className="ns-serif text-xl font-bold">Tarjetas con repetición espaciada</h2>
             <p className="text-xs" style={{ color: "var(--ns-muted)" }}>
-              {stats.vistas}/{stats.total} vistas · {stats.dominadas} dominadas (caja 4+) ·
-              Algoritmo Leitner 5 cajas
+              {stats.vistas}/{stats.total} vistas · {stats.dominadas} bien aprendidas (nivel 4+) ·
+              repaso en 5 niveles
             </p>
           </div>
           <Btn variant="ghost" onClick={reset} className="text-xs">
@@ -140,7 +140,7 @@ export default function EstudiarPage() {
             <I name="celebration" className="text-5xl mb-3" style={{ color: TEAL }} />
             <h3 className="font-bold ns-serif text-lg mb-1">¡No hay tarjetas pendientes!</h3>
             <p className="text-sm" style={{ color: "var(--ns-muted)" }}>
-              Vuelve mañana para revisar las próximas según el algoritmo Leitner.
+              Vuelve mañana para las tarjetas que tocan según tu calendario de repaso.
             </p>
           </Card>
         )}
@@ -202,10 +202,9 @@ export default function EstudiarPage() {
               )}
             </div>
 
-            {/* Caja Leitner actual */}
             {progress[current.id] && (
               <p className="text-[10px] text-center mt-4" style={{ color: "var(--ns-muted)" }}>
-                Caja Leitner actual: <strong>{progress[current.id].box}/5</strong>
+                Nivel de repaso: <strong>{progress[current.id].box}/5</strong>
                 {" · "}
                 Aciertos: {progress[current.id].totalCorrect}/{progress[current.id].totalSeen}
               </p>

@@ -1372,6 +1372,8 @@ MAPEO_LENGUAJE_CLARO = {
     "Promedio Alto": "por encima del promedio",
     "Promedio": "dentro del rango esperado",
     "Promedio Bajo": "un poco por debajo del promedio",
+    "Limítrofe": "en el límite del rango esperado",
+    "Limitrofe": "en el límite del rango esperado",
     "Bajo": "por debajo del promedio",
     "Muy Bajo": "muy por debajo del promedio",
     # Diagnósticos
@@ -1407,10 +1409,115 @@ def banda_a_lenguaje_claro(banda: str) -> str:
     return MAPEO_LENGUAJE_CLARO.get(banda, banda)
 
 
+def frase_cualitativa_resultado(r: dict) -> str:
+    """Frase breve para columna 'Qué significa' en tabla de resultados."""
+    from .helpers import human_test_name
+
+    nombre = human_test_name(
+        r.get("test_id", "") or "",
+        r.get("test_nombre", "") or r.get("nombre", "") or "",
+    )
+    banda = r.get("clasificacion") or r.get("interpretacion", "")
+    banda_clara = banda_a_lenguaje_claro(str(banda))
+    if banda in ("Bajo", "Muy Bajo"):
+        return f"Por debajo de lo esperado en {nombre.lower()}"
+    if banda in ("Promedio Bajo", "Limítrofe", "Limitrofe"):
+        return f"Rendimiento {banda_clara}"
+    if banda in ("Superior", "Promedio Alto"):
+        return f"Fortaleza: {banda_clara}"
+    return banda_clara or "Dentro del rango esperado"
+
+
+def parse_edad_anos(edad_display: str | None) -> int | None:
+    """Extrae años desde ``edad_display`` (ej. ``10a``, ``36 años``)."""
+    import re
+
+    if not edad_display:
+        return None
+    m = re.search(r"(\d+)", str(edad_display))
+    return int(m.group(1)) if m else None
+
+
+def detectar_modo_voz(edad_anos: int | None) -> str:
+    """Determina registro narrativo: paciente, cuidador o pediátrico-cuidador."""
+    if edad_anos is not None and edad_anos < 18:
+        return "pediatrico_cuidador"
+    if edad_anos is not None and edad_anos >= 65:
+        return "cuidador"
+    return "paciente"
+
+
+def puente_impresion_lenguaje_claro(
+    codigo_cie10: str = "",
+    codigo_desc: str = "",
+) -> str:
+    """Frase puente empática antes de la impresión diagnóstica codificada."""
+    desc = (codigo_desc or "").strip()
+    if desc:
+        return (
+            f"En palabras sencillas, la conclusión clínica apunta a: {desc}. "
+            "El código CIE-10 que aparece abajo es la forma estandarizada que "
+            "usan médicos y EPS; no define a la persona ni su valor."
+        )
+    if codigo_cie10:
+        return (
+            "En palabras sencillas, los hallazgos se resumen en la impresión "
+            "diagnóstica del profesional. El código CIE-10 es un lenguaje "
+            "administrativo; su psicólogo/a le explicará qué significa para su caso."
+        )
+    return (
+        "En palabras sencillas, la impresión diagnóstica resume lo que los "
+        "resultados y la entrevista sugieren. Converse con su profesional "
+        "para aclarar dudas antes de tomar decisiones."
+    )
+
+
+def _limpiar_texto_recomendacion(texto: str) -> str:
+    import re
+
+    t = texto.strip()
+    t = re.sub(r"^\[[^\]]+\]\s*", "", t)
+    t = re.sub(r"^\((alta|media|baja)\)\s*", "", t, flags=re.IGNORECASE)
+    return t.strip()
+
+
+def _recomendaciones_para_familia(
+    recomendaciones: list[str],
+    modo_voz: str,
+) -> list[str]:
+    """Convierte recomendaciones clínicas a viñetas familiares preservando texto tagged."""
+    items: list[str] = []
+    for r in recomendaciones[:6]:
+        raw = r.strip()
+        if not raw:
+            continue
+        limpio = _limpiar_texto_recomendacion(raw)
+        r_low = raw.lower()
+        if "[escolar]" in r_low or "colegio" in r_low or "escolar" in r_low:
+            if modo_voz == "pediatrico_cuidador":
+                items.append(f"Colegio: {limpio}")
+            else:
+                items.append(f"En el colegio o academia: {limpio}")
+        elif "terap" in r_low:
+            items.append(f"Terapia: {limpio}")
+        elif "medic" in r_low or "psiquiatr" in r_low or "[médica]" in r_low or "[medica]" in r_low:
+            items.append(f"Consulta médica: {limpio}")
+        elif "[familiar]" in r_low:
+            items.append(f"En casa y familia: {limpio}")
+        elif "[seguimiento]" in r_low:
+            items.append(f"Seguimiento: {limpio}")
+        else:
+            items.append(limpio)
+    return items
+
+
 def generar_resumen_paciente(
     resultados: list[dict],
     paciente_nombre: str = "",
     recomendaciones: list[str] | None = None,
+    *,
+    modo_voz: str | None = None,
+    edad_anos: int | None = None,
 ) -> dict:
     """
     Genera un resumen en lenguaje claro para el paciente.
@@ -1421,26 +1528,67 @@ def generar_resumen_paciente(
       - 'que_encontramos': hallazgos en lenguaje claro (sin percentiles)
       - 'fortalezas': qué se hace bien
       - 'areas_apoyo': en qué se puede trabajar
-      - 'que_recomendamos': plan de acción claro
+      - 'que_recomendamos': plan de acción claro (texto continuo)
+      - 'que_recomendamos_items': viñetas numerables para PDF
       - 'preguntas_frecuentes': FAQ para el paciente
+      - 'modo_voz': registro narrativo usado
     """
-    nombre = paciente_nombre.split()[0] if paciente_nombre else "tú"
+    if modo_voz is None:
+        modo_voz = detectar_modo_voz(edad_anos)
 
-    saludo = (
-        f"Este es un resumen de la evaluación que se realizó {nombre}. "
-        "Está escrito en un lenguaje sencillo para que sea fácil de entender. "
-        "Tu psicólogo o psicóloga te explicará los detalles y resolverá "
-        "cualquier duda que tengas."
-    )
-
-    que_hicimos = (
-        "Realizamos varias pruebas que miden cómo funciona tu cerebro en "
-        "distintas situaciones: memoria, atención, lenguaje, razonamiento y "
-        "la velocidad con la que procesas información. Las pruebas son como "
-        '"pequeños retos" que se resuelven con papel, lápiz y a veces con cubos '
-        "o figuras. No hay respuestas buenas ni malas: lo que nos interesa es "
-        "conocer cómo trabaja tu mente."
-    )
+    nombre = paciente_nombre.split()[0] if paciente_nombre else ""
+    if modo_voz == "pediatrico_cuidador":
+        ref = nombre or "su hijo/a"
+        saludo = (
+            f"Este es un resumen de la evaluación de {ref}. "
+            "Está escrito en lenguaje sencillo para que usted, como madre, padre "
+            "o cuidador, pueda entender los hallazgos. Su psicólogo/a le explicará "
+            "los detalles y resolverá cualquier duda en la sesión de devolución."
+        )
+        que_hicimos = (
+            "Realizamos varias pruebas que miden cómo funciona el cerebro de "
+            "su hijo/a en distintas situaciones: memoria, atención, lenguaje, "
+            "razonamiento y velocidad de procesamiento. Las pruebas son como "
+            '"pequeños retos" con papel, lápiz y a veces cubos o figuras. '
+            "No hay respuestas buenas ni malas: buscamos conocer cómo trabaja "
+            "su mente para orientar apoyos en casa y en el colegio."
+        )
+        _sujeto = "su hijo/a"
+        _verbo_rindio = "mostró un rendimiento"
+    elif modo_voz == "cuidador":
+        ref = nombre or "su familiar evaluado"
+        saludo = (
+            f"Este es un resumen de la evaluación de {ref}. "
+            "Está escrito en lenguaje sencillo para que usted, como cuidador/a "
+            "o familiar, pueda entender los hallazgos y coordinar los próximos "
+            "pasos con la EPS, neurología o el equipo tratante."
+        )
+        que_hicimos = (
+            "Realizamos pruebas que miden memoria, atención, lenguaje, "
+            "razonamiento y otras funciones del día a día. El objetivo es "
+            "entender qué puede hacer su familiar de forma independiente y "
+            "qué apoyos prácticos facilitan el cuidado en casa."
+        )
+        _sujeto = "su familiar"
+        _verbo_rindio = "mostró un rendimiento"
+    else:
+        ref = nombre or "ti"
+        saludo = (
+            f"Este es un resumen de la evaluación que se realizó a {ref}. "
+            "Está escrito en un lenguaje sencillo para que sea fácil de entender. "
+            "Tu psicólogo o psicóloga te explicará los detalles y resolverá "
+            "cualquier duda que tengas."
+        )
+        que_hicimos = (
+            "Realizamos varias pruebas que miden cómo funciona tu cerebro en "
+            "distintas situaciones: memoria, atención, lenguaje, razonamiento y "
+            "la velocidad con la que procesas información. Las pruebas son como "
+            '"pequeños retos" que se resuelven con papel, lápiz y a veces con cubos '
+            "o figuras. No hay respuestas buenas ni malas: lo que nos interesa es "
+            "conocer cómo trabaja tu mente."
+        )
+        _sujeto = "tu"
+        _verbo_rindio = "tu rendimiento fue"
 
     # Procesar resultados: agrupar por dominio
     bandas_paciente: list[str] = []
@@ -1458,23 +1606,28 @@ def generar_resumen_paciente(
             # como área de apoyo según el contexto. Marcamos ambos.
             if banda in ("Promedio Bajo",):
                 areas_apoyo.append(
-                    f"En {termino_claro}, tu rendimiento fue {banda_clara}. "
+                    f"En {termino_claro}, {_sujeto} {_verbo_rindio} {banda_clara}. "
                     "Esto se puede trabajar con práctica y apoyo."
                 )
-            elif banda == "Limítrofe":
-                # Va a ambas: zona gris que vale la pena vigilar.
+            elif banda in ("Limítrofe", "Limitrofe"):
                 areas_apoyo.append(
-                    f"En {termino_claro}, tu rendimiento estuvo en el límite "
-                    f"({banda_clara}). Vale la pena acompañarlo de cerca."
+                    f"En {termino_claro}, {_sujeto} {_verbo_rindio} {banda_clara}. Vale la pena acompañarlo de cerca."
                 )
             else:
-                fortalezas.append(f"En {termino_claro}, tu rendimiento fue {banda_clara}.")
+                fortalezas.append(f"En {termino_claro}, {_sujeto} {_verbo_rindio} {banda_clara}.")
         elif banda in ("Bajo", "Muy Bajo"):
-            areas_apoyo.append(
-                f"En {termino_claro}, encontramos un rendimiento {banda_clara}. "
-                "Es importante que converses con tu psicólogo/a sobre "
-                "qué significa esto y qué apoyos podrían ayudarte."
-            )
+            if modo_voz == "paciente":
+                areas_apoyo.append(
+                    f"En {termino_claro}, encontramos un rendimiento {banda_clara}. "
+                    "Es importante que converses con tu psicólogo/a sobre "
+                    "qué significa esto y qué apoyos podrían ayudarte."
+                )
+            else:
+                areas_apoyo.append(
+                    f"En {termino_claro}, encontramos un rendimiento {banda_clara} en {_sujeto}. "
+                    "Converse con su psicólogo/a sobre qué significa esto y qué apoyos "
+                    "podrían ayudar."
+                )
         if banda:
             bandas_paciente.append(banda)
 
@@ -1492,36 +1645,29 @@ def generar_resumen_paciente(
         que_encontramos = " ".join(frases)
 
     if recomendaciones:
-        recs_paciente = []
-        for r in recomendaciones[:5]:
-            r_low = r.lower()
-            if "escolar" in r_low or "colegio" in r_low:
-                recs_paciente.append(
-                    "En el colegio/academia: puede ser útil hablar con tus "
-                    "profesores para explorar apoyos como tiempo extra en "
-                    "exámenes o actividades adaptadas."
-                )
-            elif "terap" in r_low:
-                recs_paciente.append(
-                    "Sobre la terapia: continúa con tus sesiones según lo "
-                    "acordado. Si tienes dudas, coméntalas con tu terapeuta."
-                )
-            elif "medic" in r_low or "psiquiatr" in r_low:
-                recs_paciente.append(
-                    "Sobre la consulta médica: si tu psicólogo/a lo sugiere, "
-                    "agenda una cita con psiquiatría para discutir opciones "
-                    "de tratamiento."
-                )
-            else:
-                recs_paciente.append(f"Recomendación: {r} (consulta con tu psicólogo/a para detalles específicos).")
+        recs_paciente = _recomendaciones_para_familia(recomendaciones, modo_voz)
         que_recomendamos = " ".join(recs_paciente[:4])
     else:
-        que_recomendamos = (
-            "Tu psicólogo/a te explicará las recomendaciones específicas "
-            "para tu caso en la sesión de devolución. Algunas recomendaciones "
-            "comunes incluyen: técnicas de estudio, estrategias de "
-            "organización, o sesiones de seguimiento."
-        )
+        recs_paciente = []
+        if modo_voz == "pediatrico_cuidador":
+            que_recomendamos = (
+                "Su psicólogo/a le explicará las recomendaciones específicas "
+                "para su hijo/a en la sesión de devolución. Algunas sugerencias "
+                "comunes incluyen: coordinación con el colegio, rutinas en casa "
+                "y seguimiento terapéutico."
+            )
+        elif modo_voz == "cuidador":
+            que_recomendamos = (
+                "Su psicólogo/a le orientará sobre los próximos pasos: controles "
+                "con neurología, apoyos en casa, terapia ocupacional o "
+                "rehabilitación cognitiva según el caso."
+            )
+        else:
+            que_recomendamos = (
+                "Su psicólogo/a le explicará las recomendaciones específicas "
+                "en la sesión de devolución. Algunas sugerencias comunes incluyen: "
+                "técnicas de estudio, estrategias de organización o seguimiento."
+            )
 
     # FAQ adaptadas al paciente (no hardcoded): priorizamos las relevantes.
     preguntas_frecuentes: list[tuple[str, str]] = []
@@ -1604,7 +1750,9 @@ def generar_resumen_paciente(
         "fortalezas": fortalezas,
         "areas_apoyo": areas_apoyo,
         "que_recomendamos": que_recomendamos,
+        "que_recomendamos_items": recs_paciente,
         "preguntas_frecuentes": preguntas_frecuentes,
+        "modo_voz": modo_voz,
     }
 
 

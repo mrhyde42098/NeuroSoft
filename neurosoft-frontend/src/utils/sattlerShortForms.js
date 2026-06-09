@@ -117,7 +117,7 @@ export const ADAPTATIONS = {
  label: "Discapacidad motora",
  short: "Sin praxias ni velocidad",
  description: "Excluir FCRO, pruebas de trazo, claves, símbolos y velocidad. Adaptar a respuestas verbales.",
- excludes: ["NiFCROCop", "NiFCRORec", "AdFCRORec", "NiTMTA", "NiTMTB", "AdTMTA", "AdTMTB", "NiWiscCl", "AdSDWais", "NiWiscBusSim", "AdBusSim + ViBusSim", "SDMT", "NiWisReg", "NiCopTxt"],
+ excludes: ["NiFCROCop", "NiFCRORec", "AdFCRORec", "NiTMTA", "NiTMTB", "AdTMTA", "AdTMTB", "NiWiscCl", "AdSDWais", "NiWiscBusSim", "AdBusSim", "SDMT", "NiWisReg", "NiCopTxt"],
  forma_corta: 2,
  },
  analfabeta: {

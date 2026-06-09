@@ -398,6 +398,20 @@ class DocumentoEmitidoORM(Base):
     profesional = relationship("ProfessionalORM", back_populates="documentos")
 
 
+class ConfigBackupScheduleORM(Base):
+    """Configuración QW-8 — backup programado (fila única id=default)."""
+
+    __tablename__ = "config_backup_schedule"
+    id = Column(String(36), primary_key=True, default="default")
+    enabled = Column(Boolean, default=True, nullable=False)
+    frequency = Column(String(20), default="daily", nullable=False)
+    hour = Column(Integer, default=2, nullable=False)
+    minute = Column(Integer, default=0, nullable=False)
+    mantener_total = Column(Integer, default=5, nullable=False)
+    external_path = Column(String(500), nullable=True)
+    updated_at = Column(DateTime, default=_utc_now, onupdate=_utc_now)
+
+
 class BackupRegistroORM(Base):
     """Historial de backups."""
 
@@ -573,6 +587,9 @@ class ConsentimientoORM(Base):
     fecha_firma = Column(DateTime, default=_utc_now, nullable=False, index=True)
     fecha_revocado = Column(DateTime)
     motivo_revocado = Column(Text)
+    modo_firma = Column(String(20), default="digital", nullable=False)  # digital | fisico
+    adjunto_path = Column(String(500))  # ruta local cifrada del escaneado firmado
+    requiere_adjunto = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=_utc_now, nullable=False)
     patient = relationship("PatientORM", foreign_keys=[patient_id])
 

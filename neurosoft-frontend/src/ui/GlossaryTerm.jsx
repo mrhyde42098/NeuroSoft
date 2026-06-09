@@ -23,7 +23,7 @@ import { TEAL } from "./tokens.js";
 /* Index por término (case-sensitive — los términos son siglas) */
 const GLOSARIO_INDEX = Object.fromEntries(GLOSARIO.map(g => [g.termino, g]));
 
-export default function GlossaryTerm({ term, children, color = TEAL, underline = true }) {
+export default function GlossaryTerm({ term, children, color = TEAL, underline = true, printSafe = true }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
   const def = GLOSARIO_INDEX[term];
@@ -46,13 +46,17 @@ export default function GlossaryTerm({ term, children, color = TEAL, underline =
   // Si el término no está en el glosario, renderizar texto plano sin envolver
   if (!def) return <span>{children || term}</span>;
 
+  if (printSafe && typeof window !== "undefined" && window.matchMedia?.("(print)")?.matches) {
+    return <span className="glossary-term-trigger">{children || term}</span>;
+  }
+
   return (
-    <span ref={wrapRef} className="relative inline-block">
+    <span ref={wrapRef} className="relative inline-block glossary-term-wrap">
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
         title={def.nombre_completo || def.termino}
-        className="cursor-help font-medium"
+        className="cursor-help font-medium glossary-term-trigger"
         style={{
           color: open ? color : "inherit",
           borderBottom: underline ? `1px dotted ${color}` : "none",
@@ -68,6 +72,7 @@ export default function GlossaryTerm({ term, children, color = TEAL, underline =
         <div
           role="dialog"
           aria-label={`Definición de ${def.termino}`}
+          className="glossary-term-popover"
           style={{
             position: "absolute",
             zIndex: 100,
@@ -124,6 +129,15 @@ export default function GlossaryTerm({ term, children, color = TEAL, underline =
               {def.fuente}
             </p>
           )}
+
+          <a
+            href="#/aprender/glosario"
+            className="text-[10px] font-bold mt-2 inline-block glossary-term-no-print"
+            style={{ color }}
+            onClick={() => setOpen(false)}
+          >
+            Ver en Centro Aprender →
+          </a>
         </div>
       )}
     </span>

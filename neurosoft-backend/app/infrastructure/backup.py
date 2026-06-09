@@ -240,3 +240,25 @@ def eliminar_backups_viejos(
             except OSError as e:
                 logger.warning("No se pudo eliminar %s: %s", b.ruta, e)
     return eliminados
+
+
+def aplicar_retencion_total(mantener: int = 5) -> int:
+    """
+    Conserva solo los N backups cifrados más recientes (por timestamp).
+    Política QW-8 simplificada para instalaciones desktop.
+    """
+    if mantener < 1:
+        mantener = 1
+    backups = listar_backups()
+    if len(backups) <= mantener:
+        return 0
+    backups.sort(key=lambda b: b.timestamp, reverse=True)
+    eliminados = 0
+    for b in backups[mantener:]:
+        try:
+            b.ruta.unlink()
+            eliminados += 1
+            logger.info("Backup excedente eliminado: %s", b.ruta)
+        except OSError as e:
+            logger.warning("No se pudo eliminar %s: %s", b.ruta, e)
+    return eliminados

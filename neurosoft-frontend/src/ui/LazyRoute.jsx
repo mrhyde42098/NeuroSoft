@@ -3,6 +3,7 @@
  * Cachea la promesa del módulo para evitar re-fetch en navegación.
  */
 import { use } from "react";
+import RouteErrorBoundary from "./RouteErrorBoundary.jsx";
 
 const _cache = new Map();
 
@@ -16,8 +17,10 @@ export function pageLoader(importFn) {
   };
 }
 
-export default function LazyRoute({ load, ...props }) {
+export default function LazyRoute({ load, feature, ...props }) {
   const mod = use(load());
   const Component = mod.default;
-  return <Component {...props} />;
+  const page = <Component {...props} />;
+  if (!feature) return page;
+  return <RouteErrorBoundary feature={feature}>{page}</RouteErrorBoundary>;
 }

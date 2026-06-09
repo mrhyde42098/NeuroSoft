@@ -478,5 +478,19 @@ Ejecutar en build local o `NeuroSoft.exe` antes de cada entrega beta.
 - **API:** `GET /api/v1/aprender/stats` + `/paths` (público, manifest en `data/aprender/`).
 - **Build:** fix `build.py` (`step_pyinstaller` duplicado); manual PDF + Setup regenerados.
 
+### 7 jun 2026 (tarde) — Alineación API jun-2026
+- **Fix:** therapy `PATCH` persiste modalidad/duración; backup `POST` único con `BackupRequestDTO` en body; agenda mes con `GET /agenda/` por rango; `profesional_id` en citas desde JWT.
+- **Archivos:** `therapy_dtos.py`, `documents.py`, `appointments.py`, `AgendaPage.jsx`, `BackupTab.jsx`, `SesionSOAPForm.jsx`; router sin `backup_router` legado.
+- **Tests:** `test_api_alignment_jun2026.py`.
+- **Siguiente:** rebuild beta + E2E manual.
+
+### 7 jun 2026 — Inspector General de Integración (build certificado)
+- **Tests:** 1034 passed; fix flaky backups (`test_backup.py` autouse `_directorio_backups` aislado).
+- **Frontend:** ESLint 0 errors; `RegisterPage` (`setValues`+CUPS hook), `RehabPlanTab` (`safeLS`); bundle index 337 KB.
+- **QW-6/QW-8/N2:** etiquetas paciente, backup programado (API+UI), glosario en `InformesPage` vía `GlossaryLegend`.
+- **Reactivos:** Matrices/Conceptos Fase 1 en `clinical.js` + `ReactivePanel`; sync Pearson script.
+- **Build:** `NeuroSoft.exe` 47.6 MB · Setup 1.3 GB · 31 tests PDF OK.
+- **Siguiente:** E2E manual WISC→PDF pro; láminas PNG Pearson reales (copyright).
+
 
 *Fin del informe de traspaso. NeuroSoft App — software propietario. Sin atribución a terceros.*

@@ -103,7 +103,8 @@ def test_generar_resumen_paciente_recomendaciones_terapeuticas():
 
 def test_generar_resumen_paciente_recomendaciones_genericas():
     resumen = generar_resumen_paciente([], paciente_nombre="X", recomendaciones=["Otra cosa rara xyz"])
-    assert "Recomendación" in resumen["que_recomendamos"] or "psicólogo" in resumen["que_recomendamos"].lower()
+    assert "Otra cosa rara xyz" in resumen["que_recomendamos"]
+    assert resumen["que_recomendamos_items"] == ["Otra cosa rara xyz"]
 
 
 def test_generar_resumen_paciente_faq_con_preguntas_y_respuestas():

@@ -304,6 +304,9 @@ class UserRepository:
         if admin is not None:
             admin.role = "admin"
             admin.is_active = True
+            # §S0.5 — ELIMINADO el kill-switch NEUROSOFT_RESET_ADMIN_PASSWORD.
+            # Antes cualquier proceso con esa env var podía sobrescribir la
+            # contraseña del admin sin autenticación. Use /auth/change-password.
             # En testing/CI, sincronizar contraseña con NEUROSOFT_ADMIN_PASSWORD
             # para que fixtures de login coincidan tras re-runs locales o GHA.
             if settings.env == "testing" and password:

@@ -1,16 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════
- * src/app/config/UpdateTab.jsx
- * ───────────────────────────────────────────────────────────────────────
- * Sistema de actualizacion manual offline.
- *
- * El profesional (Johan) genera un archivo .nsupdate desde su PC con:
- *   python build.py --make-update
- *
- * El clinico sube ese archivo aqui y la app se actualiza automaticamente.
- * Despues de actualizar, se muestra el changelog UNA sola vez.
+ * UpdateTab.jsx — Actualizaciones offline (frontend .nsupdate + binario)
  * ═══════════════════════════════════════════════════════════════════════ */
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { api } from "../../api/client.js";
 import { useToast } from "../../contexts.jsx";
 import { Btn, Card, I, MsgBanner } from "../../ui/primitives.jsx";
@@ -26,8 +18,18 @@ export default function UpdateTab() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [updateCheck, setUpdateCheck] = useState(null);
+  const [applyingBinary, setApplyingBinary] = useState(false);
 
-  /* Detectar si acaba de aplicarse una actualizacion */
+  const loadUpdateCheck = useCallback(async () => {
+    try {
+      const r = await api.get("/api/v1/system/update/check");
+      setUpdateCheck(r);
+    } catch {
+      setUpdateCheck(null);
+    }
+  }, []);
+
   React.useEffect(() => {
     api.get("/health").then((h) => {
       const current = h?.version || "";
@@ -36,17 +38,18 @@ export default function UpdateTab() {
         setShowChangelog(true);
       }
     }).catch(() => {});
-  }, []);
+    loadUpdateCheck();
+  }, [loadUpdateCheck]);
 
   const handleFile = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
     if (!f.name.endsWith(".nsupdate")) {
-      setError("El archivo debe tener extension .nsupdate");
+      setError("El archivo debe tener extensión .nsupdate");
       return;
     }
     if (f.size > 200 * 1024 * 1024) {
-      setError("Archivo demasiado grande (max 200 MB)");
+      setError("Archivo demasiado grande (máx. 200 MB)");
       return;
     }
     setFile(f);
@@ -69,13 +72,30 @@ export default function UpdateTab() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || "Error " + r.status);
       setResult(j);
-      toast.success("Actualizacion aplicada. Recargando...");
+      toast.success("Actualización aplicada. Recargando…");
       setTimeout(() => location.reload(), 2500);
     } catch (e) {
-      setError(e.message || "Error al aplicar actualizacion");
+      setError(e.message || "Error al aplicar actualización");
     }
     setUploading(false);
   };
+
+  const applyBinaryUpdate = async () => {
+    setApplyingBinary(true);
+    setError(null);
+    try {
+      const r = await api.post("/api/v1/system/update/apply-binary");
+      setResult(r);
+      toast.success("Actualización programada. Cierre NeuroSoft para completar.");
+    } catch (e) {
+      setError(e.message || "No se pudo programar la actualización del ejecutable");
+    }
+    setApplyingBinary(false);
+  };
+
+  const binaryAvailable = updateCheck?.update_available && (
+    updateCheck?.artifacts?.windows_x64_dir_zip || updateCheck?.artifacts?.windows_x64_exe
+  );
 
   return (
     <div className="space-y-6">
@@ -84,13 +104,42 @@ export default function UpdateTab() {
       <div>
         <h3 className="font-bold text-lg flex items-center gap-2" style={{ color: "var(--ns-text)" }}>
           <I name="system_update" className="text-2xl" style={{ color: TEAL }} />
-          Actualizar Sistema
+          Actualizar sistema
         </h3>
         <p className="text-sm mt-1" style={{ color: "var(--ns-muted)" }}>
-          Sube un archivo <code className="ns-mono text-xs px-1.5 py-0.5 rounded" style={{ background: "var(--ns-subtle)" }}>.nsupdate</code> proporcionado
-          por el desarrollador para actualizar NeuroSoft App a una nueva version.
+          Versión actual: <strong>{updateCheck?.current_version || "—"}</strong>
+          {updateCheck?.latest_version && (
+            <> · Última disponible: <strong>{updateCheck.latest_version}</strong></>
+          )}
         </p>
       </div>
+
+      {binaryAvailable && (
+        <Card className="p-5 border-l-4" style={{ borderColor: TEAL, background: `${TEAL}08` }}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="font-bold" style={{ color: "var(--ns-text)" }}>
+                Actualización de aplicación disponible
+              </p>
+              <p className="text-sm mt-1" style={{ color: "var(--ns-muted)" }}>
+                v{updateCheck.latest_version}
+                {updateCheck.released ? ` · ${updateCheck.released}` : ""}
+                {updateCheck.source ? ` · fuente: ${updateCheck.source}` : ""}
+              </p>
+              <p className="text-xs mt-2" style={{ color: "var(--ns-muted)" }}>
+                No requiere descargar el instalador completo (~1,4 GB). Se actualiza solo la carpeta de la app.
+              </p>
+            </div>
+            <Btn onClick={applyBinaryUpdate} disabled={applyingBinary}>
+              {applyingBinary ? "Programando…" : "Instalar actualización"}
+            </Btn>
+          </div>
+        </Card>
+      )}
+
+      {!binaryAvailable && updateCheck?.update_available && (
+        <MsgBanner msg="Hay una actualización firmada, pero no incluye paquete de aplicación local. Use un archivo .nsupdate para la interfaz." />
+      )}
 
       <Card className="p-8 text-center space-y-6 border-2 border-dashed rounded-2xl"
         style={{ borderColor: file ? TEAL : "var(--ns-card-b)", background: file ? `${TEAL}05` : "var(--ns-card)" }}>
@@ -104,10 +153,10 @@ export default function UpdateTab() {
           <>
             <div>
               <p className="font-bold text-lg" style={{ color: "var(--ns-text)" }}>
-                Arrastra tu archivo .nsupdate aqui
+                Actualizar interfaz (.nsupdate)
               </p>
               <p className="text-sm mt-1" style={{ color: "var(--ns-muted)" }}>
-                o haz clic para seleccionarlo
+                Archivo ligero (~1 MB) para cambios de pantallas sin tocar el ejecutable
               </p>
             </div>
             <label className="inline-block cursor-pointer">
@@ -126,7 +175,7 @@ export default function UpdateTab() {
             <div className="flex justify-center gap-3">
               <Btn v="outline" onClick={() => setFile(null)}>Cancelar</Btn>
               <Btn onClick={upload} disabled={uploading}>
-                {uploading ? "Instalando..." : "Instalar actualizacion"}
+                {uploading ? "Instalando…" : "Instalar actualización"}
               </Btn>
             </div>
           </>
@@ -136,31 +185,24 @@ export default function UpdateTab() {
       {error && <MsgBanner msg={error} onDismiss={() => setError(null)} />}
 
       {result && (
-        <SectionCard title="Actualización aplicada" icon="check_circle" eyebrow="Éxito" subtitle="El sistema se reiniciará en unos segundos para aplicar los cambios." />
+        <SectionCard
+          title="Actualización programada"
+          icon="check_circle"
+          eyebrow="Éxito"
+          subtitle={result.mensaje || result.message || "Cierre la aplicación para aplicar los cambios."}
+        />
       )}
 
       <Card className="p-5" style={{ background: "var(--ns-subtle)" }}>
         <h4 className="font-bold text-sm mb-2 flex items-center gap-2" style={{ color: "var(--ns-text)" }}>
           <I name="info" className="text-base" style={{ color: TEAL }} />
-          Como funciona
+          Cómo funciona
         </h4>
         <ul className="space-y-2 text-sm" style={{ color: "var(--ns-muted)" }}>
-          <li className="flex items-start gap-2">
-            <span className="font-bold" style={{ color: TEAL }}>1.</span>
-            El desarrollador genera un archivo .nsupdate con los cambios mas recientes.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="font-bold" style={{ color: TEAL }}>2.</span>
-            Te envia el archivo por correo, WhatsApp o USB.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="font-bold" style={{ color: TEAL }}>3.</span>
-            Lo subes aqui y NeuroSoft se actualiza automaticamente.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="font-bold" style={{ color: TEAL }}>4.</span>
-            El registro de cambios aparece una sola vez para que sepas que hay de nuevo.
-          </li>
+          <li><strong>Interfaz (.nsupdate):</strong> cambios de pantallas sin reinstalar (~1 MB).</li>
+          <li><strong>Aplicación (update.json):</strong> parche firmado de la carpeta NeuroSoft (~50 MB), sin Ollama.</li>
+          <li><strong>USB:</strong> copie <code>update.json</code> y el ZIP junto al .exe instalado.</li>
+          <li><strong>Red:</strong> configure <code>NEUROSOFT_UPDATE_URL</code> apuntando al manifest público.</li>
         </ul>
       </Card>
     </div>

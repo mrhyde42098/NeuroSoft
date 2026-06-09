@@ -23,6 +23,8 @@ import { Btn, Card, I, Sel, TopBar, _Txta } from "../../ui/primitives.jsx";
 import { TEAL, NAVY, ACCENTS } from "../../ui/tokens.js";
 import { useToast } from "../../contexts.jsx";
 import { safeLS } from "../../utils/safeLS.js";
+import { usePatientsPanel } from "../../hooks/usePatientsPanel.js";
+import { PatientSelect } from "../../ui/forms/PatientSelector.jsx";
 import {
   ENFOQUES_TERAPEUTICOS, CATEGORIAS_ENFOQUE, NIVELES_EVIDENCIA, getEnfoque,
 } from "../../data/enfoquesTerapeuticos.js";
@@ -34,16 +36,21 @@ import CSSRSForm from "./CSSRSForm.jsx"; // §M-3
 const PLUM = ACCENTS.plum;   // color del módulo clínico
 
 const RIESGO_BADGE = {
-  ninguno:           { label: "Sin riesgo",        color: "var(--ns-muted)", bg: "var(--ns-subtle)" },
-  ideacion_pasiva:   { label: "Ideación pasiva",   color: "#92400E",         bg: "rgba(180,83,9,0.10)" },
-  ideacion_activa:   { label: "Ideación activa",   color: "#9F1239",         bg: "rgba(159,18,57,0.10)" },
-  plan:              { label: "Plan suicida",      color: "#7F1D1D",         bg: "rgba(127,29,29,0.12)" },
-  intento_reciente:  { label: "Intento reciente",  color: "#FFFFFF",         bg: "#7F1D1D" },
+  ninguno:    { label: "Sin riesgo activo",   color: "var(--ns-muted)", bg: "var(--ns-subtle)" },
+  leve:       { label: "Riesgo leve",         color: "#92400E",         bg: "rgba(180,83,9,0.10)" },
+  moderado:   { label: "Riesgo moderado",     color: "#C2410C",         bg: "rgba(194,65,12,0.12)" },
+  alto:       { label: "Riesgo alto",         color: "#9F1239",         bg: "rgba(159,18,57,0.12)" },
+  inminente:  { label: "Riesgo inminente",    color: "#FFFFFF",         bg: "#7F1D1D" },
+  /* Compatibilidad con notas SOAP antiguas */
+  ideacion_pasiva:  { label: "Ideación pasiva",  color: "#92400E", bg: "rgba(180,83,9,0.10)" },
+  ideacion_activa:  { label: "Ideación activa",  color: "#9F1239", bg: "rgba(159,18,57,0.10)" },
+  plan:             { label: "Plan suicida",     color: "#7F1D1D", bg: "rgba(127,29,29,0.12)" },
+  intento_reciente: { label: "Intento reciente", color: "#FFFFFF", bg: "#7F1D1D" },
 };
 
 export default function TherapyPage({ setPage }) {
   const toast = useToast();
-  const [patients, setPatients] = useState([]);
+  const { patients, loading: patientsLoading } = usePatientsPanel();
   const [patId, setPatId] = useState(() => safeLS.get("ns_sel_patient") || "");
   const [plans, setPlans] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -57,14 +64,6 @@ export default function TherapyPage({ setPage }) {
   const [showCatalog, setShowCatalog] = useState(false);
   const [catalogFilter, setCatalogFilter] = useState("");
   const [showCSSRS, setShowCSSRS] = useState(false); // §M-3
-
-  /* Cargar pacientes al montar */
-  useEffect(() => {
-    api.get("/api/v1/patients/panel")
-      .then(d => setPatients(d.pacientes || d || []))
-      .catch(() => toast.error("Error al cargar datos"));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   /* Cargar planes + sesiones + riesgo del paciente seleccionado */
   useEffect(() => {
@@ -85,12 +84,13 @@ export default function TherapyPage({ setPage }) {
     });
   }, [patId]);
 
-  /* Riesgo activo: el último assessment NO debe ser "ninguno". */
+  const lastCssrs = useMemo(() => riskAssessments.find((r) => r.instrumento === "c_ssrs") || riskAssessments[0] || null, [riskAssessments]);
+  const cssrsCompletado = Boolean(lastCssrs?.fecha);
+  /* Riesgo activo: último C-SSRS con nivel distinto de "ninguno". */
   const riesgoActivo = useMemo(() => {
-    if (!riskAssessments.length) return null;
-    const last = riskAssessments[0]; // assumimos ordenado desc
-    return last.nivel && last.nivel !== "ninguno" ? last : null;
-  }, [riskAssessments]);
+    if (!lastCssrs?.nivel || lastCssrs.nivel === "ninguno") return null;
+    return lastCssrs;
+  }, [lastCssrs]);
 
   /* Plan activo (estado "activo") */
   const planActivo = plans.find(p => p.estado === "activo") || null;
@@ -115,20 +115,17 @@ export default function TherapyPage({ setPage }) {
   return (
     <>
       <TopBar title="Psicología Clínica">
-        <Sel value={patId} onChange={e => { setPatId(e.target.value); localStorage.setItem("ns_sel_patient", e.target.value); }}
-          className="text-xs w-52" aria-label="Paciente">
-          {!patId && <option value="">— Seleccionar paciente —</option>}
-          {patients.map(p => (
-            <option key={p.id} value={p.id}>
-              {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`}
-            </option>
-          ))}
-        </Sel>
-        {setPage && (
-          <Btn v="outline" className="text-xs" onClick={() => setPage("register")}>
-            <I name="person_add" className="text-sm" />Nuevo paciente
-          </Btn>
-        )}
+        <PatientSelect
+          bare
+          patients={patients}
+          loading={patientsLoading}
+          value={patId}
+          onChange={(id) => { setPatId(id); safeLS.set("ns_sel_patient", id); }}
+          selectClassName="text-xs w-52"
+          placeholder="— Seleccionar paciente —"
+          allowNew={!!setPage}
+          onNewPatient={setPage ? () => setPage("register") : undefined}
+        />
         <Btn v="outline" className="text-xs" onClick={() => setShowCatalog(true)}>
           <I name="menu_book" className="text-sm" />Enfoques
         </Btn>
@@ -184,8 +181,18 @@ export default function TherapyPage({ setPage }) {
           </div>
         )}
 
-        {/* §M-3: botón flotante para evaluar riesgo cuando NO hay riesgo activo */}
-        {patId && !riesgoActivo && (
+        {patId && cssrsCompletado && !riesgoActivo && (
+          <div className="mb-6 flex items-center justify-between gap-3 p-3 rounded-lg border" style={{ borderColor: "var(--ns-card-b)", background: "var(--ns-subtle)" }}>
+            <div className="flex items-center gap-2 text-xs" style={{ color: "var(--ns-muted)" }}>
+              <I name="verified" style={{ color: "#059669" }} />
+              C-SSRS aplicado el {new Date(lastCssrs.fecha).toLocaleString("es-CO")} — nivel: {RIESGO_BADGE.ninguno.label}
+            </div>
+            <Btn variant="ghost" onClick={() => setShowCSSRS(true)} className="text-xs shrink-0">
+              Re-evaluar
+            </Btn>
+          </div>
+        )}
+        {patId && !cssrsCompletado && !riesgoActivo && (
           <div className="mb-6 flex justify-end">
             <Btn variant="ghost" onClick={() => setShowCSSRS(true)} className="text-xs">
               <I name="shield" className="mr-1.5" style={{ color: "#9F1239" }} />

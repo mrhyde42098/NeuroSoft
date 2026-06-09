@@ -24,7 +24,7 @@ const TABS = [
 const MODULOS_DESTACADOS = [
   { id: "biblioteca", page: "biblioteca", titulo: "Biblioteca clínica", descripcion: "Manuales, artículos, escalas y protocolos seleccionados.", icono: "library_books", color: TEAL },
   { id: "glosario", page: "aprender_glosario", titulo: "Glosario neuropsicológico", descripcion: `${GLOSARIO.length} términos con definición y fuente.`, icono: "translate", color: "#1E293B" },
-  { id: "estudiar", page: "aprender_estudiar", titulo: "Tarjetas de estudio", descripcion: "Repetición espaciada Leitner 5 cajas.", icono: "psychology", color: "#7c3aed" },
+  { id: "estudiar", page: "aprender_estudiar", titulo: "Tarjetas de estudio", descripcion: "Repaso espaciado en 5 niveles (más frecuente → más espaciado).", icono: "psychology", color: "#7c3aed" },
   { id: "quiz", page: "aprender_quiz", titulo: "Quizzes clínicos", descripcion: `${QUIZZES.length} cuestionarios con retroalimentación inmediata.`, icono: "quiz", color: "#059669" },
   { id: "articulos", page: "aprender_articulos", titulo: "Artículos editoriales", descripcion: `${ARTICULOS.length} lecturas cortas sobre interpretación clínica.`, icono: "article", color: "#0369A1" },
   { id: "simulador", page: "aprender_simulador", titulo: "Simulador de casos", descripcion: `${CASOS_SIMULADOR.length} casos con perfiles del motor.`, icono: "psychology_alt", color: "#9333ea" },
@@ -100,12 +100,12 @@ export default function AprenderHub({ setPage }) {
               <div className="p-4 rounded-xl border" style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
                 <p className="text-[10px] font-bold uppercase" style={{ color: "var(--ns-muted)" }}>Glosario</p>
                 <p className="text-2xl font-extrabold" style={{ color: TEAL }}>{GLOSARIO.length}</p>
-                <p className="text-[10px]" style={{ color: "var(--ns-muted)" }}>términos curados</p>
+                <p className="text-[10px]" style={{ color: "var(--ns-muted)" }}>con definición y fuente</p>
               </div>
               <div className="p-4 rounded-xl border" style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
                 <p className="text-[10px] font-bold uppercase" style={{ color: "var(--ns-muted)" }}>Tarjetas repasadas</p>
                 <p className="text-2xl font-extrabold" style={{ color: TEAL }}>{progress.tarjetasRepasadas}</p>
-                <p className="text-[10px]" style={{ color: "var(--ns-muted)" }}>de {TARJETAS_SPACED.length} en Leitner</p>
+                <p className="text-[10px]" style={{ color: "var(--ns-muted)" }}>de {TARJETAS_SPACED.length} en tu repaso</p>
               </div>
               <div className="p-4 rounded-xl border" style={{ background: "var(--ns-card)", borderColor: "var(--ns-card-b)" }}>
                 <p className="text-[10px] font-bold uppercase" style={{ color: "var(--ns-muted)" }}>Quizzes completados</p>

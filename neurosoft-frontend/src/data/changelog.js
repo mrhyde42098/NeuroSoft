@@ -19,6 +19,19 @@
 
 export const CHANGELOG = [
   {
+    version: "2.0.1",
+    fecha: "2026-06-07",
+    titulo: "Alineación API y agenda mensual",
+    icono: "sync",
+    color: "#0D9488",
+    cambios: [
+      "Sesiones de terapia: al editar se guardan modalidad y duración (antes se perdían al guardar).",
+      "Backup manual: las notas del formulario se envían correctamente al servidor.",
+      "Agenda: la vista mensual carga todas las citas del mes (no solo la semana en curso).",
+      "Agenda: las citas nuevas quedan asignadas al profesional autenticado.",
+    ],
+  },
+  {
     version: "2.0.0",
     fecha: "2026-05-31",
     titulo: "Estabilidad clínica y calidad de producción",
@@ -45,7 +58,7 @@ export const CHANGELOG = [
     icono: "school",
     color: "#7c3aed",
     cambios: [
-      "Módulo Aprender (Pilar 3 educativo): Glosario 150 términos, Estudiar con Leitner 5 cajas, Quiz, Artículos, Biblioteca.",
+      "Módulo Aprender (Pilar 3 educativo): Glosario 150 términos, tarjetas de repaso espaciado (5 niveles), Quiz, Artículos, Biblioteca.",
       "Simulador de casos clínicos con 3 vignettes reales (TDAH, Alzheimer, Depresión postparto) y perfiles del motor.",
       "11 tests nuevos para GADS-CTAs y NiCDI. Bug corregido: PuntajeDoblResultadoStrategy ahora busca claves CTAS/T/PE.",
       "Glosario tooltips en EvalResultsPage e InformesPage (ICV, IRP, IMT, IVP, CIT, ICG).",

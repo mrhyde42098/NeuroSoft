@@ -35,11 +35,14 @@ export const INDICES_WAIS = {
   ICV: { label: "Comprensión Verbal", subtests: ["AdSemWais", "AdWAISV", "AdWAISI"] },
   IRP: { label: "Razonamiento Perceptual", subtests: ["AdWAISCC", "AdMatr", "AdWAISFI"] },
   IMT: { label: "Memoria de Trabajo", subtests: ["AdDDir", "AdWAISA", "AdWAISL"] },
-  // §S1.5-fix: WAIS-III IVP son Claves + Búsqueda de Símbolos (no se suman
-  // dos pruebas del mismo nombre). El bug histórico "AdBusSim + ViBusSim"
-  // era texto suelto; el baremo real es Claves de WAIS-III.
-  IVP: { label: "Velocidad de Procesamiento", subtests: ["AdWAISC", "AdBusSim"] },
+  IVP: { label: "Velocidad de Procesamiento", subtests: ["AdSDWais", "AdBusSim"] },
 };
+
+/** Normaliza test_id compuesto ("AdBusSim + ViBusSim") a clave canónica del baremo. */
+export function normalizeClinicalTestId(id) {
+  if (!id) return id;
+  return String(id).split("+")[0].split(" ")[0].trim();
+}
 
 /* ─── Conversión aproximada suma-PE → índice compuesto ──────────────── */
 /* PE tiene M=10, SD=3. La suma de n PE independientes tiene
@@ -124,12 +127,11 @@ export function semPorEdad(years) {
 }
 
 /* ─── Widget de entrada de PE por subtest ───────────────────────────── */
-function PEInput({ value, onChange, label, testId }) {
+function PEInput({ value, onChange, label }) {
   return (
     <div className="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-50">
       <div className="flex-1 min-w-0">
         <p className="text-[11px] text-slate-700 truncate" title={label}>{label}</p>
-        <p className="text-[9px] font-mono text-slate-400">{testId}</p>
       </div>
       <input
         type="number" min="1" max="19"
@@ -143,9 +145,26 @@ function PEInput({ value, onChange, label, testId }) {
 }
 
 /* ─── Panel principal de índices ────────────────────────────────────── */
-export function IQPanel({ protocol = "wisc_iv", subtestLabels = {} }) {
+function seedPEFromScores(subtestScores = {}) {
+  const initial = {};
+  for (const [k, v] of Object.entries(subtestScores)) {
+    const base = normalizeClinicalTestId(k);
+    const n = Number(v);
+    if (v != null && v !== "" && v !== 9999 && Number.isFinite(n) && n > 0 && n < 20) {
+      initial[base] = Math.round(n);
+    }
+  }
+  return initial;
+}
+
+export function IQPanel({ protocol = "wisc_iv", subtestLabels = {}, subtestScores = {} }) {
   const INDICES = protocol === "wais_iii" ? INDICES_WAIS : INDICES_WISC;
-  const [pe, setPE] = useState({});
+  const [pe, setPE] = useState(() => seedPEFromScores(subtestScores));
+
+  React.useEffect(() => {
+    const seeded = seedPEFromScores(subtestScores);
+    if (Object.keys(seeded).length) setPE((p) => ({ ...p, ...seeded }));
+  }, [subtestScores]);
 
   const compute = useMemo(() => {
     const out = {};
@@ -199,8 +218,8 @@ export function IQPanel({ protocol = "wisc_iv", subtestLabels = {} }) {
             </div>
             <div className="space-y-0.5">
               {ix.subtests.map(t => (
-                <PEInput key={t} testId={t}
-                         label={subtestLabels[t] || t}
+                <PEInput key={t}
+                         label={subtestLabels[t] || subtestLabels[normalizeClinicalTestId(t)] || t.replace(/([A-Z])/g, " $1").trim()}
                          value={pe[t]}
                          onChange={v => setPE(p => ({ ...p, [t]: v }))} />
               ))}

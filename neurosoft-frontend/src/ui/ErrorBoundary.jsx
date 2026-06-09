@@ -68,7 +68,9 @@ export default class ErrorBoundary extends Component {
               fontSize: 40, color: "#dc2626", fontVariationSettings: "'FILL' 1",
             }}>error</span>
             <h2 style={{ fontWeight: 800, fontSize: 22, color: "#991b1b", margin: 0 }}>
-              Se produjo un error inesperado
+              {this.props.feature
+                ? `Error en ${this.props.feature}`
+                : "Se produjo un error inesperado"}
             </h2>
           </div>
           <p style={{ color: "#7f1d1d", fontSize: 14, marginBottom: 16 }}>

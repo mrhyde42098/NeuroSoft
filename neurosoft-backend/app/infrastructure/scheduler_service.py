@@ -225,98 +225,55 @@ def _task_marcar_no_asistio():
 
 
 def _task_backup_automatico():
-    """
-    Ejecuta todos los días a las 02:00.
-    Crea un backup automático cifrado AES-256 de la BD (S4.3) y aplica
-    política de retención:
-    - Últimos 7 backups diarios.
-    - Últimos 4 backups semanales.
-    """
-    try:
-        from app.infrastructure.audit import record_event
-        from app.infrastructure.backup import (
-            crear_backup as crear_backup_cifrado,
-        )
-        from app.infrastructure.backup import (
-            eliminar_backups_viejos,
-        )
-        from app.infrastructure.database.engine import get_session
+    """QW-8 — delega en backup_service (cifrado + retención + registro ORM)."""
+    from app.application.services.backup_service import run_scheduled_backup
 
-        # 1) Backup cifrado (Fernet = AES-128-CBC + HMAC-SHA256)
-        ruta = crear_backup_cifrado(notas="Backup automático diario S4.3")
-        tamano = ruta.stat().st_size / 1024
-        logger.info(
-            "[Scheduler] Backup automático cifrado: %s (%.1f KB)",
-            ruta,
-            tamano,
-        )
-
-        # 2) Audit
-        db = next(get_session())
-        try:
-            record_event(
-                db,
-                action="backup",
-                entity_type="backup",
-                summary=f"Backup diario automático cifrado ({tamano:.1f} KB)",
-            )
-            db.commit()
-        finally:
-            db.close()
-
-        # 3) Retención
-        eliminados = eliminar_backups_viejos(
-            mantener_diarios=7,
-            mantener_semanales=4,
-        )
-        if eliminados:
-            logger.info(
-                "[Scheduler] Retención: %d backups viejos eliminados",
-                eliminados,
-            )
-
-    except Exception as e:
-        logger.error("[Scheduler] Error en backup automatico: %s", e)
+    run_scheduled_backup()
 
 
 def _task_backup_integrity_check():
     """
     Ejecuta semanalmente (domingo 03:00).
-    Verifica que los ultimos 5 backups automaticos tengan integridad
-    SQLite valida (PRAGMA integrity_check). Si alguno falla, loggea
-    advertencia para que el profesional haga un backup manual.
+    Verifica integridad SQLite de los últimos 5 backups cifrados (.enc.gz).
     """
     try:
         import sqlite3
-
-        # Buscar backups en data/backups/ o data/pre_migrate/
+        import tempfile
         from pathlib import Path as _Path
 
-        backups_dir = _Path("data") / "backups"
-        if not backups_dir.exists():
-            return
+        from app.infrastructure.backup import listar_backups, restaurar_backup
 
-        backups = sorted(backups_dir.glob("*.db"), reverse=True)[:5]
+        backups = listar_backups()[:5]
         if not backups:
             return
 
         corrupted = []
-        for bkp in backups:
+        for meta in backups:
+            tmp = _Path(tempfile.mkdtemp()) / "check.db"
             try:
-                conn = sqlite3.connect(f"file:{bkp}?mode=ro", uri=True)
+                restaurar_backup(meta.ruta, target_path=tmp)
+                conn = sqlite3.connect(f"file:{tmp}?mode=ro", uri=True)
                 result = conn.execute("PRAGMA integrity_check").fetchone()
                 conn.close()
                 if result[0] != "ok":
-                    corrupted.append((bkp.name, str(result[0])))
+                    corrupted.append((meta.ruta.name, str(result[0])))
             except Exception as exc:
-                corrupted.append((bkp.name, str(exc)))
+                corrupted.append((meta.ruta.name, str(exc)))
+            finally:
+                try:
+                    tmp.unlink(missing_ok=True)
+                    tmp.parent.rmdir()
+                except OSError:
+                    pass
 
         if corrupted:
             logger.warning(
-                "[Scheduler] ⚠️ %d backups potencialmente corruptos: %s", len(corrupted), [c[0] for c in corrupted]
+                "[Scheduler] %d backups cifrados con problemas: %s",
+                len(corrupted),
+                [c[0] for c in corrupted],
             )
         else:
-            logger.info("[Scheduler] ✅ Integridad de backups verificada: %d backups OK", len(backups))
+            logger.info("[Scheduler] Integridad de backups cifrados OK: %d archivos", len(backups))
 
     except Exception as e:
         logger.error("[Scheduler] Error en verificacion de integridad: %s", e)
@@ -378,6 +335,84 @@ def _prune_old_backups(keep_daily: int = 30) -> None:
 
 
 # ─────────────────────────────────────────────────────────────
+# BACKUP SCHEDULE (QW-8)
+# ─────────────────────────────────────────────────────────────
+
+
+def _backup_cron_trigger(cfg):
+    """Construye CronTrigger según frecuencia configurada."""
+    from apscheduler.triggers.cron import CronTrigger
+
+    freq = cfg.frequency or "daily"
+    if freq == "weekly":
+        return CronTrigger(day_of_week="sun", hour=cfg.hour, minute=cfg.minute)
+    if freq == "monthly":
+        return CronTrigger(day=1, hour=cfg.hour, minute=cfg.minute)
+    return CronTrigger(hour=cfg.hour, minute=cfg.minute)
+
+
+def reschedule_backup_job() -> None:
+    """Reprograma el job backup_automatico según config_backup_schedule."""
+    global _scheduler
+    if _scheduler is None:
+        return
+    try:
+        from app.application.services.backup_service import get_schedule_config
+        from app.infrastructure.database.engine import get_session
+
+        db = next(get_session())
+        try:
+            cfg = get_schedule_config(db)
+        finally:
+            db.close()
+
+        if not cfg.enabled:
+            try:
+                _scheduler.remove_job("backup_automatico")
+            except Exception:  # noqa: BLE001
+                pass
+            logger.info("[Scheduler] Backup automático deshabilitado.")
+            return
+
+        trigger = _backup_cron_trigger(cfg)
+        _scheduler.add_job(
+            _task_backup_automatico,
+            trigger=trigger,
+            id="backup_automatico",
+            replace_existing=True,
+            name=f"Backup automático ({cfg.frequency})",
+        )
+        logger.info(
+            "[Scheduler] Backup reprogramado: %s %02d:%02d",
+            cfg.frequency,
+            cfg.hour,
+            cfg.minute,
+        )
+    except Exception as e:
+        logger.warning("[Scheduler] No se pudo reprogramar backup: %s", e)
+        from apscheduler.triggers.cron import CronTrigger
+
+        _scheduler.add_job(
+            _task_backup_automatico,
+            trigger=CronTrigger(hour=2, minute=0),
+            id="backup_automatico",
+            replace_existing=True,
+            name="Backup automático diario",
+        )
+
+
+def get_backup_job_times() -> dict:
+    """Devuelve next_run_at del job backup si el scheduler está activo."""
+    global _scheduler
+    if not _scheduler:
+        return {}
+    job = _scheduler.get_job("backup_automatico")
+    if not job or not job.next_run_time:
+        return {}
+    return {"next_run_at": job.next_run_time.isoformat()}
+
+
+# ─────────────────────────────────────────────────────────────
 # ARRANQUE / APAGADO
 # ─────────────────────────────────────────────────────────────
 
@@ -424,14 +459,8 @@ def start_scheduler() -> None:
         name="Recordatorio por correo de citas de mañana",
     )
 
-    # Backup automático DIARIO 02:00
-    _scheduler.add_job(
-        _task_backup_automatico,
-        trigger=CronTrigger(hour=2, minute=0),
-        id="backup_automatico",
-        replace_existing=True,
-        name="Backup automático diario",
-    )
+    # Backup automático — trigger desde config DB (default 02:00 diario)
+    reschedule_backup_job()
 
     # Verificacion de integridad de backups SEMANAL domingo 03:00
     _scheduler.add_job(

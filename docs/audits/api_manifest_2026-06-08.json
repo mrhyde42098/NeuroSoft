@@ -1,0 +1,219 @@
+{
+  "backend_routes": 221,
+  "frontend_calls": 139,
+  "method_mismatch": [
+    {
+      "kind": "METHOD_MISMATCH",
+      "path": "/api/v1/clinical-history/{param}/pdf",
+      "frontend_method": "POST",
+      "backend_method": "GET",
+      "file": "neurosoft-frontend/src/app/patients/ClinicalHistoryPage.jsx",
+      "line": 123,
+      "in_baseline": true
+    },
+    {
+      "kind": "METHOD_MISMATCH",
+      "path": "/api/v1/consentimientos/pdf/plantilla/{param}",
+      "frontend_method": "POST",
+      "backend_method": "GET",
+      "file": "neurosoft-frontend/src/app/patients/ConsentModal.jsx",
+      "line": 79,
+      "in_baseline": true
+    },
+    {
+      "kind": "METHOD_MISMATCH",
+      "path": "/api/v1/consentimientos/{param}/pdf",
+      "frontend_method": "POST",
+      "backend_method": "GET",
+      "file": "neurosoft-frontend/src/app/patients/ConsentModal.jsx",
+      "line": 83,
+      "in_baseline": true
+    }
+  ],
+  "missing_backend": [],
+  "orphan_backend_count": 110,
+  "orphan_backend_sample": [
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/admin/import-legacy-xlsm",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/admin_import.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/hc/search",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/hc/{param}/versions",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/hc/{param}/versions/{param}",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/export/patients",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/export/evaluations",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/templates/suggest",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/advanced/config/profesionales/{param}/firma",
+      "frontend_method": null,
+      "backend_method": "DELETE",
+      "file": "neurosoft-backend/app/presentation/api/v1/advanced.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/config",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/config",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/chat",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/improve",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/narrate",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/prompts",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/specialized",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/health",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/ollama/status",
+      "frontend_method": null,
+      "backend_method": "GET",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/ollama/pull",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/ollama/pull_stream",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    },
+    {
+      "kind": "ORPHAN_BACKEND",
+      "path": "/api/v1/ai/ollama/autosetup",
+      "frontend_method": null,
+      "backend_method": "POST",
+      "file": "neurosoft-backend/app/presentation/api/v1/ai.py",
+      "line": null,
+      "in_baseline": false
+    }
+  ],
+  "baseline_items": 4,
+  "new_critical_count": 0
+}

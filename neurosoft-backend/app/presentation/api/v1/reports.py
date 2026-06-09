@@ -26,6 +26,7 @@ from app.presentation.api.v1.auth import CurrentUser, get_evaluation_for_user
 from app.presentation.dependencies import (
     DbSession,
     EvaluationRepo,
+    GenerateReportUC,
     PatientRepo,
 )
 
@@ -67,8 +68,7 @@ reports_router = APIRouter(prefix="/reports", tags=["Informes PDF"])
 )
 def generate_pdf(
     eval_id: str,
-    eval_repo: EvaluationRepo,
-    patient_repo: PatientRepo,
+    uc: GenerateReportUC,
     db: DbSession,
     user: CurrentUser,
     template: Literal[
@@ -95,79 +95,8 @@ def generate_pdf(
         description="UUID del plan terapéutico (solo template therapy_closure)",
     ),
 ):
-    from app.infrastructure.database.orm_models import (
-        ClinicalHistoryORM,
-        ObservationORM,
-        PatientORM,
-        ProfessionalORM,
-    )
-    from app.infrastructure.report_service import (
-        build_report_data_from_db,
-        generate_report_pdf,
-    )
-
     get_evaluation_for_user(eval_id, db, user)
-    ev = _find_evaluation(eval_repo, eval_id)
-
-    # 2. Paciente (ORM directo para tener todos los campos)
-    patient_orm = db.get(PatientORM, ev.patient_id)
-    if patient_orm is None:
-        raise HTTPException(status_code=404, detail="Paciente no encontrado.")
-
-    # 3. Historia clínica (opcional)
-    hc = (
-        db.query(ClinicalHistoryORM)
-        .filter(ClinicalHistoryORM.patient_id == ev.patient_id)
-        .order_by(ClinicalHistoryORM.fecha_atencion.desc())
-        .first()
-    )
-
-    # 4. Observaciones de la tabla observations (complementa HC si vacía)
-    obs_list = db.query(ObservationORM).filter_by(patient_id=ev.patient_id, evaluation_id=eval_id).all()
-    observations_dict = {o.dominio: o.texto for o in obs_list} if obs_list else {}
-
-    # 5. Configuración institucional (singleton)
-    institucion = _get_or_default_institucion(db)
-
-    # 6. Profesional asignado al paciente
-    profesional = None
-    if patient_orm.profesional_id:
-        profesional = db.get(ProfessionalORM, patient_orm.profesional_id)
-
-    # 7. Construir ReportData
-    report_data = build_report_data_from_db(
-        patient=patient_orm,
-        clinical_history=hc,
-        evaluation_record=ev,
-        institucion=institucion,
-        profesional=profesional,
-        observations=observations_dict,
-        db=db,
-        therapy_plan_id=therapy_plan_id,
-        include_therapy=(template == "therapy_closure"),
-    )
-
-    # 7. Generar PDF (con plantilla seleccionada)
-    try:
-        pdf_bytes = generate_report_pdf(report_data, template=template)
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        logger.exception(
-            "Error generando PDF para eval_id=%s con template=%s",
-            eval_id,
-            template,
-        )
-        raise HTTPException(status_code=500, detail=f"Error generando PDF: {e}")
-
-    # 8. Nombre del archivo
-    nombre = (
-        f"InformeNPS_{patient_orm.primer_apellido or ''}"
-        f"_{patient_orm.numero_documento}"
-        f"_{patient_orm.fecha_atencion.strftime('%Y%m%d') if patient_orm.fecha_atencion else 'sin_fecha'}"
-        ".pdf"
-    )
-
+    pdf_bytes, nombre = uc.execute_pdf(eval_id, template=template, therapy_plan_id=therapy_plan_id)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -190,67 +119,12 @@ def generate_pdf(
 )
 def generate_docx(
     eval_id: str,
-    eval_repo: EvaluationRepo,
-    patient_repo: PatientRepo,
+    uc: GenerateReportUC,
     db: DbSession,
     user: CurrentUser,
 ):
-    from app.infrastructure.database.orm_models import (
-        ClinicalHistoryORM,
-        ObservationORM,
-        PatientORM,
-        ProfessionalORM,
-    )
-    from app.infrastructure.export_service import generate_report_docx
-    from app.infrastructure.report_service import build_report_data_from_db
-
     get_evaluation_for_user(eval_id, db, user)
-    ev = _find_evaluation(eval_repo, eval_id)
-
-    patient_orm = db.get(PatientORM, ev.patient_id)
-    if patient_orm is None:
-        raise HTTPException(status_code=404, detail="Paciente no encontrado.")
-
-    hc = (
-        db.query(ClinicalHistoryORM)
-        .filter(ClinicalHistoryORM.patient_id == ev.patient_id)
-        .order_by(ClinicalHistoryORM.fecha_atencion.desc())
-        .first()
-    )
-
-    obs_list = db.query(ObservationORM).filter_by(patient_id=ev.patient_id, evaluation_id=eval_id).all()
-    observations_dict = {o.dominio: o.texto for o in obs_list} if obs_list else {}
-
-    institucion = _get_or_default_institucion(db)
-
-    profesional = None
-    if patient_orm.profesional_id:
-        profesional = db.get(ProfessionalORM, patient_orm.profesional_id)
-
-    report_data = build_report_data_from_db(
-        patient=patient_orm,
-        clinical_history=hc,
-        evaluation_record=ev,
-        institucion=institucion,
-        profesional=profesional,
-        observations=observations_dict,
-    )
-
-    try:
-        docx_bytes = generate_report_docx(report_data)
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        logger.exception("Error generando DOCX para eval_id=%s", eval_id)
-        raise HTTPException(status_code=500, detail=f"Error generando DOCX: {e}")
-
-    nombre = (
-        f"InformeNPS_{patient_orm.primer_apellido or ''}"
-        f"_{patient_orm.numero_documento}"
-        f"_{ev.fecha.strftime('%Y%m%d') if getattr(ev, 'fecha', None) else 'sin_fecha'}"
-        ".docx"
-    )
-
+    docx_bytes, nombre = uc.execute_docx(eval_id)
     return Response(
         content=docx_bytes,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -274,67 +148,12 @@ def generate_docx(
 )
 def generate_xlsx(
     eval_id: str,
-    eval_repo: EvaluationRepo,
-    patient_repo: PatientRepo,
+    uc: GenerateReportUC,
     db: DbSession,
     user: CurrentUser,
 ):
-    from app.infrastructure.database.orm_models import (
-        ClinicalHistoryORM,
-        ObservationORM,
-        PatientORM,
-        ProfessionalORM,
-    )
-    from app.infrastructure.export_service import generate_evaluation_xlsx
-    from app.infrastructure.report_service import build_report_data_from_db
-
     get_evaluation_for_user(eval_id, db, user)
-    ev = _find_evaluation(eval_repo, eval_id)
-
-    patient_orm = db.get(PatientORM, ev.patient_id)
-    if patient_orm is None:
-        raise HTTPException(status_code=404, detail="Paciente no encontrado.")
-
-    hc = (
-        db.query(ClinicalHistoryORM)
-        .filter(ClinicalHistoryORM.patient_id == ev.patient_id)
-        .order_by(ClinicalHistoryORM.fecha_atencion.desc())
-        .first()
-    )
-
-    obs_list = db.query(ObservationORM).filter_by(patient_id=ev.patient_id, evaluation_id=eval_id).all()
-    observations_dict = {o.dominio: o.texto for o in obs_list} if obs_list else {}
-
-    institucion = _get_or_default_institucion(db)
-
-    profesional = None
-    if patient_orm.profesional_id:
-        profesional = db.get(ProfessionalORM, patient_orm.profesional_id)
-
-    report_data = build_report_data_from_db(
-        patient=patient_orm,
-        clinical_history=hc,
-        evaluation_record=ev,
-        institucion=institucion,
-        profesional=profesional,
-        observations=observations_dict,
-    )
-
-    try:
-        xlsx_bytes = generate_evaluation_xlsx(report_data)
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        logger.exception("Error generando XLSX para eval_id=%s", eval_id)
-        raise HTTPException(status_code=500, detail=f"Error generando XLSX: {e}")
-
-    nombre = (
-        f"Puntajes_{patient_orm.primer_apellido or ''}"
-        f"_{patient_orm.numero_documento}"
-        f"_{ev.fecha.strftime('%Y%m%d') if getattr(ev, 'fecha', None) else 'sin_fecha'}"
-        ".xlsx"
-    )
-
+    xlsx_bytes, nombre = uc.execute_xlsx(eval_id)
     return Response(
         content=xlsx_bytes,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -401,10 +220,17 @@ def preview_report_data(
 
     # Conteo de observaciones por dominio cognitivo (de las pruebas aplicadas).
     obs_por_dominio = (
-        db.query(ObservationORM.dominio_cognitivo).filter(ObservationORM.patient_id == ev.patient_id).distinct().all()
+        db.query(ObservationORM.dominio).filter(ObservationORM.patient_id == ev.patient_id).distinct().all()
     )
     dominios_con_obs = {d[0] for d in obs_por_dominio if d[0]}
-    dominios_evaluados = {r.dominio_cognitivo for r in (ev.resultados or []) if r.dominio_cognitivo}
+    dominios_evaluados: set[str] = set()
+    for r in ev.resultados or []:
+        if isinstance(r, dict):
+            dom = r.get("dominio_cognitivo") or r.get("dominio")
+        else:
+            dom = getattr(r, "dominio_cognitivo", None) or getattr(r, "dominio", None)
+        if dom:
+            dominios_evaluados.add(dom)
     dominios_sin_obs = dominios_evaluados - dominios_con_obs
 
     # Reglas de bloqueo (CRÍTICO no puede faltar para descargar)
@@ -418,6 +244,22 @@ def preview_report_data(
 
     # Reglas de advertencia (no bloquean pero se muestran)
     advertencias_completitud = []
+    from app.infrastructure.database.orm_models import ConsentimientoORM
+
+    consent_fisico_pend = (
+        db.query(ConsentimientoORM.id)
+        .filter(
+            ConsentimientoORM.patient_id == ev.patient_id,
+            ConsentimientoORM.modo_firma == "fisico",
+            ConsentimientoORM.requiere_adjunto.is_(True),
+            ConsentimientoORM.fecha_revocado.is_(None),
+        )
+        .first()
+    )
+    if consent_fisico_pend:
+        advertencias_completitud.append(
+            "Consentimiento físico sin adjunto escaneado — adjunte el PDF antes de emitir informe Pro"
+        )
     if not tiene_motivo:
         advertencias_completitud.append("HC sin motivo de consulta")
     if not tiene_antecedentes:
@@ -554,33 +396,3 @@ def get_report_enrichment(
 # ─────────────────────────────────────────────────────────────
 # Helper: configuración institucional con defaults
 # ─────────────────────────────────────────────────────────────
-
-
-def _get_or_default_institucion(db):
-    """Retorna la configuración institucional o un objeto con defaults."""
-    try:
-        from app.infrastructure.database.orm_models import ConfigInstitucionORM
-
-        inst = db.query(ConfigInstitucionORM).first()
-        if inst:
-            return inst
-    except (ImportError, AttributeError) as _cfg_exc:
-        # ORM no cargado o BD aún sin tabla — devolvemos defaults sin ruido.
-        # SQLAlchemy OperationalError no entra aquí: preferimos que se propague
-        # para detectar BDs corruptas en el endpoint que genera informes.
-        import logging as _logging
-
-        _logging.getLogger(__name__).debug(
-            "ConfigInstitucionORM no disponible: %s",
-            _cfg_exc,
-        )
-
-    class _DefaultInstitucion:
-        nombre = "Consultorio Neuropsicológico"
-        nit = ""
-        direccion = ""
-        telefono = ""
-        email = ""
-        logo_base64 = None
-
-    return _DefaultInstitucion()

@@ -8,10 +8,22 @@ motor clínico tienen impacto directo en diagnósticos.
 
 ## Antes de abrir un PR
 
-1. **Backend:** `cd neurosoft-backend && pytest tests/`
-2. **Frontend:** `cd neurosoft-frontend && npm run lint && npm run build`
-3. Si tocas `strategies.py`, `baremos_loader.py` o `engine.py`, el agente
+1. **Gates unificados:** `python tools/run_quality_gates.py --with-build` (desde la raíz)
+2. **Backend:** `cd neurosoft-backend && pytest tests/`
+3. **Frontend:** `cd neurosoft-frontend && npm run lint && npm run build`
+4. **Arquitectura V2:** `python tools/check_v2_guards.py` y `python tools/api_manifest_check.py`
+5. Si tocas `strategies.py`, `baremos_loader.py` o `engine.py`, el agente
    `clinical-engine-reviewer` debe pasar (ver `.claude/agents/`).
+
+### Cuándo usar Inspector General vs otros agentes
+
+| Situación | Herramienta |
+|-----------|-------------|
+| Antes de release beta o build amplio | `/inspector-general` (skill en `.claude/skills/inspector-general/`) |
+| Bug puntual en un archivo | `/audit-completo <archivo>` |
+| Cambio en motor de scoring | `clinical-engine-reviewer` |
+| Cambios API frontend/backend | `api-alignment-reviewer` |
+| Cerrar sprint y actualizar backlog | `/actualizar-estado-vivo` |
 
 ## Qué no modificar sin aprobación del maintainer
 

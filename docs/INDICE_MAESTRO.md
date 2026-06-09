@@ -100,25 +100,44 @@
 
 ---
 
-## 7. Skills y agentes (`.claude/`)
+## 7. Inspector General (auditoría maestra)
 
 | Recurso | Uso |
 |---|---|
+| [`skills/inspector-general/SKILL.md`](../.claude/skills/inspector-general/SKILL.md) | **Agente Maestro** — `/inspector-general` antes de release beta |
+| [`skills/inspector-general/reference.md`](../.claude/skills/inspector-general/reference.md) | Matriz reconciliación auditorías P0–P2 |
+| [`templates/INFORME_MAESTRO_TEMPLATE.md`](templates/INFORME_MAESTRO_TEMPLATE.md) | Plantilla informe unificado |
+| `docs/audits/INFORME_MAESTRO_*.md` | Informes generados (salida del Inspector) |
+| `docs/audits/gates_*.json` | Métricas gates automáticos |
+| `tools/run_quality_gates.py` | Runner pytest + eslint + v2 + api manifest |
+| `tools/api_manifest_check.py` | Contrato frontend↔backend |
+
+**Jerarquía de verdad:** `ESTADO_VIVO.md` ← `INFORME_MAESTRO_*.md` ← gates JSON + subagentes.
+
+## 8. Skills y agentes (`.claude/`)
+
+| Recurso | Uso |
+|---|---|
+| `skills/inspector-general` | Orquestador maestro (ver §7) |
 | `skills/audit-completo` | QA bugs por severidad |
 | `skills/build-beta-tester` | Pipeline empaquetado |
 | `skills/investigar-clinica` | Papers 2022–2026 |
 | `skills/exportar-sesion` | Resumen para otro chat |
 | `agents/clinical-engine-reviewer.md` | Revisar cambios motor |
+| `agents/api-alignment-reviewer.md` | Contrato API FE↔BE |
+| `agents/architecture-v2-reviewer.md` | Convenciones V2 |
+| `agents/normativa-colombia-reviewer.md` | RIPS, Ley 527, CIE-11 |
+| `agents/clinical-fidelity-reviewer.md` | Reactivos, validez, PDF |
 
 ---
 
-## 8. Carpetas raíz — mapa rápido
+## 9. Carpetas raíz — mapa rápido
 
 Ver [`historico/CARPETAS_RAIZ.md`](historico/CARPETAS_RAIZ.md) para descripción de cada carpeta del monorepo.
 
 ---
 
-## 9. Duplicados conocidos (no consolidar sin revisar)
+## 10. Duplicados conocidos (no consolidar sin revisar)
 
 - `neurosoft-backend/docs/AUDITORIA_BAREMOS_DETALLADA.md` ≈ copia de `docs/AUDITORIA_BAREMOS_DETALLADA.md`
 - `neurosoft-backend/docs/RESUMEN_*.md` — resúmenes históricos backend; archivar eventualmente

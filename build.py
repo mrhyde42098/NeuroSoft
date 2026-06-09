@@ -3,18 +3,18 @@ build.py
 ========
 Pipeline completo de empaquetado de NeuroSoft.
 
-Produce: dist/NeuroSoft.exe  (un único ejecutable, sin consola)
-
-Pasos:
-    1. Verifica dependencias (pyinstaller, pywebview) — las instala si faltan.
-    2. Ejecuta `npm run build` en el frontend → genera neurosoft-frontend/dist.
-    3. Ejecuta PyInstaller con neurosoft.spec → genera dist/NeuroSoft.exe.
-    4. Reporta el tamaño final y la ubicación.
+Produce (por defecto, onedir):
+    dist/NeuroSoft/NeuroSoft.exe  (+ dependencias en la misma carpeta)
+    dist/update.json              (manifest firmado para auto-update)
+    dist/NeuroSoft-Setup.exe      (Inno Setup, Ollama opcional)
 
 Uso:
-    python build.py                 # build normal
-    python build.py --skip-frontend # usa el dist/ que ya está compilado
-    python build.py --clean         # borra dist/ y build/ antes
+    python build.py                      # build completo optimizado
+    python build.py --skip-frontend
+    python build.py --skip-ollama        # instalador ~50 MB sin IA local
+    python build.py --legacy-onefile     # neurosoft.spec (onefile legacy)
+    python build.py --make-update        # solo .nsupdate de frontend
+    python build.py --clean
 """
 from __future__ import annotations
 
@@ -22,11 +22,13 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import time
 import urllib.request
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -35,22 +37,26 @@ FRONTEND = ROOT / "neurosoft-frontend"
 VENDOR = ROOT / "vendor"
 VENV_PY = BACKEND / "venv" / "Scripts" / ("python.exe" if sys.platform == "win32" else "python")
 
-# Instalador oficial de Ollama para Windows (Fase G.1c del ROADMAP)
-# El usuario pidió bundlear Ollama completo — el installer pesa ~700 MB.
-OLLAMA_WIN_URL  = "https://ollama.com/download/OllamaSetup.exe"
+DEFAULT_SPEC = "config_optimizada.spec"
+LEGACY_SPEC = "neurosoft.spec"
+DEFAULT_ISS = ROOT / "installer" / "NeuroSoftOptimized.iss"
+
+OLLAMA_WIN_URL = "https://ollama.com/download/OllamaSetup.exe"
 OLLAMA_WIN_NAME = "OllamaSetup.exe"
 
+ISCC_CANDIDATES = [
+    Path(r"C:\Users\DESKTOP\AppData\Local\Programs\Inno Setup 6\ISCC.exe"),
+    Path(os.environ.get("ProgramFiles(x86)", "")) / "Inno Setup 6" / "ISCC.exe",
+    Path(os.environ.get("ProgramFiles", "")) / "Inno Setup 6" / "ISCC.exe",
+]
 
-# ─────────────────────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────────────────────
 
 def _log(msg: str, level: str = "info") -> None:
     color = {
-        "info":  "\033[36m",  # cyan
-        "ok":    "\033[32m",  # verde
-        "warn":  "\033[33m",  # amarillo
-        "err":   "\033[31m",  # rojo
+        "info": "\033[36m",
+        "ok": "\033[32m",
+        "warn": "\033[33m",
+        "err": "\033[31m",
     }.get(level, "")
     reset = "\033[0m" if color else ""
     print(f"{color}[build]{reset} {msg}", flush=True)
@@ -66,7 +72,6 @@ def _run(cmd: list[str], cwd: Path | None = None, check: bool = True, env: dict 
 
 
 def _python_exe() -> str:
-    """Devuelve el intérprete del venv del backend si existe, si no el actual."""
     if VENV_PY.exists():
         return str(VENV_PY)
     return sys.executable
@@ -84,34 +89,40 @@ def _human_size(path: Path) -> str:
     return f"{size:.1f} TB"
 
 
-# ─────────────────────────────────────────────────────────────
-# Pasos
-# ─────────────────────────────────────────────────────────────
+def _read_version() -> str:
+    config_py = BACKEND / "app" / "core" / "config.py"
+    if config_py.exists():
+        m = re.search(r'api_version\s*[=:]\s*"([^"]+)"', config_py.read_text(encoding="utf-8"))
+        if m:
+            return m.group(1)
+    return "2.0.0"
+
+
+def _resolve_exe_path(*, onedir: bool) -> Path:
+    if onedir:
+        return ROOT / "dist" / "NeuroSoft" / ("NeuroSoft.exe" if sys.platform == "win32" else "NeuroSoft")
+    return ROOT / "dist" / ("NeuroSoft.exe" if sys.platform == "win32" else "NeuroSoft")
+
 
 def step_check_tools() -> None:
     _log("Verificando herramientas…")
-
-    # Node
     try:
         subprocess.run(
-            ["npm" if sys.platform != "win32" else "npm.cmd", "--version"],
-            check=True, capture_output=True,
+            ["npm.cmd" if sys.platform == "win32" else "npm", "--version"],
+            check=True,
+            capture_output=True,
         )
     except Exception:
-        _log("npm no está instalado o no está en PATH. Instale Node.js LTS.", "err")
+        _log("npm no está instalado o no está en PATH.", "err")
         sys.exit(1)
 
-    # Python deps de build
     py = _python_exe()
     for pkg, mod in (("pyinstaller", "PyInstaller"), ("pywebview", "webview")):
         try:
-            subprocess.run(
-                [py, "-c", f"import {mod}"], check=True, capture_output=True,
-            )
+            subprocess.run([py, "-c", f"import {mod}"], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             _log(f"Instalando {pkg}…", "warn")
             _run([py, "-m", "pip", "install", pkg])
-
     _log("Herramientas OK.", "ok")
 
 
@@ -121,28 +132,21 @@ def step_build_frontend(skip: bool = False) -> None:
         return
     _log("Compilando frontend con Vite…")
     npm = "npm.cmd" if sys.platform == "win32" else "npm"
-    # Instalar deps si falta node_modules
     if not (FRONTEND / "node_modules").is_dir():
         _run([npm, "install"], cwd=FRONTEND)
     _run([npm, "run", "build"], cwd=FRONTEND)
-    dist = FRONTEND / "dist"
-    if not (dist / "index.html").exists():
-        _log("npm run build terminó sin producir dist/index.html", "err")
+    if not (FRONTEND / "dist" / "index.html").exists():
+        _log("npm run build terminó sin index.html", "err")
         sys.exit(1)
-    _log(f"Frontend compilado -> {dist}", "ok")
+    _log(f"Frontend compilado -> {FRONTEND / 'dist'}", "ok")
 
 
 def step_download_ollama(skip: bool = False) -> None:
-    """
-    Descarga el instalador oficial de Ollama para Windows al directorio
-    `vendor/ollama/` para que sea empaquetado por PyInstaller.
-    Si ya existe y pesa > 100 MB, se asume válido y se omite.
-    """
     if skip:
         _log("Omitiendo descarga de Ollama (--skip-ollama).", "warn")
         return
     if sys.platform != "win32":
-        _log("Plataforma != win32, se omite el bundle de Ollama.", "warn")
+        _log("Plataforma != win32, se omite Ollama.", "warn")
         return
 
     target_dir = VENDOR / "ollama"
@@ -150,26 +154,23 @@ def step_download_ollama(skip: bool = False) -> None:
     target = target_dir / OLLAMA_WIN_NAME
 
     if target.exists() and target.stat().st_size > 100 * 1024 * 1024:
-        _log(f"Ollama installer ya presente -> {target} ({_human_size(target)})", "ok")
+        _log(f"Ollama ya presente -> {target} ({_human_size(target)})", "ok")
         return
 
-    _log(f"Descargando Ollama desde {OLLAMA_WIN_URL} (~700 MB, puede tardar)…")
+    _log(f"Descargando Ollama desde {OLLAMA_WIN_URL}…")
     try:
-        # urlretrieve con barra de progreso simple
         def _progress(block, block_size, total_size):
             if total_size <= 0:
                 return
             pct = min(100.0, block * block_size * 100.0 / total_size)
-            if int(pct) % 5 == 0:
-                print(f"  … {pct:5.1f}%  ({block * block_size // (1024*1024)} MB)", end="\r", flush=True)
+            if int(pct) % 10 == 0:
+                print(f"  … {pct:5.1f}%", end="\r", flush=True)
 
         urllib.request.urlretrieve(OLLAMA_WIN_URL, target, reporthook=_progress)
-        print()  # newline después de la barra
-        sha = hashlib.sha256(target.read_bytes()).hexdigest()[:16]
-        _log(f"Ollama descargado -> {target} ({_human_size(target)})  sha256={sha}…", "ok")
+        print()
+        _log(f"Ollama descargado -> {target} ({_human_size(target)})", "ok")
     except Exception as e:
-        _log(f"Falló la descarga de Ollama: {e}", "err")
-        _log("El build continuará, pero el usuario deberá instalar Ollama manualmente.", "warn")
+        _log(f"Falló descarga de Ollama: {e}", "warn")
 
 
 def step_clean() -> None:
@@ -181,173 +182,201 @@ def step_clean() -> None:
 
 
 def step_baremos_shards() -> None:
-    """Regenera shards de baremos si existe el JSON maestro (reduce RAM cold start)."""
     master = BACKEND / "data" / "BD_NEURO_MAESTRA.json"
     script = ROOT / "docs" / "scripts" / "split_baremos_poblacion.py"
     if not master.exists() or not script.exists():
         _log("Baremos master ausente — omitiendo shards.", "warn")
         return
-    py = _python_exe()
-    _log("Regenerando baremos_shards/…")
-    _run([py, str(script), "--input", str(master)], check=True)
+    _run([_python_exe(), str(script), "--input", str(master)], check=True)
     _log("Baremos shards OK.", "ok")
 
 
 def step_manual_pdf() -> None:
-    """Genera MANUAL_BETA_TESTER.pdf en dist/."""
     script = ROOT / "docs" / "scripts" / "generate_manual_pdf.py"
     if not script.exists():
         _log("generate_manual_pdf.py no encontrado — omitiendo PDF.", "warn")
         return
-    py = _python_exe()
     out = ROOT / "dist" / "MANUAL_BETA_TESTER.pdf"
     out.parent.mkdir(parents=True, exist_ok=True)
-    _log("Generando manual PDF beta tester…")
-    _run([py, str(script), str(out)], check=True)
+    _run([_python_exe(), str(script), str(out)], check=True)
     if out.exists():
         _log(f"Manual PDF -> {out} ({_human_size(out)})", "ok")
 
 
-def step_inno_setup() -> None:
-    """Compila instalador Inno Setup si ISCC está disponible."""
-    iscc = Path(r"C:\Users\DESKTOP\AppData\Local\Programs\Inno Setup 6\ISCC.exe")
-    if not iscc.exists():
-        _log("ISCC.exe no encontrado — omitiendo NeuroSoft-Setup.exe.", "warn")
-        return
-    iss = ROOT / "installer" / "NeuroSoft.iss"
-    if not iss.exists():
-        _log("NeuroSoft.iss no encontrado.", "warn")
-        return
-    _log("Compilando instalador Inno Setup…")
-    _run([str(iscc), str(iss)], check=True)
-    setup = ROOT / "dist" / "NeuroSoft-Setup.exe"
-    if setup.exists():
-        _log(f"Instalador -> {setup} ({_human_size(setup)})", "ok")
-
-
 def step_py_compile_backend() -> None:
+    _run([_python_exe(), "-m", "py_compile", str(BACKEND / "app" / "main.py")], check=True)
+
+
+def step_pyinstaller(*, spec: str, onedir: bool) -> Path:
+    _log(f"Empaquetando con PyInstaller ({spec})…")
     py = _python_exe()
-    _run([py, "-m", "py_compile", str(BACKEND / "app" / "main.py")], check=True)
+    current_version = _read_version()
+    _log(f"Versión detectada: {current_version}", "info")
 
-
-    _log("Empaquetando con PyInstaller…")
-    py = _python_exe()
-
-    # Leer la version actual desde el codigo fuente para que el endpoint
-    # GET /api/v1/version sepa cual es la version empaquetada.
-    import re
-    config_py = ROOT / "neurosoft-backend" / "app" / "core" / "config.py"
-    version_match = None
-    if config_py.exists():
-        content = config_py.read_text(encoding="utf-8")
-        version_match = re.search(r'api_version\s*[=:]\s*"([^"]+)"', content)
-    current_version = version_match.group(1) if version_match else "2.0.0"
-    _log(f"Version detectada: {current_version}", "info")
-
-    # NEUROSOFT_LATEST_VERSION: si quieres que los clientes vean
-    # "actualizacion disponible", setea esta variable ANTES de buildear.
-    # Ejemplo: $env:NEUROSOFT_LATEST_VERSION="2.1.0"; python build.py
     latest = os.environ.get("NEUROSOFT_LATEST_VERSION", current_version)
     if latest != current_version:
-        _log(f"ATENCION: NEUROSOFT_LATEST_VERSION={latest} (actual={current_version})", "warn")
-        _log("Los clientes veran notificacion de actualizacion.", "warn")
+        _log(f"NEUROSOFT_LATEST_VERSION={latest} (build={current_version})", "warn")
 
     env = os.environ.copy()
     env["NEUROSOFT_CURRENT_VERSION"] = current_version
     env["NEUROSOFT_LATEST_VERSION"] = latest
 
-    _run([
-        py, "-m", "PyInstaller",
-        "--clean",
-        "--noconfirm",
-        "neurosoft.spec",
-    ], cwd=ROOT, env=env)
-    exe = ROOT / "dist" / ("NeuroSoft.exe" if sys.platform == "win32" else "NeuroSoft")
+    _run([py, "-m", "PyInstaller", "--clean", "--noconfirm", spec], cwd=ROOT, env=env)
+
+    exe = _resolve_exe_path(onedir=onedir)
     if not exe.exists():
-        _log("PyInstaller terminó pero no encontré el ejecutable.", "err")
+        _log(f"PyInstaller terminó pero no encontré {exe}", "err")
         sys.exit(1)
-    _log(f"Ejecutable generado: {exe}  ({_human_size(exe)})", "ok")
+    _log(f"Ejecutable -> {exe} ({_human_size(exe)})", "ok")
+    return exe
 
 
-def step_make_update() -> None:
-    """
-    Genera un archivo .nsupdate con el frontend compilado + manifest.
-    Este archivo se envia al clinico para actualizar via ConfigPage > Actualizar.
-    """
-    import zipfile
-    import re as _re
+def step_package_onedir_zip(version: str) -> Path | None:
+    """ZIP del directorio onedir para auto-update de carpeta completa."""
+    src = ROOT / "dist" / "NeuroSoft"
+    if not src.is_dir():
+        return None
+    out = ROOT / "dist" / f"NeuroSoft-v{version}-win64.zip"
+    _log(f"Empaquetando {out.name}…")
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
+        for f in src.rglob("*"):
+            if f.is_file():
+                arc = str(f.relative_to(src)).replace("\\", "/")
+                zf.write(f, arc)
+    _log(f"ZIP onedir -> {out} ({_human_size(out)})", "ok")
+    return out
 
+
+def step_update_manifest(*, onedir: bool, nsupdate: Path | None = None) -> None:
+    script = ROOT / "tools" / "generate_update_manifest.py"
+    if not script.exists():
+        _log("generate_update_manifest.py no encontrado.", "warn")
+        return
+
+    version = _read_version()
+    py = _python_exe()
+    cmd = [py, str(script), "--version", version]
+
+    exe = _resolve_exe_path(onedir=onedir)
+    if exe.exists():
+        cmd += ["--exe", str(exe)]
+
+    zip_path = ROOT / "dist" / f"NeuroSoft-v{version}-win64.zip"
+    if zip_path.exists():
+        cmd += ["--dir-zip", str(zip_path)]
+
+    if nsupdate is None:
+        nsupdate = ROOT / "dist" / f"neurosoft-v{version}.nsupdate"
+    if nsupdate.exists():
+        cmd += ["--nsupdate", str(nsupdate)]
+
+    _run(cmd, check=True)
+
+
+def step_inno_setup(iss: Path | None = None, *, include_ollama: bool = False) -> None:
+    iscc = next((p for p in ISCC_CANDIDATES if p.exists()), None)
+    if iscc is None:
+        _log("ISCC.exe no encontrado — omitiendo NeuroSoft-Setup.exe.", "warn")
+        return
+    iss = iss or DEFAULT_ISS
+    if not iss.exists():
+        _log(f"{iss.name} no encontrado.", "warn")
+        return
+    cmd = [str(iscc), str(iss)]
+    ollama_bin = VENDOR / "ollama" / OLLAMA_WIN_NAME
+    if include_ollama and ollama_bin.is_file():
+        cmd.append("/DINCLUDE_OLLAMA=1")
+        _log("Instalador INCLUYE Ollama (~1.4 GB)…", "warn")
+    else:
+        _log("Instalador compacto SIN Ollama embebido (~50 MB)…", "info")
+    _log(f"Compilando {iss.name}…")
+    _run(cmd, check=True)
+    setup = ROOT / "dist" / "NeuroSoft-Setup.exe"
+    if setup.exists():
+        _log(f"Instalador -> {setup} ({_human_size(setup)})", "ok")
+
+
+def step_make_update() -> Path:
     frontend_dist = FRONTEND / "dist"
     if not frontend_dist.exists():
-        _log("Frontend dist/ no encontrado. Ejecuta npm run build primero.", "err")
+        _log("Frontend dist/ no encontrado.", "err")
         sys.exit(1)
 
-    # Leer version
-    config_py = BACKEND / "app" / "core" / "config.py"
-    version = "0.0.0"
-    if config_py.exists():
-        m = _re.search(r'api_version\s*[=:]\s*"([^"]+)"', config_py.read_text(encoding="utf-8"))
-        if m:
-            version = m.group(1)
-
-    out_name = f"neurosoft-v{version}.nsupdate"
-    out_path = ROOT / "dist" / out_name
-
+    version = _read_version()
+    out_path = ROOT / "dist" / f"neurosoft-v{version}.nsupdate"
     manifest = {
         "version": version,
         "fecha": time.strftime("%Y-%m-%d"),
         "tipo": "frontend",
-        "nota": "Actualizacion de interfaz. No requiere reinstalar el .exe.",
+        "nota": "Actualización de interfaz. No requiere reinstalar el .exe.",
     }
-
-    _log(f"Generando {out_name} con version {version}...", "info")
-
+    _log(f"Generando {out_path.name}…")
     with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2))
         for f in frontend_dist.rglob("*"):
             if f.is_file():
-                arcname = "frontend/" + str(f.relative_to(frontend_dist)).replace("\\", "/")
-                zf.write(f, arcname)
+                arc = "frontend/" + str(f.relative_to(frontend_dist)).replace("\\", "/")
+                zf.write(f, arc)
+    _log(f"nsupdate -> {out_path} ({_human_size(out_path)})", "ok")
+    return out_path
 
-    _log(f"Archivo generado: {out_path}  ({_human_size(out_path)})", "ok")
-    _log(f"Envia este archivo al clinico para que lo suba en ConfigPage > Actualizar.", "info")
+
+def step_verify_bundle(*, onedir: bool, skip: bool = False) -> None:
+    if skip:
+        _log("Omitiendo smoke test del bundle (--skip-bundle-verify).", "warn")
+        return
+    if sys.platform != "win32":
+        _log("Smoke test desktop solo en Windows — omitiendo.", "warn")
+        return
+    script = ROOT / "tools" / "verify_desktop_bundle.py"
+    if not script.exists():
+        _log("verify_desktop_bundle.py no encontrado — omitiendo.", "warn")
+        return
+    exe = _resolve_exe_path(onedir=onedir)
+    if not exe.exists():
+        _log(f"No hay exe para verificar: {exe}", "err")
+        sys.exit(1)
+    _log("Smoke test desktop (ventana + /health)…")
+    _run([_python_exe(), str(script), "--exe", str(exe)], check=True)
+    _log("Smoke test desktop OK.", "ok")
 
 
-def step_report() -> None:
-    exe = ROOT / "dist" / ("NeuroSoft.exe" if sys.platform == "win32" else "NeuroSoft")
+def step_report(*, onedir: bool) -> None:
+    exe = _resolve_exe_path(onedir=onedir)
+    setup = ROOT / "dist" / "NeuroSoft-Setup.exe"
     print()
     _log("=" * 55, "ok")
-    _log(f"Build completado - {_human_size(exe)}", "ok")
-    _log(f"Ubicacion: {exe}", "ok")
+    _log(f"Build completado — exe {_human_size(exe)}", "ok")
+    _log(f"Ubicación: {exe}", "ok")
+    if setup.exists():
+        _log(f"Instalador: {setup} ({_human_size(setup)})", "ok")
     _log("=" * 55, "ok")
     print()
-    _log("Para probar:  doble-click en el .exe.", "info")
-    _log("Los datos se guardan en: %APPDATA%/NeuroSoft (Windows).", "info")
+    _log("Datos de usuario: %APPDATA%/NeuroSoft", "info")
+    _log("Actualizaciones: dist/update.json + .nsupdate", "info")
 
-
-# ─────────────────────────────────────────────────────────────
-# Main
-# ─────────────────────────────────────────────────────────────
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build de NeuroSoft → .exe")
-    parser.add_argument("--skip-frontend", action="store_true",
-                        help="No recompila el frontend (usa dist/ existente)")
-    parser.add_argument("--clean", action="store_true",
-                        help="Limpia dist/ y build/ antes del empaquetado")
-    parser.add_argument("--skip-ollama", action="store_true",
-                        help="No descarga el instalador de Ollama (util para builds rapidos)")
-    parser.add_argument("--skip-shards", action="store_true",
-                        help="No regenera baremos_shards/")
-    parser.add_argument("--skip-manual", action="store_true",
-                        help="No genera MANUAL_BETA_TESTER.pdf")
-    parser.add_argument("--skip-inno", action="store_true",
-                        help="No compila NeuroSoft-Setup.exe")
-    parser.add_argument("--full", action="store_true",
-                        help="Build completo: shards + PDF + Inno (default en build normal)")
-    parser.add_argument("--make-update", action="store_true",
-                        help="Genera un archivo .nsupdate con el frontend + changelog (sin .exe)")
+    parser = argparse.ArgumentParser(description="Build NeuroSoft desktop")
+    parser.add_argument("--skip-frontend", action="store_true")
+    parser.add_argument("--clean", action="store_true")
+    parser.add_argument("--skip-ollama", action="store_true")
+    parser.add_argument("--skip-shards", action="store_true")
+    parser.add_argument("--skip-manual", action="store_true")
+    parser.add_argument("--skip-inno", action="store_true")
+    parser.add_argument("--skip-manifest", action="store_true", help="No genera update.json")
+    parser.add_argument("--legacy-onefile", action="store_true", help="Usa neurosoft.spec (onefile)")
+    parser.add_argument("--spec", default=None, help="Archivo .spec personalizado")
+    parser.add_argument("--make-update", action="store_true")
+    parser.add_argument(
+        "--skip-bundle-verify",
+        action="store_true",
+        help="No ejecuta tools/verify_desktop_bundle.py tras PyInstaller",
+    )
     args = parser.parse_args()
+
+    onedir = not args.legacy_onefile
+    spec = args.spec or (LEGACY_SPEC if args.legacy_onefile else DEFAULT_SPEC)
 
     t0 = time.time()
     step_check_tools()
@@ -357,22 +386,40 @@ def main() -> int:
     step_py_compile_backend()
 
     if args.make_update:
-        step_make_update()
+        out = step_make_update()
+        if not args.skip_manifest:
+            step_update_manifest(onedir=onedir, nsupdate=out)
         _log(f"Tiempo total: {time.time() - t0:.1f}s", "info")
         return 0
 
-    full = args.full or not (args.skip_shards and args.skip_manual and args.skip_inno)
-    if full and not args.skip_shards:
+    if not args.skip_shards:
         step_baremos_shards()
+
+    step_pyinstaller(spec=spec, onedir=onedir)
+    step_verify_bundle(onedir=onedir, skip=args.skip_bundle_verify)
+
+    nsupdate = step_make_update()
+
+    if onedir:
+        step_package_onedir_zip(_read_version())
+
+    if not args.skip_manifest:
+        step_update_manifest(onedir=onedir, nsupdate=nsupdate)
 
     step_download_ollama(skip=args.skip_ollama)
 
-    if full and not args.skip_manual:
+    if not args.skip_manual:
         step_manual_pdf()
-    if full and not args.skip_inno:
-        step_inno_setup()
+    if not args.skip_inno:
+        # Evita que Inno Setup elija el onefile legacy si coexisten ambos artefactos
+        legacy_onefile = ROOT / "dist" / "NeuroSoft.exe"
+        onedir_exe = ROOT / "dist" / "NeuroSoft" / "NeuroSoft.exe"
+        if onedir_exe.exists() and legacy_onefile.exists():
+            _log(f"Eliminando onefile legacy obsoleto -> {legacy_onefile.name}", "warn")
+            legacy_onefile.unlink(missing_ok=True)
+        step_inno_setup(include_ollama=not args.skip_ollama)
 
-    step_report()
+    step_report(onedir=onedir)
     _log(f"Tiempo total: {time.time() - t0:.1f}s", "info")
     return 0
 

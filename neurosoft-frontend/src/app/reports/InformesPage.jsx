@@ -8,16 +8,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { api } from "../../api/client.js";
 import { useToast } from "../../contexts.jsx";
 import { Btn, Card, I, Input, Label, Sel, TopBar, Txta } from "../../ui/primitives.jsx";
-import GlossaryTerm from "../../ui/GlossaryTerm.jsx"; // §N2
+import GlossaryLegend from "../../ui/GlossaryLegend.jsx"; // §N2
 import { TEAL } from "../../ui/tokens.js";
 import { SkeletonCard } from "../../ui/Skeleton.jsx";
-
-const STEPS = [
-  { label: "Paciente",       icon: "person" },
-  { label: "Evaluación",     icon: "clinical_notes" },
-  { label: "Previsualizar",  icon: "preview" },
-  { label: "Descargar",      icon: "download" },
-];
+import PatientSelector from "../../ui/forms/PatientSelector.jsx";
+import ReportStepper from "./ReportStepper.jsx";
 
 const PDF_TEMPLATES = [
   { value: "pro", label: "★ Profesional (estándar)" },
@@ -32,13 +27,14 @@ const PDF_TEMPLATES = [
 
 export default function InformesPage({ _setPage }) {
   const toast = useToast();
-  const [patients, setPatients] = useState([]);
   const [patId, setPatId] = useState("");
   const [evals, setEvals] = useState([]);
   const [ld, setLd] = useState(false);
   const [preview, setPreview] = useState(null);
   const [gen, setGen] = useState(null);
   const [pdfTemplate, setPdfTemplate] = useState("pro");
+  const [therapyPlanId, setTherapyPlanId] = useState("");
+  const [therapyPlans, setTherapyPlans] = useState([]);
   /* Overlay in-page para PDF (pywebview no soporta descarga vía a.download) */
   const [pdfOverlay, setPdfOverlay] = useState(null); // { url: blobUrl, filename, blob, evalId }
   const pdfIframeRef = useRef(null);
@@ -59,13 +55,16 @@ export default function InformesPage({ _setPage }) {
       .then(d => setSmtpReady(!!d.configured))
       .catch(() => setSmtpReady(false));
   }, []);
-
   useEffect(() => {
-    api.get("/api/v1/patients/panel")
-      .then(d => setPatients(d.pacientes || d || []))
-      .catch(() => toast.error("Error al cargar datos"));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (pdfTemplate !== "therapy_closure" || !patId) {
+      setTherapyPlans([]);
+      setTherapyPlanId("");
+      return;
+    }
+    api.get(`/api/v1/therapy/plans?patient_id=${patId}`)
+      .then((d) => setTherapyPlans(Array.isArray(d) ? d : []))
+      .catch(() => setTherapyPlans([]));
+  }, [pdfTemplate, patId]);
 
   const loadE = async (pid) => {
     if (!pid) return;
@@ -110,8 +109,15 @@ export default function InformesPage({ _setPage }) {
   const closePdfOverlay = () => {
     if (pdfOverlay) { URL.revokeObjectURL(pdfOverlay.url); setPdfOverlay(null); }
   };
+  const buildPdfPath = (id) => {
+    let path = `/api/v1/reports/pdf/${id}?template=${encodeURIComponent(pdfTemplate)}`;
+    if (pdfTemplate === "therapy_closure" && therapyPlanId) {
+      path += `&therapy_plan_id=${encodeURIComponent(therapyPlanId)}`;
+    }
+    return path;
+  };
   const genPDF  = (id) => downloadBlob(
-    `/api/v1/reports/pdf/${id}?template=${encodeURIComponent(pdfTemplate)}`,
+    buildPdfPath(id),
     `InformeNPS_${pdfTemplate}_${id.slice(0, 8)}.pdf`,
     id,
     id,
@@ -168,20 +174,32 @@ export default function InformesPage({ _setPage }) {
     toast.success("Descarga iniciada");
   };
 
-  const pickConsentAttachment = (file) => {
+  const pickConsentAttachment = async (file) => {
     if (!file) return;
     const ok = file.type === "application/pdf" || file.type.startsWith("image/");
     if (!ok) {
       toast.error("Adjunte un PDF o imagen del consentimiento firmado.");
       return;
     }
-    setConsentAttachment({
-      name: file.name,
-      size: file.size,
-      type: file.type || "archivo",
-      file,
-    });
-    toast.success("Consentimiento escaneado listo para adjuntar/archivar.");
+    if (!patId) {
+      toast.warn("Seleccione un paciente antes de adjuntar el consentimiento.");
+      return;
+    }
+    try {
+      const consents = await api.get(`/api/v1/consentimientos/?patient_id=${patId}`);
+      const pend = (consents || []).find(
+        (c) => c.modo_firma === "fisico" && c.requiere_adjunto && !c.tiene_adjunto && c.vigente,
+      );
+      if (!pend) {
+        toast.warn("No hay consentimiento físico pendiente de adjunto para este paciente.");
+        return;
+      }
+      await api.upload(`/api/v1/consentimientos/${pend.id}/adjunto`, file);
+      setConsentAttachment({ name: file.name, size: file.size, type: file.type || "archivo" });
+      toast.success("Consentimiento escaneado guardado de forma cifrada en el equipo.");
+    } catch (e) {
+      toast.error(e.detail || "No se pudo subir el adjunto");
+    }
   };
 
   /* §QW-1: Abrir modal de envío por correo */
@@ -271,54 +289,15 @@ export default function InformesPage({ _setPage }) {
     <>
       <TopBar title="Generación de Informes" />
       <main className="p-8 space-y-6">
-        <Card className="p-5">
-          <div className="flex items-center justify-between gap-2">
-            {STEPS.map((s, i) => {
-              const active = i === step;
-              const done = i < step;
-              return (
-                <React.Fragment key={s.label}>
-                  <div className="flex items-center gap-3 flex-shrink-0"
-                    style={{ opacity: active || done ? 1 : 0.5 }}>
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm transition-all"
-                      style={
-                        active
-                          ? { background: TEAL, color: "#fff", boxShadow: "0 8px 20px -4px rgba(13,148,136,0.5)", transform: "scale(1.1)" }
-                          : done
-                          ? { background: "#10b981", color: "#fff" }
-                          : { background: "var(--ns-subtle)", color: "var(--ns-muted)" }
-                      }>
-                      {done ? <I name="check" fill className="text-base" /> : <I name={s.icon} className="text-base" />}
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[9px] font-extrabold uppercase tracking-widest"
-                        style={{ color: active ? TEAL : "var(--ns-muted)" }}>Paso {i + 1}</p>
-                      <p className="text-xs font-bold"
-                        style={{ color: active ? "var(--ns-text)" : "var(--ns-muted)" }}>{s.label}</p>
-                    </div>
-                  </div>
-                  {i < STEPS.length - 1 && (
-                    <div className="flex-1 h-0.5 rounded-full mx-1"
-                      style={{ background: i < step ? "#10b981" : "var(--ns-subtle)" }} />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
-        </Card>
+        <ReportStepper step={step} />
 
         <Card className="p-6">
-          <div className="flex-1">
-            <Label>Seleccionar Paciente</Label>
-            <Sel value={patId} onChange={(e) => { setPatId(e.target.value); loadE(e.target.value); setPreview(null); }}>
-              <option value="">— Seleccione —</option>
-              {patients.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`} — {p.numero_documento}
-                </option>
-              ))}
-            </Sel>
-          </div>
+          <PatientSelector
+            label="Seleccionar Paciente"
+            value={patId}
+            onChange={(id) => { setPatId(id); loadE(id); setPreview(null); }}
+            placeholder="— Seleccione —"
+          />
         </Card>
 
         {!patId ? (
@@ -469,26 +448,8 @@ export default function InformesPage({ _setPage }) {
                       </div>
                     </div>
 
-                    {/* §N2: Leyenda de índices clínicos con tooltips embebidos */}
-                    {preview.poblacion === "infantil" && (
-                      <div className="rounded-xl p-3 mb-6 text-xs flex items-center gap-1 flex-wrap"
-                        style={{ background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
-                        <I name="info" className="text-base" style={{ color: "#0D9488" }} />
-                        <span className="font-bold mr-2">Índices clínicos clave:</span>
-                        <GlossaryTerm term="ICV">ICV</GlossaryTerm>
-                        <span>·</span>
-                        <GlossaryTerm term="IRP">IRP</GlossaryTerm>
-                        <span>·</span>
-                        <GlossaryTerm term="IMT">IMT</GlossaryTerm>
-                        <span>·</span>
-                        <GlossaryTerm term="IVP">IVP</GlossaryTerm>
-                        <span>·</span>
-                        <GlossaryTerm term="CIT">CIT</GlossaryTerm>
-                        <span>·</span>
-                        <GlossaryTerm term="ICG">ICG</GlossaryTerm>
-                        <span className="ml-2 opacity-70">(hover/click para ver definición)</span>
-                      </div>
-                    )}
+                    {/* §N2: Leyenda glosario — infantil y adulto */}
+                    <GlossaryLegend poblacion={preview.poblacion || "infantil"} />
                     <div className="flex items-center gap-2 mb-3">
                       <Label className="text-xs shrink-0">Plantilla PDF</Label>
                       <Sel
@@ -502,6 +463,24 @@ export default function InformesPage({ _setPage }) {
                         ))}
                       </Sel>
                     </div>
+                    {pdfTemplate === "therapy_closure" && therapyPlans.length > 0 && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <Label className="text-xs shrink-0">Plan terapéutico</Label>
+                        <Sel
+                          value={therapyPlanId}
+                          onChange={e => setTherapyPlanId(e.target.value)}
+                          className="text-xs flex-1"
+                          title="Plan a documentar en el informe de cierre"
+                        >
+                          <option value="">Más reciente (auto)</option>
+                          {therapyPlans.map(p => (
+                            <option key={p.id} value={p.id}>
+                              {p.enfoque_principal || p.diagnostico_principal || p.id.slice(0, 8)} ({p.estado})
+                            </option>
+                          ))}
+                        </Sel>
+                      </div>
+                    )}
                     {/* §M-5: bloqueado si faltan secciones críticas */}
                     <button onClick={() => genPDF(preview.eval_id)}
                       disabled={gen === preview.eval_id || preview.puede_descargar === false}

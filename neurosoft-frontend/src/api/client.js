@@ -76,6 +76,7 @@ export const _fieldNames = {
   patient_id: "Paciente", fecha: "Fecha", hora_inicio: "Hora inicio",
   hora_fin: "Hora fin", tipo_cita: "Tipo de cita", motivo: "Motivo",
   nombre: "Nombre", nit: "NIT",
+  via_atencion: "Vía de atención",
 };
 
 const _msgMap = {
@@ -91,10 +92,42 @@ const _msgMap = {
   "Value error": "Error de valor",
 };
 
+/** Códigos NeuroSoft → mensaje amigable (sincronizado con app/core/error_codes.py). */
+export const ERROR_MESSAGES_ES = {
+  PATIENT_ALREADY_EXISTS: "Ya existe un paciente con ese documento en la fecha indicada.",
+  PATIENT_NOT_FOUND: "Paciente no encontrado.",
+  EVALUATION_NOT_FOUND: "Evaluación no encontrada.",
+  EVALUATION_ALREADY_SIGNED: "La evaluación ya está firmada y no puede modificarse.",
+  EVALUATION_NOT_SIGNED: "La evaluación aún no ha sido firmada.",
+  CONCURRENCY_CONFLICT: "Otro usuario modificó este registro. Recargue e intente de nuevo.",
+  BAREMO_NOT_FOUND: "No hay baremo disponible para esta prueba.",
+  INVALID_SCORE: "Puntaje inválido para esta prueba.",
+  AGE_OUT_OF_RANGE: "La edad del paciente está fuera del rango normativo.",
+  BAREMO_DB_NOT_LOADED: "Base de baremos no cargada. Reinicie el servidor.",
+  DATABASE_ERROR: "Error de base de datos. Intente de nuevo.",
+  REPORT_GENERATION_ERROR: "No se pudo generar el informe.",
+};
+
+const _normalizeApiErrorBody = (e) => {
+  if (!e || typeof e !== "object") return e;
+  const d = e.detail;
+  if (d && typeof d === "object" && !Array.isArray(d)) {
+    const code = d.error || d.code;
+    if (code && ERROR_MESSAGES_ES[code]) {
+      return { ...d, message: d.message || ERROR_MESSAGES_ES[code] };
+    }
+    return d;
+  }
+  return e;
+};
+
 export const _parseError = (e) => {
   if (!e) return "Error desconocido";
   if (typeof e === "string") return e;
+  const norm = _normalizeApiErrorBody(e);
+  if (norm?.message && typeof norm.message === "string") return norm.message;
   if (typeof e.detail === "string") return e.detail;
+  if (norm?.error && ERROR_MESSAGES_ES[norm.error]) return ERROR_MESSAGES_ES[norm.error];
   if (Array.isArray(e.detail)) {
     return e.detail
       .map((err) => {
@@ -173,6 +206,17 @@ export const api = {
       throw { status: r.status, detail: err };
     }
     return r.blob();
+  },
+  async upload(u, file, fieldName = "file") {
+    const fd = new FormData();
+    fd.append(fieldName, file);
+    const r = await _fetch(`${API}${u}`, { method: "POST", headers: _hdrs(false), body: fd });
+    if (_chk401(r)) return;
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw { status: r.status, detail: d.detail || `Error ${r.status}` };
+    }
+    return r.json();
   },
 };
 

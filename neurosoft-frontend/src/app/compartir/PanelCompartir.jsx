@@ -579,7 +579,9 @@ export function SharedViewer({ token }) {
                 {data.resultados.slice(0, 50).map((r, i) => (
                   <div key={i} className="flex justify-between p-2 border-b border-slate-100">
                     <span>{r.test_nombre || r.nombre || r.test_id}</span>
-                    <span className="font-mono">{r.z_score ?? r.pd ?? "—"}</span>
+                    <span className="font-mono">
+                      {r.z_equivalente != null ? `z ${r.z_equivalente}` : (r.puntaje_bruto != null ? `PD ${r.puntaje_bruto}` : "—")}
+                    </span>
                   </div>
                 ))}
               </div>

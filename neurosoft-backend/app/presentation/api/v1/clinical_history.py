@@ -11,8 +11,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.application.dtos.clinical_history_dtos import (
-    BackupRequestDTO,
-    BackupResponseDTO,
     ClinicalHistoryResponseDTO,
     ClinicalHistoryUpsertDTO,
     ComprobanteAsistenciaDTO,
@@ -27,7 +25,6 @@ from app.application.dtos.clinical_history_dtos import (
     RemisionDTO,
 )
 from app.application.use_cases.clinical_history_use_cases import (
-    BackupUseCase,
     CreateEvolTerapiaUseCase,
     GenerateDocumentUseCase,
     GetClinicalHistoryUseCase,
@@ -39,7 +36,6 @@ from app.application.use_cases.clinical_history_use_cases import (
     UpdateConfigPrefsUseCase,
     UpsertClinicalHistoryUseCase,
 )
-from app.core.exceptions import ApplicationError, PatientNotFoundError
 from app.domain.clinical_engine.test_guide import (
     PROTOCOLOS_DISPONIBLES,
     TEST_GUIDE,
@@ -59,14 +55,6 @@ from app.presentation.api.v1.auth import (
 
 def _db():
     yield from get_session()
-
-
-def _handle(e: Exception):
-    if isinstance(e, PatientNotFoundError):
-        raise HTTPException(404, detail=e.to_dict())
-    if isinstance(e, ApplicationError):
-        raise HTTPException(422, detail=e.to_dict())
-    raise e
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -89,10 +77,7 @@ def upsert_clinical_history(
     db: Session = Depends(get_session),
 ):
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return UpsertClinicalHistoryUseCase(db).execute(dto)
-    except Exception as e:
-        _handle(e)
+    return UpsertClinicalHistoryUseCase(db).execute(dto)
 
 
 @hc_router.get(
@@ -201,10 +186,7 @@ def create_evolucion(
     db: Session = Depends(get_session),
 ):
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return CreateEvolTerapiaUseCase(db).execute(dto)
-    except Exception as e:
-        _handle(e)
+    return CreateEvolTerapiaUseCase(db).execute(dto)
 
 
 @evol_router.get(
@@ -414,10 +396,7 @@ def update_professional(
     db: Session = Depends(get_session),
     admin=Depends(require_admin),
 ):
-    try:
-        return ManageProfessionalUseCase(db).update(prof_id, dto)
-    except ApplicationError as e:
-        raise HTTPException(404, detail=e.to_dict())
+    return ManageProfessionalUseCase(db).update(prof_id, dto)
 
 
 @config_router.delete("/profesionales/{prof_id}", status_code=204, summary="Desactivar profesional")
@@ -427,38 +406,6 @@ def deactivate_professional(
     admin=Depends(require_admin),
 ):
     ManageProfessionalUseCase(db).deactivate(prof_id)
-
-
-# ═══════════════════════════════════════════════════════════════
-# BACKUP
-# ═══════════════════════════════════════════════════════════════
-
-backup_router = APIRouter(prefix="/backup", tags=["Backup"])
-
-
-@backup_router.post(
-    "/",
-    response_model=BackupResponseDTO,
-    summary="Generar backup manual de la base de datos",
-    description="Copia el archivo SQLite a un directorio de backup. Equivalente al botón BackUp del sistema VBA.",
-)
-def create_backup(
-    dto: BackupRequestDTO,
-    db: Session = Depends(get_session),
-    admin=Depends(require_admin),
-):
-    try:
-        return BackupUseCase(db).create_backup(dto)
-    except ApplicationError as e:
-        raise HTTPException(500, detail=e.to_dict())
-
-
-@backup_router.get("/", response_model=list[BackupResponseDTO], summary="Historial de backups")
-def list_backups(
-    db: Session = Depends(get_session),
-    admin=Depends(require_admin),
-):
-    return BackupUseCase(db).list_backups()
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -480,10 +427,7 @@ def comprobante_asistencia(
     db: Session = Depends(get_session),
 ):
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return GenerateDocumentUseCase(db).comprobante_asistencia(dto)
-    except Exception as e:
-        _handle(e)
+    return GenerateDocumentUseCase(db).comprobante_asistencia(dto)
 
 
 @docs_router.post(
@@ -498,10 +442,7 @@ def remision(
     db: Session = Depends(get_session),
 ):
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return GenerateDocumentUseCase(db).remision(dto)
-    except Exception as e:
-        _handle(e)
+    return GenerateDocumentUseCase(db).remision(dto)
 
 
 @docs_router.get("/{patient_id}", summary="Documentos generados para un paciente")

@@ -312,7 +312,7 @@ function TaskRow({ task, expanded, onToggle, onChange }) {
     }))) return;
     setSaving(true);
     try {
-      await api.delete(`/api/v1/therapy/tasks/${task.id}`);
+      await api.del(`/api/v1/therapy/tasks/${task.id}`);
       toast.success("Tarea archivada.");
       onChange?.();
     } catch (e) { toast.error(_parseError(e)); }

@@ -1,5 +1,5 @@
-/* Códigos CUPS psicología — subset frontend; fuente autoritativa: GET /api/v1/cups/psicologia */
-export const CUPS_PSICOLOGIA = [
+/* Fallback offline mínimo; fuente autoritativa: GET /api/v1/cups/psicologia */
+export const CUPS_PSICOLOGIA_FALLBACK = [
   { codigo: "940301", nombre: "Consulta psicología primera vez" },
   { codigo: "940302", nombre: "Consulta psicología control" },
   { codigo: "940303", nombre: "Consulta psicología interdisciplinaria" },
@@ -11,3 +11,6 @@ export const CUPS_PSICOLOGIA = [
   { codigo: "940304", nombre: "Intervención psicoterapéutica individual" },
   { codigo: "940305", nombre: "Intervención psicoterapéutica familiar" },
 ];
+
+/** @deprecated Usar hook useCupsPsicologia() */
+export const CUPS_PSICOLOGIA = CUPS_PSICOLOGIA_FALLBACK;

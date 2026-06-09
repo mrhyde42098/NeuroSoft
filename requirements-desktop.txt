@@ -8,6 +8,7 @@
 
 # Ventana nativa — usa WebView2 (Edge) en Windows, WebKit en macOS, GTK en Linux
 pywebview>=5.0
+pythonnet>=3.0
 
 # Empaquetado a .exe
 pyinstaller>=6.6

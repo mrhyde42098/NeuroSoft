@@ -10,15 +10,37 @@ from pathlib import Path
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _isolated_backup_paths(monkeypatch, tmp_path):
+    """
+    Aísla backup_dir del directorio real data/backups (puede tener decenas de
+    archivos de ejecuciones previas y romper conteos en suite completa).
+    """
+    import app.infrastructure.backup as backup_mod
+    from app.core import config
+
+    backup_dir = tmp_path / "backups_isolated"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+
+    def _dir():
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        return backup_dir
+
+    monkeypatch.setattr(backup_mod, "_directorio_backups", _dir)
+    monkeypatch.setattr(config.settings, "backup_dir", backup_dir)
+    yield backup_dir
+
+
 @pytest.fixture
 def tmp_db(tmp_path: Path, monkeypatch):
     """Crea una BD temporal y configura settings para usarla."""
     db = tmp_path / "neurosoft.db"
     db.write_bytes(b"FAKE_SQLITE_V1")
+    import app.infrastructure.backup as backup_mod
     from app.core import config
 
     monkeypatch.setattr(config.settings, "db_path", db)
-    monkeypatch.setattr(config.settings, "backup_dir", tmp_path / "backups")
+    monkeypatch.setattr(backup_mod, "_ruta_bd", lambda: db)
     return db
 
 
@@ -170,10 +192,27 @@ def test_eliminar_backups_viejos_elimina_excedente(tmp_path, monkeypatch):
     assert len(listar_backups()) == 3
 
 
-def test_backup_con_bd_inexistente_falla(tmp_db, monkeypatch):
+def test_aplicar_retencion_total_mantiene_n(tmp_db):
+    import time
+
+    from app.infrastructure.backup import aplicar_retencion_total, crear_backup, listar_backups
+
+    for i in range(7):
+        crear_backup(notas=f"b{i}")
+        time.sleep(0.01)
+    assert len(listar_backups()) == 7
+    eliminados = aplicar_retencion_total(5)
+    assert eliminados == 2
+    assert len(listar_backups()) == 5
+
+
+def test_backup_con_bd_inexistente_falla(monkeypatch, tmp_path):
+    import app.infrastructure.backup as backup_mod
     from app.core import config
 
-    monkeypatch.setattr(config.settings, "db_path", tmp_db.parent / "no_existe.db")
+    missing = tmp_path / "no_existe.db"
+    monkeypatch.setattr(config.settings, "db_path", missing)
+    monkeypatch.setattr(backup_mod, "_ruta_bd", lambda: missing)
     from app.infrastructure.backup import crear_backup
 
     with pytest.raises(FileNotFoundError):

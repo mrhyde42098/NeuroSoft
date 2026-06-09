@@ -1,134 +1,142 @@
 ; ═══════════════════════════════════════════════════════════════════════
-; NeuroSoft.iss — Script de instalador Inno Setup para NeuroSoft App
+; NeuroSoftOptimized.iss — Instalador Inno Setup 6 optimizado
 ; ───────────────────────────────────────────────────────────────────────
-; Compila con:
-;   "C:\Users\DESKTOP\AppData\Local\Programs\Inno Setup 6\ISCC.exe" NeuroSoft.iss
+; Compilar:
+;   ISCC.exe installer\NeuroSoftOptimized.iss
 ;
-; Salida:  D:\NeuroSoftApp\dist\NeuroSoft-Setup.exe
+; Salida: dist\NeuroSoft-Setup.exe
+;
+; Mejoras vs NeuroSoft.iss:
+;   • Rutas relativas al repo (sin hardcode D:\NeuroSoftApp)
+;   • Ollama como componente OPCIONAL (~1.3 GB) — instalador base ~50 MB
+;   • Compresión lzma2/max + solid
+;   • Soporta PyInstaller onedir (dist\NeuroSoft\*) o onefile legacy
+;   • Datos de usuario en %APPDATA%\NeuroSoft (PrivilegesRequired=lowest)
 ; ═══════════════════════════════════════════════════════════════════════
 
-#define MyAppName        "NeuroSoft App"
-#define MyAppShortName   "NeuroSoft"
-#define MyAppPublisher   "NeuroSoft"
-#define MyAppURL         "https://neurosoft.local"
-#define MyAppExeName     "NeuroSoft.exe"
-#define MyAppId          "{{A3F1C8B2-9D4E-4C5A-B7E1-NEUROSOFT2026}}"
+#define SourceRoot     ".."
+#define MyAppName      "NeuroSoft App"
+#define MyAppShortName "NeuroSoft"
+#define MyAppPublisher "NeuroSoft"
+#define MyAppURL       "https://neurosoft.local"
+#define MyAppExeName   "NeuroSoft.exe"
+#define MyAppVersion   "2.0.0"
+#define MyAppId        "{{A3F1C8B2-9D4E-4C5A-B7E1-NEUROSOFT2026}}"
 
 [Setup]
-; ─── Identificación de la aplicación ────────────────────────────────
 AppId={#MyAppId}
 AppName={#MyAppName}
-AppVerName={#MyAppName}
+AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppContact=support@neurosoft.local
 AppCopyright=Copyright (C) 2026 NeuroSoft
 
-; ─── Carpeta de instalación por defecto ────────────────────────────
-; El usuario podrá cambiar esta ruta durante la instalación.
-DefaultDirName={autopf}\NeuroSoft
-DefaultGroupName=NeuroSoft
+; Instalación en Program Files (usuario puede cambiar ruta)
+DefaultDirName={autopf}\{#MyAppShortName}
+DefaultGroupName={#MyAppShortName}
 DisableProgramGroupPage=no
-DisableDirPage=no
 AllowNoIcons=yes
 
-; ─── Privilegios ───────────────────────────────────────────────────
+; BD SQLite y backups viven en %APPDATA%\NeuroSoft — NO requiere admin
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 
-; ─── Apariencia ────────────────────────────────────────────────────
-SetupIconFile=D:\NeuroSoftApp\neurosoft.ico
-UninstallDisplayIcon={app}\NeuroSoft.exe
+SetupIconFile={#SourceRoot}\neurosoft.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
 WizardStyle=modern
 WizardSizePercent=120
 ShowLanguageDialog=no
 
-; ─── Salida del instalador ─────────────────────────────────────────
-OutputDir=D:\NeuroSoftApp\dist
+OutputDir={#SourceRoot}\dist
 OutputBaseFilename=NeuroSoft-Setup
-Compression=lzma2/ultra64
+; Máxima compresión (trade-off: compile más lento, setup más pequeño)
+Compression=lzma2/max
 SolidCompression=yes
 LZMAUseSeparateProcess=yes
 LZMANumBlockThreads=4
+LZMABlockSize=65536
 
-; ─── Comportamiento ────────────────────────────────────────────────
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 CloseApplications=yes
 RestartApplications=no
-DisableWelcomePage=no
-DisableReadyPage=no
-DisableFinishedPage=no
 
-; ─── Idiomas ───────────────────────────────────────────────────────
 [Languages]
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
-; ─── Mensajes personalizados (overrides) ───────────────────────────
-[Messages]
-spanish.WelcomeLabel1=Bienvenida al asistente de instalación de [name]
-spanish.WelcomeLabel2=Este instalador colocará NeuroSoft App en tu equipo.%n%nNeuroSoft es un sistema integral de evaluación neuropsicológica para profesionales clínicos en Colombia.%n%nSe recomienda cerrar otras aplicaciones antes de continuar.
-spanish.FinishedHeadingLabel=Instalación completada
-spanish.FinishedLabelNoIcons=Se ha instalado [name] correctamente.
-spanish.FinishedLabel=Se ha instalado [name] correctamente. La aplicación puede iniciarse desde los accesos directos.
-spanish.ClickFinish=Haz clic en Finalizar para salir del asistente.
-spanish.WizardSelectDir=Elige dónde instalar NeuroSoft
-spanish.SelectDirDesc=¿Dónde se debe instalar NeuroSoft App?
-spanish.SelectDirLabel3=El instalador colocará [name] en la siguiente carpeta.
-spanish.SelectDirBrowseLabel=Para continuar, haz clic en Siguiente. Si deseas elegir una carpeta diferente, haz clic en Examinar.
+[Types]
+Name: "compact"; Description: "Instalación compacta (sin Ollama, ~50 MB)"
+Name: "full"; Description: "Instalación completa (con IA local Ollama, ~1.4 GB)"
+Name: "custom"; Description: "Personalizada"; Flags: iscustom
 
-; ─── Tareas opcionales (checkboxes) ────────────────────────────────
+[Components]
+Name: "core"; Description: "NeuroSoft App (obligatorio)"; Types: full compact custom; Flags: fixed
+Name: "ollama"; Description: "Motor de IA local Ollama (~1.3 GB)"; Types: full; Flags: disablenouninstallwarning
+Name: "docs"; Description: "Manual del beta tester (PDF)"; Types: full compact custom
+
 [Tasks]
-Name: "desktopicon"; \
-  Description: "Crear un acceso directo en el &Escritorio"; \
-  GroupDescription: "Iconos adicionales:"; \
-  Flags: checkedonce
-Name: "quicklaunchicon"; \
-  Description: "Crear un acceso directo en la barra de Inicio rápido"; \
-  GroupDescription: "Iconos adicionales:"; \
-  Flags: unchecked
-Name: "openmanual"; \
-  Description: "Abrir el &Manual del Beta Tester al terminar"; \
-  GroupDescription: "Documentación:"; \
-  Flags: checkedonce
+Name: "desktopicon"; Description: "Crear acceso directo en el &Escritorio"; GroupDescription: "Iconos:"; Flags: checkedonce
+Name: "openmanual"; Description: "Abrir manual al finalizar"; GroupDescription: "Documentación:"; Components: docs; Flags: checkedonce
 
-; ─── Archivos a copiar ─────────────────────────────────────────────
 [Files]
-; Aplicación principal — el .exe empaquetado con PyInstaller (~1.3 GB)
-Source: "D:\NeuroSoftApp\dist\NeuroSoft.exe"; \
+; ── PyInstaller onedir (config_optimizada.spec) ─────────────
+#ifexist "..\dist\NeuroSoft\NeuroSoft.exe"
+Source: "{#SourceRoot}\dist\NeuroSoft\*"; \
   DestDir: "{app}"; \
+  Components: core; \
+  Flags: ignoreversion recursesubdirs createallsubdirs
+#else
+; ── Fallback: onefile legacy (neurosoft.spec) ───────────────
+Source: "{#SourceRoot}\dist\{#MyAppExeName}"; \
+  DestDir: "{app}"; \
+  Components: core; \
   Flags: ignoreversion
+#endif
 
-; §ollama-fix: Instalador de Ollama distribuido como archivo SEPARADO
-; (no bundleado dentro de NeuroSoft.exe para evitar corrupción).
-; El backend lo busca en {app}\vendor\ollama\OllamaSetup.exe al primer arranque.
-Source: "D:\NeuroSoftApp\vendor\ollama\OllamaSetup.exe"; \
+; Ollama — solo se embebe en el setup si ISCC se invoca con /DINCLUDE_OLLAMA=1
+; (evita que el .exe del instalador pese 1.4 GB cuando el componente es opcional)
+#ifdef INCLUDE_OLLAMA
+Source: "{#SourceRoot}\vendor\ollama\OllamaSetup.exe"; \
   DestDir: "{app}\vendor\ollama"; \
-  Flags: ignoreversion skipifsourcedoesntexist
+  Components: ollama; \
+  Flags: ignoreversion
+#endif
 
-; Manual del beta tester en PDF
-Source: "D:\NeuroSoftApp\dist\MANUAL_BETA_TESTER.pdf"; \
+Source: "{#SourceRoot}\dist\MANUAL_BETA_TESTER.pdf"; \
   DestDir: "{app}"; \
   DestName: "Manual del Beta Tester.pdf"; \
-  Flags: ignoreversion
+  Components: docs; \
+  Flags: ignoreversion skipifsourcedoesntexist
 
-; Icono para accesos directos
-Source: "D:\NeuroSoftApp\neurosoft.ico"; \
+Source: "{#SourceRoot}\neurosoft.ico"; \
   DestDir: "{app}"; \
+  Components: core; \
   Flags: ignoreversion
 
-; ─── Accesos directos (Menú Inicio + Escritorio) ───────────────────
+; Manifest de actualizaciones (opcional, para auto-update offline/USB)
+Source: "{#SourceRoot}\dist\update.json"; \
+  DestDir: "{app}"; \
+  Components: core; \
+  Flags: ignoreversion skipifsourcedoesntexist
+
+[Dirs]
+; Carpeta de datos del usuario (la app escribe en %APPDATA%, esto es solo hint)
+Name: "{userappdata}\NeuroSoft"; Permissions: users-full
+
 [Icons]
 Name: "{group}\{#MyAppName}"; \
   Filename: "{app}\{#MyAppExeName}"; \
   IconFilename: "{app}\neurosoft.ico"; \
-  Comment: "Sistema de evaluación neuropsicológica"
+  Comment: "Evaluación neuropsicológica"
 
 Name: "{group}\Manual del Beta Tester"; \
   Filename: "{app}\Manual del Beta Tester.pdf"; \
-  Comment: "Guía paso a paso de uso del beta tester"
+  Components: docs; \
+  Comment: "Guía beta tester"
 
 Name: "{group}\Desinstalar {#MyAppName}"; \
   Filename: "{uninstallexe}"
@@ -138,31 +146,30 @@ Name: "{autodesktop}\{#MyAppName}"; \
   IconFilename: "{app}\neurosoft.ico"; \
   Tasks: desktopicon
 
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; \
-  Filename: "{app}\{#MyAppExeName}"; \
-  IconFilename: "{app}\neurosoft.ico"; \
-  Tasks: quicklaunchicon
-
-; ─── Acciones al finalizar la instalación ──────────────────────────
 [Run]
-; Abrir el manual PDF si el usuario marcó la opción
 Filename: "{app}\Manual del Beta Tester.pdf"; \
-  Description: "Abrir el Manual del Beta Tester"; \
+  Description: "Abrir manual"; \
   Flags: postinstall shellexec skipifsilent; \
-  Tasks: openmanual
+  Tasks: openmanual; \
+  Components: docs
 
-; Lanzar NeuroSoft (opcional, sin auto-check)
 Filename: "{app}\{#MyAppExeName}"; \
-  Description: "Iniciar {#MyAppName} ahora"; \
+  Description: "Iniciar {#MyAppName}"; \
   Flags: postinstall nowait skipifsilent unchecked
 
-; ─── Limpieza al desinstalar ───────────────────────────────────────
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\NeuroSoft\cache"
 
+[Messages]
+spanish.WelcomeLabel2=Este instalador coloca NeuroSoft en tu equipo.%n%nLa base de datos clínica se guarda en %APPDATA%\NeuroSoft — no requiere permisos de administrador.%n%nOllama (IA local) es opcional y ocupa ~1.3 GB adicionales.
+
 [Code]
-// Ajustes visuales del wizard al inicializar.
 procedure InitializeWizard;
 begin
   WizardForm.WelcomeLabel2.Font.Size := 10;
+end;
+
+function InitializeSetup: Boolean;
+begin
+  Result := True;
 end;

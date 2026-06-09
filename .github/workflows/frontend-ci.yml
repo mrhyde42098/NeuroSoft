@@ -17,12 +17,14 @@ on:
       - "neurosoft-frontend/**"
       - "neurosoft-backend/app/infrastructure/auth/auth_service.py"
       - "neurosoft-backend/app/presentation/api/v1/auth.py"
+      - "tools/**"
       - ".github/workflows/frontend-ci.yml"
   pull_request:
     paths:
       - "neurosoft-frontend/**"
       - "neurosoft-backend/app/infrastructure/auth/auth_service.py"
       - "neurosoft-backend/app/presentation/api/v1/auth.py"
+      - "tools/**"
       - ".github/workflows/frontend-ci.yml"
 
 concurrency:
@@ -53,6 +55,14 @@ jobs:
 
       - name: Lint (ESLint v9)
         run: npm run lint
+
+      - name: V2 architecture guards
+        working-directory: ..
+        run: python tools/check_v2_guards.py
+
+      - name: API manifest alignment
+        working-directory: ..
+        run: python tools/api_manifest_check.py --no-fail-new
 
       - name: Build (Vite)
         run: npm run build
@@ -139,7 +149,7 @@ jobs:
           NEUROSOFT_LOGIN_MAX_ATTEMPTS: "0"
 
       - name: Run E2E smoke tests
-        run: npx playwright test --project=smoke --project=a11y --reporter=line
+        run: npx playwright test --project=smoke --project=a11y --project=clinical-api --reporter=line
         env:
           CI: "true"
           PLAYWRIGHT_SKIP_WEBSERVER: "1"

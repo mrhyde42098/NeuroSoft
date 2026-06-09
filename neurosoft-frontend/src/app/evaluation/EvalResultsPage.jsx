@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { api, _parseError, exportCSV } from "../../api/client.js";
 import { useToast, useConfirm } from "../../contexts.jsx";
 import {
-  RECOMMENDATIONS_LIB, DIAGNOSTIC_ALGORITHMS, DSM5_DIAGNOSES,
+  DIAGNOSTIC_ALGORITHMS, DSM5_DIAGNOSES,
   INCONCLUSO_REASONS, evaluarAlgoritmo,
 } from "../../data/datosClinicos.js";
 import { formatDualCoding, mapCie10ToCie11 } from "../../data/cie11Map.js";
@@ -16,7 +16,7 @@ import {
   Btn, Card, I, Input, Label, Sel, TopBar, Txta,
 } from "../../ui/primitives.jsx";
 import { TEAL, TEAL_LIGHT } from "../../ui/tokens.js";
-import { IQPanel } from "../../data/IndicesCI.jsx";
+import { IQPanel, normalizeClinicalTestId } from "../../data/IndicesCI.jsx";
 import GlossaryTerm from "../../ui/GlossaryTerm.jsx"; // §P4
 import { improveWithAI } from "../ia/PanelIA.jsx";
 import AIAsistente from "../ia/AIAsistente.jsx";
@@ -24,10 +24,27 @@ import { ShareButton, SecondOpinionButton } from "../compartir/PanelCompartir.js
 import { OBS_TEMPLATES } from "../../data/clinical.js";
 import { DISCREPANCY_PAIRS } from "../../data/ui.js";
 import DomainAnalysisLazy from "./DomainAnalysisLazy.jsx";
-import { useReservorio } from "../../hooks/useReservorio.js";
+import { useReservorio, fetchReservorioSugerencias } from "../../hooks/useReservorio.js";
 import ClinicalInterpretationPanel from "./ClinicalInterpretationPanel.jsx";
 import ClinicalDisclaimer from "./ClinicalDisclaimer.jsx";
 import SectionCard from "../../ui/SectionCard.jsx";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** Coerce puntajes a números antes del POST /scores/ (evita 422 por strings). */
+function normalizePuntajesForApi(raw = {}) {
+  const out = {};
+  for (const [testId, value] of Object.entries(raw || {})) {
+    if (value === null || value === undefined || value === "") continue;
+    if (typeof value === "number" && Number.isFinite(value)) {
+      out[testId] = value;
+      continue;
+    }
+    const n = parseFloat(String(value).replace(",", ".").trim());
+    out[testId] = Number.isFinite(n) ? n : 9999;
+  }
+  return out;
+}
 import { validatePediatricObservations, isChildAge } from "../../utils/pediatricValidator.js";
 import { analyzeWiscDiscrepancy, computeICG_ICC, interpretCI, buildDiscrepancyReportText } from "../../utils/wiscDiscrepancy.js";
 import { safeLS } from "../../utils/safeLS.js";
@@ -63,6 +80,10 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
    * elección NO se persiste; cada
    * descarga puede usar una plantilla distinta. */
   const[pdfTemplate,setPdfTemplate]=useState("pro");
+  const[therapyPlanId,setTherapyPlanId]=useState("");
+  const[therapyPlans,setTherapyPlans]=useState([]);
+  const[sigStatus,setSigStatus]=useState(null);
+  const[signing,setSigning]=useState(false);
   /* Impresión diagnóstica: selector + respuestas a criterios */
   const[dxAlg,setDxAlg]=useState("");const[dxRes,setDxRes]=useState({});
   /* DSM-5 / CIE-10 picker — impresión final estructurada (Fase F.1) */
@@ -129,12 +150,56 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
     return()=>window.removeEventListener("beforeunload",handler);
   },[obsT,obsSaved]);
   /* Llamar al motor de scoring */
-  useEffect(()=>{if(!evalCtx?.patientId||!evalCtx?.puntajes){setError("No hay datos de evaluación. Vuelva a la pantalla de aplicación.");setLoading(false);return}
-    const run=async()=>{try{const body={patient_id:evalCtx.patientId,protocolo:evalCtx.protoNombre||"WISC-IV",puntajes:evalCtx.puntajes};const d=await api.post("/api/v1/scores/",body);setRes(d);setEvalId(d.evaluation_id||null);if(setEvalCtx)setEvalCtx(c=>({...c,scoringResult:d}))}catch(e){setError(_parseError(e))}setLoading(false)};
+  useEffect(()=>{
+    if(!evalCtx?.patientId||!evalCtx?.puntajes){
+      setError("No hay datos de evaluación. Vuelva a la pantalla de aplicación.");
+      setLoading(false);
+      return;
+    }
+    if(!UUID_RE.test(String(evalCtx.patientId))){
+      setError("ID de paciente inválido. Seleccione un paciente registrado antes de finalizar.");
+      setLoading(false);
+      return;
+    }
+    const puntajesNorm=normalizePuntajesForApi(evalCtx.puntajes);
+    if(!Object.keys(puntajesNorm).length){
+      setError("No hay puntajes válidos para calcular. Vuelva a la pantalla de aplicación.");
+      setLoading(false);
+      return;
+    }
+    const run=async()=>{
+      try{
+        const body={
+          patient_id:evalCtx.patientId,
+          protocolo:evalCtx.protoNombre||"WISC-IV",
+          puntajes:puntajesNorm,
+        };
+        const d=await api.post("/api/v1/scores/",body);
+        setRes(d);
+        setEvalId(d.evaluation_id||null);
+        if(setEvalCtx)setEvalCtx(c=>({...c,scoringResult:d}));
+      }catch(e){
+        const msg=_parseError(e);
+        setError(msg);
+        toast.error(msg);
+      }
+      setLoading(false);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    run()},[]);
+    run();
+  },[]);
   /* Activar animación Z 200ms después de tener resultados */
   useEffect(()=>{if(res){const t=setTimeout(()=>setZAnimated(true),200);return()=>clearTimeout(t)}},[res]);
+  useEffect(()=>{
+    if(!evalId){setSigStatus(null);return}
+    api.get(`/api/v1/evaluations/detail/${evalId}/signature`).then(setSigStatus).catch(()=>setSigStatus(null));
+  },[evalId]);
+  useEffect(()=>{
+    if(pdfTemplate!=="therapy_closure"||!evalCtx?.patientId){setTherapyPlans([]);setTherapyPlanId("");return}
+    api.get(`/api/v1/therapy/plans?patient_id=${evalCtx.patientId}`)
+      .then((d)=>setTherapyPlans(Array.isArray(d)?d:[]))
+      .catch(()=>setTherapyPlans([]));
+  },[pdfTemplate,evalCtx?.patientId]);
   /* Extraer índices del resultado */
   const indices=(res?.resultados||[]).filter(r=>r.test_id&&(r.test_id.includes("Ind")||r.test_id.includes("Tot")||r.tipo_metrica==="ci"||r.tipo_metrica==="indice")).map(r=>{const abr=r.test_nombre.match(/^(\w+)/)?.[1]||r.test_id;return{n:abr.length>5?r.test_nombre.split("—")[0]?.trim()||abr:abr,v:r.puntaje_escalar,i:r.interpretacion}});
   /* Subtests (no-índices) con z */
@@ -156,9 +221,17 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
   const igcEstimate=computeICG_ICC(indicesMap);
   const wiscReportText=wiscAnalysis?.isMajor?buildDiscrepancyReportText(wiscAnalysis,igcEstimate):"";
   /* CSV Export */
-  const exportResults=()=>{const rows=(res?.resultados||[]).map(r=>({prueba:r.test_nombre,dominio:r.dominio_cognitivo||"",PD:r.puntaje_bruto,PE:r.puntaje_escalar,Z:r.z_equivalente,interpretacion:r.interpretacion}));exportCSV(rows,`Eval_${res?.patient_info?.nombre||"resultado"}_${Date.now()}.csv`)};
-  /* Generador de observaciones IA — crea borradores a partir de resultados */
-  const generarObservacion=(dominio)=>{const templates=OBS_TEMPLATES[dominio]||[];if(templates.length===0)return"";const relevantes=subtests.filter(r=>{if(dominio==="atencion_concentracion")return(r.dominio_cognitivo||"").toLowerCase().includes("atenci")||(r.test_nombre||"").toLowerCase().match(/claves|símbolos|tmt|stroop/);if(dominio==="memoria")return(r.dominio_cognitivo||"").toLowerCase().includes("memoria")||(r.test_nombre||"").toLowerCase().match(/grober|cvlt|fcro|dígitos/);if(dominio==="lenguaje")return(r.dominio_cognitivo||"").toLowerCase().includes("lengu")||(r.test_nombre||"").toLowerCase().match(/vocab|semej|comp|fluid/);if(dominio==="funciones_ejecutivas")return(r.dominio_cognitivo||"").toLowerCase().includes("ejec")||(r.test_nombre||"").toLowerCase().match(/matrices|wisconsin|trail/);if(dominio==="habilidades_visoespaciales")return(r.test_nombre||"").toLowerCase().match(/cubos|rey|fcro|matrices/);return true});const bajos=relevantes.filter(r=>r.interpretacion==="Bajo"||r.interpretacion==="Limítrofe");const altos=relevantes.filter(r=>r.interpretacion==="Superior");let texto=templates[0]+"\n\n";if(bajos.length>0)texto+=`Se identifican puntajes por debajo del promedio en: ${bajos.map(r=>r.test_nombre).join(", ")}.\n`;if(altos.length>0)texto+=`Se destaca desempeño superior en: ${altos.map(r=>r.test_nombre).join(", ")}.\n`;if(dominio==="atencion_concentracion"&&templates[1])texto+="\n"+templates[1];return texto.trim()};
+  const LOW_INTERP=new Set(["Bajo","Limítrofe","Muy Bajo"]);
+  const domainMatchers={
+    atencion_concentracion:(r)=>/atenci|velocidad|proceso/i.test(r.dominio_cognitivo||"")||/claves|símbolos|tmt|stroop|cancel/i.test(r.test_nombre||""),
+    memoria:(r)=>/memoria/i.test(r.dominio_cognitivo||"")||/grober|cvlt|fcro|dígitos|dígito/i.test(r.test_nombre||""),
+    lenguaje:(r)=>/lengu/i.test(r.dominio_cognitivo||"")||/vocab|semej|comp|fluid|denom/i.test(r.test_nombre||""),
+    funciones_ejecutivas:(r)=>/ejec/i.test(r.dominio_cognitivo||"")||/matrices|stroop|trail|wisconsin/i.test(r.test_nombre||""),
+    habilidades_visoespaciales:(r)=>/visuo|percept|prax|organización/i.test(r.dominio_cognitivo||"")||/cubos|rey|fcro|matrices|figur/i.test(r.test_nombre||""),
+  };
+  const appendUniqueBlock=(prev,block)=>{const lines=(block||"").split("\n").map(s=>s.trim()).filter(Boolean);if(!lines.length)return prev||"";const existing=new Set((prev||"").split("\n").map(s=>s.trim()).filter(Boolean));const novel=lines.filter(l=>!existing.has(l));if(!novel.length)return prev||"";return(prev?`${prev}\n\n`:"")+novel.join("\n")};
+  const exportResults=()=>{try{const rows=(res?.resultados||[]).map(r=>({prueba:r.test_nombre,dominio:r.dominio_cognitivo||"",PD:r.puntaje_bruto,PE:r.puntaje_escalar,Z:r.z_equivalente,interpretacion:r.interpretacion}));if(!rows.length){toast.warn("No hay resultados para exportar");return}const fn=`Eval_${res?.patient_info?.nombre||"resultado"}_${Date.now()}.csv`;exportCSV(rows,fn);toast.success(`CSV descargado: ${fn}`)}catch(e){toast.error(_parseError(e))}};
+  const generarObservacion=(dominio)=>{const matcher=domainMatchers[dominio];const relevantes=matcher?subtests.filter(matcher):subtests;const bajos=relevantes.filter(r=>LOW_INTERP.has(r.interpretacion));const altos=relevantes.filter(r=>r.interpretacion==="Superior");let texto="";if(bajos.length)texto+=`En este dominio se observan puntajes por debajo del promedio en: ${bajos.map(r=>r.test_nombre).join(", ")}.\n`;else texto+="No se identifican subtests bajos en este dominio según el perfil actual.\n";if(altos.length)texto+=`Fortalezas relativas en: ${altos.map(r=>r.test_nombre).join(", ")}.\n`;return texto.trim()};
   const autocompletarTodo=()=>{const nuevo={...obsT};obsDoms.forEach(([k])=>{if(!nuevo[k])nuevo[k]=generarObservacion(k)});setObsT(nuevo)};
   /* Guardar observaciones */
   /* Warnings de redacción pediátrica (regla del sistema: nunca "conserva"
@@ -183,6 +256,20 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
     for (const c of cuadrosResv) m[c.id] = c;
     return m;
   }, [cuadrosResv]);
+  useEffect(() => {
+    if (!res?.resultados?.length || recCuadro) return;
+    const grupo = _poblacion === "infantil" ? "infantil" : (_poblacion === "adulto_mayor" ? "adulto_mayor" : "adulto");
+    const payload = res.resultados.map((r) => ({
+      tipo_metrica: r.tipo_metrica,
+      dominio_cognitivo: r.dominio_cognitivo,
+      z_equivalente: r.z_equivalente,
+      interpretacion: r.interpretacion,
+      test_id: r.test_id,
+    }));
+    fetchReservorioSugerencias(payload, grupo)
+      .then((sugs) => { if (sugs[0]?.id) setRecCuadro(sugs[0].id); })
+      .catch(() => {});
+  }, [res, _poblacion, recCuadro]);
   const saveObs=async()=>{if(!evalCtx?.patientId)return;
     /* Si hay warnings pediátricos, pedir confirmación al clínico (modal editorial). */
     if(pedWarningCount>0){
@@ -195,12 +282,34 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
       });
       if(!ok){setSavingObs(false);return}
     }
-    setSavingObs(true);try{const promises=obsDoms.filter(([k])=>obsT[k]&&obsT[k].trim()).map(([k])=>api.post("/api/v1/observations/",{patient_id:evalCtx.patientId,evaluation_id:evalId,dominio:k,texto:obsT[k].trim()}));await Promise.all(promises);setObsSaved(true);setTimeout(()=>setObsSaved(false),3000);/* §autosave-results-clean: guardado en backend → borrador local ya no es necesario */safeLS.remove(obsDraftKey())}catch(e){toast.error("Error guardando observaciones: "+(e.detail||e.message||"Error"))}setSavingObs(false)};
+    setSavingObs(true);try{const promises=obsDoms.filter(([k])=>obsT[k]&&obsT[k].trim()).map(([k])=>api.post("/api/v1/observations/",{patient_id:evalCtx.patientId,evaluation_id:evalId,dominio:k,texto:obsT[k].trim()}));await Promise.all(promises);setObsSaved(true);toast.success("Observaciones guardadas correctamente");setTimeout(()=>setObsSaved(false),3000);safeLS.remove(obsDraftKey())}catch(e){toast.error("Error guardando observaciones: "+(e.detail||e.message||"Error"))}setSavingObs(false)};
   /* Corrector IA (Fase G.2) — llama al backend AI para mejorar un dominio concreto */
   const[aiBusy,setAiBusy]=useState("");
   const mejorarDominioIA=async(k,mode="style")=>{const t=obsT[k]||"";if(t.trim().length<20){toast.warn("El texto es muy corto para corregir. Mínimo 20 caracteres.");return}setAiBusy(k+":"+mode);try{const r=await improveWithAI(t,mode);if(r?.improved){setObsT(o=>({...o,[k]:r.improved}));toast.success("Texto mejorado con IA.")}else toast.warn("La IA no devolvió respuesta. Configure un proveedor en 'Asistente IA'.")}catch(e){toast.error("Error IA: "+(e.message||e))}setAiBusy("")};
   /* Generar PDF — usa la plantilla seleccionada en `pdfTemplate` */
-  const downloadPdf=async()=>{if(!evalId){toast.warn("Primero se debe calificar la evaluación");return}setGenPdf(true);try{const blob=await api.blob(`/api/v1/reports/pdf/${evalId}?template=${encodeURIComponent(pdfTemplate)}`);const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`InformeNPS_${pdfTemplate}_${evalId.slice(0,8)}.pdf`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast.success("PDF descargado.")}catch(e){toast.error("Error generando PDF: "+e.message)}setGenPdf(false)};
+  const buildPdfUrl=()=>{
+    let u=`/api/v1/reports/pdf/${evalId}?template=${encodeURIComponent(pdfTemplate)}`;
+    if(pdfTemplate==="therapy_closure"&&therapyPlanId)u+=`&therapy_plan_id=${encodeURIComponent(therapyPlanId)}`;
+    return u;
+  };
+  const firmarEvaluacion=async()=>{
+    if(!evalId)return;
+    const ok=await confirm({
+      title:"Firmar evaluación",
+      message:"Tras firmar, la evaluación queda inmutable (integridad SHA-256, Res. 2654 telepsicología). ¿Continuar?",
+      confirmText:"Firmar",
+      cancelText:"Cancelar",
+    });
+    if(!ok)return;
+    setSigning(true);
+    try{
+      const d=await api.post(`/api/v1/evaluations/detail/${evalId}/sign`,{confirm:true});
+      setSigStatus(d);
+      toast.success("Evaluación firmada correctamente.");
+    }catch(e){toast.error(_parseError(e))}
+    setSigning(false);
+  };
+  const downloadPdf=async()=>{if(!evalId){toast.warn("Primero se debe calificar la evaluación");return}setGenPdf(true);try{const blob=await api.blob(buildPdfUrl());const url=URL.createObjectURL(blob);const fname=`InformeNPS_${pdfTemplate}_${evalId.slice(0,8)}.pdf`;const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast.success(`PDF guardado: ${fname} (carpeta Descargas)`)}catch(e){toast.error("Error generando PDF: "+e.message)}setGenPdf(false)};
   /* Generar DOCX */
   const downloadDocx=async()=>{if(!evalId){toast.warn("Primero se debe calificar la evaluación");return}setGenDocx(true);try{const blob=await api.blob(`/api/v1/reports/docx/${evalId}`);const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`InformeNPS_${evalId.slice(0,8)}.docx`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast.success("DOCX descargado.")}catch(e){toast.error("Error generando DOCX: "+e.message)}setGenDocx(false)};
   /* Generar XLSX */
@@ -227,6 +336,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
       <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-sm border" style={{borderColor:TEAL,color:TEAL,background:`${TEAL}10`}}>{res?.protocolo}</span>
       <span className="text-xs ns-mono" style={{color:"var(--ns-muted)"}}>{res?.pruebas_realizadas}/{res?.total_pruebas} pruebas</span>
       {evalId&&<span className="text-[10px] ns-mono px-2 py-0.5 rounded-sm" style={{color:TEAL,background:`${TEAL}10`}}>ID: {evalId.slice(0,8)}</span>}
+      {evalId&&sigStatus?.signed&&<span className="text-[10px] font-bold px-2 py-0.5 rounded-sm flex items-center gap-1" style={{color:sigStatus.valid===false?"#b91c1c":"#166534",background:sigStatus.valid===false?"#fef2f2":"#dcfce7"}} title={sigStatus.valid===false?"Hash no coincide — posible alteración":"Evaluación firmada"}><I name={sigStatus.valid===false?"gpp_bad":"verified"} className="text-xs"/>{sigStatus.valid===false?"Firma inválida":"Firmada"}</span>}
     </div></TopBar>
     <main className="p-6"><div className="grid grid-cols-12 gap-6">
       <div className="col-span-12 lg:col-span-7 space-y-5">
@@ -255,14 +365,17 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
           <Card className="p-6">
             <IQPanel
               protocol={(res?.protocolo||evalCtx?.protoNombre||"").includes("WAIS")?"wais_iii":"wisc_iv"}
-              subtestLabels={Object.fromEntries((res?.resultados||[]).map(r=>[r.test_id,r.test_nombre]))}
+              subtestLabels={Object.fromEntries((res?.resultados||[]).map(r=>[normalizeClinicalTestId(r.test_id),r.test_nombre]))}
+              subtestScores={Object.fromEntries((res?.resultados||[])
+                .filter(r=>r.puntaje_escalar!=null&&r.puntaje_escalar!==9999&&r.tipo_metrica!=="ci"&&r.tipo_metrica!=="indice"&&!r.test_id.includes("Ind")&&!r.test_id.includes("Tot"))
+                .map(r=>[normalizeClinicalTestId(r.test_id),r.puntaje_escalar]))}
             />
           </Card>}
         {/* ─── DISCREPANCIA MAYOR ≥23 puntos (regla del sistema) ─── */}
         {wiscAnalysis?.isMajor&&<SectionCard title={`Discrepancia mayor entre índices (≥${wiscAnalysis.threshold} pts)`} icon="warning" eyebrow="WISC/WAIS" className="!border-red-200">
               <p className="text-xs leading-relaxed mb-3" style={{color:"var(--ns-text)"}}>
                 Rango de {wiscAnalysis.range} puntos entre <b>{wiscAnalysis.highest.name}={wiscAnalysis.highest.value}</b> y <b>{wiscAnalysis.lowest.name}={wiscAnalysis.lowest.value}</b>.
-                El CIT pierde su valor como resumen unitario. Se reportan los índices alternativos:
+                El <GlossaryTerm term="CIT">CIT</GlossaryTerm> pierde su valor como resumen unitario. Se reportan los índices alternativos:
               </p>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 {igcEstimate?.ICG!=null&&(()=>{const interp=interpretCI(igcEstimate.ICG);return(
@@ -274,7 +387,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
                   </div>);})()}
                 {igcEstimate?.ICC!=null&&(()=>{const interp=interpretCI(igcEstimate.ICC);return(
                   <div className="p-3 rounded-xl border-2" style={{borderColor:interp?.color||"var(--ns-card-b)",background:"var(--ns-card)"}}>
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider" style={{color:"var(--ns-muted)"}}>ICC estimado</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider" style={{color:"var(--ns-muted)"}}><GlossaryTerm term="ICC">ICC</GlossaryTerm> estimado</p>
                     <p className="text-3xl font-extrabold" style={{color:interp?.color}}>{igcEstimate.ICC}</p>
                     <p className="text-[10px] font-bold" style={{color:interp?.color}}>{interp?.label}</p>
                     <p className="text-[9px] mt-1" style={{color:"var(--ns-muted)"}}>Competencia Cognitiva (<GlossaryTerm term="IMT">IMT</GlossaryTerm>+<GlossaryTerm term="IVP">IVP</GlossaryTerm>)</p>
@@ -306,12 +419,12 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
               <path d="M 0 75 Q 100 75 150 60 T 250 35 T 300 5 T 350 35 T 450 60 T 600 75 L 600 75 L 0 75 Z" fill={TEAL} fillOpacity="0.08"/>
               {[-3,-2,-1,0,1,2,3].map(z=>{const x=((z+3)/6)*600;return<g key={z}><line x1={x} y1="5" x2={x} y2="75" stroke="var(--ns-card-b)" strokeWidth="0.5" strokeDasharray="2 3"/><text x={x} y="78" textAnchor="middle" fontSize="9" fill="var(--ns-muted)">{z}</text></g>})}
               {/* Marcadores de subtests */}
-              {subtests.map((r,i)=>{const x=((r.z_equivalente+3)/6)*600;const y=75-Math.exp(-(r.z_equivalente*r.z_equivalente)/2)*70;return<circle key={i} cx={x} cy={y} r="3" fill={lc(r.interpretacion)} stroke="#fff" strokeWidth="1"/>})}
+              {subtests.map((r,i)=>{const z=Math.max(-3,Math.min(3,r.z_equivalente||0));const x=((z+3)/6)*600;const y=72-Math.exp(-(z*z)/2)*62;return<g key={i}><circle cx={x} cy={y} r="4" fill={lc(r.interpretacion)} stroke="#fff" strokeWidth="1"/><title>{`${r.test_nombre}: z=${z.toFixed(2)}`}</title></g>})}
             </svg>
             <p className="text-[9px] text-center mt-1" style={{color:"var(--ns-muted)"}}>Distribución normal teórica con posición de cada subtest del paciente</p>
           </div>
           <div className="flex justify-between text-[10px] font-bold mb-2 px-2" style={{color:"var(--ns-muted)"}}>{[-3,-2,-1,0,1,2,3].map(x=><span key={x}>{x}</span>)}</div>
-          <div className="space-y-2">{subtests.map(r=><div key={r.test_id} className="flex items-center gap-2"><span className="w-28 text-[11px] font-bold truncate text-right">{r.test_nombre}</span><div className="flex-1 h-2.5 rounded-full relative overflow-hidden" style={{background:"var(--ns-subtle)"}}><div className="absolute top-0 bottom-0 opacity-8" style={{left:"33.3%",width:"33.4%",background:"#0D9488"}}/><div className="absolute top-0 bottom-0 rounded-full" style={{left:`${Math.min(zp(0),zp(r.z_equivalente))}%`,width:zAnimated?`${Math.max(Math.abs(zp(r.z_equivalente)-zp(0)),2)}%`:"0%",background:lc(r.interpretacion),transition:"width 0.7s cubic-bezier(0.34,1.56,0.64,1)"}}/></div><span className="w-8 text-[10px] font-bold text-right" style={{color:lc(r.interpretacion)}}>{r.z_equivalente>0?"+":""}{r.z_equivalente.toFixed(1)}</span></div>)}</div>
+          <div className="space-y-2">{subtests.map(r=>{const z=r.z_equivalente||0;const center=50;const tip=zp(z);const barLeft=z<0?tip:center;const barWidth=zAnimated?Math.max(Math.abs(tip-center),2):0;return<div key={r.test_id} className="flex items-center gap-2"><span className="w-28 text-[11px] font-bold truncate text-right" style={{color:"var(--ns-text)"}} title={r.test_nombre}>{r.test_nombre}</span><div className="flex-1 h-2.5 rounded-full relative overflow-hidden" style={{background:"var(--ns-subtle)"}}><div className="absolute top-0 bottom-0 w-px" style={{left:`${center}%`,background:"var(--ns-muted)"}}/><div className="absolute top-0 bottom-0 rounded-full" style={{left:`${barLeft}%`,width:`${barWidth}%`,background:lc(r.interpretacion),transition:"width 0.7s cubic-bezier(0.34,1.56,0.64,1)"}}/></div><span className="w-8 text-[10px] font-bold text-right" style={{color:lc(r.interpretacion)}}>{z>0?"+":""}{z.toFixed(1)}</span></div>})}</div>
         </Card>}
         {/* Fortalezas / Debilidades */}
         {(res?.puntos_fuertes?.length>0||res?.puntos_debiles?.length>0)&&<div className="grid grid-cols-2 gap-4">
@@ -334,12 +447,12 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
         <DomainAnalysisLazy subtests={subtests}/>
         {/* Tabla de resultados */}
         <Card className="overflow-hidden"><table className="w-full text-sm"><thead style={{background:"var(--ns-subtle)"}}><tr><th className="px-4 py-3 text-left font-bold">Prueba</th><th className="px-3 py-3 text-center font-bold">PD</th><th className="px-3 py-3 text-center font-bold">PE</th><th className="px-3 py-3 text-center font-bold">Z</th><th className="px-3 py-3 text-left font-bold">Nivel</th><th className="px-4 py-3 text-left font-bold">Dominio</th></tr></thead>
-          <tbody>{(res?.resultados||[]).filter(r=>r.puntaje_bruto!==9999).map((r,i)=><tr key={r.test_id} className={`border-b border-gray-50 ${i%2?"bg-gray-50/30":""}`}><td className="px-4 py-2.5 font-bold text-xs">{r.test_nombre}</td><td className="px-3 py-2.5 text-center text-xs">{r.puntaje_bruto!=null?r.puntaje_bruto:"—"}</td><td className="px-3 py-2.5 text-center font-extrabold text-xs" style={{color:lc(r.interpretacion)}}>{r.puntaje_escalar!=null?Math.round(r.puntaje_escalar):"—"}</td><td className="px-3 py-2.5 text-center text-xs font-mono" style={{color:lc(r.interpretacion)}}>{r.z_equivalente!=null?(r.z_equivalente>0?"+":"")+r.z_equivalente.toFixed(1):"—"}</td><td className="px-3 py-2.5"><span className="px-2 py-0.5 text-[10px] font-bold rounded" style={{background:`${lc(r.interpretacion)}15`,color:lc(r.interpretacion)}}>{r.interpretacion}</span></td><td className="px-4 py-2.5 text-gray-400 italic text-[10px]">{r.dominio_cognitivo}</td></tr>)}</tbody></table>
+          <tbody>{(res?.resultados||[]).filter(r=>r.puntaje_bruto!==9999).map((r,i)=><tr key={r.test_id} className="border-b" style={{borderColor:"var(--ns-card-b)",background:i%2?"var(--ns-subtle)":"transparent"}}><td className="px-4 py-2.5 font-bold text-xs" style={{color:"var(--ns-text)"}}>{r.test_nombre}</td><td className="px-3 py-2.5 text-center text-xs">{r.puntaje_bruto!=null?r.puntaje_bruto:"—"}</td><td className="px-3 py-2.5 text-center font-extrabold text-xs" style={{color:lc(r.interpretacion)}}>{r.puntaje_escalar!=null?Math.round(r.puntaje_escalar):"—"}</td><td className="px-3 py-2.5 text-center text-xs font-mono" style={{color:lc(r.interpretacion)}}>{r.z_equivalente!=null?(r.z_equivalente>0?"+":"")+r.z_equivalente.toFixed(1):"—"}</td><td className="px-3 py-2.5"><span className="px-2 py-0.5 text-[10px] font-bold rounded" style={{background:`${lc(r.interpretacion)}15`,color:lc(r.interpretacion)}}>{r.interpretacion}</span></td><td className="px-4 py-2.5 text-gray-400 italic text-[10px]">{r.dominio_cognitivo}</td></tr>)}</tbody></table>
         </Card>
         {/* ─── IMPRESIÓN DIAGNÓSTICA SUGERIDA (algoritmos ponderados) ─── */}
         <Card className="p-6"><div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-extrabold flex items-center gap-2"><I name="psychology" style={{color:TEAL}}/>Impresión Diagnóstica — Algoritmo Asistido</h3>
-          <Sel value={dxAlg} onChange={e=>{setDxAlg(e.target.value);setDxRes({})}} className="text-xs w-64"><option value="">— Elegir cuadro a evaluar —</option>{Object.entries(DIAGNOSTIC_ALGORITHMS).map(([k,a])=><option key={k} value={k}>{a.nombre}</option>)}</Sel>
+          <div className="flex gap-2 items-center"><Sel value={dxAlg} onChange={e=>{setDxAlg(e.target.value);setDxRes({})}} className="text-xs w-64"><option value="">— Elegir cuadro a evaluar —</option>{Object.entries(DIAGNOSTIC_ALGORITHMS).map(([k,a])=><option key={k} value={k}>{a.nombre}</option>)}</Sel>{dxAlg&&alertas.length>0&&<button type="button" onClick={()=>{const alg=DIAGNOSTIC_ALGORITHMS[dxAlg];const next={};alg.criterios.forEach(c=>{if(alertas.length&&c.peso>=2)next[c.id]=true});setDxRes(next)}} className="text-[10px] font-bold px-2 py-1 rounded-full border" style={{borderColor:TEAL,color:TEAL}}>Preseleccionar según perfil</button>}</div>
         </div>
         {!dxAlg?<p className="text-xs" style={{color:"var(--ns-muted)"}}>Seleccione un cuadro clínico para aplicar criterios DSM-5/CIE-10 y obtener nivel de sospecha ponderado.</p>
         :(()=>{const alg=DIAGNOSTIC_ALGORITHMS[dxAlg];const evalRes=evaluarAlgoritmo(dxAlg,dxRes);const colorN=evalRes.nivel==="alta"?"#dc2626":evalRes.nivel==="media"?"#d97706":"#059669";return<div className="space-y-4">
@@ -386,8 +499,8 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
         <Card className="p-6"><div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-extrabold flex items-center gap-2"><I name="lightbulb" style={{color:TEAL}}/>Biblioteca de Recomendaciones</h3>
           <div className="flex items-center gap-2">
-            <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background: resvSource === "backend" ? TEAL : "var(--ns-subtle)", color: resvSource === "backend" ? "#fff" : "var(--ns-muted)"}} title={resvSource === "backend" ? "Sincronizado con backend" : "Usando copia local (offline)"}>
-              {resvLoading ? "Cargando..." : (resvSource === "backend" ? "v.backend" : "v.local")}
+            <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background: resvSource === "backend" ? TEAL : "var(--ns-subtle)", color: resvSource === "backend" ? "#fff" : "var(--ns-muted)"}} title={resvSource === "backend" ? "Sincronizado con backend" : "Reservorio no disponible"}>
+              {resvLoading ? "Cargando..." : (resvSource === "backend" ? "v.backend" : "sin datos")}
             </span>
             <Sel value={recCuadro} onChange={e=>setRecCuadro(e.target.value)} className="text-xs w-64" disabled={resvLoading}><option value="">— Elegir cuadro —</option>
               {cuadrosResv.map(c=><option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -395,17 +508,17 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
           </div>
         </div>
         {!recCuadro?<p className="text-xs" style={{color:"var(--ns-muted)"}}>Seleccione un cuadro para ver recomendaciones listas para incorporar al informe.</p>
-        :(()=>{const cuadro=cuadroById[recCuadro] || RECOMMENDATIONS_LIB[recCuadro]; if(!cuadro) return null; return<div className="space-y-3">
+        :(()=>{const cuadro=cuadroById[recCuadro]; if(!cuadro) return <p className="text-xs" style={{color:"var(--ns-muted)"}}>Cuadro no encontrado en el reservorio del backend.</p>; return<div className="space-y-3">
           <p className="text-[10px]" style={{color:"var(--ns-muted)"}}>{cuadro.cie ? <><span>CIE-10: <strong>{cuadro.cie}</strong></span></> : null}{cuadro.grupo_label ? <span className="ml-1">— {cuadro.grupo_label}</span> : null}</p>
           {Object.entries(cuadro.categorias).map(([cat,recs])=><div key={cat} className="rounded-xl p-3" style={{background:"var(--ns-subtle)"}}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{color:TEAL}}>{cat.replace(/_/g," ")}</p>
-              <button onClick={()=>{const block=recs.map(r=>"• "+r).join("\n");setObsT(o=>({...o,recomendaciones:(o.recomendaciones?o.recomendaciones+"\n\n":"")+`[${cuadro.nombre} · ${cat.replace(/_/g," ")}]\n${block}`}))}} className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{background:TEAL,color:"#fff"}}>Insertar todas</button>
+              <button onClick={()=>{const block=recs.map(r=>"• "+r).join("\n");setObsT(o=>({...o,recomendaciones:appendUniqueBlock(o.recomendaciones,`[${cuadro.nombre} · ${cat.replace(/_/g," ")}]\n${block}`)}))}} className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{background:TEAL,color:"#fff"}}>Insertar todas</button>
             </div>
             <ul className="space-y-1.5">{recs.map((r,i)=><li key={i} className="flex items-start gap-2 group">
               <span className="text-teal-500 mt-0.5 shrink-0">•</span>
               <span className="text-xs leading-snug flex-1">{r}</span>
-              <button onClick={()=>setObsT(o=>({...o,recomendaciones:(o.recomendaciones?o.recomendaciones+"\n":"")+"• "+r}))} className="opacity-0 group-hover:opacity-100 text-[9px] font-bold px-1.5 py-0.5 rounded transition-all shrink-0" style={{color:TEAL,background:"var(--ns-card)"}} title="Insertar esta recomendación">+</button>
+              <button onClick={()=>setObsT(o=>({...o,recomendaciones:appendUniqueBlock(o.recomendaciones,"• "+r)}))} className="opacity-0 group-hover:opacity-100 text-[9px] font-bold px-1.5 py-0.5 rounded transition-all shrink-0" style={{color:TEAL,background:"var(--ns-card)"}} title="Insertar esta recomendación">+</button>
             </li>)}</ul>
           </div>)}
         </div>})()}
@@ -415,7 +528,7 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
       <div className="col-span-12 lg:col-span-5"><div className="sticky top-24 space-y-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-base font-bold flex items-center gap-2">Observaciones por Dominio{obsSaved&&<span className="text-xs text-teal-600 font-normal ml-2 animate-pulse">Guardadas</span>}</h3>
-          <button onClick={autocompletarTodo} className="text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 hover:scale-105 transition-all" style={{background:`linear-gradient(135deg,${TEAL},${TEAL_LIGHT})`,color:"#fff"}} title="Generar borradores automáticos"><I name="auto_awesome" className="text-xs"/>Auto-generar</button>
+          <button onClick={autocompletarTodo} className="text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 border transition-all" style={{borderColor:TEAL,color:TEAL,background:"var(--ns-card)"}} title="Generar borradores desde puntajes"><I name="auto_fix_high" className="text-xs"/>Plantillas desde perfil</button>
         </div>
 
         {/* §ai-asistente (2026-05-18): asistente IA con 6 prompts especializados.
@@ -465,6 +578,11 @@ export default function EvalResultsPage({setPage,nav,evalCtx,setEvalCtx}){
             <option value="therapy_closure">Cierre terapéutico</option>
             <option value="estandar">Clásico (legado)</option>
           </Sel>
+          {pdfTemplate==="therapy_closure"&&therapyPlans.length>0&&<Sel value={therapyPlanId} onChange={e=>setTherapyPlanId(e.target.value)} className="text-xs" title="Plan terapéutico para el informe de cierre" style={{maxWidth:"220px"}}>
+            <option value="">Plan (más reciente)</option>
+            {therapyPlans.map((p)=><option key={p.id} value={p.id}>{p.enfoque_principal||p.diagnostico_principal||p.id.slice(0,8)} ({p.estado})</option>)}
+          </Sel>}
+          {evalId&&!sigStatus?.signed&&<Btn v="outline" className="text-xs" onClick={firmarEvaluacion} disabled={signing}>{signing?"Firmando…":<><I name="draw" className="text-sm"/>Firmar eval.</>}</Btn>}
           <Btn className="flex-1 text-xs" onClick={downloadPdf} disabled={genPdf||!puedeDescargarPDF} title={razonBloqueoPDF||`Descargar PDF (plantilla: ${pdfTemplate})`}>{genPdf?"Generando...":"PDF"}</Btn>
           <Btn v="outline" className="text-xs" onClick={downloadDocx} disabled={genDocx||!evalId} title="Informe editable en Word"><I name="description" className="text-sm"/>{genDocx?"...":"DOCX"}</Btn>
           <Btn v="outline" className="text-xs" onClick={downloadXlsx} disabled={genXlsx||!evalId} title="Matriz de puntajes en Excel"><I name="grid_on" className="text-sm"/>{genXlsx?"...":"XLSX"}</Btn>

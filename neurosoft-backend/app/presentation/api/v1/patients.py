@@ -36,11 +36,6 @@ from app.application.dtos.patient_dtos import (
     PatientResponseDTO,
     PatientUpdateDTO,
 )
-from app.core.exceptions import (
-    ApplicationError,
-    PatientAlreadyExistsError,
-    PatientNotFoundError,
-)
 from app.presentation.api.v1.auth import (
     CurrentUser,
     get_patient_for_user,
@@ -56,21 +51,6 @@ from app.presentation.dependencies import (
 )
 
 router = APIRouter(prefix="/patients", tags=["Pacientes"])
-
-
-# ──────────────────────────────────────────────────────────────
-# Handlers de excepción → HTTP
-# ──────────────────────────────────────────────────────────────
-
-
-def _handle_domain_error(e: Exception):
-    if isinstance(e, PatientAlreadyExistsError):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.to_dict())
-    if isinstance(e, PatientNotFoundError):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.to_dict())
-    if isinstance(e, ApplicationError):
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=e.to_dict())
-    raise e
 
 
 def _scope_profesional_id(user) -> str | None:
@@ -111,10 +91,7 @@ def register_patient(
     # (a menos que sea admin y esté reasignando explícitamente).
     if user.role != "admin" and user.profesional_id is not None:
         dto.profesional_id = user.profesional_id
-    try:
-        return uc.execute(dto)
-    except Exception as e:
-        _handle_domain_error(e)
+    return uc.execute(dto)
 
 
 @router.get(
@@ -252,10 +229,7 @@ def get_patient(
 ) -> PatientResponseDTO:
     # §S0.2: verificar ownership antes de delegar al use case
     get_patient_for_user(patient_id, db, user)
-    try:
-        return uc.by_id(patient_id)
-    except Exception as e:
-        _handle_domain_error(e)
+    return uc.by_id(patient_id)
 
 
 @router.patch(
@@ -274,10 +248,7 @@ def update_patient(
     # así que un no-admin no puede reasignarse un paciente vía PATCH. El
     # check de ownership aquí es la segunda línea de defensa.
     get_patient_for_user(patient_id, db, user)
-    try:
-        return uc.execute(patient_id, dto)
-    except Exception as e:
-        _handle_domain_error(e)
+    return uc.execute(patient_id, dto)
 
 
 @router.delete(
@@ -293,10 +264,7 @@ def archive_patient(
     user: CurrentUser,
 ):
     get_patient_for_user(patient_id, db, user)
-    try:
-        uc.execute(patient_id)
-    except Exception as e:
-        _handle_domain_error(e)
+    uc.execute(patient_id)
 
 
 # ──────────────────────────────────────────────────────────────
@@ -338,10 +306,7 @@ def export_patient_data(
     # §S0.2: ownership check antes de exportar
     get_patient_for_user(patient_id, db, user)
 
-    try:
-        data = uc.execute(patient_id)
-    except PatientNotFoundError as e:
-        raise HTTPException(status_code=404, detail=e.to_dict())
+    data = uc.execute(patient_id)
 
     # Auditoría: dejar trazabilidad de quién, cuándo y para qué paciente
     # se exportaron los datos (Res. 1995/99 + Ley 1581).

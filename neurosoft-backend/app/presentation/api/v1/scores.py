@@ -13,7 +13,7 @@ Endpoints:
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Query, status
 
 from app.application.dtos.scoring_dtos import (
     ObservationResponseDTO,
@@ -24,12 +24,6 @@ from app.application.dtos.scoring_dtos import (
     ScoringResponseDTO,
     SingleScoreRequestDTO,
     TestInfoDTO,
-)
-from app.core.exceptions import (
-    ApplicationError,
-    BaremoDatabaseNotLoadedError,
-    DomainError,
-    PatientNotFoundError,
 )
 from app.presentation.api.v1.auth import CurrentUser, get_patient_for_user
 from app.presentation.dependencies import (
@@ -43,16 +37,6 @@ from app.presentation.dependencies import (
 
 scores_router = APIRouter(prefix="/scores", tags=["Motor de Calificación"])
 observations_router = APIRouter(prefix="/observations", tags=["Observaciones Clínicas"])
-
-
-def _handle(e: Exception):
-    if isinstance(e, PatientNotFoundError):
-        raise HTTPException(status_code=404, detail=e.to_dict())
-    if isinstance(e, BaremoDatabaseNotLoadedError):
-        raise HTTPException(status_code=503, detail=e.to_dict())
-    if isinstance(e, (DomainError, ApplicationError)):
-        raise HTTPException(status_code=422, detail=e.to_dict())
-    raise e
 
 
 # ──────────────────────────────────────────────────────────────
@@ -77,10 +61,7 @@ def score_evaluation(
     user: CurrentUser,
 ) -> ScoringResponseDTO:
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return uc.execute(dto)
-    except Exception as e:
-        _handle(e)
+    return uc.execute(dto)
 
 
 @scores_router.post(
@@ -99,10 +80,7 @@ def score_preview(
     user: CurrentUser,
 ) -> ResultadoPruebaDTO | None:
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return uc.execute(dto)
-    except Exception as e:
-        _handle(e)
+    return uc.execute(dto)
 
 
 @scores_router.get(
@@ -118,10 +96,7 @@ def list_tests(
     ),
     uc: ListTestsUC = ...,
 ) -> list[TestInfoDTO]:
-    try:
-        return uc.execute(poblacion)
-    except Exception as e:
-        _handle(e)
+    return uc.execute(poblacion)
 
 
 # ──────────────────────────────────────────────────────────────
@@ -145,10 +120,7 @@ def upsert_observation(
     user: CurrentUser,
 ) -> ObservationResponseDTO:
     get_patient_for_user(dto.patient_id, db, user)
-    try:
-        return uc.execute(dto)
-    except Exception as e:
-        _handle(e)
+    return uc.execute(dto)
 
 
 @observations_router.get(

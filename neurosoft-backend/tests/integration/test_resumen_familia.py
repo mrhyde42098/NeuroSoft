@@ -113,3 +113,70 @@ class TestResumenFamilia:
         assert pdf.startswith(b"%PDF-")
         # La sección sigue presente pero sin recomendaciones
         assert "FAMILIA" in text.upper()
+
+    def test_pro_resumen_familia_antes_de_resultados_cuantitativos(self):
+        """Resumen familiar debe preceder a la tabla técnica de puntajes."""
+        data = _build_data()
+        pdf = generate_pro_pdf(data, template="pro")
+        text = _extract_text(pdf)
+        idx_familia = text.upper().find("RESUMEN PARA LA FAMILIA")
+        idx_resultados = text.upper().find("RESULTADOS")
+        assert idx_familia >= 0 and idx_resultados >= 0
+        assert idx_familia < idx_resultados
+
+    def test_pro_incluye_sintesis_integradora(self):
+        data = _build_data(
+            resultados=[
+                {
+                    "test_id": "AdWAISCIT",
+                    "test_nombre": "CIT",
+                    "puntaje_escalar": 87,
+                    "z_equivalente": -0.87,
+                    "interpretacion": "Promedio Bajo",
+                    "clasificacion": "Promedio Bajo",
+                    "tipo_metrica": "ci",
+                    "dominio_cognitivo": "Inteligencia",
+                },
+                {
+                    "test_id": "AdWAISV",
+                    "test_nombre": "Vocabulario",
+                    "puntaje_escalar": 11,
+                    "z_equivalente": 0.0,
+                    "interpretacion": "Promedio",
+                    "clasificacion": "Promedio",
+                    "tipo_metrica": "escalar",
+                    "dominio_cognitivo": "Lenguaje",
+                },
+            ]
+        )
+        pdf = generate_pro_pdf(data, template="pro")
+        text = _extract_text(pdf)
+        assert "SÍNTESIS" in text.upper() or "SINTESIS" in text.upper()
+
+    def test_pro_tabla_incluye_que_significa(self):
+        data = _build_data()
+        pdf = generate_pro_pdf(data, template="pro")
+        text = _extract_text(pdf)
+        assert "QUÉ SIGNIFICA" in text.upper() or "QUE SIGNIFICA" in text.upper()
+
+    def test_pediatrico_voz_cuidador(self):
+        data = _build_data(edad_display="10a", escolaridad="Primaria")
+        pdf = generate_pro_pdf(data, template="pediatrico")
+        text = _extract_text(pdf)
+        assert "SU HIJO" in text.upper() or "CUIDADOR" in text.upper()
+
+    def test_recomendaciones_familia_numeradas(self):
+        data = _build_data(obs_recomendaciones="[ESCOLAR] Solicitar acompañamiento pedagógico en matemáticas")
+        pdf = generate_pro_pdf(data, template="pro")
+        text = _extract_text(pdf)
+        assert "1." in text
+        assert "matemáticas" in text.lower() or "MATEM" in text.upper()
+
+    def test_impresion_incluye_puente_lenguaje_claro(self):
+        data = _build_data(
+            codigo_cie10="F90.0",
+            codigo_cie10_desc="Trastorno de déficit de atención con hiperactividad",
+        )
+        pdf = generate_pro_pdf(data, template="pro")
+        text = _extract_text(pdf)
+        assert "PALABRAS SENCILLAS" in text.upper() or "En palabras sencillas" in text

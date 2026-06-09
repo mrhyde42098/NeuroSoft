@@ -245,6 +245,24 @@ def dominios_con_implicaciones(
     return out
 
 
+def titulo_implicacion_humano(
+    dominio: str,
+    *,
+    nombre_paciente: str = "",
+    modo_voz: str = "paciente",
+) -> str:
+    """Encabezado empático para implicaciones (sin jerga severo/moderado)."""
+    dom_claro = dominio.lower()
+    if modo_voz == "pediatrico_cuidador":
+        ref = nombre_paciente.split()[0] if nombre_paciente else "su hijo/a"
+        return f"En la vida diaria de {ref}: {dom_claro}"
+    if modo_voz == "cuidador":
+        ref = nombre_paciente.split()[0] if nombre_paciente else "su familiar"
+        return f"En el día a día de {ref}: {dom_claro}"
+    ref = nombre_paciente.split()[0] if nombre_paciente else "usted"
+    return f"En su vida diaria ({dom_claro})"
+
+
 def texto_implicaciones_para_familia(
     resultados: Sequence[dict],
     poblacion: str = "adulto_joven",

@@ -21,8 +21,9 @@ from __future__ import annotations
 import re
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field, field_validator
 
@@ -138,6 +139,17 @@ class FirmarDTO(BaseModel):
     documento_firmante: str | None = None
     dispositivo: str | None = None
     profesional_id: str | None = None
+    modo_firma: str = "digital"  # digital | fisico
+
+
+class FirmarFisicoDTO(BaseModel):
+    patient_id: str
+    tipo: str
+    nombre_firmante: str
+    documento_firmante: str
+    relacion_firmante: str = "titular"
+    profesional_id: str | None = None
+    nota: str | None = None
 
 
 class RevocarDTO(BaseModel):
@@ -158,6 +170,9 @@ class ConsentimientoResponseDTO(BaseModel):
     fecha_revocado: datetime | None = None
     motivo_revocado: str | None = None
     vigente: bool
+    modo_firma: str = "digital"
+    requiere_adjunto: bool = False
+    tiene_adjunto: bool = False
 
 
 class PendientesDTO(BaseModel):
@@ -207,7 +222,18 @@ def _to_dto(orm: ConsentimientoORM) -> ConsentimientoResponseDTO:
         fecha_revocado=orm.fecha_revocado,
         motivo_revocado=orm.motivo_revocado,
         vigente=bool(orm.aceptado) and orm.fecha_revocado is None,
+        modo_firma=getattr(orm, "modo_firma", None) or "digital",
+        requiere_adjunto=bool(getattr(orm, "requiere_adjunto", False)),
+        tiene_adjunto=bool(getattr(orm, "adjunto_path", None)),
     )
+
+
+def _consent_attach_dir() -> Path:
+    from app.core.config import settings
+
+    d = Path(settings.DATA_DIR) / "consent_attachments"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 
 # ─────────────────────────────────────────────────────────────
@@ -240,6 +266,9 @@ def firmar_consentimiento(dto: FirmarDTO, db: DbSession, request: Request):
     ip = request.client.host if request.client else None
     ua = request.headers.get("user-agent", "")[:400] if request else None
 
+    modo = (dto.modo_firma or "digital").lower()
+    if modo not in ("digital", "fisico"):
+        raise HTTPException(422, "modo_firma debe ser 'digital' o 'fisico'")
     orm = ConsentimientoORM(
         id=str(uuid.uuid4()),
         patient_id=dto.patient_id,
@@ -255,6 +284,8 @@ def firmar_consentimiento(dto: FirmarDTO, db: DbSession, request: Request):
         ip_registro=ip,
         dispositivo=dto.dispositivo or ua,
         fecha_firma=datetime.now(UTC),
+        modo_firma=modo,
+        requiere_adjunto=(modo == "fisico"),
     )
     db.add(orm)
     db.commit()
@@ -294,6 +325,17 @@ def pendientes_paciente(patient_id: str, db: DbSession):
     }
     # habeas_data y evaluacion son obligatorios para poder registrar HC/evaluación
     obligatorios = {"habeas_data", "evaluacion"}
+    if (pat.via_atencion or "").lower() == "telepsicologia":
+        obligatorios.add("telepsicologia")
+    else:
+        from app.infrastructure.database.orm_models import AppointmentORM, TherapySessionORM
+
+        tele_cita = db.query(AppointmentORM.id).filter_by(patient_id=patient_id, modalidad="telepsicologia").first()
+        tele_sesion = (
+            db.query(TherapySessionORM.id).filter_by(patient_id=patient_id, modalidad="telepsicologia").first()
+        )
+        if tele_cita or tele_sesion:
+            obligatorios.add("telepsicologia")
     pendientes = sorted(obligatorios - firmados_vigentes)
     return PendientesDTO(
         patient_id=patient_id,
@@ -401,6 +443,66 @@ def enviar_consentimiento_email(dto: EnviarConsentimientoDTO, db: DbSession):
         documento_id=dto.consentimiento_id,
     )
     return EnviarConsentimientoResponse(ok=result.ok, log_id=result.log_id, error=result.error)
+
+
+@consentimientos_router.post("/fisico", response_model=ConsentimientoResponseDTO, status_code=201)
+def registrar_consentimiento_fisico(dto: FirmarFisicoDTO, db: DbSession, request: Request):
+    """Registra consentimiento firmado en papel (sin firma digital)."""
+    if dto.tipo not in TIPOS_VALIDOS:
+        raise HTTPException(422, f"Tipo inválido. Válidos: {TIPOS_VALIDOS}")
+    pat = db.query(PatientORM).filter_by(id=dto.patient_id).first()
+    if not pat:
+        raise HTTPException(404, "Paciente no encontrado")
+    texto = TEXTOS_VIGENTES[dto.tipo]
+    ip = request.client.host if request.client else None
+    orm = ConsentimientoORM(
+        id=str(uuid.uuid4()),
+        patient_id=dto.patient_id,
+        profesional_id=dto.profesional_id,
+        tipo=dto.tipo,
+        version_texto=texto["version"],
+        texto_completo=(dto.nota or "") + "\n\n" + texto["texto"],
+        aceptado=True,
+        firma_base64=None,
+        nombre_firmante=dto.nombre_firmante,
+        relacion_firmante=dto.relacion_firmante,
+        documento_firmante=dto.documento_firmante,
+        ip_registro=ip,
+        dispositivo="consentimiento_fisico",
+        fecha_firma=datetime.now(UTC),
+        modo_firma="fisico",
+        requiere_adjunto=True,
+    )
+    db.add(orm)
+    db.commit()
+    db.refresh(orm)
+    return _to_dto(orm)
+
+
+@consentimientos_router.post("/{item_id}/adjunto", response_model=ConsentimientoResponseDTO)
+async def subir_adjunto_consentimiento(item_id: str, db: DbSession, file: UploadFile = File(...)):
+    """Sube escaneado/foto del consentimiento físico (cifrado local)."""
+    orm = db.query(ConsentimientoORM).filter_by(id=item_id).first()
+    if not orm:
+        raise HTTPException(404, "Consentimiento no encontrado")
+    raw = await file.read()
+    if not raw or len(raw) > 15 * 1024 * 1024:
+        raise HTTPException(422, "Archivo vacío o mayor a 15 MB")
+    mime = (file.content_type or "").lower()
+    if mime not in ("application/pdf", "image/jpeg", "image/png", "image/webp"):
+        raise HTTPException(422, "Solo PDF o imagen (JPEG/PNG/WebP)")
+    import base64
+
+    from app.infrastructure.crypto import encrypt
+
+    ext = ".pdf" if "pdf" in mime else ".img"
+    out = _consent_attach_dir() / f"{item_id}{ext}.enc"
+    out.write_text(encrypt(base64.b64encode(raw).decode("ascii")), encoding="ascii")
+    orm.adjunto_path = str(out)
+    orm.requiere_adjunto = False
+    db.commit()
+    db.refresh(orm)
+    return _to_dto(orm)
 
 
 @consentimientos_router.patch("/{item_id}/revocar", response_model=ConsentimientoResponseDTO)

@@ -18,6 +18,7 @@ from reportlab.platypus.flowables import Flowable
 from reportlab.pdfgen import canvas as canvas_module
 from reportlab.graphics.shapes import Drawing, Path, Circle, Rect, String
 from reportlab.graphics import renderPDF
+import re
 
 
 # ─── Paleta NeuroSoft ─────────────────────────────────────────────
@@ -51,7 +52,7 @@ def make_styles():
     )
     styles["h1"] = ParagraphStyle(
         "h1", fontName="Helvetica-Bold", fontSize=20,
-        textColor=NAVY, leading=24, spaceBefore=18, spaceAfter=8,
+        textColor=NAVY, leading=24, spaceBefore=10, spaceAfter=6,
     )
     styles["h2"] = ParagraphStyle(
         "h2", fontName="Helvetica-Bold", fontSize=14,
@@ -67,7 +68,7 @@ def make_styles():
     )
     styles["body_lead"] = ParagraphStyle(
         "body_lead", fontName="Helvetica", fontSize=11,
-        textColor=NAVY, leading=16, alignment=TA_JUSTIFY, spaceAfter=8,
+        textColor=NAVY, leading=16, alignment=TA_LEFT, spaceAfter=8,
     )
     styles["bullet"] = ParagraphStyle(
         "bullet", fontName="Helvetica", fontSize=10,
@@ -92,6 +93,10 @@ def make_styles():
     styles["footer_disclaimer"] = ParagraphStyle(
         "footer_disclaimer", fontName="Helvetica-Oblique", fontSize=8,
         textColor=GRAY_MUTED, leading=11, alignment=TA_CENTER,
+    )
+    styles["body_welcome"] = ParagraphStyle(
+        "body_welcome", fontName="Helvetica", fontSize=10.5,
+        textColor=GRAY_TXT, leading=15, alignment=TA_JUSTIFY, spaceAfter=0,
     )
     return styles
 
@@ -153,7 +158,6 @@ class InfoBox(Flowable):
 
     def draw(self):
         c = self.canv
-        bg = HexColor(self.color.hexval()[:-2] + "1A") if isinstance(self.color, HexColor) else self.color
         # Fondo
         c.setFillColor(HexColor("#F8FAFC"))
         c.roundRect(0, 0, self.width, self.height, 8, stroke=0, fill=1)
@@ -203,74 +207,31 @@ class Divider(Flowable):
         c.line(0, 1, self.width, 1)
 
 
-class CredentialsBox(Flowable):
-    """Caja destacada para mostrar las credenciales de Mayra."""
-    def __init__(self, width=460):
-        super().__init__()
-        self.width = width
-        self.height = 130
-
-    def draw(self):
-        c = self.canv
-        # Fondo gradient simulado
-        c.setFillColor(NAVY)
-        c.roundRect(0, 0, self.width, self.height, 14, stroke=0, fill=1)
-        # Borde acentos
-        c.setFillColor(TEAL)
-        c.roundRect(0, 0, 6, self.height, 3, stroke=0, fill=1)
-        # Etiqueta superior
-        c.setFillColor(TEAL_LIGHT)
-        c.setFont("Helvetica-Bold", 9)
-        c.drawString(24, self.height - 22, "CREDENCIALES DE ACCESO · BETA TESTER")
-        # Title
-        c.setFillColor(colors.white)
-        c.setFont("Helvetica-Bold", 14)
-        c.drawString(24, self.height - 42, "Mayra")
-        # Username
-        c.setFillColor(GRAY_MUTED)
-        c.setFont("Helvetica-Bold", 8)
-        c.drawString(24, self.height - 64, "USUARIO")
-        c.setFillColor(colors.white)
-        c.setFont("Courier-Bold", 14)
-        c.drawString(24, self.height - 80, "mayra")
-        # Password
-        c.setFillColor(GRAY_MUTED)
-        c.setFont("Helvetica-Bold", 8)
-        c.drawString(180, self.height - 64, "CONTRASEÑA")
-        c.setFillColor(TEAL_LIGHT)
-        c.setFont("Courier-Bold", 14)
-        c.drawString(180, self.height - 80, "MayraBeta2026!")
-        # Rol
-        c.setFillColor(GRAY_MUTED)
-        c.setFont("Helvetica-Bold", 8)
-        c.drawString(380, self.height - 64, "ROL")
-        c.setFillColor(colors.white)
-        c.setFont("Helvetica-Bold", 11)
-        c.drawString(380, self.height - 80, "Profesional")
-        # Footer warning
-        c.setFillColor(AMBER)
-        c.setFont("Helvetica-Bold", 8)
-        c.drawString(24, 18, "⚠  ESTAS CREDENCIALES SON ÚNICAMENTE PARA TI · NO LAS COMPARTAS")
-
-
 class StepCard(Flowable):
     """Tarjeta de paso numerado con título e instrucciones."""
+
+    @staticmethod
+    def _estimate_lines(text: str, chars_per_line: int = 68) -> int:
+        plain = re.sub(r"<[^>]+>", "", text)
+        words = plain.split()
+        lines, line_len = 1, 0
+        for w in words:
+            wlen = len(w) + 1
+            if line_len + wlen > chars_per_line:
+                lines += 1
+                line_len = wlen
+            else:
+                line_len += wlen
+        return max(1, lines)
+
     def __init__(self, n, title, body, width=460):
         super().__init__()
         self.n = n
         self.title = title
         self.body = body
         self.width = width
-        # Altura calculada dinámicamente según texto (estimación 11px/línea)
-        words = self.body.split()
-        lines_est, line_len = 1, 0
-        for w in words:
-            if line_len + len(w) + 1 > 76:
-                lines_est += 1
-                line_len = len(w)
-            else:
-                line_len += len(w) + 1
-        self.height = 32 + lines_est * 13
+        lines_est = self._estimate_lines(body)
+        self.height = 38 + lines_est * 14 + 6
 
     def draw(self):
         c = self.canv
@@ -290,17 +251,186 @@ class StepCard(Flowable):
         # Body wrap
         c.setFillColor(GRAY_TXT)
         c.setFont("Helvetica", 9.5)
-        words = self.body.split()
+        words = re.sub(r"<[^>]+>", " ", self.body).split()
         line, y = "", self.height - 34
         for w in words:
-            if len(line) + len(w) + 1 > 76:
+            if len(line) + len(w) + 1 > 68:
                 c.drawString(42, y, line.strip())
-                y -= 13
+                y -= 14
                 line = w + " "
             else:
                 line += w + " "
-        if line.strip():
+        if line.strip() and y >= 6:
             c.drawString(42, y, line.strip())
+
+
+class CredentialsBox(Flowable):
+    """Caja genérica para credenciales entregadas por el administrador."""
+    def __init__(self, width=460):
+        super().__init__()
+        self.width = width
+        self.height = 108
+
+    def draw(self):
+        c = self.canv
+        c.setFillColor(NAVY)
+        c.roundRect(0, 0, self.width, self.height, 14, stroke=0, fill=1)
+        c.setFillColor(TEAL)
+        c.roundRect(0, 0, 6, self.height, 3, stroke=0, fill=1)
+        c.setFillColor(TEAL_LIGHT)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(24, self.height - 22, "CREDENCIALES DE ACCESO · BETA TESTER")
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica-Bold", 13)
+        c.drawString(24, self.height - 42, "Usuario y contraseña de tu clínica")
+        c.setFillColor(GRAY_MUTED)
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(24, self.height - 62, "USUARIO")
+        c.drawString(180, self.height - 62, "CONTRASEÑA")
+        c.drawString(300, self.height - 62, "ROL")
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica", 10)
+        c.drawString(24, self.height - 78, "Del administrador")
+        c.drawString(180, self.height - 78, "Personal / temporal")
+        c.drawString(300, self.height - 78, "Profesional")
+        c.setFillColor(AMBER)
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(24, 14, "No compartas estas credenciales fuera de tu consultorio")
+
+
+class WelcomePagePanel(Flowable):
+    """Bienvenida a ancho completo del marco (wrap usa availWidth del frame)."""
+
+    _INTRO_HTML = (
+        "NeuroSoft App apoya tu trabajo de evaluación neuropsicológica en Colombia. "
+        "En las siguientes páginas encontrarás cómo instalar el programa, activar la licencia "
+        "y completar un caso de prueba hasta el informe en PDF.<br/><br/>"
+        "Te guiamos paso a paso: desde la instalación hasta tu primer informe clínico.<br/><br/>"
+        "<i>¿Dudas? Escríbele al administrador de tu clínica o al equipo NeuroSoft.</i>"
+    )
+    _STEPS = (
+        ("1", "Instalar", "Ejecuta NeuroSoft-Setup.exe"),
+        ("2", "Activar", "Ingresa tu clave de licencia"),
+        ("3", "Registrar", "Crea un paciente de prueba"),
+        ("4", "Informar", "Genera tu primer PDF"),
+    )
+
+    def __init__(self, styles):
+        super().__init__()
+        self.S = styles
+        self.width = 0
+        self.height = 0
+        self._pad = 18
+        self._intro = Paragraph(self._INTRO_HTML, styles["body_welcome"])
+
+    def _intro_box_h(self):
+        _, h = self._intro.wrap(self.width - 2 * self._pad, 10000)
+        return h + 28
+
+    def wrap(self, availWidth, availHeight):
+        self.width = availWidth
+        intro_h = self._intro_box_h()
+        self.height = 30 + 16 + 18 + 14 + intro_h + 24 + 18 + 88 + 14 + 62
+        return self.width, self.height
+
+    @staticmethod
+    def _draw_step_card(c, x, y, w, h, num, title, body):
+        c.setFillColor(colors.white)
+        c.roundRect(x, y, w, h, 8, stroke=0, fill=1)
+        c.setStrokeColor(HexColor("#CBD5E1"))
+        c.setLineWidth(0.6)
+        c.roundRect(x, y, w, h, 8, stroke=1, fill=0)
+        cx = x + w / 2
+        c.setFillColor(TEAL)
+        c.circle(cx, y + h - 18, 12, stroke=0, fill=1)
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica-Bold", 11)
+        c.drawCentredString(cx, y + h - 22, num)
+        c.setFillColor(NAVY)
+        c.setFont("Helvetica-Bold", 10.5)
+        c.drawCentredString(cx, y + h - 38, title)
+        c.setFillColor(GRAY_TXT)
+        c.setFont("Helvetica", 8.5)
+        max_w = w - 12
+        words = body.split()
+        line, lines = "", []
+        for word in words:
+            trial = (line + " " + word).strip()
+            if c.stringWidth(trial, "Helvetica", 8.5) <= max_w:
+                line = trial
+            else:
+                if line:
+                    lines.append(line)
+                line = word
+        if line:
+            lines.append(line)
+        for i, ln in enumerate(lines[:3]):
+            c.drawCentredString(cx, y + h - 52 - i * 11, ln)
+
+    def draw(self):
+        c = self.canv
+        w, top = self.width, self.height
+        cx = w / 2
+
+        y = top - 26
+        c.setFillColor(NAVY)
+        c.setFont("Helvetica-Bold", 22)
+        c.drawCentredString(cx, y, "Bienvenida, beta tester")
+
+        y -= 14
+        line_w = w * 0.44
+        c.setStrokeColor(TEAL)
+        c.setLineWidth(2)
+        c.line((w - line_w) / 2, y, (w + line_w) / 2, y)
+
+        y -= 20
+        c.setFillColor(NAVY)
+        c.setFont("Helvetica", 11)
+        c.drawCentredString(cx, y, "Gracias por acompañarnos en esta fase de prueba.")
+
+        intro_h = self._intro_box_h()
+        y -= 14 + intro_h
+        c.setFillColor(HexColor("#F0FDFA"))
+        c.roundRect(0, y, w, intro_h, 10, stroke=0, fill=1)
+        c.setStrokeColor(HexColor("#99F6E4"))
+        c.setLineWidth(0.8)
+        c.roundRect(0, y, w, intro_h, 10, stroke=1, fill=0)
+        c.setFillColor(TEAL)
+        c.roundRect(0, y, 4, intro_h, 2, stroke=0, fill=1)
+        self._intro.drawOn(c, self._pad + 6, y + 14)
+
+        y -= 24
+        c.setFillColor(NAVY)
+        c.setFont("Helvetica-Bold", 11)
+        c.drawCentredString(cx, y, "Tu recorrido en cuatro pasos")
+
+        card_h, gap = 84, 12
+        y -= 10 + card_h
+        card_w = (w - 3 * gap) / 4
+        for i, step in enumerate(self._STEPS):
+            self._draw_step_card(c, i * (card_w + gap), y, card_w, card_h, *step)
+
+        y -= 14
+        foot_h = 52
+        y -= foot_h
+        c.setFillColor(HexColor("#F8FAFC"))
+        c.roundRect(0, y, w, foot_h, 8, stroke=0, fill=1)
+        c.setFillColor(TEAL)
+        c.rect(0, y, 5, foot_h, stroke=0, fill=1)
+        c.setFillColor(TEAL)
+        c.circle(28, y + foot_h - 18, 10, stroke=0, fill=1)
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica-Bold", 11)
+        c.drawCentredString(28, y + foot_h - 21, "!")
+        c.setFillColor(NAVY)
+        c.setFont("Helvetica-Bold", 11)
+        c.drawString(48, y + foot_h - 20, "Datos ficticios")
+        c.setFillColor(GRAY_TXT)
+        c.setFont("Helvetica", 9.5)
+        c.drawString(
+            48, y + 12,
+            "Usa solo datos ficticios durante la prueba. Ley 1581 de 2012 — Protección de datos personales en Colombia.",
+        )
 
 
 # ─── Header & Footer de cada página (excepto portada) ─────────────
@@ -314,7 +444,7 @@ def header_footer(canvas, doc, is_cover=False):
         canvas.setFillColor(GRAY_MUTED)
         canvas.setFont("Helvetica-Bold", 7)
         canvas.drawString(2*cm, A4[1] - 1.4*cm, "NEUROSOFT APP · MANUAL DEL BETA TESTER")
-        canvas.drawRightString(A4[0] - 2*cm, A4[1] - 1.4*cm, "MAYRA · CONFIDENCIAL")
+        canvas.drawRightString(A4[0] - 2*cm, A4[1] - 1.4*cm, "BETA TESTER · CONFIDENCIAL")
         # Footer: número de página + email
         canvas.setFillColor(GRAY_MUTED)
         canvas.setFont("Helvetica", 8)
@@ -336,23 +466,27 @@ def header_footer_body(canvas, doc):
 
 # ─── Construcción del documento ───────────────────────────────────
 def build_manual(out_path):
+    # Ancho útil del cuerpo (evita desborde en tablas y cajas fijas a 460 pt)
+    BODY_W = A4[0] - 4 * cm
+    BOX_W = BODY_W - 12
+
     doc = BaseDocTemplate(
         out_path,
         pagesize=A4,
         leftMargin=2*cm, rightMargin=2*cm,
-        topMargin=2*cm, bottomMargin=2*cm,
+        topMargin=2.6*cm, bottomMargin=2.4*cm,
         title="NeuroSoft — Manual del Beta Tester",
         author="NeuroSoft",
         subject="Manual de uso NeuroSoft para beta testers",
         creator="NeuroSoft App",
     )
 
-    cover_frame = Frame(0, 0, A4[0], A4[1], leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0, id="cover")
-    body_frame  = Frame(2*cm, 2*cm, A4[0] - 4*cm, A4[1] - 4*cm, id="body")
+    full_frame = Frame(0, 0, A4[0], A4[1], leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0, id="full")
+    body_frame = Frame(2*cm, 2.4*cm, A4[0] - 4*cm, A4[1] - 5*cm, id="body")
 
     doc.addPageTemplates([
-        PageTemplate(id="Cover", frames=[cover_frame], onPage=header_footer_cover),
-        PageTemplate(id="Body",  frames=[body_frame],  onPage=header_footer_body),
+        PageTemplate(id="Cover", frames=[full_frame], onPage=header_footer_cover),
+        PageTemplate(id="Body", frames=[body_frame], onPage=header_footer_body),
     ])
 
     S = make_styles()
@@ -412,7 +546,7 @@ def build_manual(out_path):
             c.setFont("Helvetica-Bold", 48)
             c.drawString(2*cm, H - 10*cm, "Beta Tester")
 
-            # Subtítulo Mayra
+            # Subtítulo
             c.setFillColor(TEAL)
             c.setFont("Helvetica-Bold", 22)
             c.drawString(2*cm, H - 11.5*cm, "para profesionales clínicos")
@@ -447,9 +581,9 @@ def build_manual(out_path):
             c.drawString(14*cm, box_y + 1.6*cm, "ROL")
             c.setFillColor(colors.white)
             c.setFont("Helvetica", 10)
-            c.drawString(2.6*cm, box_y + 0.7*cm, "Entregadas por el administrador")
+            c.drawString(2.6*cm, box_y + 0.7*cm, "Del administrador")
             c.drawString(8*cm, box_y + 0.7*cm, "Personal / temporal")
-            c.drawString(14*cm, box_y + 0.7*cm, "Profesional")
+            c.drawString(13.5*cm, box_y + 0.7*cm, "Profesional")
 
             # Pie de portada
             c.setFillColor(GRAY_MUTED)
@@ -464,45 +598,30 @@ def build_manual(out_path):
     story.append(Cover())
     story.append(PageBreak())
 
-    # ─── CAMBIO A PLANTILLA BODY ──────────────────────────────────
+    # ─── BIENVENIDA (plantilla Body — evita solapamientos de canvas absoluto) ─
     from reportlab.platypus.doctemplate import NextPageTemplate
+
     story.append(NextPageTemplate("Body"))
-    # NOTA: la portada usa Cover y a partir de aquí Body. Reportlab
-    # ya está en la siguiente página después del PageBreak.
+    story.append(WelcomePagePanel(S))
+    story.append(PageBreak())
 
-    # ─── BIENVENIDA ───────────────────────────────────────────────
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("Bienvenida, beta tester", S["h1"]))
+    # ─── ÍNDICE ───────────────────────────────────────────────────
+    story.append(Paragraph("Contenido del manual", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
-    story.append(Paragraph(
-        "Gracias por probar <b>NeuroSoft App</b> — sistema de apoyo para evaluación "
-        "neuropsicológica en Colombia. Este manual cubre instalación, activación de licencia, "
-        "primer uso y flujo clínico completo (junio 2026).",
-        S["body_lead"]
-    ))
-    story.append(Paragraph(
-        "Te guiará desde la instalación hasta el primer informe completo. "
-        "Para soporte: contacto del administrador de tu clínica o titular NeuroSoft.",
-        S["body"]
-    ))
-
-    # Tabla de contenidos visual
-    story.append(Spacer(1, 14))
-    story.append(Paragraph("Contenido del manual", S["h2"]))
     toc_data = [
-        ["1.", "Qué es NeuroSoft App",            "p. 3"],
-        ["2.", "Tus credenciales de acceso",      "p. 3"],
-        ["3.", "Instalación",                     "p. 4"],
-        ["4.", "Primer arranque",                 "p. 4"],
-        ["5.", "Flujo clínico paso a paso",       "p. 5"],
-        ["6.", "Centro de Aprendizaje",          "p. 7"],
-        ["7.", "Funcionalidades a probar",        "p. 8"],
-        ["8.", "Cómo reportar bugs y sugerencias","p. 9"],
-        ["9.", "Privacidad y datos de prueba",    "p. 9"],
-        ["10.", "Atajos de teclado",               "p. 10"],
-        ["11.", "Soporte y contacto",             "p. 10"],
+        ["1.", "Qué es NeuroSoft App",            "p. 4"],
+        ["2.", "Tus credenciales de acceso",      "p. 5"],
+        ["3.", "Instalación",                     "p. 6"],
+        ["4.", "Primer arranque",                 "p. 7"],
+        ["5.", "Flujo clínico paso a paso",       "p. 8"],
+        ["6.", "Centro de Aprendizaje",          "p. 10"],
+        ["7.", "Funcionalidades a probar",        "p. 11"],
+        ["8.", "Cómo reportar bugs y sugerencias","p. 12"],
+        ["9.", "Privacidad y datos de prueba",    "p. 13"],
+        ["10.", "Atajos de teclado",               "p. 14"],
+        ["11.", "Soporte y contacto",             "p. 14"],
     ]
-    toc = Table(toc_data, colWidths=[1*cm, 12*cm, 2*cm])
+    toc = Table(toc_data, colWidths=[BODY_W * 0.07, BODY_W * 0.78, BODY_W * 0.15])
     toc.setStyle(TableStyle([
         ("FONT", (0,0), (0,-1), "Helvetica-Bold", 10),
         ("FONT", (1,0), (1,-1), "Helvetica", 10),
@@ -511,14 +630,14 @@ def build_manual(out_path):
         ("TEXTCOLOR", (1,0), (1,-1), NAVY),
         ("TEXTCOLOR", (2,0), (2,-1), GRAY_MUTED),
         ("ALIGN", (2,0), (2,-1), "RIGHT"),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
-        ("TOPPADDING",    (0,0), (-1,-1), 6),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+        ("TOPPADDING",    (0,0), (-1,-1), 5),
         ("LINEBELOW", (0,0), (-1,-1), 0.3, GRAY_SOFT),
     ]))
     story.append(toc)
     story.append(PageBreak())
 
-    # ─── SECCIÓN 1: Qué es NeuroSoft ──────────────────────────────
+    # ─── SECCIÓN 1: Qué es NeuroSoft (página dedicada) ────────────
     story.append(Paragraph("1.  Qué es NeuroSoft App", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
@@ -534,7 +653,6 @@ def build_manual(out_path):
         "Generación de informes profesionales en PDF, DOCX y XLSX.",
         "Comparativa longitudinal Pre–Post con Índice de Cambio Confiable (RCI · Jacobson & Truax, 1991).",
         "Planes de rehabilitación cognitiva con actividades interactivas (Stroop, N-back, Corsi, Tower of London, etc.).",
-        "Asistente IA opcional para mejorar redacción de informes (Google Gemini, Anthropic Claude, OpenAI o Ollama local).",
     ]
     for f in feats:
         story.append(Paragraph("•  " + f, S["bullet"]))
@@ -544,9 +662,9 @@ def build_manual(out_path):
         "a internet sin tu autorización explícita.",
         S["section_intro"]
     ))
+    story.append(PageBreak())
 
     # ─── SECCIÓN 2: Credenciales ──────────────────────────────────
-    story.append(Spacer(1, 12))
     story.append(Paragraph("2.  Tus credenciales de acceso", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
@@ -555,7 +673,7 @@ def build_manual(out_path):
         S["body"]
     ))
     story.append(Spacer(1, 6))
-    story.append(CredentialsBox(width=460))
+    story.append(CredentialsBox(width=BOX_W))
     story.append(Spacer(1, 8))
     story.append(Paragraph(
         "<b>Si crees que alguien más conoce tu contraseña</b>, cámbiala desde "
@@ -586,7 +704,7 @@ def build_manual(out_path):
         ("5", "Abre la aplicación", "Doble-click en el ícono <b>NeuroSoft</b> de tu escritorio. Se abrirá una ventana en tu navegador con la pantalla de inicio de sesión."),
     ]
     for n, title, body in inst:
-        story.append(StepCard(n, title, body, width=460))
+        story.append(StepCard(n, title, body, width=BOX_W))
         story.append(Spacer(1, 6))
 
     story.append(PageBreak())
@@ -605,24 +723,24 @@ def build_manual(out_path):
     story.append(Spacer(1, 8))
     story.append(Paragraph("Lo primero que verás", S["h3"]))
     elements = [
-        ("<b>Sidebar izquierdo</b>", "navegación principal agrupada en 4 secciones (Clínica, Evaluación, Rehabilitación, Herramientas)."),
-        ("<b>Topbar superior</b>", "tu nombre y el contexto de la página actual."),
-        ("<b>Dashboard</b>", "panel con KPIs vacíos al inicio (porque aún no hay pacientes), notificaciones y accesos rápidos."),
-        ("<b>Acuerdo de uso</b>", "Modal legal al primer arranque en cada PC (solo una vez)."),
-        ("<b>Configuración → Institución</b>", "Personaliza nombre, logo y datos de tu consultorio en informes PDF."),
+        ("<b>Menú lateral</b>", "acceso a Pacientes, Evaluación, Rehabilitación y otras herramientas."),
+        ("<b>Barra superior</b>", "muestra tu nombre y en qué pantalla estás."),
+        ("<b>Pantalla de inicio</b>", "resumen de pacientes, citas y accesos rápidos. Al principio puede verse vacío hasta que registres datos."),
+        ("<b>Acuerdo de uso</b>", "ventana legal al primer arranque en cada equipo (solo una vez)."),
+        ("<b>Configuración → Institución</b>", "nombre, logo y datos de tu consultorio en los informes PDF."),
     ]
     bullet_table = Table(
         [[Paragraph(t, S["body"]), Paragraph(d, S["body"])] for t, d in elements],
-        colWidths=[5*cm, 11*cm]
+        colWidths=[BODY_W * 0.32, BODY_W * 0.68]
     )
     bullet_table.setStyle(TableStyle([
         ("VALIGN", (0,0), (-1,-1), "TOP"),
         ("BOTTOMPADDING", (0,0), (-1,-1), 6),
     ]))
     story.append(bullet_table)
+    story.append(PageBreak())
 
     # ─── SECCIÓN 5: Flujo clínico paso a paso ─────────────────────
-    story.append(Spacer(1, 14))
     story.append(Paragraph("5.  Flujo clínico paso a paso", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
@@ -634,22 +752,22 @@ def build_manual(out_path):
 
     flow_steps = [
         ("1", "Registrar un paciente de prueba",
-         "Sidebar → <b>Pacientes</b> → botón <b>+ Registrar paciente</b>. Llena nombre, apellidos, documento (puedes usar 00000000), fecha de nacimiento (afecta el protocolo sugerido), sexo, escolaridad y ocupación. Guardar."),
+         "Menú lateral → <b>Pacientes</b> → <b>+ Registrar paciente</b>. Completa nombre, apellidos, documento (puedes usar 00000000), fecha de nacimiento, sexo, escolaridad y ocupación. Guardar."),
         ("2", "Documentar Historia Clínica",
-         "Desde la lista, click en el nombre del paciente → pestaña <b>Historia Clínica</b>. Llena motivo de consulta, antecedentes e hipótesis diagnóstica. El selector de CIE-10 sugiere códigos según población. Botón <b>Consentimiento Informado</b> genera el PDF para firma."),
+         "En la lista, abre el paciente → pestaña <b>Historia Clínica</b>. Motivo de consulta, antecedentes e hipótesis diagnóstica. El selector de CIE-10 sugiere códigos según edad. <b>Consentimiento Informado</b> genera el PDF para firma."),
         ("3", "Aplicar evaluación",
-         "Sidebar → <b>Evaluación → Aplicar</b>. Selecciona paciente. NeuroSoft sugiere protocolo automáticamente según edad. Aplica las pruebas: lee la instrucción, anota observaciones (panel derecho), ingresa el PD (puntaje directo), usa el cronómetro inline para pruebas con tiempo. Cuando termines, clic en <b>Finalizar</b>."),
+         "Menú lateral → <b>Evaluación → Aplicar</b>. Selecciona paciente. El programa sugiere el protocolo según la edad. Lee la instrucción, anota observaciones, ingresa el puntaje directo y usa el cronómetro si la prueba lo requiere. Al terminar, <b>Finalizar</b>."),
         ("4", "Revisar resultados",
-         "Se muestran automáticamente: puntajes escalares, Z y percentiles; índices compuestos (ICV, IRP, IMT, IVP, CIT) con interpretación; curva normativa Z animada; radar de dominios; alertas clínicas para rangos Bajo/Limítrofe; discrepancias entre índices con significancia."),
+         "Verás puntajes escalares, percentiles e índices (ICV, IRP, IMT, IVP, CIT), gráficas por dominio y alertas cuando un resultado queda bajo o límite."),
         ("5", "Redactar informe narrativo",
-         "En la misma pantalla, 8 dominios para redactar: Apariencia, Atención, Memoria, Lenguaje, Funciones Ejecutivas, Visoespaciales, Impresión Diagnóstica y Recomendaciones. Botón <b>Auto-generar</b> crea borradores basados en los puntajes. Botón <b>Mejorar con IA</b> mejora redacción (requiere proveedor IA configurado)."),
+         "En la misma pantalla hay 8 apartados: Apariencia, Atención, Memoria, Lenguaje, Funciones Ejecutivas, Visoespaciales, Impresión Diagnóstica y Recomendaciones. <b>Auto-generar</b> crea un borrador a partir de los puntajes para que tú lo revises."),
         ("6", "Descargar informe",
-         "Sidebar → <b>Informes</b>. Selecciona la evaluación. Botones <b>PDF · DOCX · XLSX</b>. El PDF incluye firma digital si la configuraste en Configuración."),
+         "Menú lateral → <b>Informes</b>. Elige la evaluación. Descarga en <b>PDF, DOCX o XLSX</b>. El PDF puede incluir tu firma si la configuraste."),
         ("7", "Comparativa Pre–Post (opcional)",
-         "Si registras 2+ evaluaciones del mismo paciente: Sidebar → <b>Historial → Pre–Post</b>. Selecciona dos evaluaciones. Verás tabla de cambios, RCI (Reliable Change Index) por dominio, radar evolutivo y narrativa automática del cambio."),
+         "Con dos o más evaluaciones del mismo paciente: <b>Historial → Pre–Post</b>. Compara cambios por dominio y el índice de cambio confiable (RCI)."),
     ]
     for n, title, body in flow_steps:
-        story.append(StepCard(n, title, body, width=460))
+        story.append(StepCard(n, title, body, width=BOX_W))
         story.append(Spacer(1, 6))
 
     story.append(PageBreak())
@@ -658,15 +776,14 @@ def build_manual(out_path):
     story.append(Paragraph("6.  Centro de Aprendizaje", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     story.append(Paragraph(
-        "Sidebar → <b>Centro de aprendizaje</b>. Módulo educativo integrado con el motor clínico "
-        "(junio 2026): glosario, tarjetas Leitner, quizzes, artículos, simulador de casos y "
-        "protocolos paso a paso.",
+        "Menú lateral → <b>Centro de aprendizaje</b>. Espacio de formación con glosario, "
+        "tarjetas de repaso, cuestionarios, artículos, simulador de casos y protocolos paso a paso.",
         S["body_lead"]
     ))
     aprender_items = [
         ("Glosario", "120 términos con definición, ejemplo y fuente bibliográfica."),
-        ("Tarjetas", "50 tarjetas Leitner — progreso guardado en tu equipo."),
-        ("Quizzes", "6 cuestionarios (WISC, Neuronorma, ética, validez, WAIS, demencias)."),
+        ("Tarjetas", "50 tarjetas con repaso espaciado — el progreso se guarda en tu equipo."),
+        ("Cuestionarios", "6 cuestionarios (WISC, Neuronorma, ética, validez, WAIS, demencias)."),
         ("Artículos", "11 lecturas editoriales (MoCA, Neuronorma, informe NPS, validez, Res. 1995)."),
         ("Simulador", "11 casos clínicos sintéticos con interpretación experta."),
         ("Protocolos", "6 guías paso a paso (TDAH, demencia, CBT, crisis, WAIS, TEA)."),
@@ -696,17 +813,16 @@ def build_manual(out_path):
         ["■", "Generación de PDF",           "¿El informe se ve profesional? ¿faltan datos?"],
         ["■", "Auto-generador observaciones","¿Los borradores son útiles como punto de partida?"],
         ["■", "Pre–Post + RCI",              "¿La interpretación del cambio confiable es clara?"],
-        ["▲", "Centro de Aprendizaje",        "Glosario, tarjetas, quizzes, simulador y protocolos."],
+        ["▲", "Centro de Aprendizaje",        "Glosario, tarjetas, cuestionarios, simulador y protocolos."],
         ["▲", "Config institución + logo",     "Informes PDF con marca de tu consultorio."],
-        ["▲", "Asistente IA (Ollama local)",   "Opcional; sanitiza datos antes de enviar texto."],
-        ["▲", "Modo oscuro",                  "Activar desde el sidebar inferior."],
+        ["▲", "Modo oscuro",                  "Activar desde el menú inferior izquierdo."],
         ["▲", "Modo proyección",              "Útil para pantalla externa (ícono zoom)."],
         ["▲", "Rehabilitación cognitiva",     "Probar al menos 2 actividades (Stroop, N-back, etc.)."],
         ["○", "Cargas lentas",                "¿Alguna pantalla se demora notablemente?"],
         ["○", "Errores sin explicación",      "¿Mensajes técnicos que confunden?"],
         ["○", "Terminología clínica",         "¿Algún término te parece impreciso?"],
     ]
-    func_table = Table(func_data, colWidths=[0.8*cm, 5*cm, 10*cm])
+    func_table = Table(func_data, colWidths=[BODY_W * 0.06, BODY_W * 0.32, BODY_W * 0.62])
     func_table.setStyle(TableStyle([
         ("FONT", (0,0), (-1,0), "Helvetica-Bold", 8),
         ("TEXTCOLOR", (0,0), (-1,0), GRAY_MUTED),
@@ -726,8 +842,8 @@ def build_manual(out_path):
         ("LINEBELOW", (0,1), (-1,-1), 0.3, GRAY_SOFT),
         # Color de los iconos prioridad
         ("TEXTCOLOR", (0,1), (0,6), RED_CLIN),
-        ("TEXTCOLOR", (0,7), (0,10), AMBER),
-        ("TEXTCOLOR", (0,11), (0,13), GRAY_MUTED),
+        ("TEXTCOLOR", (0,7), (0,11), AMBER),
+        ("TEXTCOLOR", (0,12), (0,14), GRAY_MUTED),
     ]))
     story.append(func_table)
     story.append(Spacer(1, 6))
@@ -778,7 +894,7 @@ def build_manual(out_path):
     # Caja "código"
     code_table = Table(
         [[Paragraph(plantilla, ParagraphStyle("code", fontName="Courier", fontSize=8.5, textColor=NAVY, leading=12))]],
-        colWidths=[16*cm]
+        colWidths=[BODY_W]
     )
     code_table.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,-1), GRAY_SOFT),
@@ -789,9 +905,9 @@ def build_manual(out_path):
         ("RIGHTPADDING", (0,0), (-1,-1), 12),
     ]))
     story.append(code_table)
+    story.append(PageBreak())
 
     # ─── SECCIÓN 9: Privacidad ────────────────────────────────────
-    story.append(Spacer(1, 14))
     story.append(Paragraph("9.  Privacidad y datos de prueba", S["h1"]))
     story.append(HRFlowable(width="40%", thickness=2, color=TEAL, spaceAfter=10))
     privacy_box_data = [[
@@ -802,7 +918,7 @@ def build_manual(out_path):
             S["body"]
         ),
     ]]
-    privacy_box = Table(privacy_box_data, colWidths=[16*cm])
+    privacy_box = Table(privacy_box_data, colWidths=[BODY_W])
     privacy_box.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,-1), HexColor("#ECFDF5")),
         ("BOX", (0,0), (-1,-1), 1, GREEN_OK),
@@ -814,10 +930,8 @@ def build_manual(out_path):
     story.append(privacy_box)
     story.append(Spacer(1, 8))
     privacy_items = [
-        "Las funciones de IA en la nube (Gemini, Claude, OpenAI) son <b>opcionales</b>. Solo se activan si configuras una API key.",
-        "Antes de enviar cualquier texto a IA, el sistema <b>sanitiza nombres, documentos y fechas</b> automáticamente.",
-        "<b>Ley 1581 de 2012</b> (Colombia): los datos del paciente son datos sensibles. Para esta fase beta, te pedimos usar <b>exclusivamente datos ficticios o anonimizados</b>.",
-        "Cuando termines la prueba, puedes <b>eliminar la carpeta</b> <font face='Courier'>%APPDATA%/NeuroSoft/</font> para borrar todo.",
+        "<b>Ley 1581 de 2012</b> (Colombia): los datos del paciente son sensibles. En esta fase beta usa <b>solo datos ficticios o anonimizados</b>.",
+        "Cuando termines la prueba, puedes <b>eliminar la carpeta</b> <font face='Courier'>%APPDATA%/NeuroSoft/</font> para borrar todo el contenido.",
     ]
     for p in privacy_items:
         story.append(Paragraph("•  " + p, S["bullet"]))
@@ -838,7 +952,7 @@ def build_manual(out_path):
         ["Alt + −", "Reducir tamaño de fuente"],
         ["Espacio", "Iniciar/Pausar cronómetro"],
     ]
-    sc_table = Table(sc_data, colWidths=[4*cm, 12*cm])
+    sc_table = Table(sc_data, colWidths=[BODY_W * 0.28, BODY_W * 0.72])
     sc_table.setStyle(TableStyle([
         ("FONT", (0,0), (-1,0), "Helvetica-Bold", 8),
         ("BACKGROUND", (0,0), (-1,0), NAVY),
@@ -866,7 +980,7 @@ def build_manual(out_path):
         ["Soporte técnico",        "Mismo canal de activación de licencia"],
         ["Documentación",          "Manual PDF incluido en el instalador"],
     ]
-    contact_table = Table(contact_data, colWidths=[5*cm, 11*cm])
+    contact_table = Table(contact_data, colWidths=[BODY_W * 0.32, BODY_W * 0.68])
     contact_table.setStyle(TableStyle([
         ("FONT", (0,0), (0,-1), "Helvetica-Bold", 10),
         ("FONT", (1,0), (1,-1), "Helvetica", 10),
@@ -892,7 +1006,7 @@ def build_manual(out_path):
                            textColor=NAVY, leading=16, alignment=TA_CENTER)
         )
     ]]
-    thanks_box = Table(thanks_box_data, colWidths=[16*cm])
+    thanks_box = Table(thanks_box_data, colWidths=[BODY_W])
     thanks_box.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,-1), CREAM),
         ("BOX", (0,0), (-1,-1), 1.5, TEAL),

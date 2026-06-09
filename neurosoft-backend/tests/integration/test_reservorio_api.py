@@ -24,9 +24,27 @@ def client():
 
 @pytest.fixture
 def admin_token(client):
-    import os
+    """Sincroniza contraseña del admin antes de login (BD persistente entre runs)."""
+    from app.infrastructure.auth.auth_service import UserRepository, hash_password
+    from app.infrastructure.database.engine import SessionLocal
+    from app.infrastructure.database.orm_models import UserORM
 
-    password = os.getenv("NEUROSOFT_ADMIN_PASSWORD", "test-admin-password")
+    password = os.getenv("NEUROSOFT_ADMIN_PASSWORD", "neurosoft2025")
+    with SessionLocal() as db:
+        admin = db.query(UserORM).filter_by(username="admin").first()
+        if admin is None:
+            UserRepository(db).create(
+                username="admin",
+                password_plain=password,
+                nombre_completo="Administrador",
+                role="admin",
+            )
+            db.commit()
+        else:
+            admin.hashed_password = hash_password(password)
+            admin.is_active = True
+            admin.role = "admin"
+            db.commit()
     r = client.post("/api/v1/auth/login", json={"username": "admin", "password": password})
     assert r.status_code == 200, f"Login falló: {r.text}"
     return r.json()["access_token"]

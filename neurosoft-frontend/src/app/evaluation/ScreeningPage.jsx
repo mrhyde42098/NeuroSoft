@@ -18,6 +18,7 @@ import {
 import { TEAL } from "../../ui/tokens.js";
 import { SCREENING_FORMS } from "../../data/screening.js";
 import { useToast } from "../../contexts.jsx";
+import PatientSelector from "../../ui/forms/PatientSelector.jsx";
 import ScreeningWizard from "./ScreeningWizard.jsx";
 import ValidezPanel from "./ValidezPanel.jsx";
 /* Variantes legacy ocultas en el picker (misma abreviatura que la versión canónica). */
@@ -116,20 +117,12 @@ export default function ScreeningPage() {
   const toast = useToast();
   const [test, setTest] = useState("MMSE");
   const [patId, setPatId] = useState("");
-  const [patients, setPatients] = useState([]);
   const [scores, setScores] = useState({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [obs, setObs] = useState("");
   const [normProfile, setNormProfile] = useState("");
   const [clinicalContext, setClinicalContext] = useState("");
-
-  useEffect(() => {
-    api.get("/api/v1/patients/panel")
-      .then((d) => setPatients(d.pacientes || d || []))
-      .catch(() => toast.error("Error cargando pacientes"));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const form = SCREENING_FORMS[test];
   useEffect(() => {
@@ -487,15 +480,11 @@ export default function ScreeningPage() {
                   </Sel>
                 </div>
               )}
-              <Label>Paciente</Label>
-              <Sel value={patId} onChange={(e) => setPatId(e.target.value)}>
-                <option value="">— Seleccione —</option>
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`}
-                  </option>
-                ))}
-              </Sel>
+              <PatientSelector
+                value={patId}
+                onChange={setPatId}
+                placeholder="— Seleccione —"
+              />
             </div>
             <div className="flex items-end gap-4 sm:flex-col sm:items-end">
               <div className="text-right">

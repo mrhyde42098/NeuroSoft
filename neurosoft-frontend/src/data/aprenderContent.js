@@ -797,6 +797,14 @@ export const GLOSARIO = [
     definicion: "Ley 1581/2012: derecho a conocer, actualizar, rectificar y suprimir datos personales. Datos clínicos = categoría sensible con consentimiento explícito.",
     ver_tambien: ["Ley 1581", "Consentimiento informado"],
     fuente: "Ley 1581/2012", categoria: "normativa_colombia" },
+  { termino: "POI", nombre_completo: "Perceptual Organization Index (WAIS-III)",
+    definicion: "Índice de Organización Perceptual en WAIS-III: integra Cubos, Matrices y Figuras Incompletas. Mide razonamiento visoespacial y síntesis perceptual.",
+    ver_tambien: ["IRP", "AdMatr", "AdWAISCC"],
+    fuente: "Wechsler 1997", categoria: "wais_iii" },
+  { termino: "PSI", nombre_completo: "Processing Speed Index (WAIS-III)",
+    definicion: "Índice de Velocidad de Procesamiento en WAIS-III: Clave de Números + Búsqueda de Símbolos. Evalúa rapidez visual-motora bajo presión temporal.",
+    ver_tambien: ["IVP", "AdSDWais", "AdBusSim"],
+    fuente: "Wechsler 1997", categoria: "wais_iii" },
 ];
 
 export const TARJETAS_SPACED = [

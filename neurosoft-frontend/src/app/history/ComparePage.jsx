@@ -23,6 +23,8 @@ import { TEAL } from "../../ui/tokens.js";
 import { analyzeRCI } from "../../utils/rci.js";
 import { useToast } from "../../contexts.jsx";
 import { safeLS } from "../../utils/safeLS.js";
+import { usePatientsPanel } from "../../hooks/usePatientsPanel.js";
+import { PatientSelect } from "../../ui/forms/PatientSelector.jsx";
 
 const CAMBIO_STYLE = {
   mejora:    { bg: "#dcfce7", color: "#166534", label: "Mejora",     ico: "trending_up" },
@@ -33,7 +35,7 @@ const CAMBIO_STYLE = {
 
 export default function ComparePage({ _setPage }) {
   const toast = useToast();
-  const [patients, setPatients] = useState([]);
+  const { patients, loading: patientsLoading } = usePatientsPanel();
   const [patId, setPatId] = useState(() => safeLS.get("ns_sel_patient") || "");
   const [evals, setEvals] = useState([]);
   const [preId, setPreId] = useState("");
@@ -42,13 +44,6 @@ export default function ComparePage({ _setPage }) {
   const [ld, setLd] = useState(false);
   const [err, setErr] = useState("");
   const [domFilter, setDomFilter] = useState("");
-
-  useEffect(() => {
-    api.get("/api/v1/patients/panel")
-      .then(d => setPatients(d.pacientes || d || []))
-      .catch(() => toast.error("Error cargando pacientes"));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (!patId) { setEvals([]); return; }
@@ -118,21 +113,19 @@ export default function ComparePage({ _setPage }) {
       <main className="p-8 space-y-6">
         <Card className="p-6 space-y-4">
           <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>Paciente</Label>
-              <Sel value={patId} onChange={(e) => {
-                setPatId(e.target.value);
-                localStorage.setItem("ns_sel_patient", e.target.value);
-                setData(null); setPreId(""); setPostId("");
-              }}>
-                <option value="">— Seleccione —</option>
-                {patients.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`} — {p.numero_documento}
-                  </option>
-                ))}
-              </Sel>
-            </div>
+            <PatientSelect
+              patients={patients}
+              loading={patientsLoading}
+              value={patId}
+              onChange={(id) => {
+                setPatId(id);
+                safeLS.set("ns_sel_patient", id);
+                setData(null);
+                setPreId("");
+                setPostId("");
+              }}
+              placeholder="— Seleccione —"
+            />
             <div>
               <Label>Evaluación PRE</Label>
               <Sel value={preId} onChange={(e) => setPreId(e.target.value)} disabled={!evals.length}>

@@ -1,6 +1,6 @@
 # Infraestructura de build y distribución
 
-**Última revisión:** 5 jun 2026
+**Última revisión:** 9 jun 2026
 
 Mapa de carpetas y scripts de empaquetado que suelen confundirse en la raíz del monorepo.
 
@@ -55,6 +55,26 @@ Reglas críticas: ver `CLAUDE.md` § Pipeline de build.
 | `dist/` | `NeuroSoft.exe`, `NeuroSoft-Setup.exe`, manuales | Ignorado |
 
 Regenerar con `/build-beta-tester` o pipeline manual en `CLAUDE.md`.
+
+### Calidad vs. “optimizado” (jun 2026)
+
+| Decisión | Motivo calidad | ¿Recorte peligroso? |
+|---|---|---|
+| **onedir** (`dist/NeuroSoft/`) en lugar de onefile | Arranque estable, depuración más fácil, menos corrupción en updates | No — es mejora profesional |
+| **`optimize=0`** en PyInstaller | Paridad con `neurosoft.spec`; evita sorpresas en bytecode | No |
+| **`collect_submodules("webview")` + pythonnet** | Sin esto la ventana no abre (regresión jun 2026) | Excluir pythonnet **sí** era peligroso |
+| **Sin PNG de láminas en el .exe** | ~27 MB; se cargan desde `%APPDATA%/NeuroSoft` tras seed | Diseño intencional |
+| **Ollama fuera del .exe** | Evita instalador corrupto de 1.3 GB anidado | No |
+
+**Smoke test obligatorio** tras cada build (salvo `--skip-bundle-verify`):
+
+```powershell
+python tools/verify_desktop_bundle.py
+```
+
+Comprueba `pythonnet`, `static/`, arranque real, `/health` y ausencia de errores en `%APPDATA%\NeuroSoft\startup.log`.
+
+**Log de arranque desktop:** `%APPDATA%\NeuroSoft\startup.log` — si el doble clic “no hace nada”, leer este archivo primero.
 
 ---
 

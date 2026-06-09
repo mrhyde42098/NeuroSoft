@@ -26,9 +26,11 @@ from ..theme import (
     LAYOUT,
     NAVY,
     SEMANTIC_DEFICIT,
+    SEMANTIC_PROMEDIO,
     SURFACE,
     TYPE,
 )
+from ..validez import construir_texto_validez_pdf
 
 VALIDEZ_TEMPLATE = (
     "No se incluyeron pruebas formales de validez de síntomas (PVT/SVT) en esta "
@@ -78,10 +80,10 @@ class MedicoLegalGenerator(NeuroPDFGeneratorPro):
         y = self._section_antecedentes(c, data, y)
         y = self._section_observacion(c, data, y)
         y = self._section_validez_sintomas(c, data, y)
+        y = self._section_resumen_familia(c, data, y)
         y = self._section_resultados(c, data, y)
         y = self._section_aculturacion(c, data, y)
         y = self._section_sintesis(c, data, y)
-        y = self._section_resumen_familia(c, data, y)
         y = self._section_impresion(c, data, y)
         y = self._section_recomendaciones(c, data, y)
         if self.INCLUDE_ANNEX:
@@ -123,15 +125,19 @@ class MedicoLegalGenerator(NeuroPDFGeneratorPro):
             y,
             subtitle="Consideración crítica para informe pericial",
         )
+        cuerpo, titulo, es_alerta = construir_texto_validez_pdf(
+            data.resultados or [],
+            template_sin_pruebas=VALIDEZ_TEMPLATE,
+        )
         y = callout(
             c,
-            VALIDEZ_TEMPLATE,
+            cuerpo,
             L.margin,
             y,
             L.content_w,
-            accent=SEMANTIC_DEFICIT,
+            accent=SEMANTIC_DEFICIT if es_alerta else SEMANTIC_PROMEDIO,
             fill=SURFACE,
-            title="Advertencia metodológica",
+            title=titulo,
             size=TYPE.body_sm,
         )
         return y - 8

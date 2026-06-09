@@ -452,3 +452,18 @@ class BackupResponseDTO(BaseModel):
     # de corrupción). Backups que no pasan el check se marcan exitoso=False
     # y se eliminan físicamente para evitar restaurar datos corruptos.
     integridad: str | None = None
+    tipo: str | None = "manual"
+    cifrado: bool = False
+
+
+class BackupScheduleDTO(BaseModel):
+    """Configuración QW-8 — backup programado."""
+
+    enabled: bool = True
+    frequency: str = "daily"  # daily | weekly | monthly
+    hour: int = Field(default=2, ge=0, le=23)
+    minute: int = Field(default=0, ge=0, le=59)
+    mantener_total: int = Field(default=5, ge=3, le=30)
+    external_path: str | None = None
+    last_run_at: str | None = None
+    next_run_at: str | None = None

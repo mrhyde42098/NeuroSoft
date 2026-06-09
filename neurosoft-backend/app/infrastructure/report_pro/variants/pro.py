@@ -19,3 +19,6 @@ class ProGenerator(NeuroPDFGeneratorPro):
     VARIANT_SUBTITLE = "Informe de Evaluación Neuropsicológica"
     USE_COVER = True
     INCLUDE_ANNEX = True
+    INCLUDE_SINTESIS = True
+    FAMILY_SUMMARY_BEFORE_RESULTS = True
+    SCORE_TABLE_QUALITATIVE = True

@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { api } from "../../api/client.js";
 import { useToast, useConfirm } from "../../contexts.jsx";
 import { protocoloPorEdad } from "../../data/datosClinicos.js";
-import { Btn, Card, I, Sel, TopBar, Txta } from "../../ui/primitives.jsx";
+import { Btn, Card, I, Label, Sel, TopBar, Txta } from "../../ui/primitives.jsx";
 import { safeLS } from "../../utils/safeLS.js";
 import { TEAL } from "../../ui/tokens.js";
 import {
@@ -16,33 +16,40 @@ import {
  getRetentionStorageKey, getSuggestedClinicalTest, isClinicalTestDone,
  prepareClinicalProtocolTests,
 } from "../../data/clinical.js";
-import ReactivePanel from "./ReactivePanel.jsx";
 import ScoreInput from "./ScoreInput.jsx";
-import StimulusDisplay from "./StimulusDisplay.jsx";
-import { itemMappedStimuli } from "./stimulusHelpers.js";
-import { NativeStimuli } from "../../data/stimuli.jsx";
 import OrdenClinicoBanner from "./OrdenClinicoBanner.jsx"; // §M-6
-import ValidezPanel from "./ValidezPanel.jsx";
-import GuideFormatter, { GuideRichSection } from "./GuideFormatter.jsx";
-import FloatingTimer from "../../ui/FloatingTimer.jsx";
 import SegmentedNav from "../../ui/SegmentedNav.jsx";
 import SectionCard from "../../ui/SectionCard.jsx";
 import { ADAPTATIONS, SATTLER_FORMS, estimateCITFromShortForm } from "../../utils/sattlerShortForms.js";
 import { getNeuronormaInfo, NEURONORMA_COLOMBIA_REF } from "../../data/neuronormaColombia.js";
 import { getSubtest } from "../../data/protocolLoader.js";
+import { usePatientsPanel } from "../../hooks/usePatientsPanel.js";
+import { EVAL_PROTOCOLS as protos } from "../../data/protocols.js";
+import { displayPatientName } from "../../utils/displayPatientName.js";
+import EvalHeader from "./EvalHeader.jsx";
+import EvalGuideSidebar from "./EvalGuideSidebar.jsx";
+import EvalStimulusArea from "./EvalStimulusArea.jsx";
+import { sanitizePuntajes } from "./hooks/useEvalSession.js";
 
 /* §autosave: clave del borrador local. Una clave por paciente+protocolo. */
 const DRAFT_KEY = (patientId, proto) => `ns_eval_draft_${patientId || "sin_paciente"}_${proto}`;
+const DRAFT_KEY_DOC = (doc, proto) => `ns_eval_draft_doc_${doc}_${proto}`;
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días — luego expira
+
+const collectDraftKeys = (patId, proto, patients = []) => {
+  const keys = [];
+  if (patId) keys.push(DRAFT_KEY(patId, proto));
+  const doc = patients.find((p) => p.id === patId)?.numero_documento;
+  if (doc) keys.push(DRAFT_KEY_DOC(doc, proto));
+  if (!patId) keys.push(DRAFT_KEY("sin_paciente", proto));
+  return [...new Set(keys)];
+};
 
 export default function EvalApplyPage({setPage,_setPage,nav,evalCtx,_setEvalCtx}){
   const goPage = setPage || _setPage;
  /* §M3-fix: toast + confirm modal (reemplazan alert/window.confirm). */
  const toast=useToast();const confirm=useConfirm();
-const sanitizePuntajes=(raw={})=>Object.fromEntries(
-  Object.entries(raw).filter(([,v])=>v!=null&&v!==""&&Number(v)!==9999).map(([k,v])=>[k,String(v)])
-);
-const[patients,setPatients]=useState([]);const[patId,setPatId]=useState(evalCtx?.patientId||safeLS.get("ns_sel_patient")||"");
+const{patients}=usePatientsPanel();const[patId,setPatId]=useState(evalCtx?.patientId||safeLS.get("ns_sel_patient")||"");
 const[tests,setTests]=useState([]);const[cur,setCur]=useState(0);const[puntajes,setPuntajes]=useState(()=>sanitizePuntajes(evalCtx?.puntajes));const[obs,setObs]=useState(evalCtx?.obs||{});
  /* §autosave: estado del borrador (timestamp de último guardado, si hubo restore). */
  const[draftSavedAt,setDraftSavedAt]=useState(null);
@@ -52,11 +59,14 @@ const[tests,setTests]=useState([]);const[cur,setCur]=useState(0);const[puntajes,
 const[guiaOpen,setGuiaOpen]=useState(()=>typeof window!=="undefined"&&window.matchMedia("(min-width:1280px)").matches);
 const[guiaTab,setGuiaTab]=useState("conductas");
 const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manualmente en pruebas sin tiempo */
- const[proto,setProto]=useState("wisc_iv");
- const[adaptacion,setAdaptacion]=useState("estandar");
+ const[proto,setProto]=useState(evalCtx?.proto||"wisc_iv");
+ const[adaptacion,setAdaptacion]=useState(evalCtx?.adaptacion||"estandar");
+ const protoKeyRef=useRef(`${evalCtx?.proto||"wisc_iv"}:${evalCtx?.adaptacion||"estandar"}`);
+ const skipResetRef=useRef(false);
+ const[protocolReady,setProtocolReady]=useState(Boolean(evalCtx?.proto&&evalCtx?.patientId));
  const[itemScores,setItemScores]=useState({});/* Reactive item-level scores */
  const[conductas_checked,setConducChecked]=useState({});/* §4.2: conductas seleccionadas por test_id */
- const protos={wisc_iv:{nombre:"WISC-IV",tests:[{test_id:"NiWiscDC",nombre:"Diseño con Cubos",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:120},{test_id:"NiWiscSem",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"NiWiscRDD",nombre:"Retención de Dígitos",dominio:"Memoria de Trabajo"},{test_id:"NiWiscConD",nombre:"Conceptos con Dibujos",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCl",nombre:"Claves",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWiscVoc",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"NiWiscLN",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"NiWiscMat",nombre:"Matrices",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCom",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"NiWiscBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWisFigInc",nombre:"Figuras Incompletas",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:20,es_suplementaria:true},{test_id:"NiWiscAri",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:30,es_suplementaria:true},{test_id:"NiWisInf",nombre:"Información",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisPalCon",nombre:"Palabras en Contexto",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisReg",nombre:"Registros",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:45,es_suplementaria:true},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},wais_iii:{nombre:"WAIS-III",tests:[{test_id:"AdWAISFI",nombre:"Figuras Incompletas",dominio:"Organización Perceptual",has_timer:true,tiempo_max:20},{test_id:"AdWAISV",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"AdSDWais",nombre:"Clave de Números",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"AdWAISCC",nombre:"Cubos",dominio:"Organización Perceptual",has_timer:true,tiempo_max:120},{test_id:"AdWAISA",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:60},{test_id:"AdMatr",nombre:"Matrices",dominio:"Organización Perceptual"},{test_id:"AdDDir",nombre:"Dígitos",dominio:"Memoria de Trabajo"},{test_id:"AdWAISI",nombre:"Información",dominio:"Comprensión Verbal"},{test_id:"AdWAISC",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"AdBusSim + ViBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdWAISL",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},ninos_comp:{nombre:"Niños Complementario",tests:[{test_id:"NiEniE1 + NiEniE2 + NiEniE3 + NiEniE4 = NiEniLT",nombre:"Curva Memoria ENI-2",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"NiIntObj",nombre:"Integración de Objetos",dominio:"Praxias/Gnosias"},{test_id:"NiRecEmo",nombre:"Expresiones Faciales",dominio:"Praxias/Gnosias"},{test_id:"NiFigHum",nombre:"Figura Humana",dominio:"Praxias/Gnosias"},{test_id:"NiRDD",nombre:"Dígitos directos ENI-2",dominio:"Atención"},{test_id:"NiTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"NiTestPC_R",nombre:"CARAS-R",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiENICDib",nombre:"Cancelación Dibujos",dominio:"Atención"},{test_id:"NiFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"NiENIDen",nombre:"Denominación",dominio:"Lenguaje"},{test_id:"NiFA",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"NiPrec",nombre:"Lectura en Voz Alta",dominio:"Lectura"},{test_id:"NiLVS",nombre:"Lectura Silenciosa",dominio:"Lectura"},{test_id:"NiCopTxt",nombre:"Copia de Texto",dominio:"Escritura"},{test_id:"NiRecEscrita",nombre:"Recuperación Escrita",dominio:"Escritura"},{test_id:"NiCalcEscrito",nombre:"Cálculo Escrito",dominio:"Matemáticas"},{test_id:"NiENICMen",nombre:"Cálculo Mental",dominio:"Matemáticas"},{test_id:"NiSt_Edades",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"NiENISInv",nombre:"Serie Inversa/Dígitos Inversos",dominio:"Función Ejecutiva"},{test_id:"NiFM",nombre:"Fluidez M",dominio:"Función Ejecutiva"}]},adulto_mayor:{nombre:"Adulto Mayor",tests:[{test_id:"GBTotal",nombre:"Grober & Buschke",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"SDMT",nombre:"SDMT",dominio:"Atención",has_timer:true,tiempo_max:90},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"InstrConflICO",nombre:"Instrucciones Conflictivas",dominio:"Atención"},{test_id:"AdFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidP",nombre:"Fluidez P",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"Denom48",nombre:"Denominación 48 ítems",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Función Ejecutiva"},{test_id:"RefranesICO",nombre:"Refranes INECO",dominio:"Función Ejecutiva"},{test_id:"StroopAM",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"GoNoGoICO",nombre:"Go No Go INECO",dominio:"Función Ejecutiva"},{test_id:"EscKertesz",nombre:"Kertesz/FBI",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscQueja",nombre:"Queja Subjetiva Memoria",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscYesavage",nombre:"Yesavage",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscLawton",nombre:"Lawton",dominio:"Escalas",es_escala_diferida:true},{test_id:"MMSE",nombre:"MMSE Orientación",dominio:"Orientación",es_escala_diferida:true}]},validez:{nombre:"Validez de síntomas (peritaje)",tests:[{test_id:"REY15",nombre:"Rey 15-Item Test",dominio:"Validez de síntomas"},{test_id:"TOMM",nombre:"TOMM",dominio:"Validez de síntomas"}]},adulto_joven:{nombre:"Adulto Joven Batería",tests:[{test_id:"AdCVLT",nombre:"CVLT",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdSDWais",nombre:"Claves WAIS-III",dominio:"Atención",has_timer:true,tiempo_max:120},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"AdFCRO_Rey",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidM",nombre:"Fluidez M",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"BNT",nombre:"BNT",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas WAIS-III",dominio:"Función Ejecutiva"},{test_id:"AdStroop_Corr",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"AdMatr",nombre:"Matrices",dominio:"Función Ejecutiva"},{test_id:"EscSTAI",nombre:"STAI",dominio:"Escalas",es_escala_diferida:true},{test_id:"AdBeck",nombre:"Beck",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscASRS",nombre:"ASRS",dominio:"Escalas",es_escala_diferida:true}]}};
+ const protos={wisc_iv:{nombre:"WISC-IV",tests:[{test_id:"NiWiscDC",nombre:"Diseño con Cubos",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:120},{test_id:"NiWiscSem",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"NiWiscRDD",nombre:"Retención de Dígitos",dominio:"Memoria de Trabajo"},{test_id:"NiWiscConD",nombre:"Conceptos con Dibujos",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCl",nombre:"Claves",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWiscVoc",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"NiWiscLN",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"NiWiscMat",nombre:"Matrices",dominio:"Razonamiento Perceptual"},{test_id:"NiWiscCom",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"NiWiscBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:120},{test_id:"NiWisFigInc",nombre:"Figuras Incompletas",dominio:"Razonamiento Perceptual",has_timer:true,tiempo_max:20,es_suplementaria:true},{test_id:"NiWiscAri",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:30,es_suplementaria:true},{test_id:"NiWisInf",nombre:"Información",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisPalCon",nombre:"Palabras en Contexto",dominio:"Comprensión Verbal",es_suplementaria:true},{test_id:"NiWisReg",nombre:"Registros",dominio:"Velocidad de Proceso",has_timer:true,tiempo_max:45,es_suplementaria:true},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},wais_iii:{nombre:"WAIS-III",tests:[{test_id:"AdWAISFI",nombre:"Figuras Incompletas",dominio:"Organización Perceptual",has_timer:true,tiempo_max:20},{test_id:"AdWAISV",nombre:"Vocabulario",dominio:"Comprensión Verbal"},{test_id:"AdSDWais",nombre:"Clave de Números",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Comprensión Verbal"},{test_id:"AdWAISCC",nombre:"Cubos",dominio:"Organización Perceptual",has_timer:true,tiempo_max:120},{test_id:"AdWAISA",nombre:"Aritmética",dominio:"Memoria de Trabajo",has_timer:true,tiempo_max:60},{test_id:"AdMatr",nombre:"Matrices",dominio:"Organización Perceptual"},{test_id:"AdDDir",nombre:"Dígitos",dominio:"Memoria de Trabajo"},{test_id:"AdWAISI",nombre:"Información",dominio:"Comprensión Verbal"},{test_id:"AdWAISC",nombre:"Comprensión",dominio:"Comprensión Verbal"},{test_id:"AdBusSim",nombre:"Búsqueda de Símbolos",dominio:"Velocidad de Procesamiento",has_timer:true,tiempo_max:120},{test_id:"AdWAISL",nombre:"Letras y Números",dominio:"Memoria de Trabajo"},{test_id:"REY15",nombre:"Rey 15-Item Test (Validez)",dominio:"Validez de síntomas",es_suplementaria:true}]},ninos_comp:{nombre:"Niños Complementario",tests:[{test_id:"NiEniE1 + NiEniE2 + NiEniE3 + NiEniE4 = NiEniLT",nombre:"Curva Memoria ENI-2",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"NiIntObj",nombre:"Integración de Objetos",dominio:"Praxias/Gnosias"},{test_id:"NiRecEmo",nombre:"Expresiones Faciales",dominio:"Praxias/Gnosias"},{test_id:"NiFigHum",nombre:"Figura Humana",dominio:"Praxias/Gnosias"},{test_id:"NiRDD",nombre:"Dígitos directos ENI-2",dominio:"Atención"},{test_id:"NiTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"NiTestPC_R",nombre:"CARAS-R",dominio:"Atención",has_timer:true,tiempo_max:180},{test_id:"NiENICDib",nombre:"Cancelación Dibujos",dominio:"Atención"},{test_id:"NiFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"NiENIDen",nombre:"Denominación",dominio:"Lenguaje"},{test_id:"NiFA",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"NiPrec",nombre:"Lectura en Voz Alta",dominio:"Lectura"},{test_id:"NiLVS",nombre:"Lectura Silenciosa",dominio:"Lectura"},{test_id:"NiCopTxt",nombre:"Copia de Texto",dominio:"Escritura"},{test_id:"NiRecEscrita",nombre:"Recuperación Escrita",dominio:"Escritura"},{test_id:"NiCalcEscrito",nombre:"Cálculo Escrito",dominio:"Matemáticas"},{test_id:"NiENICMen",nombre:"Cálculo Mental",dominio:"Matemáticas"},{test_id:"NiSt_Edades",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"NiENISInv",nombre:"Serie Inversa/Dígitos Inversos",dominio:"Función Ejecutiva"},{test_id:"NiFM",nombre:"Fluidez M",dominio:"Función Ejecutiva"}]},adulto_mayor:{nombre:"Adulto Mayor",tests:[{test_id:"GBTotal",nombre:"Grober & Buschke",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"SDMT",nombre:"SDMT",dominio:"Atención",has_timer:true,tiempo_max:90},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"InstrConflICO",nombre:"Instrucciones Conflictivas",dominio:"Atención"},{test_id:"AdFCRORec",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidP",nombre:"Fluidez P",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"Denom48",nombre:"Denominación 48 ítems",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas",dominio:"Función Ejecutiva"},{test_id:"RefranesICO",nombre:"Refranes INECO",dominio:"Función Ejecutiva"},{test_id:"StroopAM",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"GoNoGoICO",nombre:"Go No Go INECO",dominio:"Función Ejecutiva"},{test_id:"EscKertesz",nombre:"Kertesz/FBI",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscQueja",nombre:"Queja Subjetiva Memoria",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscYesavage",nombre:"Yesavage",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscLawton",nombre:"Lawton",dominio:"Escalas",es_escala_diferida:true},{test_id:"MMSE",nombre:"MMSE Orientación",dominio:"Orientación",es_escala_diferida:true}]},validez:{nombre:"Validez de síntomas (peritaje)",tests:[{test_id:"REY15",nombre:"Rey 15-Item Test",dominio:"Validez de síntomas"},{test_id:"TOMM",nombre:"TOMM",dominio:"Validez de síntomas"}]},adulto_joven:{nombre:"Adulto Joven Batería",tests:[{test_id:"AdCVLT",nombre:"CVLT",dominio:"Memoria Verbal"},{test_id:"NiFCROCop",nombre:"FCRO Copia",dominio:"Praxias"},{test_id:"AdTMTA",nombre:"TMT-A",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdTMTB",nombre:"TMT-B",dominio:"Atención",has_timer:true,tiempo_max:300},{test_id:"AdSDWais",nombre:"Claves WAIS-III",dominio:"Atención",has_timer:true,tiempo_max:120},{test_id:"AdDDir",nombre:"Dígitos WAIS-III",dominio:"Atención"},{test_id:"AdFCRO_Rey",nombre:"FCRO Recobro",dominio:"Memoria Visual"},{test_id:"FluidM",nombre:"Fluidez M",dominio:"Lenguaje"},{test_id:"FluidAnim",nombre:"Fluidez Animales",dominio:"Lenguaje"},{test_id:"BNT",nombre:"BNT",dominio:"Lenguaje"},{test_id:"AdSemWais",nombre:"Semejanzas WAIS-III",dominio:"Función Ejecutiva"},{test_id:"AdStroop_Corr",nombre:"Stroop",dominio:"Función Ejecutiva"},{test_id:"AdMatr",nombre:"Matrices",dominio:"Función Ejecutiva"},{test_id:"EscSTAI",nombre:"STAI",dominio:"Escalas",es_escala_diferida:true},{test_id:"AdBeck",nombre:"Beck",dominio:"Escalas",es_escala_diferida:true},{test_id:"EscASRS",nombre:"ASRS",dominio:"Escalas",es_escala_diferida:true}]}};
  const retentionScope=`${evalCtx?.evaluationId||evalCtx?.id||patId||"sin_paciente"}_${proto}`;
  /* §H5-fix: validar que el timestamp sea un entero plausible (epoch ms
   * desde 2020 hasta dentro de 1h en el futuro). Si storage está
@@ -65,7 +75,6 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
  const[protoSug,setProtoSug]=useState(null);/* sugerencia por edad */
  const[estimulos,setEstimulos]=useState([]);/* estímulos de la prueba actual */
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(()=>{api.get("/api/v1/patients/panel").then(d=>setPatients(d.pacientes||d||[])).catch(()=>toast.error("Error cargando pacientes"))},[]);
  /* Auto-sugerir protocolo según edad del paciente seleccionado */
  useEffect(()=>{
  if(!patId||!patients.length){setProtoSug(null);return}
@@ -77,70 +86,97 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
  const map={preescolar:"ninos_comp",infantil:"wisc_iv",adolescente:"wisc_iv",adulto_joven:"wais_iii",adulto_mayor:"adulto_mayor"};
  setProtoSug({edad,grupo:sug.key,nombre:sug.nombre,protocoloId:map[sug.key]||"wisc_iv",core:sug.core,tiempo_min:sug.tiempo_min,tiempo_max:sug.tiempo_max})
  },[patId,patients]);
+ /* Cargar lista de pruebas al cambiar protocolo/adaptación (sin borrar puntajes). */
  useEffect(()=>{
- /* Filtrar pruebas según adaptación (excluye las no aplicables) */
  const adapt=ADAPTATIONS[adaptacion]||ADAPTATIONS.estandar;
  const filtered=protos[proto].tests.filter(t=>!(adapt.excludes||[]).includes(t.test_id));
  setTests(prepareClinicalProtocolTests(filtered));
- setCur(0);setPuntajes({});setObs({});
- setDraftRestoredFrom(null);/* reset al cambiar protocolo */
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[proto,adaptacion]);
 
- /* §autosave-1: restaurar borrador al seleccionar paciente o cambiar protocolo.
-  * Si existe un draft válido para esta combinación (patId + proto), lo carga.
-  * El draft expira a los 7 días para no contaminar evaluaciones futuras. */
+ /* Reset de puntajes solo cuando el usuario cambia protocolo/adaptación explícitamente. */
  useEffect(()=>{
-  if(!patId)return;
+  const key=`${proto}:${adaptacion}`;
+  if(protoKeyRef.current===key)return;
+  if(skipResetRef.current){
+   skipResetRef.current=false;
+   protoKeyRef.current=key;
+   return;
+  }
+  protoKeyRef.current=key;
+  setCur(0);setPuntajes({});setObs({});
+  setItemScores({});setConducChecked({});
+  setDraftRestoredFrom(null);
+ },[proto,adaptacion]);
+
+ /* Volcar sesión a evalCtx para sobrevivir remounts (pageKey en App.jsx). */
+ useEffect(()=>{
+  if(!_setEvalCtx)return;
+  _setEvalCtx(c=>({
+   ...c,
+   patientId:patId||c?.patientId,
+   proto,
+   protoNombre:protos[proto]?.nombre||c?.protoNombre,
+   adaptacion,
+   puntajes,
+   obs,
+  }));
+ },[patId,proto,adaptacion,puntajes,obs,_setEvalCtx]);
+
+ /* §autosave-1: restaurar borrador al seleccionar paciente o cambiar protocolo. */
+ useEffect(()=>{
   try{
-   const raw=localStorage.getItem(DRAFT_KEY(patId,proto));
+   let raw=null;
+   let usedKey=null;
+   for(const k of collectDraftKeys(patId,proto,patients)){
+    const candidate=localStorage.getItem(k);
+    if(candidate){raw=candidate;usedKey=k;break}
+   }
    if(!raw)return;
    const d=JSON.parse(raw);
    const now=Date.now();
    if(!d.ts||(now-d.ts)>DRAFT_TTL_MS){
-    localStorage.removeItem(DRAFT_KEY(patId,proto));
+    if(usedKey)localStorage.removeItem(usedKey);
     return;
    }
-   /* Solo restaurar si el draft tiene datos reales (al menos 1 PD o 1 obs). */
    const hasData=(d.puntajes&&Object.keys(d.puntajes).some(k=>d.puntajes[k]!==""&&d.puntajes[k]!=null))
               ||(d.obs&&Object.keys(d.obs).some(k=>d.obs[k]?.trim()));
    if(!hasData)return;
-   /* Aplicar el borrador. */
    if(d.puntajes)setPuntajes(d.puntajes);
    if(d.obs)setObs(d.obs);
    if(typeof d.cur==="number")setCur(d.cur);
    if(d.conductas_checked)setConducChecked(d.conductas_checked);
    if(d.itemScores)setItemScores(d.itemScores);
-   if(d.adaptacion&&d.adaptacion!==adaptacion)setAdaptacion(d.adaptacion);
+   if(d.adaptacion&&d.adaptacion!==adaptacion){
+    skipResetRef.current=true;
+    setAdaptacion(d.adaptacion);
+   }
    setDraftRestoredFrom(new Date(d.ts).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}));
   }catch(e){
    console.warn("[autosave] No se pudo restaurar borrador:",e);
   }
- /* Solo al montar / cambiar paciente o protocolo — NO en cada cambio de puntajes. */
  // eslint-disable-next-line react-hooks/exhaustive-deps
- },[patId,proto]);
+ },[patId,proto,patients.length]);
 
- /* §autosave-2: persistir borrador cada 30 segundos si hay cambios sin finalizar. */
+ /* §autosave-2: persistir borrador (con o sin paciente seleccionado). */
  useEffect(()=>{
-  if(!patId)return;
   const save=()=>{
    try{
     const hasData=Object.keys(puntajes).some(k=>puntajes[k]!==""&&puntajes[k]!=null)
                ||Object.keys(obs).some(k=>obs[k]?.trim());
     if(!hasData)return;
-    const draft={ts:Date.now(),patId,proto,adaptacion,cur,puntajes,obs,conductas_checked,itemScores};
-    localStorage.setItem(DRAFT_KEY(patId,proto),JSON.stringify(draft));
+    const draft={ts:Date.now(),patId:patId||null,proto,adaptacion,cur,puntajes,obs,conductas_checked,itemScores};
+    const keys=collectDraftKeys(patId,proto,patients);
+    keys.forEach((k)=>localStorage.setItem(k,JSON.stringify(draft)));
     setDraftSavedAt(draft.ts);
    }catch(e){
-    /* localStorage puede estar lleno o deshabilitado — no es bloqueante. */
     console.warn("[autosave] No se pudo guardar borrador:",e);
    }
   };
-  /* Guardado debounced: 1 segundo después del último cambio + cada 30 segundos. */
   const debounce=setTimeout(save,1000);
   const interval=setInterval(save,30000);
   return()=>{clearTimeout(debounce);clearInterval(interval)};
- },[patId,proto,adaptacion,cur,puntajes,obs,conductas_checked,itemScores]);
+ },[patId,proto,adaptacion,cur,puntajes,obs,conductas_checked,itemScores,patients]);
 
  /* §autosave-3: protección "cambios sin guardar" al cerrar / recargar la pestaña.
   * El navegador muestra el diálogo nativo "¿Salir? Es posible que los cambios no se guarden". */
@@ -212,7 +248,7 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
   goToTest(idx);
   setPortadaOk(true);
  };
- const patNombre=patId?(()=>{const p=patients.find(x=>x.id===patId);return p?(p.nombre_completo||`${p.primer_nombre||""} ${p.primer_apellido||""}`.trim()):"—"})():"";
+ const patNombre=patId?(displayPatientName(patients.find(x=>x.id===patId))||"—"):"";
  const showIntroDashboard=mode==="apply"&&!portadaOk&&done.length===0;
  /* §4.2 — checkbox de conducta: ahora con detalle observado opcional.
   * §conductas-rework (2026-05-18): antes los bullets se copiaban literal
@@ -272,7 +308,8 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
   if(!patId){toast.warn("Seleccione un paciente antes de finalizar");return}
   const pd={};tests.forEach(x=>{const v=puntajes[x.test_id];pd[x.test_id]=v!=null&&v!==""?parseFloat(v):9999});
   /* §autosave-clean: borrador completado → eliminar del localStorage. */
-  try{localStorage.removeItem(DRAFT_KEY(patId,proto))}catch{}
+  collectDraftKeys(patId,proto,patients).forEach((k)=>{try{localStorage.removeItem(k)}catch{}});
+  if(_setEvalCtx)_setEvalCtx(c=>({...c,patientId:patId,puntajes:pd,obs,proto,protoNombre:protos[proto].nombre}));
   nav("eval_results",{patientId:patId,puntajes:pd,obs,proto,protoNombre:protos[proto].nombre});
  };
  /* §autosave-discard: limpiar el borrador manualmente desde el banner. */
@@ -283,34 +320,25 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
     confirmText:"Descartar",
     dangerous:true,
   })))return;
-  try{localStorage.removeItem(DRAFT_KEY(patId,proto))}catch{}
+  collectDraftKeys(patId,proto,patients).forEach((k)=>{try{localStorage.removeItem(k)}catch{}});
   setPuntajes({});setObs({});setCur(0);setConducChecked({});setItemScores({});
   setDraftRestoredFrom(null);setDraftSavedAt(null);
  };
  if(!tests.length)return<><TopBar title="Evaluación"/><main className="p-8 flex items-center justify-center h-96"><div className="animate-spin w-8 h-8 border-4 border-teal-200 border-t-teal-600 rounded-full"/></main></>;
- return(<><TopBar title="Evaluación Neuropsicológica">
- {/* Solo controles esenciales en el TopBar para evitar desbordes
- * cuando el sidebar está expandido. El selector de modo y la barra
- * de progreso bajan a un sub-header dedicado. */}
- <Sel value={patId} onChange={e=>setPatId(e.target.value)} className="text-xs w-44 sm:w-52">{!patId&&<option value="">— Paciente —</option>}{patients.map(p=><option key={p.id} value={p.id}>{p.nombre_completo||`${p.primer_nombre} ${p.primer_apellido}`}</option>)}</Sel>
- <Sel value={proto} onChange={e=>{setProto(e.target.value)}} className="text-xs w-28 sm:w-32">{Object.entries(protos).map(([k,v])=><option key={k} value={k}>{v.nombre}</option>)}</Sel>
- <Sel value={adaptacion} onChange={e=>setAdaptacion(e.target.value)} className="text-xs w-32 sm:w-40" title="Adaptación para casos especiales (Protocolos Alternos )">{Object.entries(ADAPTATIONS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}</Sel>
- {goPage&&<Btn className="text-xs whitespace-nowrap" onClick={()=>goPage("screening")}><I name="fact_check" className="text-sm mr-1"/>Screening</Btn>}
- <Btn v="danger" className="text-xs whitespace-nowrap" onClick={handleFinalizar}>Finalizar</Btn>
- </TopBar>
- {/* Sub-header: modo de aplicación + progreso */}
- <div className="px-6 sm:px-8 py-3 border-b flex flex-wrap items-center gap-4" style={{background:"var(--ns-card)",borderColor:"var(--ns-card-b)"}}>
- <div className="flex rounded-full overflow-hidden border shrink-0" style={{borderColor:"var(--ns-card-b)"}}>
- <button onClick={()=>setMode("apply")} className={`px-4 py-1.5 text-xs font-bold transition-all whitespace-nowrap ${mode==="apply"?"bg-teal-600 text-white":"bg-transparent"}`} style={mode==="apply"?{}:{color:"var(--ns-muted)"}}><I name="touch_app" className="text-sm mr-1"/>Aplicación</button>
- <button onClick={()=>setMode("table")} className={`px-4 py-1.5 text-xs font-bold transition-all whitespace-nowrap ${mode==="table"?"bg-teal-600 text-white":"bg-transparent"}`} style={mode==="table"?{}:{color:"var(--ns-muted)"}}><I name="table_chart" className="text-sm mr-1"/>Registro</button>
- </div>
- <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-  <span className="text-xs font-bold whitespace-nowrap" style={{color:"var(--ns-muted)"}}>Progreso: {done.length}/{tests.length}</span>
-  <div className="flex-1 max-w-xs h-1.5 rounded-full overflow-hidden" style={{background:"var(--ns-subtle)"}}>
-  <div className="h-full bg-teal-600 rounded-full transition-all" style={{width:`${tests.length?(done.length/tests.length)*100:0}%`}}/>
-  </div>
-  </div>
- </div>
+ const patEdad=patId&&patients.find(p=>p.id===patId)?.fecha_nacimiento?Math.floor((Date.now()-new Date(patients.find(p=>p.id===patId).fecha_nacimiento).getTime())/(365.25*24*3600*1000)):null;
+ const protoAgeOk=(id)=>{if(patEdad==null)return true;if(patEdad<18)return["wisc_iv","ninos_comp"].includes(id);if(patEdad<50)return["wais_iii","adulto_joven","ninos_comp"].includes(id);return["wais_iii","adulto_mayor","adulto_joven"].includes(id)};
+ if(!protocolReady)return<><TopBar title="Selección de protocolo"/><main className="p-8 max-w-5xl mx-auto space-y-6">
+  <Card className="p-6"><h2 className="text-lg font-bold mb-2">Dashboard de protocolos</h2>
+   <p className="text-sm mb-4" style={{color:"var(--ns-muted)"}}>Seleccione paciente y batería antes de aplicar pruebas. Las opciones incompatibles con la edad aparecen atenuadas.</p>
+   <div className="mb-4"><Label>Paciente</Label><Sel value={patId} onChange={(e)=>setPatId(e.target.value)} className="max-w-md"><option value="">— Seleccionar —</option>{patients.map(p=><option key={p.id} value={p.id}>{p.nombre_completo||p.primer_nombre} ({p.numero_documento})</option>)}</Sel></div>
+   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{Object.entries(protos).map(([id,p])=>{const ok=protoAgeOk(id);return(
+    <button key={id} type="button" disabled={!ok} onClick={()=>{setProto(id);setProtocolReady(true)}} className="text-left p-4 rounded-xl border-2 transition-all disabled:opacity-40" style={{borderColor:proto===id?TEAL:"var(--ns-card-b)",background:proto===id?`${TEAL}08`:"var(--ns-card)"}}>
+     <p className="font-bold text-sm">{p.nombre}</p>
+     <p className="text-xs mt-1" style={{color:"var(--ns-muted)"}}>{p.tests.length} pruebas · {ok?"Compatible":"No recomendado por edad"}</p>
+    </button>);})}</div>
+  </Card>
+ </main></>;
+ return(<><EvalHeader patients={patients} patId={patId} onPatIdChange={setPatId} protos={protos} proto={proto} onProtoChange={setProto} adaptacion={adaptacion} onAdaptacionChange={setAdaptacion} goPage={goPage} onFinalizar={handleFinalizar} mode={mode} onModeChange={setMode} doneCount={done.length} testsCount={tests.length} />
  {/* §autosave: banner de borrador restaurado o indicador "guardado". */}
  {(draftRestoredFrom||draftSavedAt)&&(
    <div className="px-6 sm:px-8 py-2 border-b flex items-center gap-3 text-xs"
@@ -465,22 +493,7 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
  {/* §M-6 ── Banner de orden clínico + timer de recobro ── */}
  <OrdenClinicoBanner testIdActual={t.test_id.split(" ")[0].trim()} completados={retentionTimes} />
 
- {/* ── Referencia visual nativa (SVG) o material subido en Config ── */}
- {(()=>{
-  const tid=t.test_id.split(" ")[0].trim();
-  const mapped=itemMappedStimuli(estimulos,tid);
-  const reactive=REACTIVOS[t.test_id];
-  const hideDupNative=reactive?.type==="items"&&(tid==="NiWiscDC"||tid==="AdWAISCC");
-  const showStim=mapped.length>0||(NativeStimuli[tid]&&!hideDupNative&&reactive?.type!=="fcro");
-  return showStim?(<Card className="p-5"><StimulusDisplay testId={tid} stimuli={mapped}/></Card>):null;
- })()}
-
- {/* ── REACTIVOS — ahora en el área principal ── */}
- {REACTIVOS[t.test_id]&&<ReactivePanel testId={t.test_id.split(" ")[0].trim()} puntajes={puntajes} setPuntajes={setPuntajes} itemScores={itemScores} setItemScores={setItemScores} estimulos={itemMappedStimuli(estimulos,t.test_id.split(" ")[0].trim())} textScale={proto==="adulto_mayor"||adaptacion==="alto_contraste"?"large":"normal"}/>}
-
- {(proto==="validez"||t.test_id==="REY15"||t.test_id==="TOMM")&&(
-   <ValidezPanel onInsertObs={(txt)=>setObs(o=>({...o,[t.test_id]:((o[t.test_id]||"")+"\n\n"+txt).trim()}))}/>
- )}
+ <EvalStimulusArea test={t} proto={proto} adaptacion={adaptacion} estimulos={estimulos} puntajes={puntajes} setPuntajes={setPuntajes} itemScores={itemScores} setItemScores={setItemScores} onInsertValidezObs={(txt)=>setObs(o=>({...o,[t.test_id]:((o[t.test_id]||"")+"\n\n"+txt).trim()}))} />
 
  {/* ── Acceso explícito a la Guía Clínica (admin + tips) — sin duplicar
     *    el bloque: el contenido completo vive en el panel lateral. ── */}
@@ -587,59 +600,7 @@ const[manualTimer,setManualTimer]=useState(false);/* cronómetro desplegado manu
  <td className="px-4 py-2.5"><input value={obs[x.test_id]||""} onChange={e=>setObs(o=>({...o,[x.test_id]:e.target.value}))} className="w-full h-8 text-xs rounded-lg border-none px-2 focus:ring-2 focus:ring-teal-500/30" style={{background:"var(--ns-input)",color:"var(--ns-text)"}} placeholder="Observaciones..."/></td>
  <td className="px-2 py-2.5">{x.has_timer&&<I name="timer" className="text-gray-300 text-sm"/>}</td>
  </tr>})}</tbody></table></Card></div>}
- {/* === GUÍA CLÍNICA LATERAL === */}
- <div className={`xl:shrink-0 xl:sticky xl:top-4 self-start transition-all duration-300 order-last xl:order-none ${guiaOpen?"w-full xl:w-80":"w-10"}`}>
- <button onClick={()=>setGuiaOpen(!guiaOpen)} className="w-10 h-10 rounded-full flex items-center justify-center shadow-md mb-3 xl:ml-auto" style={{background:TEAL}} aria-label={guiaOpen?"Cerrar guía clínica":"Abrir guía clínica"} title={guiaOpen?"Cerrar guía":"Abrir guía"}><I name={guiaOpen?"chevron_right":"menu_book"} className="text-white text-lg"/></button>
- {guiaOpen&&<Card className="p-5 space-y-4 overflow-y-auto" style={{maxHeight:"calc(100vh - 180px)"}}>
- <h3 className="font-bold text-sm flex items-center gap-2"><I name="menu_book" style={{color:TEAL}}/>Guía Clínica</h3>
- <div className="flex gap-1">{[["conductas","Administración"],["informe","Informe"],["hc","HC"]].map(([k,l])=><button key={k} onClick={()=>setGuiaTab(k)} className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${guiaTab===k?"bg-teal-600 text-white":""}`} style={guiaTab===k?{}:{background:"var(--ns-subtle)",color:"var(--ns-muted)"}}>{l}</button>)}</div>
-  {guiaTab==="conductas"&&<div className="space-y-4">
-    {/* Ficha Neuronorma si aplica */}
-    {(()=>{const nn=getNeuronormaInfo(t.test_id);return nn?(
-      <div className="p-3 rounded-xl border-l-3" style={{borderColor:"#fb923c",background:"rgba(251,191,36,0.08)"}}>
-        <p className="text-[10px] font-extrabold uppercase tracking-wider" style={{color:"#7c2d12"}}>Norma Colombia · cap. {nn.capitulo}</p>
-        <p className="text-[11px] mt-1" style={{color:"#9a3412"}}>Ajuste: {nn.ajuste.join(" + ")} · Salida: {nn.tipoPuntuacion==="ambos"?"percentil + T":nn.tipoPuntuacion.replace("_"," ")}</p>
-      </div>
-    ):null})()}
-    <GuideFormatter instructions={INSTRUCCIONES[t.test_id]}/>
-  </div>}
- {guiaTab==="informe"&&<div className="space-y-3">
-  <p className="text-[11px] p-2 rounded-lg" style={{background:"var(--ns-subtle)",color:"var(--ns-muted)"}}>
-    Estos bloques se integran al <strong>informe PDF</strong> desde Resultados → Generar informe. Lo que registre en observaciones enriquece cada sección.
-  </p>
-  {Object.entries(GUIA_INFORME).map(([k,v])=>(
-    <GuideRichSection key={k} title={k} body={v} icon="description" accent={TEAL}
-      hint={k.includes("interpret")?"Se alimenta de los PD y baremos calculados en Resultados.":k.includes("recomend")?"Conecta con el plan terapéutico y la agenda de seguimiento.":null}/>
-  ))}
- </div>}
- {guiaTab==="hc"&&<div className="space-y-3">
-  <p className="text-[11px] p-2 rounded-lg" style={{background:"var(--ns-subtle)",color:"var(--ns-muted)"}}>
-    La <strong>historia clínica</strong> del paciente (módulo Pacientes → Historia) recibe antecedentes y motivo. Use estos recordatorios al completar la anamnesis.
-  </p>
-  {Object.entries(GUIA_HC).map(([k,v])=>(
-    <GuideRichSection key={k} title={k} body={v} icon="assignment_ind" accent="#6366f1"
-      hint="Se guarda en Historia clínica y aparece resumido en el encabezado del informe."/>
-  ))}
- </div>}
- </Card>}
- {/* Cronómetro siempre visible bajo la guía (aunque el panel esté colapsado) */}
- {guiaOpen&&mode==="apply"&&portadaOk&&(t?.has_timer||manualTimer)&&(
-   <Card className="p-4 mt-3 space-y-2">
-     <p className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" style={{color:TEAL}}>
-       <I name="timer" className="text-sm"/>Cronómetro de aplicación
-     </p>
-     <FloatingTimer embedded visible timer={timer} timerOn={timerOn} maxTime={t?.tiempo_max||0} onStart={()=>setTimerOn(true)} onPause={()=>setTimerOn(false)} onReset={()=>{setTimerOn(false);setTimer(0)}} />
-   </Card>
- )}
- {guiaOpen&&mode==="apply"&&!t?.has_timer&&(
-   <Card className="p-4 mt-3">
-     <button onClick={()=>setManualTimer(m=>!m)} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all" style={manualTimer?{background:TEAL,color:"#fff"}:{background:"var(--ns-subtle)",color:"var(--ns-muted)"}}>
-       <I name="timer" className="text-sm"/>{manualTimer?"Ocultar cronómetro":"Desplegar cronómetro"}
-     </button>
-     <p className="text-[10px] mt-1.5 text-center" style={{color:"var(--ns-muted)"}}>Esta prueba no exige tiempo; úselo solo si desea medir.</p>
-   </Card>
- )}
- </div>
+ <EvalGuideSidebar guiaOpen={guiaOpen} onToggleGuia={()=>setGuiaOpen(o=>!o)} guiaTab={guiaTab} onGuiaTabChange={setGuiaTab} testId={t.test_id} mode={mode} portadaOk={portadaOk} hasTimer={t?.has_timer} manualTimer={manualTimer} onToggleManualTimer={()=>setManualTimer(m=>!m)} timer={timer} timerOn={timerOn} onTimerStart={()=>setTimerOn(true)} onTimerPause={()=>setTimerOn(false)} onTimerReset={()=>{setTimerOn(false);setTimer(0)}} maxTime={t?.tiempo_max} />
  </div></main>
  </>);
 }

@@ -56,6 +56,7 @@ D:\NeuroSoftApp\
 Este proyecto YA tiene configurada infraestructura significativa de desarrollo. **NO recomiendes instalar o crear lo siguiente porque ya existe:**
 
 ### ✅ Skills ya creadas en `.claude/skills/`
+- `inspector-general` — **Agente Maestro**: orquesta gates automáticos, 4 subagentes, reconciliación de auditorías, informe `INFORME_MAESTRO_*.md` (usar antes de release beta)
 - `audit-completo` — auditoría sistemática de bugs (4 niveles de severidad, smoke-test estático tras §audit-meta-2026-05)
 - `auditar-baremos` — compara baremos de BD_NEURO_MAESTRA.json con literatura
 - `build-beta-tester` — pipeline completo de empaquetado para beta testers
@@ -73,6 +74,19 @@ Este proyecto YA tiene configurada infraestructura significativa de desarrollo. 
 - `snapshot-paciente` — genera fixtures JSON para tests de regresión clínica
 
 **Cualquier "agente de análisis de baremos / investigación / build / refactor" propuesto YA existe como skill. Verifícalo antes.**
+
+### NeuroSoft V2 — reglas anti-vibecode (jun 2026)
+
+Ver **`docs/CONVENCIONES_V2.md`** completo. Resumen para IAs:
+
+- **STOP:** no añadir código a páginas/routes monolíticos (>300 líneas) — extraer sub-componente o use case primero
+- **STOP:** no duplicar `api.get("/patients/panel")` — usar `usePatientsPanel` + `PatientSelector`
+- **STOP:** no definir DTOs Pydantic dentro de `presentation/api/v1/*.py`
+- **STOP:** no `db.query` / `db.commit` en routes — usar repository + use case + `dependencies.py`
+- **STOP:** no mezclar algoritmos clínicos con JSX
+- **ASK:** cambios en `domain/clinical_engine/` → ejecutar tests ground-truth antes de merge
+- **CI guards:** `python tools/check_v2_guards.py` + `python tools/api_manifest_check.py` (en GitHub Actions)
+- **Inspector General:** `python tools/run_quality_gates.py` — runner unificado para `/inspector-general`
 
 ### ✅ Linting + quality gates ya configurados
 - **ESLint v9 flat config** en `neurosoft-frontend/eslint.config.js`
@@ -215,6 +229,7 @@ Ejecutables con `/nombre` desde Claude Code:
 
 | Comando | Para qué |
 |---|---|
+| **`/inspector-general`** | Agente Maestro: gates + subagentes + reconciliación auditorías → `docs/audits/INFORME_MAESTRO_*.md` |
 | **`/audit-completo`** | Auditoría sistemática de bugs (crítico/alto/medio/bajo) con archivo:línea |
 | **`/investigar-clinica <tema>`** | Agente investigador: papers 2022-2026 con foco Colombia/Latinoamérica |
 | **`/investigar-terapia <tema>`** | Como investigar-clinica pero para psicoterapia (no neuropsicología) |
@@ -231,6 +246,18 @@ Ejecutables con `/nombre` desde Claude Code:
 | **`/organizar-repo`** | Auditoría de auditorías: ordenar docs, ESTADO_VIVO, limpiar raíz |
 | **`/actualizar-estado-vivo`** | Al cerrar sprint/roadmap: actualizar ESTADO_VIVO (+ línea en PUNTO_INFLEXION si aplica) |
 | **`/actualizar-contexto-ia`** | Sync on-demand de archivos de lectura IA (solo cuando Johan lo pida) |
+
+### Orquestación Inspector General
+
+```text
+/inspector-general
+  ├─ tools/run_quality_gates.py (pytest, eslint, v2, api manifest)
+  ├─ subagentes: api-alignment · architecture-v2 · normativa-colombia · clinical-fidelity
+  ├─ /audit-completo (código, delegado)
+  └─ docs/audits/INFORME_MAESTRO_<fecha>.md → /actualizar-estado-vivo
+```
+
+**Subagentes** en `.claude/agents/`: `clinical-engine-reviewer` (motor) + 4 revisores del Inspector.
 
 ### Cómo crear nuevas skills
 

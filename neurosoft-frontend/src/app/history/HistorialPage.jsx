@@ -19,6 +19,8 @@ import { TEAL } from "../../ui/tokens.js";
 import { lc } from "../../utils/colores.js";
 import { SkeletonCard } from "../../ui/Skeleton.jsx";
 import { safeLS } from "../../utils/safeLS.js";
+import { usePatientsPanel } from "../../hooks/usePatientsPanel.js";
+import { PatientSelect } from "../../ui/forms/PatientSelector.jsx";
 
 export default function HistorialPage({ setPage }) {
   const toast = useToast();
@@ -27,14 +29,13 @@ export default function HistorialPage({ setPage }) {
   const [evals, setEvals] = useState([]);
   const [detail, setDetail] = useState(null);
   const [ld, setLd] = useState(false);
-  const [patients, setPatients] = useState([]);
+  const { patients, loading: patientsLoading } = usePatientsPanel();
   const [showLongitudinal, setShowLongitudinal] = useState(false);
   const [allDetails, setAllDetails] = useState([]);
   const [inconclusos, setInconclusos] = useState([]);
   const [incStats, setIncStats] = useState(null);
 
   useEffect(() => {
-    api.get("/api/v1/patients/panel").then(d => setPatients(d.pacientes || d || [])).catch(() => toast.error("Error cargando pacientes"));
     api.get("/api/v1/inconclusos/stats").then(setIncStats).catch(() => toast.error("Error cargando inconclusos"));
     return () => safeLS.remove("ns_sel_patient");
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -153,15 +154,14 @@ export default function HistorialPage({ setPage }) {
         <Card className="p-6">
           <div className="flex items-center gap-6">
             <div className="flex-1">
-              <Label>Seleccionar Paciente</Label>
-              <Sel value={patId} onChange={(e) => { setPatId(e.target.value); loadH(e.target.value); }}>
-                <option value="">— Seleccione —</option>
-                {patients.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`} — {p.numero_documento}
-                  </option>
-                ))}
-              </Sel>
+              <PatientSelect
+                patients={patients}
+                loading={patientsLoading}
+                label="Seleccionar Paciente"
+                value={patId}
+                onChange={(id) => { setPatId(id); loadH(id); }}
+                placeholder="— Seleccione —"
+              />
             </div>
             {patId && (
               <div className="pt-6">

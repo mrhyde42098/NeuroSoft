@@ -11,21 +11,23 @@ import { TEAL } from "../../ui/tokens.js";
 import { safeLS } from "../../utils/safeLS.js";
 import SectionCard from "../../ui/SectionCard.jsx";
 import ConsentModal from "../patients/ConsentModal.jsx";
-import { REGIMENES, ASEGURADORES_COLOMBIA, requiereAutorizacion } from "../../data/aseguradoresColombia.js";
-import { CUPS_PSICOLOGIA } from "../../data/cupsPsicologia.js";
-import { useToast } from "../../contexts.jsx";
+import { usePatientsPanel } from "../../hooks/usePatientsPanel.js";
+import { useToast, useConfirm } from "../../contexts.jsx";
+import AppointmentForm from "./AppointmentForm.jsx";
 
 const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
 export default function AgendaPage({ setPage }) {
   const toast = useToast();
+  const confirm = useConfirm();
+  const { patients } = usePatientsPanel();
   const [stats, setStats] = useState(null);
   const [consentPatient, setConsentPatient] = useState(null);
   const [week, setWeek] = useState([]);
+  const [monthCitas, setMonthCitas] = useState([]);
   const [ld, setLd] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [patients, setPatients] = useState([]);
   const [viewMode, setViewMode] = useState(safeLS.get("ns_agenda_view") || "semana");
   const [monthCursor, setMonthCursor] = useState(() => {
     const d = new Date();
@@ -98,18 +100,40 @@ export default function AgendaPage({ setPage }) {
     return () => timers.forEach(clearTimeout);
   }, [week, notifPerm]);
 
+  const monthRange = useCallback(() => {
+    const { year, month } = monthCursor;
+    const pad = (n) => String(n).padStart(2, "0");
+    const first = `${year}-${pad(month + 1)}-01`;
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const last = `${year}-${pad(month + 1)}-${pad(lastDay)}`;
+    return { first, last };
+  }, [monthCursor]);
+
   const load = useCallback(async () => {
     setLd(true);
     try {
-      const [s, w, p] = await Promise.all([
-        api.get("/api/v1/agenda/stats").catch(() => ({ hoy: 0, esta_semana: 0, pendientes: 0, atendidas_mes: 0 })),
-        api.get("/api/v1/agenda/semana").catch(() => []),
-        api.get("/api/v1/patients/panel").catch(() => ({ pacientes: [] })),
-      ]);
-      setStats(s); setWeek(w); setPatients(p.pacientes || p || []);
+      const statsP = api.get("/api/v1/agenda/stats").catch(() => ({
+        hoy: 0, esta_semana: 0, pendientes: 0, atendidas_mes: 0,
+      }));
+      let citasP;
+      if (viewMode === "mes") {
+        const { first, last } = monthRange();
+        citasP = api.get(`/api/v1/agenda/?fecha_desde=${first}&fecha_hasta=${last}&limit=200`).catch(() => []);
+      } else {
+        citasP = api.get("/api/v1/agenda/semana").catch(() => []);
+      }
+      const [s, data] = await Promise.all([statsP, citasP]);
+      setStats(s);
+      if (viewMode === "mes") {
+        setMonthCitas(Array.isArray(data) ? data : []);
+        setWeek([]);
+      } else {
+        setWeek(Array.isArray(data) ? data : []);
+        setMonthCitas([]);
+      }
     } catch {}
     setLd(false);
-  }, []);
+  }, [viewMode, monthRange]);
   useEffect(() => { load(); }, [load]);
 
   const create = async () => {
@@ -128,11 +152,37 @@ export default function AgendaPage({ setPage }) {
     setSaving(false);
   };
 
+  const updateCitaEstado = async (cita, estado) => {
+    if (!cita?.id) return;
+    try {
+      await api.patch(`/api/v1/agenda/${cita.id}`, { estado });
+      toast.success(estado === "cancelada" ? "Cita cancelada." : "Cita actualizada.");
+      load();
+    } catch (e) { toast.error(_parseError(e)); }
+  };
+
+  const eliminarCita = async (cita) => {
+    if (!cita?.id) return;
+    if (!(await confirm({
+      title: "Eliminar cita",
+      message: `¿Eliminar la cita de ${cita.paciente_nombre || "paciente"} el ${cita.fecha || ""} a las ${cita.hora_inicio}?`,
+      confirmText: "Eliminar",
+      dangerous: true,
+    }))) return;
+    try {
+      await api.del(`/api/v1/agenda/${cita.id}`);
+      toast.success("Cita eliminada.");
+      load();
+    } catch (e) { toast.error(_parseError(e)); }
+  };
+
   const tipC = {
     evaluacion: "bg-teal-100 text-teal-700",
     terapia: "bg-teal-100 text-teal-700",
     seguimiento: "bg-orange-100 text-orange-700",
     entrevista: "bg-purple-100 text-purple-700",
+    devolucion: "bg-blue-100 text-blue-700",
+    otro: "bg-gray-100 text-gray-700",
   };
   const estC = {
     programada: "bg-yellow-100 text-yellow-700",
@@ -198,94 +248,16 @@ export default function AgendaPage({ setPage }) {
         )}
 
         {showForm && (
-          <SectionCard eyebrow="Agenda" title="Nueva cita" icon="calendar_add_on">
-            <MsgBanner msg={msg === "ok" ? "ok" : msg} onDismiss={msg && msg !== "ok" ? () => setMsg("") : null} />
-            <div className="grid grid-cols-6 gap-4">
-              <div className="col-span-2"><Label>Paciente</Label>
-                <div className="flex gap-2">
-                  <Sel value={f.patient_id} onChange={(e) => set("patient_id", e.target.value)} className="flex-1">
-                    <option value="">Seleccionar...</option>
-                    {patients.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`}
-                      </option>
-                    ))}
-                  </Sel>
-                  {setPage && (
-                    <Btn v="outline" className="text-xs shrink-0" onClick={() => setPage("register")} title="Abrir registro de paciente (ficha completa)">
-                      <I name="person_add" />Nuevo paciente
-                    </Btn>
-                  )}
-                  <Btn v="outline" className="text-xs shrink-0" onClick={() => openConsent()} title="Imprimir o enviar consentimiento informado">
-                    <I name="draw" />Consentimiento
-                  </Btn>
-                </div>
-              </div>
-              <div><Label>Fecha</Label><Input type="date" value={f.fecha} onChange={(e) => set("fecha", e.target.value)} /></div>
-              <div><Label>Inicio</Label><Input type="time" value={f.hora_inicio} onChange={(e) => set("hora_inicio", e.target.value)} /></div>
-              <div><Label>Fin</Label><Input type="time" value={f.hora_fin} onChange={(e) => set("hora_fin", e.target.value)} /></div>
-              <div><Label>Tipo</Label>
-                <Sel value={f.tipo_cita} onChange={(e) => set("tipo_cita", e.target.value)}>
-                  <option value="evaluacion">Evaluación</option>
-                  <option value="terapia">Terapia</option>
-                  <option value="seguimiento">Seguimiento</option>
-                  <option value="entrevista">Entrevista</option>
-                </Sel>
-              </div>
-              <div><Label>Modalidad</Label>
-                <Sel value={f.modalidad} onChange={(e) => set("modalidad", e.target.value)}>
-                  <option value="presencial">Presencial</option>
-                  <option value="telepsicologia">Telepsicología</option>
-                  <option value="telefonica">Telefónica</option>
-                </Sel>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 mt-4">
-              <div><Label>Régimen</Label>
-                <Sel value={f.regimen} onChange={(e) => set("regimen", e.target.value)}>
-                  <option value="">— Sin especificar —</option>
-                  {REGIMENES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
-                </Sel>
-              </div>
-              <div><Label>EPS / Asegurador</Label>
-                <Sel value={f.eps} onChange={(e) => set("eps", e.target.value)}>
-                  <option value="">— Particular —</option>
-                  {ASEGURADORES_COLOMBIA.map((a) => <option key={a.codigo} value={a.nombre}>{a.nombre}</option>)}
-                </Sel>
-              </div>
-              <div><Label>CUPS</Label>
-                <Sel value={f.cups} onChange={(e) => set("cups", e.target.value)}>
-                  <option value="">— Seleccionar —</option>
-                  {CUPS_PSICOLOGIA.map((c) => <option key={c.codigo} value={`${c.codigo} - ${c.nombre}`}>{c.codigo} — {c.nombre}</option>)}
-                </Sel>
-              </div>
-              <div><Label>Nº autorización{requiereAutorizacion(f.regimen) ? " *" : ""}</Label>
-                <Input value={f.autorizacion_no} onChange={(e) => set("autorizacion_no", e.target.value)} placeholder="Requerido EPS" />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              <div><Label>Contacto teléfono</Label><Input value={f.contacto_telefono} onChange={(e) => set("contacto_telefono", e.target.value)} /></div>
-              <div><Label>Contacto correo</Label><Input type="email" value={f.contacto_correo} onChange={(e) => set("contacto_correo", e.target.value)} /></div>
-              <div><Label>Discapacidad (si aplica)</Label><Input value={f.discapacidad} onChange={(e) => set("discapacidad", e.target.value)} placeholder="Ninguna" /></div>
-            </div>
-            <div className="mt-4">
-              <Label>Motivo</Label>
-              <Input value={f.motivo} onChange={(e) => set("motivo", e.target.value)} placeholder="Ej: Evaluación WISC-IV" />
-            </div>
-            <p className="text-[11px] mt-3" style={{ color: "var(--ns-muted)" }}>
-              Recordatorios: notificación del navegador 15 min antes (activar arriba). Para SMS/correo automático, configure SMTP en Configuración → Comunicaciones.
-            </p>
-            <div className="flex flex-wrap justify-end items-center gap-2 mt-4">
-              {f.patient_id && (
-                <Btn v="outline" className="!min-h-[44px] !py-2.5 !px-5 !text-sm" onClick={() => openConsent()}>
-                  <I name="draw" className="text-sm" />Consentimiento informado
-                </Btn>
-              )}
-              <Btn className="!min-h-[44px] !py-2.5 !px-5 !text-sm" onClick={create} disabled={saving || !f.patient_id || (requiereAutorizacion(f.regimen) && !f.autorizacion_no)}>
-                {saving ? "Guardando..." : "Agendar Cita"}
-              </Btn>
-            </div>
-          </SectionCard>
+          <AppointmentForm
+            values={f}
+            onChange={set}
+            msg={msg}
+            onDismissMsg={() => setMsg("")}
+            setPage={setPage}
+            onOpenConsent={() => openConsent()}
+            onSubmit={create}
+            saving={saving}
+          />
         )}
 
         {ld ? (
@@ -301,7 +273,12 @@ export default function AgendaPage({ setPage }) {
             const daysInMonth = new Date(monthCursor.year, monthCursor.month + 1, 0).getDate();
             const monthLabel = cur.toLocaleDateString("es", { month: "long", year: "numeric" });
             const byDate = {};
-            (week || []).forEach((d) => { byDate[d.fecha] = d.citas || []; });
+            (monthCitas || []).forEach((c) => {
+              const key = String(c.fecha || "").slice(0, 10);
+              if (!key) return;
+              if (!byDate[key]) byDate[key] = [];
+              byDate[key].push(c);
+            });
             const cells = [];
             for (let i = 0; i < firstWeekday; i++) cells.push(null);
             for (let d = 1; d <= daysInMonth; d++) {
@@ -371,7 +348,7 @@ export default function AgendaPage({ setPage }) {
                   })}
                 </div>
                 <p className="text-[10px] text-center mt-4" style={{ color: "var(--ns-muted)" }}>
-                  Vista mensual: las citas de la semana actual se visualizan en sus respectivos días.
+                  Vista mensual: citas cargadas para {monthLabel}.
                 </p>
               </Card>
             );
@@ -407,6 +384,22 @@ export default function AgendaPage({ setPage }) {
                             <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${tipC[c.tipo_cita] || "bg-gray-100"}`}>{c.tipo_cita}</span>
                             <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${estC[c.estado] || "bg-gray-100"}`}>{c.estado}</span>
                           </div>
+                          {c.estado !== "cancelada" && c.estado !== "atendida" && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              <button type="button" onClick={() => updateCitaEstado(c, "atendida")}
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${TEAL}20`, color: TEAL }}>
+                                Atendida
+                              </button>
+                              <button type="button" onClick={() => updateCitaEstado(c, "cancelada")}
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-50 text-red-600">
+                                Cancelar
+                              </button>
+                              <button type="button" onClick={() => eliminarCita(c)}
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ color: "var(--ns-muted)" }}>
+                                Eliminar
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))
                     ) : (

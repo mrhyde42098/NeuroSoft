@@ -400,7 +400,7 @@ def test_normograma_version_frontend_backend_lockstep():
         / "neurosoft-frontend"
         / "src"
         / "data"
-        / "plantillasDocumentales.js"
+        / "normogramaVersion.js"
     )
     src = fe.read_text(encoding="utf-8")
     # El frontend exporta NORMOGRAMA_COLOMBIANO_VERSION = NORMOGRAMA_VERSION;

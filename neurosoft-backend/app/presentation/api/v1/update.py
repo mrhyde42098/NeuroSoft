@@ -35,8 +35,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, UploadFile
 
+from app.core.config import settings
 from app.infrastructure.auth.auth_service import hash_password  # noqa: F401  (mantenido por simetría con auth.py)
 from app.infrastructure.database.orm_models import AuditLogORM
+from app.infrastructure.desktop_auto_update import (
+    UpdateCheckResult,
+    apply_binary_update,
+    check_for_updates,
+)
+from app.infrastructure.frontend_paths import writable_frontend_dir
 from app.presentation.api.v1.auth import require_admin
 from app.presentation.dependencies import DbSession
 
@@ -168,11 +175,8 @@ def apply_update(
             )
 
             # 4) Extraer SOLO entradas con prefijo `frontend/` y sin path traversal
-            frontend_dist = Path("neurosoft-frontend") / "dist"
+            frontend_dist = writable_frontend_dir()
             frontend_dist.resolve(strict=False)
-            if not frontend_dist.exists():
-                frontend_dist.mkdir(parents=True, exist_ok=True)
-                frontend_dist.resolve(strict=False)
 
             extracted_count = 0
             for name in names:
@@ -271,3 +275,90 @@ def apply_update(
         "mensaje": f"Actualizacion v{version} aplicada. Reiniciando servidor...",
         "sha256": file_sha256,
     }
+
+
+def _pending_update_payload(result: UpdateCheckResult) -> dict:
+    manifest = result.manifest
+    artifacts: dict = {}
+    if manifest is not None:
+        for key, art in manifest.artifacts.items():
+            artifacts[key] = {
+                "filename": art.filename,
+                "size_bytes": art.size_bytes,
+                "sha256": art.sha256[:16] + "…",
+            }
+    return {
+        "update_available": result.update_available,
+        "current_version": result.current_version,
+        "latest_version": result.latest_version,
+        "source": result.source,
+        "message": result.message,
+        "artifacts": artifacts,
+        "channel": manifest.channel if manifest else None,
+        "released": manifest.released if manifest else None,
+    }
+
+
+@update_router.get(
+    "/update/check",
+    summary="Comprobar si hay actualización firmada (update.json)",
+)
+def check_system_update(
+    request: Request,
+    admin: Annotated[object, Depends(require_admin)],
+):
+    """Lee update.json local/USB/remoto y reporta si hay versión más nueva."""
+    del request, admin  # auth gate
+    result = check_for_updates(settings.api_version)
+    return _pending_update_payload(result)
+
+
+@update_router.post(
+    "/update/apply-binary",
+    summary="Aplicar actualización del ejecutable (solo admin, requiere reinicio)",
+)
+def apply_binary_system_update(
+    request: Request,
+    admin: Annotated[object, Depends(require_admin)],
+    db: DbSession,
+):
+    """
+    Descarga/verifica el artefacto windows_x64_exe del manifest firmado
+    y programa el reemplazo del .exe al cerrar la aplicación.
+    """
+    del request
+    result = check_for_updates(settings.api_version)
+    if not result.update_available or result.manifest is None:
+        raise HTTPException(400, "No hay actualización de binario disponible")
+
+    try:
+        outcome = apply_binary_update(result.manifest, restart=True)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(500, str(exc)) from exc
+
+    try:
+        entry = AuditLogORM(
+            ts=datetime.now(UTC),
+            actor_id=str(getattr(admin, "id", "")) or None,
+            actor_label=(getattr(admin, "username", "") or "")[:120] or None,
+            action="binary_update_scheduled",
+            entity_type="system",
+            entity_id=None,
+            summary=(f"Actualización binaria v{result.manifest.version} programada")[:300],
+            changes=json.dumps(
+                {
+                    "version": result.manifest.version,
+                    "source": result.source,
+                },
+                ensure_ascii=False,
+            )[:20000],
+            ip=None,
+        )
+        db.add(entry)
+        db.commit()
+    except Exception:
+        logger.exception("No se pudo registrar audit de binary update")
+
+    return outcome

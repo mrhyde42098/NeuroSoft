@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "note": "Mapeo página → test_id/item_id para Cuadernillo de Estímulos WISC-IV / WAIS-III (Manual Moderno). Ajuste page_start si su escaneo incluye portada.",
+  "wisc_cuadernillo": {
+    "pdf_hint": "Cuadernillo de estímulos WISC-IV (Pearson / Manual Moderno)",
+    "page_start": 1,
+    "sections": [
+      { "test_id": "NiWiscConD", "count": 28, "item_id_from": 1 },
+      { "test_id": "NiWiscMat", "count": 35, "item_id_from": 1, "skip_pages": 0 },
+      { "test_id": "NiWisFigInc", "count": 38, "item_id_from": 1, "skip_sample_page": true },
+      { "test_id": "NiWiscVoc", "count": 4, "item_id_from": 1, "note": "reactivos ilustrados 1-4" }
+    ]
+  },
+  "wais_cuadernillo": {
+    "pdf_hint": "Cuadernillo de estímulos WAIS-III (Pearson / Manual Moderno)",
+    "page_start": 1,
+    "sections": [
+      { "test_id": "AdMatr", "count": 26, "item_id_from": 1 },
+      { "test_id": "AdWAISFI", "count": 25, "item_id_from": 1, "skip_sample_page": true }
+    ]
+  }
+}

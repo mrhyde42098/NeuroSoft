@@ -187,6 +187,10 @@ def _apply_additive_schema_patches() -> None:
         ("appointments", "discapacidad", "TEXT"),
         ("appointments", "contacto_telefono", "TEXT"),
         ("appointments", "contacto_correo", "TEXT"),
+        # M13 consentimiento híbrido (digital / físico + adjunto cifrado)
+        ("consentimientos", "modo_firma", "TEXT"),
+        ("consentimientos", "adjunto_path", "TEXT"),
+        ("consentimientos", "requiere_adjunto", "BOOLEAN"),
     ]
     # §C5-fix: validación estricta de identificadores SQL.
     # Aunque `patches` está hardcoded internamente, evitamos cualquier

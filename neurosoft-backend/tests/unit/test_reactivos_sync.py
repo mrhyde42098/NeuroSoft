@@ -53,6 +53,16 @@ def test_item_counts_match_protocol():
     assert ad1["pair"] == "Naranja — Pera"
 
 
+def test_clinical_legacy_visual_cuadernillo():
+    """P1 Fase 2: Matrices/Conceptos en clinical.js sin claves OSS."""
+    clinical = (ROOT / "neurosoft-frontend" / "src" / "data" / "clinical.js").read_text(encoding="utf-8")
+    assert 'NiWiscMat:{type:"visual_cuadernillo"' in clinical
+    assert 'NiWiscConD:{type:"visual_cuadernillo"' in clinical
+    assert 'AdMatr:{type:"visual_cuadernillo"' in clinical
+    assert '_buildVisualItems("NiWiscMat",35,' in clinical
+    assert '"clave"' not in clinical.split("NiWiscMat")[1].split("NiWiscConD")[0]
+
+
 def test_sync_script_runs():
     if not _extract_pearson_json():
         pytest.skip("STUB OSS: sync --check requiere protocolos Pearson locales")

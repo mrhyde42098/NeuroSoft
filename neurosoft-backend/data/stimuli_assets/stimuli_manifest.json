@@ -2395,828 +2395,1209 @@
       "nombre": "TRAIL MAKING TEST TMT Normal p4 img 2"
     },
     {
-      "test_id": "AdStim_p1_1",
+      "test_id": "AdWAISCC",
       "item_id": "1",
-      "file": "WAIS III/p001_00.png",
-      "page": 1,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p1 img 1"
-    },
-    {
-      "test_id": "AdStim_p1_2",
-      "item_id": "2",
-      "file": "WAIS III/p001_01.png",
-      "page": 1,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p1 img 2"
-    },
-    {
-      "test_id": "AdStim_p1_3",
-      "item_id": "3",
-      "file": "WAIS III/p001_02.png",
-      "page": 1,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p1 img 3"
-    },
-    {
-      "test_id": "AdStim_p2_1",
-      "item_id": "1",
-      "file": "WAIS III/p002_00.png",
-      "page": 2,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p2 img 1"
-    },
-    {
-      "test_id": "AdStim_p2_2",
-      "item_id": "2",
-      "file": "WAIS III/p002_01.png",
-      "page": 2,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p2 img 2"
-    },
-    {
-      "test_id": "AdStim_p2_3",
-      "item_id": "3",
-      "file": "WAIS III/p002_02.png",
-      "page": 2,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p2 img 3"
-    },
-    {
-      "test_id": "AdStim_p3_1",
-      "item_id": "1",
-      "file": "WAIS III/p003_00.png",
-      "page": 3,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p3 img 1"
-    },
-    {
-      "test_id": "AdStim_p4_1",
-      "item_id": "1",
-      "file": "WAIS III/p004_00.png",
-      "page": 4,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p4 img 1"
-    },
-    {
-      "test_id": "AdStim_p5_1",
-      "item_id": "1",
-      "file": "WAIS III/p005_00.png",
-      "page": 5,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p5 img 1"
-    },
-    {
-      "test_id": "AdStim_p6_1",
-      "item_id": "1",
-      "file": "WAIS III/p006_00.png",
-      "page": 6,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p6 img 1"
-    },
-    {
-      "test_id": "AdStim_p6_2",
-      "item_id": "2",
-      "file": "WAIS III/p006_01.png",
-      "page": 6,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p6 img 2"
-    },
-    {
-      "test_id": "AdStim_p7_1",
-      "item_id": "1",
-      "file": "WAIS III/p007_00.png",
-      "page": 7,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p7 img 1"
-    },
-    {
-      "test_id": "AdStim_p7_2",
-      "item_id": "2",
-      "file": "WAIS III/p007_01.png",
-      "page": 7,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p7 img 2"
-    },
-    {
-      "test_id": "AdStim_p7_3",
-      "item_id": "3",
-      "file": "WAIS III/p007_02.png",
-      "page": 7,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p7 img 3"
-    },
-    {
-      "test_id": "AdStim_p8_1",
-      "item_id": "1",
-      "file": "WAIS III/p008_00.png",
-      "page": 8,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p8 img 1"
-    },
-    {
-      "test_id": "AdStim_p9_1",
-      "item_id": "1",
-      "file": "WAIS III/p009_00.png",
+      "file": "pearson_ejemplo/AdWAISCC/item_1.png",
       "page": 9,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p9 img 1"
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 1"
     },
     {
-      "test_id": "AdStim_p9_2",
+      "test_id": "AdWAISCC",
       "item_id": "2",
-      "file": "WAIS III/p009_01.png",
+      "file": "pearson_ejemplo/AdWAISCC/item_2.png",
       "page": 9,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p9 img 2"
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 2"
     },
     {
-      "test_id": "AdStim_p9_3",
+      "test_id": "AdWAISCC",
       "item_id": "3",
-      "file": "WAIS III/p009_02.png",
+      "file": "pearson_ejemplo/AdWAISCC/item_3.png",
       "page": 9,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p9 img 3"
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 3"
     },
     {
-      "test_id": "AdStim_p10_1",
-      "item_id": "1",
-      "file": "WAIS III/p010_00.png",
-      "page": 10,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p10 img 1"
-    },
-    {
-      "test_id": "AdStim_p10_2",
-      "item_id": "2",
-      "file": "WAIS III/p010_01.png",
-      "page": 10,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p10 img 2"
-    },
-    {
-      "test_id": "AdStim_p10_3",
-      "item_id": "3",
-      "file": "WAIS III/p010_02.png",
-      "page": 10,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p10 img 3"
-    },
-    {
-      "test_id": "AdStim_p10_4",
+      "test_id": "AdWAISCC",
       "item_id": "4",
-      "file": "WAIS III/p010_03.png",
-      "page": 10,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p10 img 4"
+      "file": "pearson_ejemplo/AdWAISCC/item_4.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 4"
     },
     {
-      "test_id": "AdStim_p11_1",
-      "item_id": "1",
-      "file": "WAIS III/p011_00.png",
-      "page": 11,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p11 img 1"
-    },
-    {
-      "test_id": "AdStim_p11_2",
-      "item_id": "2",
-      "file": "WAIS III/p011_01.png",
-      "page": 11,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p11 img 2"
-    },
-    {
-      "test_id": "AdStim_p11_3",
-      "item_id": "3",
-      "file": "WAIS III/p011_02.png",
-      "page": 11,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p11 img 3"
-    },
-    {
-      "test_id": "AdStim_p11_4",
-      "item_id": "4",
-      "file": "WAIS III/p011_03.png",
-      "page": 11,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p11 img 4"
-    },
-    {
-      "test_id": "AdStim_p11_5",
+      "test_id": "AdWAISCC",
       "item_id": "5",
-      "file": "WAIS III/p011_04.png",
-      "page": 11,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p11 img 5"
+      "file": "pearson_ejemplo/AdWAISCC/item_5.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 5"
     },
     {
-      "test_id": "AdStim_p12_1",
-      "item_id": "1",
-      "file": "WAIS III/p012_00.png",
-      "page": 12,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p12 img 1"
-    },
-    {
-      "test_id": "AdStim_p12_2",
-      "item_id": "2",
-      "file": "WAIS III/p012_01.png",
-      "page": 12,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p12 img 2"
-    },
-    {
-      "test_id": "AdStim_p12_3",
-      "item_id": "3",
-      "file": "WAIS III/p012_02.png",
-      "page": 12,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p12 img 3"
-    },
-    {
-      "test_id": "AdStim_p12_4",
-      "item_id": "4",
-      "file": "WAIS III/p012_03.png",
-      "page": 12,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p12 img 4"
-    },
-    {
-      "test_id": "AdStim_p13_1",
-      "item_id": "1",
-      "file": "WAIS III/p013_00.png",
-      "page": 13,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p13 img 1"
-    },
-    {
-      "test_id": "AdStim_p13_2",
-      "item_id": "2",
-      "file": "WAIS III/p013_01.png",
-      "page": 13,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p13 img 2"
-    },
-    {
-      "test_id": "AdStim_p13_3",
-      "item_id": "3",
-      "file": "WAIS III/p013_02.png",
-      "page": 13,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p13 img 3"
-    },
-    {
-      "test_id": "AdStim_p13_4",
-      "item_id": "4",
-      "file": "WAIS III/p013_03.png",
-      "page": 13,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p13 img 4"
-    },
-    {
-      "test_id": "AdStim_p14_1",
-      "item_id": "1",
-      "file": "WAIS III/p014_00.png",
-      "page": 14,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p14 img 1"
-    },
-    {
-      "test_id": "AdStim_p15_1",
-      "item_id": "1",
-      "file": "WAIS III/p015_00.png",
-      "page": 15,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p15 img 1"
-    },
-    {
-      "test_id": "AdStim_p16_1",
-      "item_id": "1",
-      "file": "WAIS III/p016_00.png",
-      "page": 16,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p16 img 1"
-    },
-    {
-      "test_id": "AdStim_p16_2",
-      "item_id": "2",
-      "file": "WAIS III/p016_01.png",
-      "page": 16,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p16 img 2"
-    },
-    {
-      "test_id": "AdStim_p16_3",
-      "item_id": "3",
-      "file": "WAIS III/p016_02.png",
-      "page": 16,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p16 img 3"
-    },
-    {
-      "test_id": "AdStim_p16_4",
-      "item_id": "4",
-      "file": "WAIS III/p016_03.png",
-      "page": 16,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p16 img 4"
-    },
-    {
-      "test_id": "AdStim_p17_1",
-      "item_id": "1",
-      "file": "WAIS III/p017_00.png",
-      "page": 17,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p17 img 1"
-    },
-    {
-      "test_id": "AdStim_p17_2",
-      "item_id": "2",
-      "file": "WAIS III/p017_01.png",
-      "page": 17,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p17 img 2"
-    },
-    {
-      "test_id": "AdStim_p17_3",
-      "item_id": "3",
-      "file": "WAIS III/p017_02.png",
-      "page": 17,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p17 img 3"
-    },
-    {
-      "test_id": "AdStim_p17_4",
-      "item_id": "4",
-      "file": "WAIS III/p017_03.png",
-      "page": 17,
-      "source_pdf": "WAIS III.pdf",
-      "nombre": "WAIS III p17 img 4"
-    },
-    {
-      "test_id": "NiWiscStim_p1_1",
-      "item_id": "1",
-      "file": "WISC IV/p001_00.png",
-      "page": 1,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p1 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p1_2",
-      "item_id": "2",
-      "file": "WISC IV/p001_01.png",
-      "page": 1,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p1 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p1_3",
-      "item_id": "3",
-      "file": "WISC IV/p001_02.png",
-      "page": 1,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p1 img 3"
-    },
-    {
-      "test_id": "NiWiscStim_p1_4",
-      "item_id": "4",
-      "file": "WISC IV/p001_03.png",
-      "page": 1,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p1 img 4"
-    },
-    {
-      "test_id": "NiWiscStim_p1_5",
-      "item_id": "5",
-      "file": "WISC IV/p001_04.png",
-      "page": 1,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p1 img 5"
-    },
-    {
-      "test_id": "NiWiscStim_p1_6",
+      "test_id": "AdWAISCC",
       "item_id": "6",
-      "file": "WISC IV/p001_05.png",
-      "page": 1,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p1 img 6"
+      "file": "pearson_ejemplo/AdWAISCC/item_6.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 6"
     },
     {
-      "test_id": "NiWiscStim_p2_1",
+      "test_id": "AdWAISCC",
+      "item_id": "7",
+      "file": "pearson_ejemplo/AdWAISCC/item_7.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 7"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "8",
+      "file": "pearson_ejemplo/AdWAISCC/item_8.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 8"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "9",
+      "file": "pearson_ejemplo/AdWAISCC/item_9.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 9"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "10",
+      "file": "pearson_ejemplo/AdWAISCC/item_10.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 10"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "11",
+      "file": "pearson_ejemplo/AdWAISCC/item_11.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 11"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "12",
+      "file": "pearson_ejemplo/AdWAISCC/item_12.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 12"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "13",
+      "file": "pearson_ejemplo/AdWAISCC/item_13.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 13"
+    },
+    {
+      "test_id": "AdWAISCC",
+      "item_id": "14",
+      "file": "pearson_ejemplo/AdWAISCC/item_14.png",
+      "page": 9,
+      "source_pdf": "WAIS III IN&S.pdf",
+      "nombre": "AdWAISCC diseño cubos 14"
+    },
+    {
+      "test_id": "NiWiscMat",
       "item_id": "1",
-      "file": "WISC IV/p002_00.png",
-      "page": 2,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p2 img 1"
+      "file": "pearson_ejemplo/NiWiscMat/item_1.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 1"
     },
     {
-      "test_id": "NiWiscStim_p3_1",
-      "item_id": "1",
-      "file": "WISC IV/p003_00.png",
-      "page": 3,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p3 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p4_1",
-      "item_id": "1",
-      "file": "WISC IV/p004_00.png",
-      "page": 4,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p4 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p4_2",
+      "test_id": "NiWiscMat",
       "item_id": "2",
-      "file": "WISC IV/p004_01.png",
-      "page": 4,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p4 img 2"
+      "file": "pearson_ejemplo/NiWiscMat/item_2.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 2"
     },
     {
-      "test_id": "NiWiscStim_p4_3",
+      "test_id": "NiWiscMat",
       "item_id": "3",
-      "file": "WISC IV/p004_02.png",
-      "page": 4,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p4 img 3"
+      "file": "pearson_ejemplo/NiWiscMat/item_3.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 3"
     },
     {
-      "test_id": "NiWiscStim_p4_4",
+      "test_id": "NiWiscMat",
       "item_id": "4",
-      "file": "WISC IV/p004_03.png",
-      "page": 4,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p4 img 4"
+      "file": "pearson_ejemplo/NiWiscMat/item_4.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 4"
     },
     {
-      "test_id": "NiWiscStim_p5_1",
-      "item_id": "1",
-      "file": "WISC IV/p005_00.png",
-      "page": 5,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p5 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p5_2",
-      "item_id": "2",
-      "file": "WISC IV/p005_01.png",
-      "page": 5,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p5 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p5_3",
-      "item_id": "3",
-      "file": "WISC IV/p005_02.png",
-      "page": 5,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p5 img 3"
-    },
-    {
-      "test_id": "NiWiscStim_p5_4",
-      "item_id": "4",
-      "file": "WISC IV/p005_03.png",
-      "page": 5,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p5 img 4"
-    },
-    {
-      "test_id": "NiWiscStim_p5_5",
+      "test_id": "NiWiscMat",
       "item_id": "5",
-      "file": "WISC IV/p005_04.png",
-      "page": 5,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p5 img 5"
+      "file": "pearson_ejemplo/NiWiscMat/item_5.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 5"
     },
     {
-      "test_id": "NiWiscStim_p6_1",
-      "item_id": "1",
-      "file": "WISC IV/p006_00.png",
-      "page": 6,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p6 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p7_1",
-      "item_id": "1",
-      "file": "WISC IV/p007_00.png",
-      "page": 7,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p7 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p8_1",
-      "item_id": "1",
-      "file": "WISC IV/p008_00.png",
-      "page": 8,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p8 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p9_1",
-      "item_id": "1",
-      "file": "WISC IV/p009_00.png",
-      "page": 9,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p9 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p9_2",
-      "item_id": "2",
-      "file": "WISC IV/p009_01.png",
-      "page": 9,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p9 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p9_3",
-      "item_id": "3",
-      "file": "WISC IV/p009_02.png",
-      "page": 9,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p9 img 3"
-    },
-    {
-      "test_id": "NiWiscStim_p9_4",
-      "item_id": "4",
-      "file": "WISC IV/p009_03.png",
-      "page": 9,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p9 img 4"
-    },
-    {
-      "test_id": "NiWiscStim_p10_1",
-      "item_id": "1",
-      "file": "WISC IV/p010_00.png",
-      "page": 10,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p10 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p10_2",
-      "item_id": "2",
-      "file": "WISC IV/p010_01.png",
-      "page": 10,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p10 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p11_1",
-      "item_id": "1",
-      "file": "WISC IV/p011_00.png",
-      "page": 11,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p11 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p12_1",
-      "item_id": "1",
-      "file": "WISC IV/p012_00.png",
-      "page": 12,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p12 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p13_1",
-      "item_id": "1",
-      "file": "WISC IV/p013_00.png",
-      "page": 13,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p13 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p13_2",
-      "item_id": "2",
-      "file": "WISC IV/p013_01.png",
-      "page": 13,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p13 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p14_1",
-      "item_id": "1",
-      "file": "WISC IV/p014_00.png",
-      "page": 14,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p14 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p14_2",
-      "item_id": "2",
-      "file": "WISC IV/p014_01.png",
-      "page": 14,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p14 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p14_3",
-      "item_id": "3",
-      "file": "WISC IV/p014_02.png",
-      "page": 14,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p14 img 3"
-    },
-    {
-      "test_id": "NiWiscStim_p14_4",
-      "item_id": "4",
-      "file": "WISC IV/p014_03.png",
-      "page": 14,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p14 img 4"
-    },
-    {
-      "test_id": "NiWiscStim_p14_5",
-      "item_id": "5",
-      "file": "WISC IV/p014_04.png",
-      "page": 14,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p14 img 5"
-    },
-    {
-      "test_id": "NiWiscStim_p14_6",
+      "test_id": "NiWiscMat",
       "item_id": "6",
-      "file": "WISC IV/p014_05.png",
-      "page": 14,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p14 img 6"
+      "file": "pearson_ejemplo/NiWiscMat/item_6.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 6"
     },
     {
-      "test_id": "NiWiscStim_p15_1",
+      "test_id": "NiWiscMat",
+      "item_id": "7",
+      "file": "pearson_ejemplo/NiWiscMat/item_7.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 7"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "8",
+      "file": "pearson_ejemplo/NiWiscMat/item_8.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 8"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "9",
+      "file": "pearson_ejemplo/NiWiscMat/item_9.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 9"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "10",
+      "file": "pearson_ejemplo/NiWiscMat/item_10.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 10"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "11",
+      "file": "pearson_ejemplo/NiWiscMat/item_11.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 11"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "12",
+      "file": "pearson_ejemplo/NiWiscMat/item_12.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 12"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "13",
+      "file": "pearson_ejemplo/NiWiscMat/item_13.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 13"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "14",
+      "file": "pearson_ejemplo/NiWiscMat/item_14.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 14"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "15",
+      "file": "pearson_ejemplo/NiWiscMat/item_15.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 15"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "16",
+      "file": "pearson_ejemplo/NiWiscMat/item_16.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 16"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "17",
+      "file": "pearson_ejemplo/NiWiscMat/item_17.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 17"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "18",
+      "file": "pearson_ejemplo/NiWiscMat/item_18.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 18"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "19",
+      "file": "pearson_ejemplo/NiWiscMat/item_19.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 19"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "20",
+      "file": "pearson_ejemplo/NiWiscMat/item_20.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 20"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "21",
+      "file": "pearson_ejemplo/NiWiscMat/item_21.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 21"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "22",
+      "file": "pearson_ejemplo/NiWiscMat/item_22.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 22"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "23",
+      "file": "pearson_ejemplo/NiWiscMat/item_23.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 23"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "24",
+      "file": "pearson_ejemplo/NiWiscMat/item_24.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 24"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "25",
+      "file": "pearson_ejemplo/NiWiscMat/item_25.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 25"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "26",
+      "file": "pearson_ejemplo/NiWiscMat/item_26.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 26"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "27",
+      "file": "pearson_ejemplo/NiWiscMat/item_27.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 27"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "28",
+      "file": "pearson_ejemplo/NiWiscMat/item_28.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 28"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "29",
+      "file": "pearson_ejemplo/NiWiscMat/item_29.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 29"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "30",
+      "file": "pearson_ejemplo/NiWiscMat/item_30.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 30"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "31",
+      "file": "pearson_ejemplo/NiWiscMat/item_31.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 31"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "32",
+      "file": "pearson_ejemplo/NiWiscMat/item_32.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 32"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "33",
+      "file": "pearson_ejemplo/NiWiscMat/item_33.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 33"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "34",
+      "file": "pearson_ejemplo/NiWiscMat/item_34.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 34"
+    },
+    {
+      "test_id": "NiWiscMat",
+      "item_id": "35",
+      "file": "pearson_ejemplo/NiWiscMat/item_35.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscMat lámina 35"
+    },
+    {
+      "test_id": "AdMatr",
       "item_id": "1",
-      "file": "WISC IV/p015_00.png",
-      "page": 15,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p15 img 1"
+      "file": "pearson_ejemplo/AdMatr/item_1.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 1"
     },
     {
-      "test_id": "NiWiscStim_p15_2",
+      "test_id": "AdMatr",
       "item_id": "2",
-      "file": "WISC IV/p015_01.png",
-      "page": 15,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p15 img 2"
+      "file": "pearson_ejemplo/AdMatr/item_2.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 2"
     },
     {
-      "test_id": "NiWiscStim_p15_3",
+      "test_id": "AdMatr",
       "item_id": "3",
-      "file": "WISC IV/p015_02.png",
-      "page": 15,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p15 img 3"
+      "file": "pearson_ejemplo/AdMatr/item_3.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 3"
     },
     {
-      "test_id": "NiWiscStim_p15_4",
+      "test_id": "AdMatr",
       "item_id": "4",
-      "file": "WISC IV/p015_03.png",
-      "page": 15,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p15 img 4"
+      "file": "pearson_ejemplo/AdMatr/item_4.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 4"
     },
     {
-      "test_id": "NiWiscStim_p16_1",
-      "item_id": "1",
-      "file": "WISC IV/p016_00.png",
-      "page": 16,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p16 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p16_2",
-      "item_id": "2",
-      "file": "WISC IV/p016_01.png",
-      "page": 16,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p16 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p16_3",
-      "item_id": "3",
-      "file": "WISC IV/p016_02.png",
-      "page": 16,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p16 img 3"
-    },
-    {
-      "test_id": "NiWiscStim_p17_1",
-      "item_id": "1",
-      "file": "WISC IV/p017_00.png",
-      "page": 17,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p17 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p18_1",
-      "item_id": "1",
-      "file": "WISC IV/p018_00.png",
-      "page": 18,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p18 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p19_1",
-      "item_id": "1",
-      "file": "WISC IV/p019_00.png",
-      "page": 19,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p19 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p19_2",
-      "item_id": "2",
-      "file": "WISC IV/p019_01.png",
-      "page": 19,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p19 img 2"
-    },
-    {
-      "test_id": "NiWiscStim_p19_3",
-      "item_id": "3",
-      "file": "WISC IV/p019_02.png",
-      "page": 19,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p19 img 3"
-    },
-    {
-      "test_id": "NiWiscStim_p19_4",
-      "item_id": "4",
-      "file": "WISC IV/p019_03.png",
-      "page": 19,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p19 img 4"
-    },
-    {
-      "test_id": "NiWiscStim_p19_5",
+      "test_id": "AdMatr",
       "item_id": "5",
-      "file": "WISC IV/p019_04.png",
-      "page": 19,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p19 img 5"
+      "file": "pearson_ejemplo/AdMatr/item_5.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 5"
     },
     {
-      "test_id": "NiWiscStim_p20_1",
+      "test_id": "AdMatr",
+      "item_id": "6",
+      "file": "pearson_ejemplo/AdMatr/item_6.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 6"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "7",
+      "file": "pearson_ejemplo/AdMatr/item_7.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 7"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "8",
+      "file": "pearson_ejemplo/AdMatr/item_8.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 8"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "9",
+      "file": "pearson_ejemplo/AdMatr/item_9.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 9"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "10",
+      "file": "pearson_ejemplo/AdMatr/item_10.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 10"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "11",
+      "file": "pearson_ejemplo/AdMatr/item_11.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 11"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "12",
+      "file": "pearson_ejemplo/AdMatr/item_12.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 12"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "13",
+      "file": "pearson_ejemplo/AdMatr/item_13.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 13"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "14",
+      "file": "pearson_ejemplo/AdMatr/item_14.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 14"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "15",
+      "file": "pearson_ejemplo/AdMatr/item_15.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 15"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "16",
+      "file": "pearson_ejemplo/AdMatr/item_16.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 16"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "17",
+      "file": "pearson_ejemplo/AdMatr/item_17.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 17"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "18",
+      "file": "pearson_ejemplo/AdMatr/item_18.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 18"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "19",
+      "file": "pearson_ejemplo/AdMatr/item_19.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 19"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "20",
+      "file": "pearson_ejemplo/AdMatr/item_20.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 20"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "21",
+      "file": "pearson_ejemplo/AdMatr/item_21.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 21"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "22",
+      "file": "pearson_ejemplo/AdMatr/item_22.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 22"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "23",
+      "file": "pearson_ejemplo/AdMatr/item_23.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 23"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "24",
+      "file": "pearson_ejemplo/AdMatr/item_24.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 24"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "25",
+      "file": "pearson_ejemplo/AdMatr/item_25.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 25"
+    },
+    {
+      "test_id": "AdMatr",
+      "item_id": "26",
+      "file": "pearson_ejemplo/AdMatr/item_26.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "AdMatr lámina 26"
+    },
+    {
+      "test_id": "NiWiscConD",
       "item_id": "1",
-      "file": "WISC IV/p020_00.png",
-      "page": 20,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p20 img 1"
+      "file": "pearson_ejemplo/NiWiscConD/item_1.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 1"
     },
     {
-      "test_id": "NiWiscStim_p21_1",
-      "item_id": "1",
-      "file": "WISC IV/p021_00.png",
-      "page": 21,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p21 img 1"
-    },
-    {
-      "test_id": "NiWiscStim_p21_2",
+      "test_id": "NiWiscConD",
       "item_id": "2",
-      "file": "WISC IV/p021_01.png",
-      "page": 21,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p21 img 2"
+      "file": "pearson_ejemplo/NiWiscConD/item_2.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 2"
     },
     {
-      "test_id": "NiWiscStim_p21_3",
+      "test_id": "NiWiscConD",
       "item_id": "3",
-      "file": "WISC IV/p021_02.png",
-      "page": 21,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p21 img 3"
+      "file": "pearson_ejemplo/NiWiscConD/item_3.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 3"
     },
     {
-      "test_id": "NiWiscStim_p21_4",
+      "test_id": "NiWiscConD",
       "item_id": "4",
-      "file": "WISC IV/p021_03.png",
-      "page": 21,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p21 img 4"
+      "file": "pearson_ejemplo/NiWiscConD/item_4.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 4"
     },
     {
-      "test_id": "NiWiscStim_p21_5",
+      "test_id": "NiWiscConD",
       "item_id": "5",
-      "file": "WISC IV/p021_04.png",
-      "page": 21,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p21 img 5"
+      "file": "pearson_ejemplo/NiWiscConD/item_5.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 5"
     },
     {
-      "test_id": "NiWiscStim_p22_1",
-      "item_id": "1",
-      "file": "WISC IV/p022_00.png",
-      "page": 22,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p22 img 1"
+      "test_id": "NiWiscConD",
+      "item_id": "6",
+      "file": "pearson_ejemplo/NiWiscConD/item_6.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 6"
     },
     {
-      "test_id": "NiWiscStim_p23_1",
+      "test_id": "NiWiscConD",
+      "item_id": "7",
+      "file": "pearson_ejemplo/NiWiscConD/item_7.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 7"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "8",
+      "file": "pearson_ejemplo/NiWiscConD/item_8.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 8"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "9",
+      "file": "pearson_ejemplo/NiWiscConD/item_9.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 9"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "10",
+      "file": "pearson_ejemplo/NiWiscConD/item_10.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 10"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "11",
+      "file": "pearson_ejemplo/NiWiscConD/item_11.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 11"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "12",
+      "file": "pearson_ejemplo/NiWiscConD/item_12.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 12"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "13",
+      "file": "pearson_ejemplo/NiWiscConD/item_13.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 13"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "14",
+      "file": "pearson_ejemplo/NiWiscConD/item_14.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 14"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "15",
+      "file": "pearson_ejemplo/NiWiscConD/item_15.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 15"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "16",
+      "file": "pearson_ejemplo/NiWiscConD/item_16.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 16"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "17",
+      "file": "pearson_ejemplo/NiWiscConD/item_17.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 17"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "18",
+      "file": "pearson_ejemplo/NiWiscConD/item_18.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 18"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "19",
+      "file": "pearson_ejemplo/NiWiscConD/item_19.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 19"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "20",
+      "file": "pearson_ejemplo/NiWiscConD/item_20.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 20"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "21",
+      "file": "pearson_ejemplo/NiWiscConD/item_21.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 21"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "22",
+      "file": "pearson_ejemplo/NiWiscConD/item_22.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 22"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "23",
+      "file": "pearson_ejemplo/NiWiscConD/item_23.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 23"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "24",
+      "file": "pearson_ejemplo/NiWiscConD/item_24.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 24"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "25",
+      "file": "pearson_ejemplo/NiWiscConD/item_25.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 25"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "26",
+      "file": "pearson_ejemplo/NiWiscConD/item_26.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 26"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "27",
+      "file": "pearson_ejemplo/NiWiscConD/item_27.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 27"
+    },
+    {
+      "test_id": "NiWiscConD",
+      "item_id": "28",
+      "file": "pearson_ejemplo/NiWiscConD/item_28.png",
+      "source_pdf": "ejemplo_integracion",
+      "nombre": "NiWiscConD lámina 28"
+    },
+    {
+      "test_id": "NiWiscVoc",
       "item_id": "1",
-      "file": "WISC IV/p023_00.png",
-      "page": 23,
-      "source_pdf": "WISC IV.pdf",
-      "nombre": "WISC IV p23 img 1"
+      "file": "pearson_ejemplo/NiWiscVoc/item_1.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWiscVoc Coche (Auto)"
+    },
+    {
+      "test_id": "NiWiscVoc",
+      "item_id": "2",
+      "file": "pearson_ejemplo/NiWiscVoc/item_2.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWiscVoc Flor"
+    },
+    {
+      "test_id": "NiWiscVoc",
+      "item_id": "3",
+      "file": "pearson_ejemplo/NiWiscVoc/item_3.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWiscVoc Tren"
+    },
+    {
+      "test_id": "NiWiscVoc",
+      "item_id": "4",
+      "file": "pearson_ejemplo/NiWiscVoc/item_4.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWiscVoc Cubeta (Balde)"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "1",
+      "file": "pearson_ejemplo/NiWisFigInc/item_1.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Zorro"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "2",
+      "file": "pearson_ejemplo/NiWisFigInc/item_2.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Chaqueta"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "3",
+      "file": "pearson_ejemplo/NiWisFigInc/item_3.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Gato"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "4",
+      "file": "pearson_ejemplo/NiWisFigInc/item_4.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Espejo"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "5",
+      "file": "pearson_ejemplo/NiWisFigInc/item_5.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Hoja"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "6",
+      "file": "pearson_ejemplo/NiWisFigInc/item_6.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Campana"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "7",
+      "file": "pearson_ejemplo/NiWisFigInc/item_7.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Mano"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "8",
+      "file": "pearson_ejemplo/NiWisFigInc/item_8.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Salto"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "9",
+      "file": "pearson_ejemplo/NiWisFigInc/item_9.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Escalera"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "10",
+      "file": "pearson_ejemplo/NiWisFigInc/item_10.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Cara de Mujer"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "11",
+      "file": "pearson_ejemplo/NiWisFigInc/item_11.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Cinturón"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "12",
+      "file": "pearson_ejemplo/NiWisFigInc/item_12.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Hombre"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "13",
+      "file": "pearson_ejemplo/NiWisFigInc/item_13.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Mueble"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "14",
+      "file": "pearson_ejemplo/NiWisFigInc/item_14.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Puerta"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "15",
+      "file": "pearson_ejemplo/NiWisFigInc/item_15.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Tijeras"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "16",
+      "file": "pearson_ejemplo/NiWisFigInc/item_16.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Reloj"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "17",
+      "file": "pearson_ejemplo/NiWisFigInc/item_17.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Foco"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "18",
+      "file": "pearson_ejemplo/NiWisFigInc/item_18.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Silbato"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "19",
+      "file": "pearson_ejemplo/NiWisFigInc/item_19.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Bicicletas"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "20",
+      "file": "pearson_ejemplo/NiWisFigInc/item_20.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Cerdo"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "21",
+      "file": "pearson_ejemplo/NiWisFigInc/item_21.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Dado"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "22",
+      "file": "pearson_ejemplo/NiWisFigInc/item_22.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Pelota"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "23",
+      "file": "pearson_ejemplo/NiWisFigInc/item_23.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Banda"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "24",
+      "file": "pearson_ejemplo/NiWisFigInc/item_24.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Bicicleta"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "25",
+      "file": "pearson_ejemplo/NiWisFigInc/item_25.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Naranja"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "26",
+      "file": "pearson_ejemplo/NiWisFigInc/item_26.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Perfil"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "27",
+      "file": "pearson_ejemplo/NiWisFigInc/item_27.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Árbol"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "28",
+      "file": "pearson_ejemplo/NiWisFigInc/item_28.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Puente"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "29",
+      "file": "pearson_ejemplo/NiWisFigInc/item_29.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Sombrilla"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "30",
+      "file": "pearson_ejemplo/NiWisFigInc/item_30.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Supermercado"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "31",
+      "file": "pearson_ejemplo/NiWisFigInc/item_31.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Tina"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "32",
+      "file": "pearson_ejemplo/NiWisFigInc/item_32.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Enrejado"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "33",
+      "file": "pearson_ejemplo/NiWisFigInc/item_33.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Termómetro"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "34",
+      "file": "pearson_ejemplo/NiWisFigInc/item_34.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Pez"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "35",
+      "file": "pearson_ejemplo/NiWisFigInc/item_35.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Casa"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "36",
+      "file": "pearson_ejemplo/NiWisFigInc/item_36.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Agua"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "37",
+      "file": "pearson_ejemplo/NiWisFigInc/item_37.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Familia"
+    },
+    {
+      "test_id": "NiWisFigInc",
+      "item_id": "38",
+      "file": "pearson_ejemplo/NiWisFigInc/item_38.png",
+      "source_pdf": "wisc_iv_protocolo.json",
+      "nombre": "NiWisFigInc Zapato"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "1",
+      "file": "pearson_ejemplo/AdWAISFI/item_1.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Peine"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "2",
+      "file": "pearson_ejemplo/AdWAISFI/item_2.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Mesa"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "3",
+      "file": "pearson_ejemplo/AdWAISFI/item_3.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Cara"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "4",
+      "file": "pearson_ejemplo/AdWAISFI/item_4.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Maletín"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "5",
+      "file": "pearson_ejemplo/AdWAISFI/item_5.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Tren"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "6",
+      "file": "pearson_ejemplo/AdWAISFI/item_6.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Puerta"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "7",
+      "file": "pearson_ejemplo/AdWAISFI/item_7.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Gafas"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "8",
+      "file": "pearson_ejemplo/AdWAISFI/item_8.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Jarra"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "9",
+      "file": "pearson_ejemplo/AdWAISFI/item_9.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Alicates"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "10",
+      "file": "pearson_ejemplo/AdWAISFI/item_10.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Hoja"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "11",
+      "file": "pearson_ejemplo/AdWAISFI/item_11.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Tarta"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "12",
+      "file": "pearson_ejemplo/AdWAISFI/item_12.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Carrera"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "13",
+      "file": "pearson_ejemplo/AdWAISFI/item_13.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Chimenea"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "14",
+      "file": "pearson_ejemplo/AdWAISFI/item_14.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Espejo"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "15",
+      "file": "pearson_ejemplo/AdWAISFI/item_15.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Silla"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "16",
+      "file": "pearson_ejemplo/AdWAISFI/item_16.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Rosas"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "17",
+      "file": "pearson_ejemplo/AdWAISFI/item_17.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Cuchillo"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "18",
+      "file": "pearson_ejemplo/AdWAISFI/item_18.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Barca"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "19",
+      "file": "pearson_ejemplo/AdWAISFI/item_19.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Cesta"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "20",
+      "file": "pearson_ejemplo/AdWAISFI/item_20.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Ropas"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "21",
+      "file": "pearson_ejemplo/AdWAISFI/item_21.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Taquillas"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "22",
+      "file": "pearson_ejemplo/AdWAISFI/item_22.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Vaca"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "23",
+      "file": "pearson_ejemplo/AdWAISFI/item_23.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Deportivas"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "24",
+      "file": "pearson_ejemplo/AdWAISFI/item_24.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Mujer"
+    },
+    {
+      "test_id": "AdWAISFI",
+      "item_id": "25",
+      "file": "pearson_ejemplo/AdWAISFI/item_25.png",
+      "source_pdf": "wais_iii_protocolo.json",
+      "nombre": "AdWAISFI Granero"
     }
-  ]
+  ],
+  "pearson_ejemplo": true
 }

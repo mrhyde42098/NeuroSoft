@@ -6,7 +6,7 @@ Características:
   - Sin portada dedicada.
   - Lenguaje claro, sin percentiles ni jerga técnica.
   - Estructura: bienvenida → qué hicimos → qué encontramos →
-    fortalezas → áreas de apoyo → recomendaciones → preguntas frecuentes.
+    implicaciones diarias → fortalezas → recomendaciones → preguntas frecuentes.
   - Mención explícita de que el informe técnico completo está disponible
     con el profesional tratante.
   - 2-3 páginas, apto para imprimir y llevar a casa.
@@ -22,7 +22,8 @@ from ..helpers import (
     draw_paragraph,
     section_title,
 )
-from ..narrative import generar_resumen_paciente
+from ..implicaciones import dominios_con_implicaciones, titulo_implicacion_humano
+from ..narrative import generar_resumen_paciente, parse_recomendaciones
 from ..theme import (
     CREAM,
     FONT_SANS,
@@ -32,10 +33,12 @@ from ..theme import (
     LAYOUT,
     NAVY,
     SEMANTIC_DEFICIT,
+    SEMANTIC_LIMITE,
     SEMANTIC_SUPERIOR,
     SLATE,
     SURFACE,
     TEAL,
+    TEAL_DARK,
     TYPE,
 )
 
@@ -46,21 +49,31 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
     USE_COVER = False
     INCLUDE_ANNEX = False
 
+    def _resumen_data(self, data) -> dict:
+        recomendaciones: list[str] = []
+        if data.obs_recomendaciones and data.obs_recomendaciones not in ("N/A", ""):
+            for grupo in parse_recomendaciones(data.obs_recomendaciones).values():
+                for it in grupo:
+                    recomendaciones.append(it["texto"])
+        return generar_resumen_paciente(
+            data.resultados or [],
+            paciente_nombre=data.nombre_completo or "",
+            recomendaciones=recomendaciones,
+            **self._kwargs_resumen_paciente(data),
+        )
+
     def _build_pages(self, c, data) -> None:
         y = self._page_top_with_header(c, data)
         y = self._section_sello_paciente(c, data, y)
         y = self._section_saludo(c, data, y)
         y = self._section_que_hicimos(c, data, y)
         y = self._section_que_encontramos(c, data, y)
+        y = self._section_implicaciones_paciente(c, data, y)
         y = self._section_fortalezas_apoyo(c, data, y)
         y = self._section_recomendaciones_paciente(c, data, y)
         y = self._section_faq(c, data, y)
         y = self._section_aviso_informe_tecnico(c, data, y)
         self._section_firma(c, data, y)
-
-    # ──────────────────────────────────────────────────────────
-    # Bloques
-    # ──────────────────────────────────────────────────────────
 
     def _section_sello_paciente(self, c, data, y: float) -> float:
         L = LAYOUT
@@ -106,11 +119,7 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
     def _section_saludo(self, c, data, y: float) -> float:
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=80)
-        resumen = generar_resumen_paciente(
-            data.resultados or [],
-            paciente_nombre=data.nombre_completo or "",
-            recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
-        )
+        resumen = self._resumen_data(data)
         y = draw_paragraph(
             c,
             resumen["saludo"],
@@ -126,11 +135,7 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
 
     def _section_que_hicimos(self, c, data, y: float) -> float:
         L = LAYOUT
-        resumen = generar_resumen_paciente(
-            data.resultados or [],
-            paciente_nombre=data.nombre_completo or "",
-            recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
-        )
+        resumen = self._resumen_data(data)
         y = self._ensure_room(c, data, y, need=100)
         y = section_title(
             c,
@@ -153,11 +158,7 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
 
     def _section_que_encontramos(self, c, data, y: float) -> float:
         L = LAYOUT
-        resumen = generar_resumen_paciente(
-            data.resultados or [],
-            paciente_nombre=data.nombre_completo or "",
-            recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
-        )
+        resumen = self._resumen_data(data)
         if not resumen["que_encontramos"]:
             return y
         y = self._ensure_room(c, data, y, need=100)
@@ -180,22 +181,84 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
         )
         return y - 8
 
-    def _section_fortalezas_apoyo(self, c, data, y: float) -> float:
+    def _section_implicaciones_paciente(self, c, data, y: float) -> float:
         L = LAYOUT
-        resumen = generar_resumen_paciente(
-            data.resultados or [],
-            paciente_nombre=data.nombre_completo or "",
-            recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
-        )
-        if not resumen["fortalezas"] and not resumen["areas_apoyo"]:
+        resumen = self._resumen_data(data)
+        modo_voz = resumen.get("modo_voz", "paciente")
+        implicaciones = dominios_con_implicaciones(data.resultados or [])
+        if not implicaciones:
             return y
 
         y = self._ensure_room(c, data, y, need=140)
         y = section_title(
             c,
-            "Tus fortalezas y áreas de apoyo",
+            "Implicaciones para la vida diaria",
             y,
-            subtitle="Lo que haces bien y lo que se puede trabajar",
+            subtitle="Ejemplos concretos de lo que puede notarse en casa",
+        )
+        y = (
+            draw_paragraph(
+                c,
+                "Esto es lo que podría notarse en la vida cotidiana:",
+                L.margin,
+                y,
+                L.content_w,
+                font_name=FONT_SANS,
+                size=TYPE.body_sm,
+                color=SLATE,
+                leading=TYPE.body_sm * 1.4,
+            )
+            - 4
+        )
+        for impl in implicaciones[:4]:
+            y = self._ensure_room(c, data, y, need=80)
+            dom = str(impl["dominio"])
+            nivel = impl["nivel"]
+            color = SEMANTIC_DEFICIT if nivel == "severo" else SEMANTIC_LIMITE
+            titulo = titulo_implicacion_humano(
+                dom,
+                nombre_paciente=data.nombre_completo or "",
+                modo_voz=modo_voz,
+            )
+            y = block_header(c, titulo, y, color=color)
+            for ej in impl["ejemplos"][:3]:
+                y = self._ensure_room(c, data, y, need=28)
+                y = bullet(c, ej, L.margin, y - 2, L.content_w) - 1
+            if impl["estrategias"]:
+                estr_txt = "Apoyos sugeridos: " + " · ".join(impl["estrategias"][:2])
+                y = (
+                    draw_paragraph(
+                        c,
+                        estr_txt,
+                        L.margin + 8,
+                        y,
+                        L.content_w - 8,
+                        font_name=FONT_SANS,
+                        size=TYPE.caption,
+                        color=TEAL_DARK,
+                        leading=TYPE.caption * 1.35,
+                    )
+                    - 4
+                )
+        return y - 6
+
+    def _section_fortalezas_apoyo(self, c, data, y: float) -> float:
+        L = LAYOUT
+        resumen = self._resumen_data(data)
+        if not resumen["fortalezas"] and not resumen["areas_apoyo"]:
+            return y
+
+        y = self._ensure_room(c, data, y, need=140)
+        titulo_fort = (
+            "Fortalezas y áreas de apoyo"
+            if resumen.get("modo_voz") != "paciente"
+            else "Tus fortalezas y áreas de apoyo"
+        )
+        y = section_title(
+            c,
+            titulo_fort,
+            y,
+            subtitle="Lo que va bien y lo que se puede trabajar",
         )
 
         col_w = (L.content_w - 16) / 2
@@ -218,11 +281,7 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
 
     def _section_recomendaciones_paciente(self, c, data, y: float) -> float:
         L = LAYOUT
-        resumen = generar_resumen_paciente(
-            data.resultados or [],
-            paciente_nombre=data.nombre_completo or "",
-            recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
-        )
+        resumen = self._resumen_data(data)
         y = self._ensure_room(c, data, y, need=120)
         y = section_title(
             c,
@@ -230,26 +289,28 @@ class PacienteGenerator(NeuroPDFGeneratorPro):
             y,
             subtitle="Pasos a seguir",
         )
-        y = draw_paragraph(
-            c,
-            resumen["que_recomendamos"],
-            L.margin,
-            y,
-            L.content_w,
-            font_name=FONT_SERIF,
-            size=TYPE.body_sm,
-            color=NAVY,
-            leading=TYPE.body_sm * 1.5,
-        )
+        rec_items = resumen.get("que_recomendamos_items") or []
+        if rec_items:
+            for i, item in enumerate(rec_items[:6], start=1):
+                y = self._ensure_room(c, data, y, need=28)
+                y = bullet(c, f"{i}. {item}", L.margin, y, L.content_w, size=TYPE.body_sm) - 2
+        else:
+            y = draw_paragraph(
+                c,
+                resumen["que_recomendamos"],
+                L.margin,
+                y,
+                L.content_w,
+                font_name=FONT_SERIF,
+                size=TYPE.body_sm,
+                color=NAVY,
+                leading=TYPE.body_sm * 1.5,
+            )
         return y - 8
 
     def _section_faq(self, c, data, y: float) -> float:
         L = LAYOUT
-        resumen = generar_resumen_paciente(
-            data.resultados or [],
-            paciente_nombre=data.nombre_completo or "",
-            recomendaciones=[data.obs_recomendaciones] if data.obs_recomendaciones else [],
-        )
+        resumen = self._resumen_data(data)
         y = self._ensure_room(c, data, y, need=180)
         y = section_title(
             c,

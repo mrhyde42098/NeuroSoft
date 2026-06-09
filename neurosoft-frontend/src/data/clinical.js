@@ -4,6 +4,18 @@
 
 import { REACTIVOS_PEARSON } from "./reactivosPearson.generated.js";
 
+/** §P1 Fase 2 visual — ítems Matrices/Conceptos con consigna + stimulus_ref (sin claves OSS). */
+const _buildVisualItems = (testId, count, consignaTpl) =>
+  Array.from({ length: count }, (_, i) => {
+    const n = i + 1;
+    return {
+      n,
+      lamina: n,
+      consigna: consignaTpl.replace("{n}", String(n)),
+      stimulus_ref: { test_id: testId, item_id: String(n) },
+    };
+  });
+
 export const OBS_TEMPLATES={apariencia_conducta:["El/la paciente se presenta orientado/a en persona, tiempo y espacio. Actitud colaboradora durante la sesión.","Contacto visual adecuado. Lenguaje espontáneo fluido y coherente.","Se observan signos de ansiedad/inquietud motora durante tareas de mayor demanda cognitiva.","Aspecto general acorde a edad y contexto. Higiene y vestimenta adecuadas."],atencion_concentracion:["Se evidencian dificultades en atención sostenida, con pérdida de foco ante estímulos distractores.","La velocidad de procesamiento se encuentra dentro de rangos esperados para su grupo normativo.","Presenta dificultades en tareas que requieren atención dividida y alternante."],memoria:["La curva de aprendizaje muestra un patrón ascendente con beneficio de la repetición.","Se evidencia disociación entre memoria libre (deficitaria) y con claves (preservada), sugiriendo dificultad en recuperación.","Adecuada consolidación a largo plazo con mínima pérdida en recuerdo diferido."],lenguaje:["Lenguaje expresivo fluido con adecuada articulación, sintaxis y prosodia.","Vocabulario acorde a nivel educativo. Comprensión de instrucciones preservada.","Dificultades en fluidez verbal fonológica con mejor rendimiento en semántica."],funciones_ejecutivas:["Se evidencian dificultades en flexibilidad cognitiva con tendencia a perseveración.","Adecuada capacidad de planificación y organización en tareas estructuradas.","Dificultades en control inhibitorio con respuestas impulsivas en tareas de interferencia."],habilidades_visoespaciales:["Adecuada capacidad de análisis y síntesis visoconstructiva.","Se evidencian dificultades en organización perceptual y planificación visoespacial."],impresion_diagnostica:["Los hallazgos sugieren un perfil compatible con {diagnóstico}, caracterizado por {características}.","El perfil neuropsicológico es consistente con las dificultades reportadas."],recomendaciones:["Intervención neuropsicológica enfocada en {áreas}.","Adaptaciones escolares/laborales: {adaptaciones}.","Valoración por {especialidad} para {motivo}.","Programa de estimulación cognitiva con énfasis en {dominios}."]};
 
 export const CONDUCTAS={NiWiscDC:["Estilos de resolución: ensayo-error, fortuito, con estrategia","Nivel de planeación: ¿planea con cuidado o es impulsivo?","Colocación de cubos: adentro→afuera o viceversa (estilo analítico visual)","Coordinación motora y lateralidad: torpeza, temblores o firmeza","Consulta del modelo: si es constante → baja memoria visual o cautela","Preocupación por detalles: indica obsesión → impacto en velocidad","Perseverancia y tolerancia a la frustración: ¿se dan por vencidos?","Movimiento corporal: ¿rota su cuerpo o el diseño? → dificultades visoperceptuales","Reconocer el error: ¿no logra reconocer que su diseño difiere del modelo?"],NiWiscSem:["Beneficio de retroalimentación en ejemplo: flexibles vs rígidos o concretos","Extensión de respuestas: respuestas demasiado detalladas pueden sugerir obsesividad","Distinguir asociaciones sobreaprendidas en reactivos fáciles","Manejo de la frustración: ¿Dice constantemente 'no sé' o 'no se parecen'?","Las respuestas de defensividad/evitación se distinguen de dificultades de categorización","Autocorrecciones espontáneas: son válidas"],NiWiscRDD:["Estrategia de resolución: ¿agrupa números? ¿Desde el inicio o a medida que avanza?","Características del error: ¿traspone los números o los olvida por completo?","Inatención, discapacidad auditiva o ansiedad como factores","Interferencia por condiciones de aplicación: ruidos → no interpretable","Impulsividad: ¿repite muy rápido o antes de que termine la serie?","Autocorrecciones espontáneas: son válidas"],NiWiscConD:["Distinguir asociaciones sobreaprendidas en reactivos fáciles","Frustración: ¿Dice 'nada se parece'? Defensividad y evitación vs. dificultades","Reflexión previa: ¿estudia los dibujos antes? → estilo reflexivo","Verbalización durante la resolución del problema","Errores por interpretación social/cultural equivocada, no visoperceptuales","Autocorrecciones espontáneas: son válidas"],NiWiscCl:["Movimientos oculares: uso constante de clave → memoria deficiente o inseguridad","Si no reconoce el orden numérico → dificultad con conceptos numéricos","Si NO usa claves → buena retención y memoria visual/asociativa","Impulsividad: escribe símbolos rápido pero de forma descuidada","Planeación: si intenta escribir por símbolo (1, luego 2, etc.)","Ansiedad: manos tiemblan, aprieta lápiz, presiona duro","Perfeccionismo: tiempo excesivo perfeccionando → obsesividad","Inatención o fatiga a medida que avanza"],NiWiscVoc:["Pronunciación: ¿dificultades? ¿Inseguridad para expresarse?","Lenguaje no verbal: sustituye palabras con gestos","Problemas de recuperación: 'No sé' o 'lo tengo en la punta de la lengua' → baja rapidez léxica","Dificultades auditivas: inclinarse para oír, discriminación auditiva (confinar/confiar)","Exceso de palabras: compensación por inseguridad, obsesión o ineficiente expresión","Autocorrecciones espontáneas: son válidas"],NiWiscLN:["Estrategia de resolución: ¿agrupa o secuencia? ¿Desde el inicio o progresivo?","Error: ¿No puede reordenar aunque repita la secuencia literal?","Dificultades: inatención, discapacidad auditiva, ansiedad","Interferencia por condiciones: ruidos o distracciones → no interpretable","Tolerancia a la frustración: ¿persevera ante los errores?","Comprensión errónea: si trata como retención de dígitos → puntaje engañoso"],NiWiscMat:["Nivel de planeación: examina sistemáticamente o es impulsivo","Movimientos oculares: aproximación sistemática vs aleatoria","Frustración: ¿dice 'no sé' antes de observar? → indicador de frustración","Autocorrecciones espontáneas: son válidas"],NiWiscCom:["Respuestas muy extensas: ¿ocultar desconocimiento? ¿Obsesión?","Expresión verbal: anomias, circunstancialidad, tangencialidad, circunlocuciones","Inatención: ¿afecta desempeño en reactivos extensos?","Respuestas defensivas: indagar si sabe la respuesta ('No deberíamos usar cinturones')","Necesidad de motivación constante para dar otra respuesta","Error: ¿por habilidad verbal deficiente o juicio social pobre?","Reacción al pedir otra razón: amenazados/frustrados vs cómodos"],NiWiscBusSim:["Ansiedad: manos tiemblan, aprieta lápiz, presión dura al escribir","Atención: ¿se mantiene o disminuye? ¿Fatiga? Contar reactivos cada 30s","Revisión constante de cada fila → preocupación obsesiva por detalle","Impulsividad: identifica rápido pero de forma descuidada","Movimientos oculares: mirar constantemente → memoria deficiente; no volver al símbolo → buena retención"],NiWiscAri:["Representación mental: ¿puede representar mentalmente las cantidades?","Necesidad de repetición: ¿pide que repitan el problema?","Velocidad: respuesta rápida vs. demoras que sugieren cálculo inseguro","Ansiedad ante el tiempo: ¿se pone nervioso al saber que hay límite?","Uso de dedos o movimientos: ¿cuenta con los dedos?"],NiWisFigInc:["Impulsividad: ¿responde rápido sin examinar toda la imagen?","Exploración visual: ¿examina sistemáticamente o al azar?","Reconocimiento del detalle vs. la función: ¿identifica qué falta o qué hace?","Verbalización: ¿describe en voz alta lo que busca?"],NiWisPalCon:["Claves progresivas: ¿aprovecha las claves adicionales o se queda en la primera?","Vocabulario receptivo: ¿conoce las palabras en las claves?","Frustración ante las claves: ¿se rinde antes de escuchar todas?"],NiWisReg:["Atención sostenida: ¿mantiene ritmo constante?","Fatiga: ¿desacelera al final?","Impulsividad: ¿marca sin verificar?"],NiWisInf:["Tipo de conocimiento: ¿falla en información escolar vs cotidiana?","Estimulación ambiental: ¿las fallas sugieren poca exposición cultural?","Dificultades de recuperación: ¿sabe la respuesta pero no logra evocarla?","Motivación: ¿se rinde ante preguntas difíciles o intenta?","Verbalización: ¿respuestas escuetas o elaboradas?"],
@@ -207,75 +219,10 @@ const _REACTIVOS_LEGACY={
     {n:20,q:"¿Por qué los medios de comunicación pueden ser una amenaza para las dictaduras?"},
     {n:21,q:"¿Cuáles son algunos problemas asociados con los cambios rápidos en ciencia y tecnología?"}
   ]},
-  /* ── MATRICES (WISC-IV) — 0-1 ── */
-  NiWiscMat:{type:"scored_items",label:"Matrices",scoring:[0,1],items:[
-    {n:1,q:"Matriz 1 — completar en cuadernillo (5 opciones)"},
-    {n:2,q:"Matriz 2 — completar en cuadernillo (5 opciones)"},
-    {n:3,q:"Matriz 3 — completar en cuadernillo (5 opciones)"},
-    {n:4,q:"Matriz 4 — completar en cuadernillo (5 opciones)"},
-    {n:5,q:"Matriz 5 — completar en cuadernillo (5 opciones)"},
-    {n:6,q:"Matriz 6 — completar en cuadernillo (5 opciones)"},
-    {n:7,q:"Matriz 7 — completar en cuadernillo (5 opciones)"},
-    {n:8,q:"Matriz 8 — completar en cuadernillo (5 opciones)"},
-    {n:9,q:"Matriz 9 — completar en cuadernillo (5 opciones)"},
-    {n:10,q:"Matriz 10 — completar en cuadernillo (5 opciones)"},
-    {n:11,q:"Matriz 11 — completar en cuadernillo (5 opciones)"},
-    {n:12,q:"Matriz 12 — completar en cuadernillo (5 opciones)"},
-    {n:13,q:"Matriz 13 — completar en cuadernillo (5 opciones)"},
-    {n:14,q:"Matriz 14 — completar en cuadernillo (5 opciones)"},
-    {n:15,q:"Matriz 15 — completar en cuadernillo (5 opciones)"},
-    {n:16,q:"Matriz 16 — completar en cuadernillo (5 opciones)"},
-    {n:17,q:"Matriz 17 — completar en cuadernillo (5 opciones)"},
-    {n:18,q:"Matriz 18 — completar en cuadernillo (5 opciones)"},
-    {n:19,q:"Matriz 19 — completar en cuadernillo (5 opciones)"},
-    {n:20,q:"Matriz 20 — completar en cuadernillo (5 opciones)"},
-    {n:21,q:"Matriz 21 — completar en cuadernillo (5 opciones)"},
-    {n:22,q:"Matriz 22 — completar en cuadernillo (5 opciones)"},
-    {n:23,q:"Matriz 23 — completar en cuadernillo (5 opciones)"},
-    {n:24,q:"Matriz 24 — completar en cuadernillo (5 opciones)"},
-    {n:25,q:"Matriz 25 — completar en cuadernillo (5 opciones)"},
-    {n:26,q:"Matriz 26 — completar en cuadernillo (5 opciones)"},
-    {n:27,q:"Matriz 27 — completar en cuadernillo (5 opciones)"},
-    {n:28,q:"Matriz 28 — completar en cuadernillo (5 opciones)"},
-    {n:29,q:"Matriz 29 — completar en cuadernillo (5 opciones)"},
-    {n:30,q:"Matriz 30 — completar en cuadernillo (5 opciones)"},
-    {n:31,q:"Matriz 31 — completar en cuadernillo (5 opciones)"},
-    {n:32,q:"Matriz 32 — completar en cuadernillo (5 opciones)"},
-    {n:33,q:"Matriz 33 — completar en cuadernillo (5 opciones)"},
-    {n:34,q:"Matriz 34 — completar en cuadernillo (5 opciones)"},
-    {n:35,q:"Matriz 35 — completar en cuadernillo (5 opciones)"}
-  ]},
-  /* ── CONCEPTOS CON DIBUJOS — 0-1 ── */
-  NiWiscConD:{type:"scored_items",label:"Conceptos con Dibujos",scoring:[0,1],items:[
-    {n:1,q:"Lamina 1 — agrupar por categoria (cuadernillo)"},
-    {n:2,q:"Lamina 2 — agrupar por categoria (cuadernillo)"},
-    {n:3,q:"Lamina 3 — agrupar por categoria (cuadernillo)"},
-    {n:4,q:"Lamina 4 — agrupar por categoria (cuadernillo)"},
-    {n:5,q:"Lamina 5 — agrupar por categoria (cuadernillo)"},
-    {n:6,q:"Lamina 6 — agrupar por categoria (cuadernillo)"},
-    {n:7,q:"Lamina 7 — agrupar por categoria (cuadernillo)"},
-    {n:8,q:"Lamina 8 — agrupar por categoria (cuadernillo)"},
-    {n:9,q:"Lamina 9 — agrupar por categoria (cuadernillo)"},
-    {n:10,q:"Lamina 10 — agrupar por categoria (cuadernillo)"},
-    {n:11,q:"Lamina 11 — agrupar por categoria (cuadernillo)"},
-    {n:12,q:"Lamina 12 — agrupar por categoria (cuadernillo)"},
-    {n:13,q:"Lamina 13 — agrupar por categoria (cuadernillo)"},
-    {n:14,q:"Lamina 14 — agrupar por categoria (cuadernillo)"},
-    {n:15,q:"Lamina 15 — agrupar por categoria (cuadernillo)"},
-    {n:16,q:"Lamina 16 — agrupar por categoria (cuadernillo)"},
-    {n:17,q:"Lamina 17 — agrupar por categoria (cuadernillo)"},
-    {n:18,q:"Lamina 18 — agrupar por categoria (cuadernillo)"},
-    {n:19,q:"Lamina 19 — agrupar por categoria (cuadernillo)"},
-    {n:20,q:"Lamina 20 — agrupar por categoria (cuadernillo)"},
-    {n:21,q:"Lamina 21 — agrupar por categoria (cuadernillo)"},
-    {n:22,q:"Lamina 22 — agrupar por categoria (cuadernillo)"},
-    {n:23,q:"Lamina 23 — agrupar por categoria (cuadernillo)"},
-    {n:24,q:"Lamina 24 — agrupar por categoria (cuadernillo)"},
-    {n:25,q:"Lamina 25 — agrupar por categoria (cuadernillo)"},
-    {n:26,q:"Lamina 26 — agrupar por categoria (cuadernillo)"},
-    {n:27,q:"Lamina 27 — agrupar por categoria (cuadernillo)"},
-    {n:28,q:"Lamina 28 — agrupar por categoria (cuadernillo)"}
-  ]},
+  /* ── MATRICES (WISC-IV) — visual_cuadernillo 0-1 ── */
+  NiWiscMat:{type:"visual_cuadernillo",label:"Matrices",scoring:[0,1],opciones:5,manualRef:"Libreta de estímulos WISC-IV",requires_license:true,license_publisher:"Pearson / Editorial Manual Moderno",items:_buildVisualItems("NiWiscMat",35,"Mira el diseño incompleto y señale cuál de las 5 opciones lo completa (lámina {n}).")},
+  /* ── CONCEPTOS CON DIBUJOS — visual_cuadernillo 0-1 ── */
+  NiWiscConD:{type:"visual_cuadernillo",label:"Conceptos con Dibujos",scoring:[0,1],opciones:0,manualRef:"Libreta de estímulos WISC-IV",requires_license:true,license_publisher:"Pearson / Editorial Manual Moderno",items:_buildVisualItems("NiWiscConD",28,"Señale un dibujo de cada fila que va junto o forma un grupo con los de arriba (lámina {n}).")},
   /* ── INFORMACIÓN (WISC-IV) — 0-1 ── */
   NiWisInf:{type:"scored_items",label:"Información",scoring:[0,1],items:[
     {n:1,q:"¿Enséñame tu pie?"},
@@ -614,34 +561,7 @@ const _REACTIVOS_LEGACY={
     {n:17,q:"¿'Una golondrina no hace verano'?"},
     {n:18,q:"¿'A Dios rogando y con el mazo dando'?"}
   ]},
-  AdMatr:{type:"scored_items",label:"Matrices WAIS-III",scoring:[0,1],items:[
-    {n:1,q:"Matriz 1 — completar en cuadernillo (5 opciones)"},
-    {n:2,q:"Matriz 2 — completar en cuadernillo (5 opciones)"},
-    {n:3,q:"Matriz 3 — completar en cuadernillo (5 opciones)"},
-    {n:4,q:"Matriz 4 — completar en cuadernillo (5 opciones)"},
-    {n:5,q:"Matriz 5 — completar en cuadernillo (5 opciones)"},
-    {n:6,q:"Matriz 6 — completar en cuadernillo (5 opciones)"},
-    {n:7,q:"Matriz 7 — completar en cuadernillo (5 opciones)"},
-    {n:8,q:"Matriz 8 — completar en cuadernillo (5 opciones)"},
-    {n:9,q:"Matriz 9 — completar en cuadernillo (5 opciones)"},
-    {n:10,q:"Matriz 10 — completar en cuadernillo (5 opciones)"},
-    {n:11,q:"Matriz 11 — completar en cuadernillo (5 opciones)"},
-    {n:12,q:"Matriz 12 — completar en cuadernillo (5 opciones)"},
-    {n:13,q:"Matriz 13 — completar en cuadernillo (5 opciones)"},
-    {n:14,q:"Matriz 14 — completar en cuadernillo (5 opciones)"},
-    {n:15,q:"Matriz 15 — completar en cuadernillo (5 opciones)"},
-    {n:16,q:"Matriz 16 — completar en cuadernillo (5 opciones)"},
-    {n:17,q:"Matriz 17 — completar en cuadernillo (5 opciones)"},
-    {n:18,q:"Matriz 18 — completar en cuadernillo (5 opciones)"},
-    {n:19,q:"Matriz 19 — completar en cuadernillo (5 opciones)"},
-    {n:20,q:"Matriz 20 — completar en cuadernillo (5 opciones)"},
-    {n:21,q:"Matriz 21 — completar en cuadernillo (5 opciones)"},
-    {n:22,q:"Matriz 22 — completar en cuadernillo (5 opciones)"},
-    {n:23,q:"Matriz 23 — completar en cuadernillo (5 opciones)"},
-    {n:24,q:"Matriz 24 — completar en cuadernillo (5 opciones)"},
-    {n:25,q:"Matriz 25 — completar en cuadernillo (5 opciones)"},
-    {n:26,q:"Matriz 26 — completar en cuadernillo (5 opciones)"}
-  ]},
+  AdMatr:{type:"visual_cuadernillo",label:"Matrices WAIS-III",scoring:[0,1],opciones:5,manualRef:"Cuadernillo de estímulos WAIS-III",requires_license:true,license_publisher:"Pearson / Editorial Manual Moderno",items:_buildVisualItems("AdMatr",26,"Observe la figura incompleta y señale cuál de las 5 opciones la completa (lámina {n}).")},
   AdWAISA:{type:"scored_items",label:"Aritmética WAIS-III",scoring:[0,1],items:[
     {n:1,q:"¿Cuántos cubos hay?"},
     {n:2,q:"¿Cuántos cubos hay?"},

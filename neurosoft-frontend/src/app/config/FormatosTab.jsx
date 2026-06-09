@@ -24,6 +24,8 @@ import React, { useEffect, useState } from "react";
 import { api, _parseError } from "../../api/client.js";
 import { Btn, Card, I, Input, Label, MsgBanner, Sel, Txta } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
+import { usePatientsPanel } from "../../hooks/usePatientsPanel.js";
+import { PatientSelect } from "../../ui/forms/PatientSelector.jsx";
 
 /* Catálogo de formatos disponibles */
 const FORMATS = [
@@ -333,7 +335,7 @@ function buildHTML(formatId, data) {
 }
 
 export default function FormatosTab() {
-  const [patients, setPatients] = useState([]);
+  const { patients, loading: patientsLoading } = usePatientsPanel();
   const [patId, setPatId] = useState("");
   const [profs, setProfs] = useState([]);
   const [profId, setProfId] = useState("");
@@ -347,11 +349,9 @@ export default function FormatosTab() {
 
   useEffect(() => {
     Promise.all([
-      api.get("/api/v1/patients/panel").catch(() => ({ pacientes: [] })),
       api.get("/api/v1/config/profesionales").catch(() => []),
       api.get("/api/v1/config/").catch(() => null),
-    ]).then(([pts, ps, cfg]) => {
-      setPatients(pts.pacientes || pts || []);
+    ]).then(([ps, cfg]) => {
       setProfs(ps || []);
       if (cfg?.institucion) setInst(cfg.institucion);
     });
@@ -402,18 +402,14 @@ export default function FormatosTab() {
       <MsgBanner msg={msg === "ok" ? "ok" : msg} onDismiss={msg && msg !== "ok" ? () => setMsg("") : null} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label>Paciente</Label>
-          <Sel value={patId} onChange={(e) => setPatId(e.target.value)}>
-            <option value="">— Seleccione —</option>
-            {patients.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre_completo || `${p.primer_nombre} ${p.primer_apellido}`}
-                {" "}— {p.numero_documento}
-              </option>
-            ))}
-          </Sel>
-        </div>
+        <PatientSelect
+          patients={patients}
+          loading={patientsLoading}
+          label="Paciente"
+          value={patId}
+          onChange={setPatId}
+          placeholder="— Seleccione —"
+        />
         <div>
           <Label>Profesional firmante</Label>
           <Sel value={profId} onChange={(e) => setProfId(e.target.value)}>

@@ -10,10 +10,9 @@ import { TEAL, TEAL_LIGHT } from "../../ui/tokens.js";
 import { REACTIVOS } from "../../data/clinical.js";
 import { estadoAceptacionGlobal } from "../../data/pearsonProtected.js";
 import ScoringGuide from "./ScoringGuide.jsx";
-import { getItem as getProtocolItem, _getSubtest } from "../../data/protocolLoader.js";
+import { getItem as getProtocolItem } from "../../data/protocolLoader.js";
 import { CubosPattern } from "../../data/PatronesCubos.jsx";
 import FCRODisplay from "../../data/FCRODisplay.jsx";
-import _BlockStimulus from "./BlockStimulus.jsx";
 import ItemStimulus from "./ItemStimulus.jsx";
 import PresentationOverlay from "./PresentationOverlay.jsx";
 import { itemMappedStimuli } from "./stimulusHelpers.js";
@@ -116,7 +115,7 @@ export const ReactivePanel=({testId,puntajes,setPuntajes,itemScores,setItemScore
     // está definido, para que ningún test rompa el panel.
     const scoringArr = Array.isArray(cfg.scoring) ? cfg.scoring : [0, 1];
     const _maxPer = scoringArr[scoringArr.length - 1];
-    const hasAnswerKey = items.some(it=>it.ans||it.respuesta);
+    const hasAnswerKey = items.some(it=>it.ans||it.respuesta||it.guia);
     return<Card className="p-5 space-y-3 ">
       <div className="flex items-center justify-between gap-2"><h3 className="font-bold text-sm flex items-center gap-2"><I name="list_alt" className="text-purple-600 text-lg"/>Reactivos — {cfg.label}</h3>
         <div className="flex items-center gap-2">
@@ -125,7 +124,8 @@ export const ReactivePanel=({testId,puntajes,setPuntajes,itemScores,setItemScore
         </div>
       </div>
       <div className="space-y-1.5 max-h-[32rem] overflow-y-auto pr-1">{items.map(it=>{
-        const v=parseInt(scores[`i${it.n}`],10)||0;const label=it.pair||it.word||it.q||`Ítem ${it.n}`;
+        const v=parseInt(scores[`i${it.n}`],10)||0;
+        const label=it.pair||it.word||it.imagen||it.q||`Ítem ${it.n}`;
         const protoItem = getProtocolItem(testId, it.n);
         // Si el test define un máximo por ítem, respetarlo (ej. WISC-IV Sem 1-2 = max 1)
         const itemMax = (cfg.maxPerItem && cfg.maxPerItem[it.n] !== undefined)
@@ -138,7 +138,8 @@ export const ReactivePanel=({testId,puntajes,setPuntajes,itemScores,setItemScore
           {itemStim?<ItemStimulus stimulus={itemStim} compact onExpand={()=>openOverlay(it.n)}/>:perTestStim.length>0&&<span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 shrink-0" title="Suba estímulo con item_id en Configuración">sin lámina</span>}
           <div className="flex-1 min-w-0">
             <p className={`${txtMain} text-gray-600 truncate`} title={label}>{label}</p>
-            {showAnswers&&(it.ans||it.respuesta)&&<p className={`${txtSub} font-semibold mt-0.5 flex items-center gap-1`} style={{color:TEAL}}><I name="key" className="text-[12px]"/>{it.ans||it.respuesta}</p>}
+            {showAnswers&&(it.ans||it.respuesta||it.guia)&&<p className={`${txtSub} font-semibold mt-0.5 flex items-center gap-1`} style={{color:TEAL}}><I name="key" className="text-[12px]"/>{it.ans||it.respuesta||it.guia}</p>}
+            {it.ilustrado&&!itemStim&&<p className={`${txtSub} mt-0.5`} style={{color:"var(--ns-muted)"}}>Ilustrado en cuadernillo licenciado (ítem {it.n})</p>}
           </div>
           <div className="flex gap-1">{itemScoring.map(s=><button key={s} onClick={()=>setS(`i${it.n}`,String(s))} className={`w-11 h-10 rounded-lg text-sm font-bold transition-all ${v===s?"text-white shadow":"text-gray-500 hover:bg-gray-100"}`} style={v===s?{background:TEAL}:{}}>{s}</button>)}</div>
         </div>
@@ -425,10 +426,12 @@ export const ReactivePanel=({testId,puntajes,setPuntajes,itemScores,setItemScore
         return<div key={it.n} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-50 transition-all">
           <span className="text-xs font-mono font-bold text-gray-400 w-8">{it.lamina??it.n}</span>
           {itemStim?<ItemStimulus stimulus={itemStim} compact onExpand={()=>openOverlay(it.n)}/>:null}
-          <p className="flex-1 text-xs truncate" style={{color:"var(--ns-muted)"}}>
-            Lámina {it.lamina??it.n}{cfg.opciones?` · ${cfg.opciones} opciones`:" · agrupar por categoría"}
-            {pearsonOk&&it.clave!=null&&<span className="ml-2 font-mono text-[10px] text-amber-700">clave {it.clave}</span>}
-          </p>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs truncate" style={{color:"var(--ns-muted)"}} title={it.consigna||""}>
+              {it.consigna||`Lámina ${it.lamina??it.n}${cfg.opciones?` · ${cfg.opciones} opciones`:" · agrupar por categoría"}`}
+            </p>
+            {pearsonOk&&it.clave!=null&&<span className="font-mono text-[10px] text-amber-700">clave {it.clave}</span>}
+          </div>
           <div className="flex gap-1">{[0,1].map(s=><button key={s} type="button" onClick={()=>setS(`i${it.n}`,String(s))} className={`w-9 h-8 rounded-lg text-xs font-bold ${v===s?"text-white shadow":""}`} style={v===s?{background:s?TEAL:"#ef4444"}:{color:"var(--ns-muted)"}}>{s}</button>)}</div>
         </div>})}</div>
       {overlayItem&&<PresentationOverlay open stimulus={overlayItem.stimulus} label={`${cfg.label} — lámina ${overlayItem.itemN}`} onClose={()=>setOverlayItem(null)} hasPrev={overlayIdx>0} hasNext={overlayIdx>=0&&overlayIdx<itemList.length-1} onPrev={()=>{const prev=itemList[overlayIdx-1];if(prev)openOverlay(prev.n)}} onNext={()=>{const next=itemList[overlayIdx+1];if(next)openOverlay(next.n)}}/>}

@@ -8,9 +8,11 @@ import { Btn, Card, I, TopBar } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 import { SkeletonCard } from "../../ui/Skeleton.jsx";
 import { useToast } from "../../contexts.jsx";
+import PatientTagList from "../../ui/PatientTagChip.jsx";
+import PatientTagMenu, { TAG_PRESETS } from "../../ui/PatientTagMenu.jsx";
+import { persistActivePatient } from "../../hooks/useActivePatient.js";
 
-const TAG_PRESETS = ["Particular", "EPS", "Convenio universidad", "Prioritario", "Evaluación pendiente"];
-const TAG_COLORS = ["#0d9488", "#7c3aed", "#d97706", "#dc2626", "#0891b2", "#6366f1"];
+const PRESET_COLOR_MAP = Object.fromEntries(TAG_PRESETS.map((p) => [p.label, p.color]));
 
 export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
   const toast = useToast();
@@ -32,7 +34,7 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
   useEffect(() => { load(); }, [load]);
 
   const allTags = useMemo(() => {
-    const s = new Set(TAG_PRESETS);
+    const s = new Set(TAG_PRESETS.map((p) => p.label));
     pts.forEach((p) => (p.etiquetas || []).forEach((t) => s.add(t)));
     return [...s];
   }, [pts]);
@@ -45,16 +47,27 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
         || (p.numero_documento || "").includes(s);
   });
 
-  const addTag = async (patientId, tag) => {
-    const p = pts.find((x) => x.id === patientId);
-    if (!p || !tag?.trim()) return;
-    const next = [...new Set([...(p.etiquetas || []), tag.trim()])].slice(0, 12);
+  const saveTags = async (patientId, next) => {
     try {
       await api.patch(`/api/v1/patients/${patientId}`, { etiquetas: next });
       setPts((prev) => prev.map((x) => (x.id === patientId ? { ...x, etiquetas: next } : x)));
     } catch {
       toast.error("No se pudo guardar la etiqueta");
     }
+  };
+
+  const addTag = async (patientId, tag) => {
+    const p = pts.find((x) => x.id === patientId);
+    if (!p || !tag?.trim()) return;
+    const next = [...new Set([...(p.etiquetas || []), tag.trim()])].slice(0, 12);
+    await saveTags(patientId, next);
+  };
+
+  const removeTag = async (patientId, tag) => {
+    const p = pts.find((x) => x.id === patientId);
+    if (!p) return;
+    const next = (p.etiquetas || []).filter((t) => t !== tag);
+    await saveTags(patientId, next);
   };
   const ini = (p) => (p.nombre_completo || p.primer_nombre || "")
     .split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase() || "?";
@@ -67,14 +80,10 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
 
   return (
     <>
-      <TopBar title="Panel de Pacientes">
-        <Btn onClick={() => setPage("register")}>
-          <I name="person_add" className="text-lg" />Registrar
-        </Btn>
-      </TopBar>
+      <TopBar title="Panel de Pacientes" />
       <main className="p-8">
         <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 min-w-[240px] max-w-md">
             <I name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-transparent focus:border-teal-500/20 focus:ring-0 text-sm"
@@ -88,14 +97,17 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
                 Etiqueta: {tagFilter} ×
               </button>
             )}
-            {allTags.slice(0, 8).map((t, i) => (
+            {allTags.slice(0, 8).map((t) => (
               <button key={t} onClick={() => setTagFilter(tagFilter === t ? "" : t)}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${tagFilter === t ? "text-white" : ""}`}
-                style={tagFilter === t ? { background: TAG_COLORS[i % TAG_COLORS.length] } : { background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
+                style={tagFilter === t ? { background: PRESET_COLOR_MAP[t] || "#0d9488" } : { background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
                 {t}
               </button>
             ))}
           </div>
+          <Btn onClick={() => setPage("register")} className="shrink-0 self-center">
+            <I name="person_add" className="text-lg" />Nuevo paciente
+          </Btn>
           <div className="flex gap-2 w-full sm:w-auto">
             {["Todos", "Infantil", "Adulto_joven", "Adulto_mayor"].map(f => (
               <button key={f} onClick={() => setFilter(f)}
@@ -147,11 +159,13 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
                           </h4>
                           <p className="text-xs" style={{ color: "var(--ns-muted)" }}>{p.sexo === "H" ? "Masculino" : "Femenino"}</p>
                           {(p.etiquetas || []).length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {(p.etiquetas || []).map((t, ti) => (
-                                <span key={t} className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
-                                  style={{ background: TAG_COLORS[ti % TAG_COLORS.length] }}>{t}</span>
-                              ))}
+                            <div className="mt-1.5">
+                              <PatientTagList
+                                tags={p.etiquetas}
+                                maxVisible={3}
+                                colorMap={PRESET_COLOR_MAP}
+                                onRemove={(t) => removeTag(p.id, t)}
+                              />
                             </div>
                           )}
                         </div>
@@ -171,7 +185,7 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-1">
                         <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-teal-600 hover:text-white text-gray-400 transition-all"
-                          onClick={() => { localStorage.setItem("ns_sel_patient", p.id); setPage("clinical_history"); }}
+                          onClick={() => { persistActivePatient(p); setPage("clinical_history"); }}
                           title="HC">
                           <I name="clinical_notes" className="text-lg" />
                         </button>
@@ -181,23 +195,19 @@ export default function PatientsPage({ setPage, _nav, setEvalCtx }) {
                           <I name="psychology" className="text-lg" />
                         </button>
                         <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-teal-600 hover:text-white text-gray-400 transition-all"
-                          onClick={() => { localStorage.setItem("ns_sel_patient", p.id); setPage("history"); }}
+                          onClick={() => { persistActivePatient(p); setPage("history"); }}
                           title="Historial">
                           <I name="history" className="text-lg" />
                         </button>
                         <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-purple-600 hover:text-white text-gray-400 transition-all"
-                          onClick={() => { localStorage.setItem("ns_sel_patient", p.id); setPage("compare"); }}
+                          onClick={() => { persistActivePatient(p); setPage("compare"); }}
                           title="Pre-Post">
                           <I name="compare_arrows" className="text-lg" />
                         </button>
-                        <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-amber-500 hover:text-white text-gray-400 transition-all"
-                          onClick={() => {
-                            const tag = window.prompt("Etiqueta para este paciente:", TAG_PRESETS[0]);
-                            if (tag) addTag(p.id, tag);
-                          }}
-                          title="Etiqueta">
-                          <I name="label" className="text-lg" />
-                        </button>
+                        <PatientTagMenu
+                          existing={p.etiquetas || []}
+                          onSelect={(tag) => addTag(p.id, tag)}
+                        />
                       </div>
                     </td>
                   </tr>

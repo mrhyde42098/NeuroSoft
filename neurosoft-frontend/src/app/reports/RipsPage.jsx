@@ -1,5 +1,5 @@
 /* Exportación RIPS mensual — preflight + descarga ZIP/TXT */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "../../api/client.js";
 import { useToast } from "../../contexts.jsx";
 import { Btn, Input, TopBar } from "../../ui/primitives.jsx";
@@ -20,15 +20,41 @@ export default function RipsPage() {
   const [mes, setMes] = useState(defaultYm);
   const [loading, setLoading] = useState(false);
   const [preflight, setPreflight] = useState(null);
+  const [numeroFactura, setNumeroFactura] = useState("");
+  const [codigoPrestador, setCodigoPrestador] = useState("");
+
+  useEffect(() => {
+    api.get("/api/v1/config/")
+      .then((cfg) => {
+        const nit = cfg?.institucion?.nit || "";
+        if (nit && !codigoPrestador) setCodigoPrestador(String(nit).slice(0, 12));
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchAllPatients = async () => {
+    const pacientes = [];
+    let pagina = 1;
+    let total = Infinity;
+    while (pacientes.length < total) {
+      const panel = await api.get(`/api/v1/patients/panel?por_pagina=100&pagina=${pagina}`);
+      const batch = panel.pacientes || [];
+      pacientes.push(...batch);
+      total = panel.total ?? batch.length;
+      if (!batch.length || pacientes.length >= total) break;
+      pagina += 1;
+    }
+    return pacientes;
+  };
 
   const runPreflight = async () => {
     setLoading(true);
     try {
       const { desde, hasta } = monthRange(mes);
-      const panel = await api.get("/api/v1/patients/panel?por_pagina=200");
-      const pacientes = panel.pacientes || [];
+      const pacientes = await fetchAllPatients();
       const rows = [];
-      for (const p of pacientes.slice(0, 100)) {
+      for (const p of pacientes) {
         const issues = [];
         if (!p.codigo_rips && !p.cups) issues.push("Falta Dx/CUPS");
         if (p.eps && p.eps !== "Particular (sin EPS)" && !p.orden_medica_no) issues.push("Falta autorización");
@@ -48,8 +74,11 @@ export default function RipsPage() {
     try {
       const { desde, hasta } = monthRange(mes);
       const token = localStorage.getItem("ns_token");
+      const params = new URLSearchParams({ desde, hasta, format });
+      if (numeroFactura.trim()) params.set("numero_factura", numeroFactura.trim());
+      if (codigoPrestador.trim()) params.set("codigo_prestador", codigoPrestador.trim());
       const res = await fetch(
-        `/api/v1/rips/export?desde=${desde}&hasta=${hasta}&format=${format}`,
+        `/api/v1/rips/export?${params.toString()}`,
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       if (!res.ok) throw new Error(await res.text());
@@ -72,11 +101,19 @@ export default function RipsPage() {
     <>
       <TopBar title="RIPS" subtitle="Registro Individual de Prestación de Servicios — Colombia" />
       <main className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-        <SectionCard eyebrow="Normativa" title="Exportación mensual" subtitle="Res. 3374/2000 · Codificación dual CIE-10/CIE-11 en transición" icon="receipt_long">
+        <SectionCard eyebrow="Normativa" title="Exportación mensual" subtitle="Res. 2275/2023 · CIE-10 en export · CIE-11 complementario en HC" icon="receipt_long">
           <div className="flex flex-wrap items-end gap-4 mb-4">
             <label className="block">
               <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ns-muted)" }}>Periodo (mes)</span>
               <Input type="month" value={mes} onChange={(e) => setMes(e.target.value)} className="mt-1" />
+            </label>
+            <label className="block">
+              <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ns-muted)" }}>Nº factura</span>
+              <Input value={numeroFactura} onChange={(e) => setNumeroFactura(e.target.value)} placeholder="Opcional" className="mt-1 w-40" />
+            </label>
+            <label className="block">
+              <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ns-muted)" }}>Cód. prestador</span>
+              <Input value={codigoPrestador} onChange={(e) => setCodigoPrestador(e.target.value)} placeholder="NIT" className="mt-1 w-40" />
             </label>
             <Btn variant="secondary" onClick={runPreflight} disabled={loading}>Validar periodo</Btn>
             <Btn onClick={() => download("zip")} disabled={loading}>Descargar ZIP</Btn>
@@ -89,16 +126,17 @@ export default function RipsPage() {
 
         {preflight && (
           <SectionCard eyebrow="Preflight" title={`${preflight.desde} — ${preflight.hasta}`} icon="fact_check">
-            <p className="text-sm mb-3">{preflight.rows.filter((r) => r.ok).length} listos · {preflight.rows.filter((r) => !r.ok).length} con observaciones</p>
-            <ul className="space-y-2 text-sm max-h-64 overflow-y-auto">
-              {preflight.rows.map((r, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${r.ok ? "bg-green-600" : "bg-amber-500"}`} />
-                  <span className="flex-1">{r.paciente}</span>
-                  {!r.ok && <span className="text-xs text-amber-700">{r.issues.join(", ")}</span>}
-                </li>
+            <p className="text-sm mb-3" style={{ color: "var(--ns-muted)" }}>
+              {preflight.total} pacientes revisados · {preflight.rows.filter((r) => !r.ok).length} con observaciones
+            </p>
+            <div className="max-h-64 overflow-y-auto space-y-1">
+              {preflight.rows.filter((r) => !r.ok).slice(0, 50).map((r, i) => (
+                <p key={i} className="text-xs text-amber-800">{r.paciente}: {r.issues.join(", ")}</p>
               ))}
-            </ul>
+              {preflight.rows.filter((r) => !r.ok).length > 50 && (
+                <p className="text-xs" style={{ color: "var(--ns-muted)" }}>… y más</p>
+              )}
+            </div>
           </SectionCard>
         )}
       </main>

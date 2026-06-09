@@ -24,9 +24,16 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
   const [docFirmante, setDocFirmante] = useState("");
   const [aceptado, setAceptado] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [modoFirma, setModoFirma] = useState("digital");
   const [emailTo, setEmailTo] = useState(patientEmail || "");
   const [sendingMail, setSendingMail] = useState(false);
+  const [pdfOverlay, setPdfOverlay] = useState(null);
   const toast = useToast();
+
+  const closePdfOverlay = () => {
+    if (pdfOverlay?.url) URL.revokeObjectURL(pdfOverlay.url);
+    setPdfOverlay(null);
+  };
 
   const load = async () => {
     setLd(true);
@@ -63,12 +70,12 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
 
   const tipoActual = pendientes[currentIdx];
 
-  const abrirPdf = async (url) => {
+  const abrirPdf = async (url, filename = "consentimiento.pdf") => {
     try {
-      const blob = await api.blob(url);
+      const blob = await api.blob(url, "GET");
       const u = URL.createObjectURL(blob);
-      window.open(u, "_blank");
-      setTimeout(() => URL.revokeObjectURL(u), 60000);
+      /* En pywebview window.open(blob) falla — visor in-app como InformesPage. */
+      setPdfOverlay({ url: u, filename, blob });
     } catch (e) {
       toast.error(_parseError(e));
     }
@@ -114,17 +121,28 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
     }
     setSaving(true);
     try {
-      await api.post("/api/v1/consentimientos/", {
-        patient_id: patientId,
-        tipo: tipoActual,
-        version_texto: textoActual.version,
-        texto_completo: textoActual.texto,
-        aceptado: true,
-        firma_base64: firma,
-        nombre_firmante: nombreFirmante,
-        relacion_firmante: relacion,
-        documento_firmante: docFirmante,
-      });
+      if (modoFirma === "fisico") {
+        await api.post("/api/v1/consentimientos/fisico", {
+          patient_id: patientId,
+          tipo: tipoActual,
+          nombre_firmante: nombreFirmante,
+          relacion_firmante: relacion,
+          documento_firmante: docFirmante,
+        });
+      } else {
+        await api.post("/api/v1/consentimientos/", {
+          patient_id: patientId,
+          tipo: tipoActual,
+          version_texto: textoActual.version,
+          texto_completo: textoActual.texto,
+          aceptado: true,
+          firma_base64: firma,
+          nombre_firmante: nombreFirmante,
+          relacion_firmante: relacion,
+          documento_firmante: docFirmante,
+          modo_firma: "digital",
+        });
+      }
       toast.success("Consentimiento firmado");
       const nuevosPend = pendientes.filter((_, i) => i !== currentIdx);
       setPendientes(nuevosPend);
@@ -155,7 +173,7 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()} style={{ background: "var(--ns-card)" }}>
         <div className="p-5 border-b flex items-center justify-between" style={{ borderColor: "var(--ns-card-b)" }}>
@@ -179,6 +197,18 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
             </div>
           ) : (
             <div className="space-y-6">
+              {pendientes.length > 0 && !textoActual && (
+                <SectionCard title="Texto no disponible" icon="error" eyebrow="Error de carga">
+                  <p className="text-sm" style={{ color: "var(--ns-muted)" }}>
+                    No se pudo cargar el texto del consentimiento <b>{tipoActual}</b>.
+                    Verifique la conexión con el servidor o contacte al administrador.
+                  </p>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Btn v="outline" onClick={onClose}>Más tarde</Btn>
+                    <Btn onClick={() => cargarTipo(tipoActual)}>Reintentar</Btn>
+                  </div>
+                </SectionCard>
+              )}
               {pendientes.length > 0 && textoActual && (
                 <SectionCard
                   title={CONSENT_LABELS[tipoActual]?.titulo || tipoActual}
@@ -218,6 +248,15 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
                     </div>
                   </div>
 
+                  <div className="flex gap-2 mb-3">
+                    <button type="button" onClick={() => setModoFirma("digital")} className="text-xs px-3 py-1.5 rounded-lg font-bold border" style={modoFirma === "digital" ? { background: TEAL, color: "#fff", borderColor: TEAL } : { borderColor: "var(--ns-card-b)" }}>Firma digital</button>
+                    <button type="button" onClick={() => setModoFirma("fisico")} className="text-xs px-3 py-1.5 rounded-lg font-bold border" style={modoFirma === "fisico" ? { background: TEAL, color: "#fff", borderColor: TEAL } : { borderColor: "var(--ns-card-b)" }}>Firmado en papel</button>
+                  </div>
+                  {modoFirma === "fisico" && (
+                    <p className="text-xs mb-3 p-2 rounded-lg" style={{ background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
+                      Marque como diligenciado en consultorio. Deberá adjuntar el escaneado antes de emitir el informe Pro.
+                    </p>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs">Nombre del firmante *</Label>
@@ -238,10 +277,12 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
                         <option value="otro">Otro familiar</option>
                       </Sel>
                     </div>
-                    <div className="col-span-2">
-                      <Label className="text-xs">Firma manuscrita *</Label>
-                      <SignatureCanvas value={firma} onChange={setFirma} />
-                    </div>
+                    {modoFirma === "digital" && (
+                      <div className="col-span-2">
+                        <Label className="text-xs">Firma manuscrita *</Label>
+                        <SignatureCanvas value={firma} onChange={setFirma} />
+                      </div>
+                    )}
                     <label className="col-span-2 flex items-start gap-2 cursor-pointer">
                       <input type="checkbox" checked={aceptado} onChange={(e) => setAceptado(e.target.checked)} className="w-4 h-4 mt-0.5" />
                       <span className="text-xs">
@@ -251,8 +292,8 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
                   </div>
                   <div className="flex justify-end gap-2 mt-4">
                     <Btn v="outline" onClick={onClose}>Más tarde</Btn>
-                    <Btn onClick={firmar} disabled={saving || !firma || !nombreFirmante || !docFirmante || !aceptado}>
-                      <I name="draw" className="text-sm" />{saving ? "Guardando…" : "Firmar digitalmente"}
+                    <Btn onClick={firmar} disabled={saving || !nombreFirmante || !docFirmante || !aceptado || (modoFirma === "digital" && !firma)}>
+                      <I name="draw" className="text-sm" />{saving ? "Guardando…" : (modoFirma === "fisico" ? "Marcar diligenciado" : "Firmar digitalmente")}
                     </Btn>
                   </div>
                 </SectionCard>
@@ -315,6 +356,58 @@ export default function ConsentModal({ patientId, patientName, patientEmail = ""
           )}
         </div>
       </div>
+
+      {pdfOverlay && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 10050,
+          background: "rgba(0,0,0,0.85)",
+          display: "flex", flexDirection: "column",
+        }}>
+          <div style={{
+            background: "#1e293b", padding: "12px 20px",
+            display: "flex", gap: 8, alignItems: "center", flexShrink: 0,
+          }}>
+            <I name="picture_as_pdf" style={{ color: "#f87171", fontSize: 22 }} />
+            <span style={{ color: "#fff", fontWeight: "bold", flex: 1, fontSize: 14 }}>
+              {pdfOverlay.filename}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                const w = window.open(pdfOverlay.url, "_blank");
+                if (!w) {
+                  const iframe = document.createElement("iframe");
+                  iframe.style.display = "none";
+                  iframe.src = pdfOverlay.url;
+                  document.body.appendChild(iframe);
+                  iframe.contentWindow?.print();
+                }
+              }}
+              style={{
+                padding: "8px 14px", background: "#0d9488", color: "#fff",
+                border: "none", borderRadius: 8, fontWeight: "bold", cursor: "pointer",
+              }}
+            >
+              <I name="print" style={{ fontSize: 18 }} /> Imprimir
+            </button>
+            <button
+              type="button"
+              onClick={closePdfOverlay}
+              style={{
+                padding: "8px 14px", background: "#475569", color: "#fff",
+                border: "none", borderRadius: 8, fontWeight: "bold", cursor: "pointer",
+              }}
+            >
+              <I name="close" style={{ fontSize: 18 }} /> Cerrar
+            </button>
+          </div>
+          <iframe
+            src={pdfOverlay.url}
+            title={pdfOverlay.filename}
+            style={{ flex: 1, border: "none", background: "#525659" }}
+          />
+        </div>
+      )}
     </div>
   );
 }

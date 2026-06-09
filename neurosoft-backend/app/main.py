@@ -29,11 +29,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
-from app.core.exceptions import (
-    ApplicationError,
-    DomainError,
-    InfrastructureError,
-)
+from app.core.error_codes import resolve_http_status
+from app.core.exceptions import NeuroSoftError
 
 # ─────────────────────────────────────────────────────────────
 # Logging
@@ -64,17 +61,14 @@ install_pii_redactor()
 
 def _get_static_dir() -> Path | None:
     """
-    Devuelve el directorio del frontend compilado si existe.
+      Devuelve el directorio del frontend compilado si existe.
 
-    - En modo desarrollo: neurosoft-frontend/dist (ignorado si no está compilado).
-    - En modo empaquetado (PyInstaller): <bundle>/static.
+    - Desarrollo: neurosoft-frontend/dist
+    - Empaquetado: %APPDATA%/NeuroSoft/static (overlay) o bundle/static
     """
-    if getattr(sys, "frozen", False):
-        bundle = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
-        candidate = bundle / "static"
-    else:
-        candidate = Path(__file__).parent.parent.parent / "neurosoft-frontend" / "dist"
-    return candidate if candidate.exists() and (candidate / "index.html").exists() else None
+    from app.infrastructure.frontend_paths import served_static_dir
+
+    return served_static_dir()
 
 
 def _get_bundled_asset(rel: str) -> Path | None:
@@ -223,6 +217,25 @@ async def lifespan(app: FastAPI):
         _asyncio.create_task(auto_install_ollama_first_run())
     except Exception as e:
         logger.debug("Auto-install Ollama no disponible: %s", e)
+
+    # 5.b. Auto-update desktop: limpiar pendientes y detectar update.json
+    try:
+        from app.infrastructure.desktop_auto_update import (
+            finalize_pending_update,
+            run_startup_update_check,
+        )
+
+        finalize_pending_update()
+        app.state.pending_update = run_startup_update_check(settings.api_version)
+        if app.state.pending_update.update_available:
+            logger.info(
+                "📦 Actualización disponible: v%s (fuente: %s)",
+                app.state.pending_update.latest_version,
+                app.state.pending_update.source,
+            )
+    except Exception as e:
+        logger.debug("Auto-update check no disponible: %s", e)
+        app.state.pending_update = None
 
     # Estímulos PDF masivos: limpieza en background (no bloquea /health del .exe)
     try:
@@ -613,32 +626,9 @@ app.add_middleware(
 # ─────────────────────────────────────────────────────────────
 
 
-@app.exception_handler(DomainError)
-async def domain_error_handler(request: Request, exc: DomainError):
-    return JSONResponse(status_code=422, content=exc.to_dict())
-
-
-@app.exception_handler(ApplicationError)
-async def application_error_handler(request: Request, exc: ApplicationError):
-    status_map = {
-        "PATIENT_ALREADY_EXISTS": 409,
-        "PATIENT_NOT_FOUND": 404,
-        "EVALUATION_NOT_FOUND": 404,
-        "INVALID_PROTOCOL": 422,
-    }
-    code = status_map.get(exc.code, 422)
-    return JSONResponse(status_code=code, content=exc.to_dict())
-
-
-@app.exception_handler(InfrastructureError)
-async def infrastructure_error_handler(request: Request, exc: InfrastructureError):
-    status_map = {
-        "BAREMO_DB_NOT_LOADED": 503,
-        "DATABASE_ERROR": 503,
-        "REPORT_GENERATION_ERROR": 500,
-    }
-    code = status_map.get(exc.code, 500)
-    return JSONResponse(status_code=code, content=exc.to_dict())
+@app.exception_handler(NeuroSoftError)
+async def neurosoft_error_handler(request: Request, exc: NeuroSoftError):
+    return JSONResponse(status_code=resolve_http_status(exc), content=exc.to_dict())
 
 
 # ─────────────────────────────────────────────────────────────

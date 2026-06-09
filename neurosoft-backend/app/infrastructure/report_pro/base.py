@@ -45,8 +45,12 @@ from .helpers import (
 from .narrative import (
     build_strengths_weaknesses,
     build_synthesis_paragraphs,
+    detectar_modo_voz,
+    frase_cualitativa_resultado,
     generar_resumen_paciente,
+    parse_edad_anos,
     parse_recomendaciones,
+    puente_impresion_lenguaje_claro,
 )
 from .theme import (
     ACCENT,
@@ -83,7 +87,7 @@ TEAL_LIGHT_PALE = (0.553, 0.847, 0.788)
 # ──────────────────────────────────────────────────────────
 # NORMOGRAMA COLOMBIANO — referencia jurídica del informe
 # ──────────────────────────────────────────────────────────
-# Versión sincronizada con ``plantillasDocumentales.NORMOGRAMA_COLOMBIANO_VERSION``
+# Versión sincronizada con ``normogramaVersion.js`` en el frontend
 # en el frontend. Mantener ambas en lockstep; bumpear al modificar cualquiera
 # de las 17 normas listadas en ``BLOQUE_LEGAL_NORMOGRAMA``.
 NORMOGRAMA_VERSION = "2026.06"
@@ -137,6 +141,12 @@ class NeuroPDFGeneratorPro:
     USE_COVER: bool = True
     #: ¿Mostrar anexo de definiciones operativas?
     INCLUDE_ANNEX: bool = True
+    #: ¿Incluir síntesis clínica integradora (narrativa automática)?
+    INCLUDE_SINTESIS: bool = False
+    #: ¿Ubicar Resumen para la Familia antes de resultados técnicos?
+    FAMILY_SUMMARY_BEFORE_RESULTS: bool = False
+    #: ¿Columna cualitativa «Qué significa» en tabla de puntajes?
+    SCORE_TABLE_QUALITATIVE: bool = False
 
     #: Módulos gráficos en sección resultados (orden de renderizado).
     CHART_MODULES: tuple[str, ...] = (
@@ -212,9 +222,14 @@ class NeuroPDFGeneratorPro:
         y = self._section_historia_psicosocial(c, data, y)
         y = self._section_pruebas_aplicadas(c, data, y)
         y = self._section_observacion(c, data, y)
+        if self.FAMILY_SUMMARY_BEFORE_RESULTS:
+            y = self._section_resumen_familia(c, data, y)
         y = self._section_resultados(c, data, y)
+        if self.INCLUDE_SINTESIS:
+            y = self._section_sintesis(c, data, y)
         y = self._section_analisis_dominio(c, data, y)
-        y = self._section_resumen_familia(c, data, y)
+        if not self.FAMILY_SUMMARY_BEFORE_RESULTS:
+            y = self._section_resumen_familia(c, data, y)
         y = self._section_impresion(c, data, y)
         y = self._section_recomendaciones(c, data, y)
         if self.INCLUDE_ANNEX:
@@ -998,16 +1013,35 @@ class NeuroPDFGeneratorPro:
 
         return y
 
+    def _kwargs_resumen_paciente(self, data) -> dict:
+        edad = parse_edad_anos(getattr(data, "edad_display", None))
+        return {
+            "edad_anos": edad,
+            "modo_voz": detectar_modo_voz(edad),
+        }
+
     def _draw_score_table(self, c, data, resultados, y: float) -> float:
         L = LAYOUT
-        col_widths = [
-            L.content_w * 0.38,
-            L.content_w * 0.10,
-            L.content_w * 0.12,
-            L.content_w * 0.10,
-            L.content_w * 0.30,
-        ]
-        headers = ["Prueba", "PD", "Escalar/CI", "Z", "Interpretación"]
+        cualitativa = self.SCORE_TABLE_QUALITATIVE
+        if cualitativa:
+            col_widths = [
+                L.content_w * 0.26,
+                L.content_w * 0.08,
+                L.content_w * 0.09,
+                L.content_w * 0.08,
+                L.content_w * 0.14,
+                L.content_w * 0.35,
+            ]
+            headers = ["Prueba", "PD", "Escalar/CI", "Z", "Interpretación", "Qué significa"]
+        else:
+            col_widths = [
+                L.content_w * 0.38,
+                L.content_w * 0.10,
+                L.content_w * 0.12,
+                L.content_w * 0.10,
+                L.content_w * 0.30,
+            ]
+            headers = ["Prueba", "PD", "Escalar/CI", "Z", "Interpretación"]
         rows = []
         row_colors = []
         for r in resultados:
@@ -1021,15 +1055,16 @@ class NeuroPDFGeneratorPro:
             esc = r.get("puntaje_escalar")
             z = r.get("z_equivalente")
             interp = str(r.get("interpretacion", "—"))
-            rows.append(
-                [
-                    nombre,
-                    str(int(pd)) if pd is not None else "—",
-                    str(int(esc)) if esc is not None else "—",
-                    f"{z:+.2f}" if z is not None else "—",
-                    interp,
-                ]
-            )
+            row = [
+                nombre,
+                str(int(pd)) if pd is not None else "—",
+                str(int(esc)) if esc is not None else "—",
+                f"{z:+.2f}" if z is not None else "—",
+                interp,
+            ]
+            if cualitativa:
+                row.append(frase_cualitativa_resultado(r))
+            rows.append(row)
             row_colors.append(semantic_color_for_z(z))
         # Paginación
         row_h = 16
@@ -1050,6 +1085,22 @@ class NeuroPDFGeneratorPro:
             )
             if rows:
                 y = self._new_page(c, data)
+        if cualitativa:
+            y = (
+                draw_paragraph(
+                    c,
+                    "Filas en color: verde = rango esperado; ámbar/rojo = por debajo. "
+                    "Consulte el anexo para definiciones de Z, CI y percentiles.",
+                    L.margin,
+                    y,
+                    L.content_w,
+                    font_name=FONT_SANS_ITALIC,
+                    size=TYPE.caption,
+                    color=SLATE,
+                    leading=TYPE.caption * 1.35,
+                )
+                - 4
+            )
         return y - 4
 
     def _section_sintesis(self, c, data, y: float) -> float:
@@ -1130,7 +1181,9 @@ class NeuroPDFGeneratorPro:
             resultados=data.resultados,
             paciente_nombre=data.nombre_completo,
             recomendaciones=recomendaciones,
+            **self._kwargs_resumen_paciente(data),
         )
+        modo_voz = resumen.get("modo_voz", "paciente")
         if not resumen:
             return y
         y = self._ensure_room(c, data, y, need=380)
@@ -1191,7 +1244,7 @@ class NeuroPDFGeneratorPro:
                 - 4
             )
         # ── Implicaciones para la vida diaria (NUEVO) ──
-        from .implicaciones import dominios_con_implicaciones
+        from .implicaciones import dominios_con_implicaciones, titulo_implicacion_humano
 
         implicaciones = dominios_con_implicaciones(data.resultados)
         if implicaciones:
@@ -1205,7 +1258,7 @@ class NeuroPDFGeneratorPro:
             y_intro = (
                 draw_paragraph(
                     c,
-                    "Además de los puntajes, esto es lo que podría notarse en la vida cotidiana:",
+                    "Esto es lo que podría notarse en la vida cotidiana:",
                     L.margin,
                     y,
                     L.content_w,
@@ -1219,12 +1272,17 @@ class NeuroPDFGeneratorPro:
             y = y_intro
             for impl in implicaciones[:4]:
                 y = self._ensure_room(c, data, y, need=80)
-                dom = impl["dominio"]
+                dom = str(impl["dominio"])
                 nivel = impl["nivel"]
                 color = SEMANTIC_DEFICIT if nivel == "severo" else SEMANTIC_LIMITE
+                titulo_impl = titulo_implicacion_humano(
+                    dom,
+                    nombre_paciente=data.nombre_completo or "",
+                    modo_voz=modo_voz,
+                )
                 y = block_header(
                     c,
-                    f"{dom}  ·  {nivel}",
+                    titulo_impl,
                     y,
                     color=color,
                 )
@@ -1268,7 +1326,15 @@ class NeuroPDFGeneratorPro:
         )
         y -= 8
         # ── Recomendaciones para la familia ──
-        if resumen.get("que_recomendamos"):
+        rec_items = resumen.get("que_recomendamos_items") or []
+        if rec_items:
+            y = self._ensure_room(c, data, y, need=80)
+            y = block_header(c, "¿Qué recomendamos?", y)
+            for i, item in enumerate(rec_items[:6], start=1):
+                y = self._ensure_room(c, data, y, need=28)
+                y = bullet(c, f"{i}. {item}", L.margin, y, L.content_w, size=TYPE.body_sm) - 2
+            y -= 4
+        elif resumen.get("que_recomendamos"):
             y = self._ensure_room(c, data, y, need=80)
             y = block_header(c, "¿Qué recomendamos?", y)
             y = (
@@ -1333,6 +1399,23 @@ class NeuroPDFGeneratorPro:
         L = LAYOUT
         y = self._ensure_room(c, data, y, need=160)
         y = section_title(c, "Impresión Diagnóstica", y, subtitle="Conclusión clínica · CIE-10 / DSM-5")
+
+        puente = puente_impresion_lenguaje_claro(
+            codigo_cie10=(data.codigo_cie10 or "").strip(),
+            codigo_desc=(data.codigo_cie10_desc or "").strip(),
+        )
+        y = callout(
+            c,
+            puente,
+            L.margin,
+            y,
+            L.content_w,
+            accent=SEMANTIC_PROMEDIO,
+            fill=SURFACE,
+            title="En palabras sencillas",
+            size=TYPE.body_sm,
+        )
+        y -= 6
 
         if has_cie:
             cie_text = f"Código CIE-10: {data.codigo_cie10.strip()}"

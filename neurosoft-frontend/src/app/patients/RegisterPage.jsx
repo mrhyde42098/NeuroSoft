@@ -6,29 +6,19 @@ import React, { useEffect, useState } from "react";
 import { api, _parseError, _fieldNames } from "../../api/client.js";
 import { useAuth, useToast } from "../../contexts.jsx";
 import {
-  Btn, Card, I, Input, Label, MsgBanner, Sel, TopBar, Txta,
+  Btn, Card, I, Input, Label, MsgBanner, Sel, TopBar,
 } from "../../ui/primitives.jsx";
 import { TEAL } from "../../ui/tokens.js";
 import PrivacyPolicyModal from "../legal/PrivacyPolicyModal.jsx";
 import ConsentModal from "./ConsentModal.jsx";
-import { ASEGURADORES_COLOMBIA, REGIMENES } from "../../data/aseguradoresColombia.js";
-import { CUPS_PSICOLOGIA } from "../../data/cupsPsicologia.js";
+import FieldBlock from "../../ui/forms/FieldBlock.jsx";
+import ColombiaBillingFields from "../../ui/forms/ColombiaBillingFields.jsx";
+import { useFormState } from "../../hooks/useFormState.js";
+import { useCupsPsicologia } from "../../hooks/useCupsPsicologia.js";
+import CieSearchModal from "../../ui/forms/CieSearchModal.jsx";
+import { persistActivePatient } from "../../hooks/useActivePatient.js";
 
 const BTN_FOOT = "!min-h-[44px] !py-2.5 !px-5 !text-sm";
-
-function FieldBlock({ title, icon, children }) {
-  return (
-    <div
-      className="rounded-2xl p-5 border space-y-4"
-      style={{ borderColor: `${TEAL}28`, background: `${TEAL}06` }}
-    >
-      <p className="text-xs font-bold flex items-center gap-2" style={{ color: TEAL }}>
-        {icon && <I name={icon} className="text-sm" />}{title}
-      </p>
-      {children}
-    </div>
-  );
-}
 
 /* Catálogos de apoyo para los desplegables del registro */
 const TIPOS_DOC = [
@@ -74,9 +64,10 @@ const CIE10_FRECUENTES = [
 export default function RegisterPage({ setPage }) {
   const { user } = useAuth();
   const toast = useToast();
+  const { cups: cupsPsicologia } = useCupsPsicologia();
   const [sec, setSec] = useState(0);
   const [privOpen, setPrivOpen] = useState(false);
-  const [f, sF] = useState({
+  const { values: f, set, setValues } = useFormState({
     tipo_documento: "CC", numero_documento: "",
     primer_nombre: "", segundo_nombre: "", primer_apellido: "", segundo_apellido: "",
     fecha_nacimiento: "", sexo: "H",
@@ -87,9 +78,9 @@ export default function RegisterPage({ setPage }) {
     estrato: null, ocupacion: "", acompanante: "", grupo_etnico: "",
     profesional_id: "",
     fecha_atencion: new Date().toISOString().split("T")[0],
-    motivo_consulta: "", remite: "",     eps: "", regimen: "", orden_medica_no: "", autorizacion_eps: "",
+    remite: "", eps: "", regimen: "", orden_medica_no: "", autorizacion_eps: "",
     telefono_acompanante: "", necesidades_accesibilidad: "",
-    discapacidad: "", codigo_rips: "", cups: "", finalidad_consulta: "",
+    discapacidad_aplica: "no", discapacidad_tipo: "", codigo_rips: "", cups: "", finalidad_consulta: "",
     numero_sesiones: 1, donante: false,
     via_atencion: "mixto",
   });
@@ -100,8 +91,8 @@ export default function RegisterPage({ setPage }) {
   const [savedPatientName, setSavedPatientName] = useState("");
   const [savedPatientEmail, setSavedPatientEmail] = useState("");
   const [postSaveDest, setPostSaveDest] = useState(null);
-  const set = (k, val) => sF((o) => ({ ...o, [k]: val }));
   const [profs, setProfs] = useState([]);
+  const [cieModalOpen, setCieModalOpen] = useState(false);
 
   useEffect(() => {
     api.get("/api/v1/config/profesionales").then(d => setProfs(d || [])).catch(() => toast.error("Error cargando profesionales"));
@@ -160,14 +151,23 @@ export default function RegisterPage({ setPage }) {
         "lugar_nacimiento", "telefono", "correo", "direccion", "localidad",
         "ocupacion", "acompanante", "telefono_acompanante", "remite", "eps",
         "orden_medica_no", "autorizacion_eps", "necesidades_accesibilidad",
-        "discapacidad", "motivo_consulta", "codigo_rips",
+        "codigo_rips",
       ].forEach(k => { if (body[k] === "") delete body[k]; });
+      if (body.discapacidad_aplica === "no") {
+        delete body.discapacidad;
+      } else {
+        body.discapacidad = body.discapacidad_tipo || "Sí";
+      }
+      delete body.discapacidad_aplica;
+      delete body.discapacidad_tipo;
+      if (body.estrato === "na" || body.estrato === null) delete body.estrato;
       const created = await api.post("/api/v1/patients/", body);
+      persistActivePatient(created);
       setMsg("ok");
       const dest = {
-        neuro: "evaluation",
-        clinica: "therapy",
-        rehab: "rehab",
+        neuropsicologia: "evaluation",
+        psicoterapia: "therapy",
+        rehabilitacion: "rehab",
         mixto: "patients",
       }[f.via_atencion] || "patients";
       const nombre = created.nombre_completo
@@ -183,10 +183,10 @@ export default function RegisterPage({ setPage }) {
 
   const secs = ["Identificación", "Contacto y Demografía", "Datos de Consulta", "Vía de atención"];
   const VIA_OPTS = [
-    { id: "neuro", label: "Evaluación neuropsicológica", desc: "Batería NPS, informes y baremos", icon: "psychology" },
-    { id: "clinica", label: "Psicoterapia clínica", desc: "Sesiones SOAP, planes terapéuticos", icon: "self_improvement" },
-    { id: "rehab", label: "Rehabilitación cognitiva", desc: "Plan y actividades de rehab", icon: "fitness_center" },
-    { id: "mixto", label: "Mixto / por definir", desc: "Decidir módulo después del intake", icon: "hub" },
+    { id: "neuropsicologia", label: "Evaluación neuropsicológica", desc: "Batería NPS, informes y baremos", icon: "psychology" },
+    { id: "psicoterapia", label: "Psicoterapia clínica", desc: "Sesiones SOAP, planes terapéuticos", icon: "self_improvement" },
+    { id: "rehabilitacion", label: "Rehabilitación cognitiva", desc: "Plan y actividades de rehab", icon: "fitness_center" },
+    { id: "mixto", label: "Mixto / por definir", desc: "Elegir el módulo principal después de la primera entrevista", icon: "hub" },
   ];
   const reqErr = (field) => msg && msg !== "ok" && msg.includes(_fieldNames[field] || field);
   const errCls = (field) => reqErr(field) ? "!border-red-400 !bg-red-50/50" : "";
@@ -290,7 +290,16 @@ export default function RegisterPage({ setPage }) {
                     {["Soltero(a)","Casado(a)","Unión Libre","Divorciado(a)","Viudo(a)","Separado(a)","Menor de Edad"].map(o => <option key={o}>{o}</option>)}
                   </Sel>
                 </div>
-                <div className="sm:col-span-2"><Label>Lugar de Nacimiento</Label><Input value={f.lugar_nacimiento} onChange={(e) => set("lugar_nacimiento", e.target.value)} placeholder="Ciudad, departamento o país" /></div>
+                <div className="sm:col-span-2"><Label>Lugar de Nacimiento</Label>
+                  <Sel value={CIUDADES_CO.includes(f.lugar_nacimiento) ? f.lugar_nacimiento : (f.lugar_nacimiento ? "__otra__" : "")} onChange={(e) => { const v = e.target.value; set("lugar_nacimiento", v === "__otra__" ? "" : v); }}>
+                    <option value="">— Seleccionar ciudad —</option>
+                    {CIUDADES_CO.map((c) => <option key={c} value={c}>{c}</option>)}
+                    <option value="__otra__">Otra ciudad / país…</option>
+                  </Sel>
+                  {(!CIUDADES_CO.includes(f.lugar_nacimiento) && f.lugar_nacimiento !== "") || f.lugar_nacimiento === "" ? (
+                    <Input className="mt-1" value={f.lugar_nacimiento} onChange={(e) => set("lugar_nacimiento", e.target.value)} placeholder="Ciudad o país de nacimiento" />
+                  ) : null}
+                </div>
               </div>
             </FieldBlock>
           </Card>
@@ -310,9 +319,9 @@ export default function RegisterPage({ setPage }) {
               <div><Label>País</Label>
                 <Sel value={esColombia ? "Colombia" : "__otro__"} onChange={(e) => {
                   if (e.target.value === "Colombia") {
-                    sF((o) => ({ ...o, pais_modo: "co", pais: "Colombia", ciudad: "Bogotá" }));
+                    setValues((o) => ({ ...o, pais_modo: "co", pais: "Colombia", ciudad: "Bogotá" }));
                   } else {
-                    sF((o) => ({ ...o, pais_modo: "ext", pais: "", ciudad: "", localidad: "" }));
+                    setValues((o) => ({ ...o, pais_modo: "ext", pais: "", ciudad: "", localidad: "" }));
                   }
                 }}>
                   <option value="Colombia">Colombia</option>
@@ -344,8 +353,11 @@ export default function RegisterPage({ setPage }) {
                 </>
               )}
               <div><Label>Estrato</Label>
-                <Sel value={f.estrato || ""} onChange={(e) => set("estrato", e.target.value ? parseInt(e.target.value, 10) : null)}>
-                  <option value="">--</option>
+                <Sel value={f.estrato === null ? "na" : String(f.estrato || "")} onChange={(e) => {
+                  const v = e.target.value;
+                  set("estrato", v === "na" || v === "" ? null : parseInt(v, 10));
+                }}>
+                  <option value="na">No aplica</option>
                   {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}</option>)}
                 </Sel>
               </div>
@@ -358,31 +370,8 @@ export default function RegisterPage({ setPage }) {
               </div>
             </div>
             <FieldBlock title="Afiliación, acompañante y accesibilidad" icon="health_and_safety">
+              <ColombiaBillingFields values={f} onChange={set} variant="register" showCups={false} gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div><Label>Régimen</Label>
-                  <Sel value={f.regimen} onChange={(e) => set("regimen", e.target.value)}>
-                    <option value="">-- Seleccionar --</option>
-                    {REGIMENES.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
-                  </Sel>
-                </div>
-                <div><Label>EPS / Asegurador</Label>
-                  <Sel value={f.eps} onChange={(e) => set("eps", e.target.value)}>
-                    <option value="">-- Seleccionar --</option>
-                    {ASEGURADORES_COLOMBIA
-                      .filter(a => !f.regimen || a.regimen === f.regimen)
-                      .map(a => <option key={a.codigo} value={a.nombre}>{a.nombre}</option>)}
-                    <option value="Particular">Particular / Sin afiliación</option>
-                  </Sel>
-                </div>
-                <div><Label>Nº autorización EPS</Label>
-                  <Input value={f.autorizacion_eps} onChange={(e) => set("autorizacion_eps", e.target.value)} placeholder="Si la EPS lo exige" />
-                </div>
-                <div><Label>CUPS (si ya lo tiene)</Label>
-                  <Sel value={f.cups} onChange={(e) => set("cups", e.target.value)}>
-                    <option value="">-- Seleccionar --</option>
-                    {CUPS_PSICOLOGIA.map(o => <option key={o.codigo} value={`${o.codigo} - ${o.nombre}`}>{o.codigo} — {o.nombre}</option>)}
-                  </Sel>
-                </div>
                 <div><Label>Nombre acompañante</Label>
                   <Input value={f.acompanante} onChange={(e) => set("acompanante", e.target.value)} placeholder="Familiar o cuidador principal" />
                 </div>
@@ -393,9 +382,17 @@ export default function RegisterPage({ setPage }) {
                   <Input value={f.necesidades_accesibilidad} onChange={(e) => set("necesidades_accesibilidad", e.target.value)}
                     placeholder="Ej: baja visión, silla de ruedas, intérprete, tiempo extra en pruebas…" />
                 </div>
-                <div><Label>Discapacidad (registro)</Label>
-                  <Input value={f.discapacidad} onChange={(e) => set("discapacidad", e.target.value)} placeholder="Ninguna / tipo si aplica" />
+                <div><Label>¿Tiene discapacidad?</Label>
+                  <Sel value={f.discapacidad_aplica} onChange={(e) => set("discapacidad_aplica", e.target.value)}>
+                    <option value="no">No</option>
+                    <option value="si">Sí</option>
+                  </Sel>
                 </div>
+                {f.discapacidad_aplica === "si" && (
+                  <div className="sm:col-span-2"><Label>Tipo de discapacidad</Label>
+                    <Input value={f.discapacidad_tipo} onChange={(e) => set("discapacidad_tipo", e.target.value)} placeholder="Ej: visual, auditiva, motriz, cognitiva…" />
+                  </div>
+                )}
               </div>
             </FieldBlock>
           </Card>
@@ -407,7 +404,7 @@ export default function RegisterPage({ setPage }) {
               <I name="route" style={{ color: TEAL }} />Vía de atención
             </h3>
             <p className="text-sm" style={{ color: "var(--ns-muted)" }}>
-              Define el flujo inicial tras guardar. Puedes cambiar de módulo en cualquier momento desde el panel del paciente.
+              Indica por dónde quieres empezar con este paciente. Puedes cambiarlo en cualquier momento desde su ficha.
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
               {VIA_OPTS.map((v) => (
@@ -458,20 +455,23 @@ export default function RegisterPage({ setPage }) {
               <div><Label>CUPS</Label>
                 <Sel value={f.cups} onChange={(e) => set("cups", e.target.value)}>
                   <option value="">-- Seleccionar --</option>
-                  {CUPS_PSICOLOGIA.map(o => <option key={o.codigo} value={`${o.codigo} - ${o.nombre}`}>{o.codigo} — {o.nombre}</option>)}
+                  {cupsPsicologia.map(o => <option key={o.codigo} value={`${o.codigo} - ${o.nombre}`}>{o.codigo} — {o.nombre}</option>)}
                 </Sel>
               </div>
               <div><Label>Código RIPS (CIE-10)</Label>
-                <Input list="cie10-frecuentes" value={f.codigo_rips} onChange={(e) => set("codigo_rips", e.target.value)} placeholder={ripsAuto || "F809"} />
+                <div className="flex gap-2">
+                  <Input list="cie10-frecuentes" value={f.codigo_rips} onChange={(e) => set("codigo_rips", e.target.value)} placeholder={ripsAuto || "F809"} className="flex-1" />
+                  <Btn v="outline" type="button" onClick={() => setCieModalOpen(true)} title="Buscador CIE-10"><I name="search" /></Btn>
+                </div>
                 <datalist id="cie10-frecuentes">
                   {CIE10_FRECUENTES.map(d => <option key={d.c} value={d.c}>{d.c} — {d.n}</option>)}
                 </datalist>
               </div>
               <div><Label>No. Sesiones</Label><Input type="number" min="1" value={f.numero_sesiones} onChange={(e) => set("numero_sesiones", parseInt(e.target.value, 10) || 1)} /></div>
             </div>
-            <div><Label>Motivo de Consulta</Label>
-              <Txta value={f.motivo_consulta} onChange={(e) => set("motivo_consulta", e.target.value)} placeholder="Describa el motivo de consulta..." className="min-h-[80px]" />
-            </div>
+            <p className="text-xs p-3 rounded-lg" style={{ background: "var(--ns-subtle)", color: "var(--ns-muted)" }}>
+              El motivo de consulta se registra en la <b>Historia Clínica</b> para evitar duplicación y mantener un único relato clínico.
+            </p>
             <div className="flex items-center gap-3">
               <input type="checkbox" checked={f.donante} onChange={(e) => set("donante", e.target.checked)} className="w-4 h-4 rounded" />
               <span className="text-sm font-medium text-gray-600">Donante de órganos</span>
@@ -513,14 +513,15 @@ export default function RegisterPage({ setPage }) {
                 </Btn>
               )}
               {sec < secs.length - 1 && (
-                <Btn v="outline" className={BTN_FOOT} onClick={() => setSec((s) => s + 1)}>
+                <Btn v="outline" className={BTN_FOOT} onClick={() => setSec((s) => s + 1)}
+                  style={{ borderColor: "#ea580c", color: "#ea580c", background: "rgba(234,88,12,0.06)" }}>
                   Siguiente<I name="chevron_right" className="text-sm" />
                 </Btn>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
               <Btn v="outline" className={BTN_FOOT} onClick={() => setPage("patients")}>Cancelar</Btn>
-              <Btn className={BTN_FOOT} onClick={save} disabled={saving}>
+              <Btn className={BTN_FOOT} onClick={save} disabled={saving} style={{ background: "#059669", borderColor: "#059669" }}>
                 {saving ? "Guardando..." : "Guardar Paciente"}
               </Btn>
             </div>
@@ -528,6 +529,11 @@ export default function RegisterPage({ setPage }) {
         </div>
       </main>
       <PrivacyPolicyModal open={privOpen} onClose={() => setPrivOpen(false)} />
+      <CieSearchModal
+        open={cieModalOpen}
+        onClose={() => setCieModalOpen(false)}
+        onSelect={(codigo) => set("codigo_rips", codigo)}
+      />
       {showConsent && savedPatientId && (
         <ConsentModal
           patientId={savedPatientId}

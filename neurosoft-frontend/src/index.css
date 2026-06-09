@@ -279,3 +279,17 @@ html.ns-projection.dark-mode body {
 /* Sidebar más estrecho en proyección para dar más espacio al contenido */
 html.ns-projection aside { width: 260px !important; }
 html.ns-projection .ml-72 { margin-left: 260px !important; }
+
+/* ─── Glosario: sin popovers en impresión/PDF ─────────────────────── */
+@media print {
+  .glossary-term-popover,
+  .glossary-term-no-print,
+  .glossary-legend-hint,
+  button.glossary-term-trigger[aria-haspopup="dialog"] {
+    display: none !important;
+  }
+  .glossary-term-trigger {
+    border-bottom: none !important;
+    color: inherit !important;
+  }
+}

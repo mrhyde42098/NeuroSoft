@@ -142,7 +142,8 @@ Incluir `resp_2pt`/`resp_1pt`/`resp_0pt` en campo `guia` (solo visible con licen
 - No poner texto verbatim de estímulos gráficos en bundle público.
 - UI: `visual_cuadernillo` en `ReactivePanel.jsx` → banner cuadernillo licenciado + captura 0/1.
 - Claves `respuestas_correctas` visibles solo con consentimiento Pearson (`pearsonProtected.js`).
-- **Pendiente:** subir láminas escaneadas (propias) vía Config → Estímulos con `item_id` por número de ítem.
+- **Ejemplo integración (8 jun 2026):** `python docs/scripts/seed_pearson_ejemplo_laminas.py` → NiWiscMat×35, NiWiscConD×28, AdMatr×26 en SQLite.
+- **Sustituir por escaneo real:** `python docs/scripts/map_pearson_visual_stimuli.py --wisc-pdf "Cuadernillo WISC-IV.pdf" --seed`
 
 ### Fase 3 — Tests y regresión ✅ (6 jun 2026)
 
@@ -151,11 +152,12 @@ Incluir `resp_2pt`/`resp_1pt`/`resp_0pt` en campo `guia` (solo visible con licen
 - E2E Playwright: abrir evaluación WISC → Semejanzas muestra par real.
 - **No tocar** `BD_NEURO_MAESTRA.json`.
 
-### Fase 4 — Documentación
+### Fase 4 — Documentación ✅ (9 jun 2026)
 
-- `/actualizar-estado-vivo` → marcar placeholders como ✅
-- Actualizar `docs/AUDITORIA_PDFs.md` §reactivos
-- `/actualizar-contexto-ia` si Johan retoma en otro chat
+- [x] `ESTADO_VIVO.md` actualizado (láminas ejemplo + tests)
+- [x] `seed_pearson_ejemplo_laminas.py` + `map_pearson_visual_stimuli.py` documentados en plan
+- [ ] Johan valida protocolos JSON vs manual físico (Fase 0)
+- [ ] `/actualizar-contexto-ia` si retoma en otro chat
 
 ---
 

@@ -21,7 +21,12 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 
-from app.application.dtos.clinical_history_dtos import EvolTerapiaUpdateDTO
+from app.application.dtos.clinical_history_dtos import (
+    BackupRequestDTO,
+    BackupResponseDTO,
+    BackupScheduleDTO,
+    EvolTerapiaUpdateDTO,
+)
 from app.presentation.api.v1.auth import require_admin
 from app.presentation.dependencies import DbSession
 
@@ -192,18 +197,17 @@ def download_database(db: DbSession, admin=Depends(require_admin)):
 
 @backup_router_new.post(
     "/",
+    response_model=BackupResponseDTO,
     summary="Crear backup en el servidor",
     description="Copia la BD a la carpeta `data/backups/` del servidor.",
 )
 def create_server_backup(
-    notas: str | None = Query(default=None),
+    dto: BackupRequestDTO,
     db: DbSession = None,
     admin=Depends(require_admin),
 ):
-    from app.application.dtos.clinical_history_dtos import BackupRequestDTO
     from app.application.use_cases.clinical_history_use_cases import BackupUseCase
 
-    dto = BackupRequestDTO(destino=None, notas=notas or "Backup manual")
     try:
         result = BackupUseCase(db).create_backup(dto)
         return result
@@ -219,6 +223,98 @@ def list_backups(db: DbSession, admin=Depends(require_admin)):
     from app.application.use_cases.clinical_history_use_cases import BackupUseCase
 
     return BackupUseCase(db).list_backups()
+
+
+@backup_router_new.get(
+    "/schedule",
+    summary="Configuración de backup programado (QW-8)",
+)
+def get_backup_schedule(db: DbSession, admin=Depends(require_admin)):
+    from app.application.dtos.clinical_history_dtos import BackupScheduleDTO
+    from app.application.services.backup_service import get_schedule_config
+    from app.infrastructure.database.orm_models import BackupRegistroORM
+    from app.infrastructure.scheduler_service import get_backup_job_times
+
+    cfg = get_schedule_config(db)
+    last = (
+        db.query(BackupRegistroORM)
+        .filter(BackupRegistroORM.tipo == "automatico", BackupRegistroORM.exitoso == True)  # noqa: E712
+        .order_by(BackupRegistroORM.fecha.desc())
+        .first()
+    )
+    times = get_backup_job_times()
+    return BackupScheduleDTO(
+        enabled=cfg.enabled,
+        frequency=cfg.frequency,
+        hour=cfg.hour,
+        minute=cfg.minute,
+        mantener_total=cfg.mantener_total,
+        external_path=cfg.external_path,
+        last_run_at=last.fecha.isoformat() if last else None,
+        next_run_at=times.get("next_run_at"),
+    )
+
+
+@backup_router_new.patch(
+    "/schedule",
+    summary="Actualizar configuración de backup programado",
+)
+def patch_backup_schedule(
+    dto: BackupScheduleDTO,
+    db: DbSession,
+    admin=Depends(require_admin),
+):
+    from app.application.services.backup_service import (
+        BackupScheduleConfig,
+        save_schedule_config,
+    )
+    from app.infrastructure.database.orm_models import BackupRegistroORM
+    from app.infrastructure.scheduler_service import get_backup_job_times, reschedule_backup_job
+
+    cfg = BackupScheduleConfig(
+        enabled=dto.enabled,
+        frequency=dto.frequency if dto.frequency in ("daily", "weekly", "monthly") else "daily",
+        hour=dto.hour,
+        minute=dto.minute,
+        mantener_total=dto.mantener_total,
+        external_path=dto.external_path,
+    )
+    saved = save_schedule_config(db, cfg)
+    db.commit()
+    reschedule_backup_job()
+    times = get_backup_job_times()
+    last = (
+        db.query(BackupRegistroORM)
+        .filter(BackupRegistroORM.tipo == "automatico", BackupRegistroORM.exitoso == True)  # noqa: E712
+        .order_by(BackupRegistroORM.fecha.desc())
+        .first()
+    )
+    return BackupScheduleDTO(
+        enabled=saved.enabled,
+        frequency=saved.frequency,
+        hour=saved.hour,
+        minute=saved.minute,
+        mantener_total=saved.mantener_total,
+        external_path=saved.external_path,
+        last_run_at=last.fecha.isoformat() if last else None,
+        next_run_at=times.get("next_run_at"),
+    )
+
+
+@backup_router_new.post(
+    "/run-now",
+    summary="Ejecutar backup cifrado ahora",
+)
+def run_backup_now(
+    db: DbSession,
+    admin=Depends(require_admin),
+):
+    from app.application.dtos.clinical_history_dtos import BackupRequestDTO
+    from app.application.use_cases.clinical_history_use_cases import BackupUseCase
+
+    result = BackupUseCase(db).create_backup(BackupRequestDTO(notas="Backup manual inmediato"))
+    db.commit()
+    return result
 
 
 @backup_router_new.post(

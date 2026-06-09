@@ -93,6 +93,8 @@ export default function SesionSOAPForm({ sessionId, patientId, planId, onSaved, 
     try {
       if (sessionId) {
         const d = await api.patch(`/api/v1/therapy/sessions/${sessionId}`, {
+          modalidad: form.modalidad,
+          duracion_min: form.duracion_min,
           soap_subjetivo: form.soap_subjetivo, soap_objetivo: form.soap_objetivo,
           soap_analisis: form.soap_analisis, soap_plan: form.soap_plan,
           tareas_asignadas: form.tareas_asignadas, medicacion_actual: form.medicacion_actual,

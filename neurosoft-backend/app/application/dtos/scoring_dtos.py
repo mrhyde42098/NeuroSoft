@@ -6,6 +6,7 @@ DTOs para el motor de calificación y generación de reportes.
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
@@ -87,6 +88,16 @@ class ResultadoPruebaDTO(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class PatientInfoScoringDTO(BaseModel):
+    """Datos demográficos del paciente incluidos en la respuesta de scoring."""
+
+    nombre: str
+    fecha_nacimiento: date
+    edad_anios: int
+    escolaridad: str
+    motivo_consulta: str | None = None
+
+
 class ScoringResponseDTO(BaseModel):
     """Respuesta completa del motor de calificación."""
 
@@ -94,6 +105,7 @@ class ScoringResponseDTO(BaseModel):
     protocolo: str | None
     poblacion: str
     edad_display: str
+    patient_info: PatientInfoScoringDTO | None = None
     fecha_calculo: str
     resultados: list[ResultadoPruebaDTO]
     total_pruebas: int

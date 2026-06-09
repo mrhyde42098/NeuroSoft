@@ -43,7 +43,6 @@ from app.presentation.api.v1.clinical_extras import (
     wisc_router,
 )
 from app.presentation.api.v1.clinical_history import (
-    backup_router,
     cie10_router,
     config_router,
     docs_router,
@@ -154,7 +153,6 @@ api_v1_router.include_router(aprender_router)
 api_v1_router.include_router(reports_router)
 api_v1_router.include_router(rips_router)
 api_v1_router.include_router(docs_router)
-api_v1_router.include_router(backup_router)
 api_v1_router.include_router(backup_router_new)
 api_v1_router.include_router(evol_extra_router)
 

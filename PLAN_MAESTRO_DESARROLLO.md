@@ -185,13 +185,13 @@ flowchart TB
   via --> clin["Psicoterapia clinica"]
   via --> rhb["Rehabilitacion cognitiva"]
   via --> mixto["Mixto"]
-  neuro --> intake_n["Intake neuropsicologico"]
-  clin --> intake_c["Intake clinico/psicoterapia"]
+  neuro --> hc_n["Historia clínica / entrevista inicial NPS"]
+  clin --> hc_c["Historia clínica / entrevista inicial psicoterapia"]
 ```
 
-### 4.2 Modelo de entrevista neuropsicológica profesional (estructura de intake)
+### 4.2 Modelo de entrevista neuropsicológica profesional (estructura de la valoración inicial)
 
-Basado en práctica clínica estándar (motivo → antecedentes → examen → impresión). El intake se vuelve un **wizard por secciones colapsables**, no un formulario plano:
+Basado en práctica clínica estándar (motivo → antecedentes → examen → impresión). La entrevista inicial se organiza como un **wizard por secciones colapsables**, no un formulario plano:
 
 1. **Identificación y vía de atención** (quién deriva, EPS, finalidad).
 2. **Motivo de consulta** (texto + checklist de quejas: memoria, atención, lenguaje, conducta, ánimo).
@@ -503,7 +503,7 @@ flowchart TB
 ```mermaid
 flowchart TB
   S0["Sprint 0: Sistema de diseno (DS-1..5)"] --> S1["Sprint 1: Dashboard + Sidebar + Estadisticas (D, SB)"]
-  S1 --> S2["Sprint 2: Paciente unico + intake (PX)"]
+  S1 --> S2["Sprint 2: Paciente unico + valoracion inicial (PX)"]
   S2 --> S3["Sprint 3: Agenda + EPS/CUPS/autorizacion (AG, 8.2-8.4)"]
   S3 --> S4["Sprint 4: Evaluacion redisenada + validacion (EV, EV-VAL)"]
   S4 --> S5["Sprint 5: Screening (SC)"]
@@ -516,7 +516,7 @@ flowchart TB
 |---|---|---|---|
 | 0 | Sistema de diseño | DS-1..5 | Bajo (UI) |
 | 1 | Dashboard + Sidebar + Estadísticas | D-1..4, SB-1..5 | Bajo |
-| 2 | Paciente único + intake | PX-1..4 | Medio (migración) |
+| 2 | Paciente único + valoración inicial | PX-1..4 | Medio (migración) |
 | 3 | Agenda + EPS/CUPS/autorización | AG-1..5, §8.2-8.4 | Medio (migración) |
 | 4 | Evaluación + validación + AM | EV-*, EV-VAL-*, EV-AM | **Alto (motor clínico)** |
 | 5 | Screening | SC-1..6 | Bajo |

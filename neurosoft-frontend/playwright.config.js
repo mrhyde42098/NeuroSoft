@@ -58,6 +58,12 @@ export default defineConfig({
       dependencies: ["smoke"],
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "clinical-api",
+      testMatch: "**/wisc-pdf-pro.spec.js",
+      dependencies: ["smoke"],
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
 
   webServer: SKIP_WEBSERVER

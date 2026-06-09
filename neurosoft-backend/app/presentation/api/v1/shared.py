@@ -175,11 +175,26 @@ def _build_public_payload(row: SharedReportORM, ev: EvaluationORM, pt: PatientOR
         payload["puntos_debiles"] = _safe_json_list(ev.puntos_debiles_json)
         payload["advertencias"] = _safe_json_list(ev.advertencias_json)
     elif row.scope == "iq_only":
-        # Filtrar sólo compuestos WISC/WAIS si están en resultados
+
+        def _is_composite_row(r: dict) -> bool:
+            tid = str(r.get("test_id", "")).upper()
+            nombre = str(r.get("test_nombre", "")).upper()
+            tipo = str(r.get("tipo_metrica", "")).lower()
+            if tipo in ("ci", "indice"):
+                return True
+            markers = ("ICV", "IRP", "IMT", "IVP", "CIT", "TOTAL", "IND", "COMP")
+            return any(m in tid or m in nombre for m in markers)
+
         payload["iq"] = [
-            r
+            {
+                "test_id": r.get("test_id"),
+                "test_nombre": r.get("test_nombre"),
+                "valor": r.get("puntaje_escalar"),
+                "interpretacion": r.get("interpretacion"),
+                "z_equivalente": r.get("z_equivalente"),
+            }
             for r in resultados
-            if isinstance(r, dict) and str(r.get("test_id", "")).upper().startswith(("ICV", "IRP", "IMT", "IVP", "CIT"))
+            if isinstance(r, dict) and _is_composite_row(r)
         ]
     else:  # full
         payload["resultados"] = resultados

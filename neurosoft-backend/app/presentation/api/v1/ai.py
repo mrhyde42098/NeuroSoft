@@ -26,9 +26,7 @@ Endpoints:
 
 from __future__ import annotations
 
-import json
 import logging
-import re
 import socket
 from pathlib import Path
 from typing import Any
@@ -37,6 +35,15 @@ import httpx
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from app.application.services.ai_chat_service import (
+    DEFAULT_MODELS,
+    VALID_PROVIDERS,
+    AIProviderError,
+    build_system_prompt,
+    dispatch_chat,
+    persist_ai_log,
+    sanitize_clinical_input,
+)
 from app.infrastructure.database.orm_models import AIConfigORM
 from app.presentation.dependencies import DbSession
 
@@ -48,18 +55,6 @@ ai_router = APIRouter(prefix="/ai", tags=["IA"])
 # ═══════════════════════════════════════════════════════════════════════
 # DTOs
 # ═══════════════════════════════════════════════════════════════════════
-
-VALID_PROVIDERS = ("auto", "gemini", "claude", "openai", "ollama", "medgemma", "openrouter")
-
-DEFAULT_MODELS = {
-    "gemini": "gemini-2.5-flash",
-    "claude": "claude-haiku-4-5-20251001",
-    "openai": "gpt-4.1-mini",
-    "openrouter": "google/gemini-2.5-flash",
-    "ollama": "llama3.1:8b",
-    # MedGemma en línea vía endpoint OpenAI-compatible (OpenRouter / HF / Vertex)
-    "medgemma": "google/medgemma-4b-it",
-}
 
 
 class AIConfigDTO(BaseModel):
@@ -121,29 +116,6 @@ class NarrateDTO(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Sanitización de PHI — NO enviar datos identificables a la nube
-# ═══════════════════════════════════════════════════════════════════════
-
-_PHI_PATTERNS = [
-    (re.compile(r"\b\d{6,12}\b"), "[DOCUMENTO]"),  # cédulas, TI, etc.
-    (re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b"), "[FECHA]"),
-    (re.compile(r"\b\d{4}-\d{2}-\d{2}\b"), "[FECHA]"),
-    (re.compile(r"[\w\.\-]+@[\w\-]+\.\w+"), "[EMAIL]"),
-    (re.compile(r"\+?\d[\d\s\-]{7,15}"), "[TEL]"),
-]
-
-
-def sanitize_clinical_input(text: str) -> str:
-    """Remueve PHI común antes de mandar a proveedores externos."""
-    if not text:
-        return text
-    out = text
-    for pattern, repl in _PHI_PATTERNS:
-        out = pattern.sub(repl, out)
-    return out
-
-
-# ═══════════════════════════════════════════════════════════════════════
 # Config: get / save
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -194,206 +166,6 @@ def save_ai_config(dto: AIConfigDTO, request: Request, db: DbSession):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Backends por proveedor
-# ═══════════════════════════════════════════════════════════════════════
-
-
-class AIProviderError(Exception):
-    pass
-
-
-def _build_system(
-    system: str | None,
-    *,
-    ins_style: bool = False,
-    is_pediatric: bool = False,
-    test: str | None = None,
-    dominios: list[str] | None = None,
-) -> str:
-    default = (
-        "Eres un asistente clínico experto en neuropsicología, especializado "
-        "en evaluación y diagnóstico. Respondes en español claro y preciso, "
-        "usando terminología técnica apropiada cuando corresponde. Nunca "
-        "inventas datos clínicos ni sustituyes el juicio del profesional. "
-        "Si no hay datos suficientes para una afirmación, lo dices explícitamente."
-    )
-    base = system or default
-    if not ins_style:
-        return base
-    try:
-        from app.domain.data.informe_style_guide_ins import build_ins_style_suffix
-
-        suffix = build_ins_style_suffix(
-            is_pediatric=is_pediatric,
-            test=test,
-            dominios=dominios,
-        )
-        return base + "\n\n" + suffix
-    except Exception as e:  # noqa: BLE001
-        logger.warning("No se pudo inyectar estilo institucional: %s", e)
-        return base
-
-
-async def _call_gemini(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> ChatResponseDTO:
-    if not cfg.api_key:
-        raise AIProviderError("Falta API key de Gemini")
-    model = cfg.model or DEFAULT_MODELS["gemini"]
-    # Gemini acepta el system prompt como systemInstruction
-    contents = []
-    for m in req.messages:
-        role = "user" if m.role == "user" else "model"
-        contents.append({"role": role, "parts": [{"text": m.content}]})
-    body = {
-        "contents": contents,
-        "systemInstruction": {"parts": [{"text": system}]},
-        "generationConfig": {
-            "temperature": (req.temperature if req.temperature is not None else (cfg.temperature or 70) / 100.0),
-            "maxOutputTokens": req.max_tokens or cfg.max_tokens or 1024,
-        },
-    }
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={cfg.api_key}"
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post(url, json=body)
-    if r.status_code >= 400:
-        raise AIProviderError(f"Gemini {r.status_code}: {r.text[:300]}")
-    data = r.json()
-    try:
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError):
-        raise AIProviderError(f"Respuesta Gemini inesperada: {json.dumps(data)[:300]}")
-    return ChatResponseDTO(provider="gemini", model=model, content=text, usage=data.get("usageMetadata"))
-
-
-async def _call_claude(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> ChatResponseDTO:
-    if not cfg.api_key:
-        raise AIProviderError("Falta API key de Claude")
-    model = cfg.model or DEFAULT_MODELS["claude"]
-    body = {
-        "model": model,
-        "max_tokens": req.max_tokens or cfg.max_tokens or 1024,
-        "temperature": (req.temperature if req.temperature is not None else (cfg.temperature or 70) / 100.0),
-        "system": system,
-        "messages": [{"role": m.role, "content": m.content} for m in req.messages if m.role != "system"],
-    }
-    headers = {
-        "x-api-key": cfg.api_key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-    }
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post("https://api.anthropic.com/v1/messages", json=body, headers=headers)
-    if r.status_code >= 400:
-        raise AIProviderError(f"Claude {r.status_code}: {r.text[:300]}")
-    data = r.json()
-    text = "".join(b.get("text", "") for b in data.get("content", []))
-    return ChatResponseDTO(provider="claude", model=model, content=text, usage=data.get("usage"))
-
-
-async def _call_openai(
-    cfg: AIConfigORM, req: ChatRequestDTO, system: str, provider_name: str = "openai"
-) -> ChatResponseDTO:
-    """Llama a OpenAI o a cualquier endpoint OpenAI-compatible.
-
-    Para ``provider_name == "medgemma"`` se usa ``cfg.openai_base_url``
-    (OpenRouter, Hugging Face TGI, Vertex proxy, etc.) que sirve modelos
-    MedGemma en línea con el mismo contrato /chat/completions.
-    """
-    default_base = "https://api.openai.com/v1"
-    if provider_name == "openrouter":
-        default_base = "https://openrouter.ai/api/v1"
-    base = (getattr(cfg, "openai_base_url", None) or default_base).rstrip("/")
-    if provider_name == "medgemma" and not getattr(cfg, "openai_base_url", None):
-        raise AIProviderError(
-            "MedGemma en línea requiere un endpoint OpenAI-compatible. "
-            "Configura la URL base (ej. OpenRouter: https://openrouter.ai/api/v1)."
-        )
-    if not cfg.api_key:
-        raise AIProviderError("Falta la API key del proveedor en línea.")
-    model = cfg.model or DEFAULT_MODELS.get(provider_name, DEFAULT_MODELS["openai"])
-    msgs = [{"role": "system", "content": system}]
-    msgs += [{"role": m.role, "content": m.content} for m in req.messages if m.role != "system"]
-    body = {
-        "model": model,
-        "messages": msgs,
-        "temperature": (req.temperature if req.temperature is not None else (cfg.temperature or 70) / 100.0),
-        "max_tokens": req.max_tokens or cfg.max_tokens or 1024,
-    }
-    headers = {"Authorization": f"Bearer {cfg.api_key}", "content-type": "application/json"}
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post(base + "/chat/completions", json=body, headers=headers)
-    if r.status_code >= 400:
-        raise AIProviderError(f"{provider_name} {r.status_code}: {r.text[:300]}")
-    data = r.json()
-    text = data["choices"][0]["message"]["content"]
-    return ChatResponseDTO(provider=provider_name, model=model, content=text, usage=data.get("usage"))
-
-
-async def _call_ollama(cfg: AIConfigORM, req: ChatRequestDTO, system: str) -> ChatResponseDTO:
-    model = cfg.model or DEFAULT_MODELS["ollama"]
-    url = (cfg.ollama_url or "http://127.0.0.1:11434").rstrip("/") + "/api/chat"
-    msgs = [{"role": "system", "content": system}]
-    msgs += [{"role": m.role, "content": m.content} for m in req.messages if m.role != "system"]
-    body = {
-        "model": model,
-        "messages": msgs,
-        "stream": False,
-        "options": {
-            "temperature": (req.temperature if req.temperature is not None else (cfg.temperature or 70) / 100.0),
-            "num_predict": req.max_tokens or cfg.max_tokens or 1024,
-        },
-    }
-    try:
-        async with httpx.AsyncClient(timeout=120) as client:
-            r = await client.post(url, json=body)
-    except (httpx.ConnectError, httpx.ConnectTimeout):
-        raise AIProviderError(
-            "Ollama no está corriendo. Instálalo desde https://ollama.com y ejecuta `ollama run llama3.1:8b`."
-        )
-    if r.status_code >= 400:
-        raise AIProviderError(f"Ollama {r.status_code}: {r.text[:300]}")
-    data = r.json()
-    text = data.get("message", {}).get("content", "")
-    return ChatResponseDTO(
-        provider="ollama",
-        model=model,
-        content=text,
-        usage={k: data.get(k) for k in ("prompt_eval_count", "eval_count")},
-    )
-
-
-async def _dispatch(cfg: AIConfigORM, req: ChatRequestDTO, system: str, override: str | None = None) -> ChatResponseDTO:
-    provider = override or cfg.provider or "auto"
-    # 'auto' → intenta proveedor con API key > ollama
-    if provider == "auto":
-        if cfg.enable_cloud and cfg.api_key:
-            # Si el usuario tiene key pero provider=auto, asumimos gemini por defecto
-            # a menos que el model string identifique otro
-            m = (cfg.model or "").lower()
-            if "claude" in m:
-                provider = "claude"
-            elif "gpt" in m:
-                provider = "openai"
-            else:
-                provider = "gemini"
-        else:
-            provider = "ollama"
-
-    if provider == "gemini":
-        return await _call_gemini(cfg, req, system)
-    if provider == "claude":
-        return await _call_claude(cfg, req, system)
-    if provider == "openai":
-        return await _call_openai(cfg, req, system)
-    if provider == "medgemma":
-        return await _call_openai(cfg, req, system, provider_name="medgemma")
-    if provider == "openrouter":
-        return await _call_openai(cfg, req, system, provider_name="openrouter")
-    if provider == "ollama":
-        return await _call_ollama(cfg, req, system)
-    raise AIProviderError(f"Proveedor no soportado: {provider}")
-
-
-# ═══════════════════════════════════════════════════════════════════════
 # Endpoints de chat
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -402,7 +174,7 @@ async def _dispatch(cfg: AIConfigORM, req: ChatRequestDTO, system: str, override
 async def chat(dto: ChatRequestDTO, request: Request, db: DbSession):
     user_id = getattr(request.state, "user_id", "default")
     cfg = _get_user_config(db, user_id)
-    system = _build_system(dto.system)
+    system = build_system_prompt(dto.system)
     # Sanitizar los mensajes del usuario si vamos a nube
     target_provider = dto.provider_override or cfg.provider
     if target_provider != "ollama":
@@ -414,13 +186,13 @@ async def chat(dto: ChatRequestDTO, request: Request, db: DbSession):
             provider_override=dto.provider_override,
         )
     try:
-        return await _dispatch(cfg, dto, system, dto.provider_override)
+        return await dispatch_chat(cfg, dto, system, dto.provider_override)
     except AIProviderError as e:
         # Fallback automático a Ollama si el provider remoto falla
         if target_provider not in ("ollama", "auto") and (cfg.provider == "auto"):
             logger.warning("Fallback a Ollama tras fallo en %s: %s", target_provider, e)
             try:
-                return await _call_ollama(cfg, dto, system)
+                return await dispatch_chat(cfg, dto, system, override="ollama")
             except AIProviderError as e2:
                 raise HTTPException(503, detail=f"Nube falló: {e} · Local falló: {e2}")
         raise HTTPException(503, detail=str(e))
@@ -446,14 +218,14 @@ async def improve(dto: ImproveTextDTO, request: Request, db: DbSession):
     req = ChatRequestDTO(
         messages=[ChatMessageDTO(role="user", content=f"{instruction}\n\n---\n{text}")],
     )
-    system = _build_system(
+    system = build_system_prompt(
         None,
         ins_style=dto.ins_style,
         is_pediatric=dto.is_pediatric,
         test=dto.test,
     )
     try:
-        return await _dispatch(cfg, req, system)
+        return await dispatch_chat(cfg, req, system)
     except AIProviderError as e:
         raise HTTPException(503, detail=str(e))
 
@@ -482,7 +254,7 @@ async def narrate(dto: NarrateDTO, request: Request, db: DbSession):
         f"Destaca fortalezas y debilidades de forma equilibrada. No inventes pruebas ni datos."
     )
     req = ChatRequestDTO(messages=[ChatMessageDTO(role="user", content=user_msg)])
-    system = _build_system(
+    system = build_system_prompt(
         None,
         ins_style=dto.ins_style,
         is_pediatric=dto.is_pediatric,
@@ -490,7 +262,7 @@ async def narrate(dto: NarrateDTO, request: Request, db: DbSession):
         dominios=[dto.dominio] if dto.dominio else None,
     )
     try:
-        return await _dispatch(cfg, req, system)
+        return await dispatch_chat(cfg, req, system)
     except AIProviderError as e:
         raise HTTPException(503, detail=str(e))
 
@@ -584,7 +356,7 @@ async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSes
         error_message = str(exc)
         # Persistimos el fallo aún así, para diagnóstico.
         try:
-            _persist_ai_log(
+            persist_ai_log(
                 db,
                 user_id,
                 req.prompt_id,
@@ -609,7 +381,7 @@ async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSes
     tokens_in = resp.usage.get("input_tokens") if resp.usage else None
     tokens_out = resp.usage.get("output_tokens") if resp.usage else None
     try:
-        _persist_ai_log(
+        persist_ai_log(
             db,
             user_id,
             req.prompt_id,
@@ -640,52 +412,6 @@ async def ai_specialized(req: SpecializedRequestDTO, request: Request, db: DbSes
     )
 
     return resp
-
-
-def _persist_ai_log(
-    db,
-    user_id,
-    prompt_id,
-    endpoint,
-    *,
-    provider,
-    model,
-    input_length,
-    output_length,
-    duration_ms,
-    tokens_in,
-    tokens_out,
-    success,
-    error_message,
-    patient_id=None,
-    evaluation_id=None,
-    session_id=None,
-):
-    """Crea una fila en `ai_logs`. No lanza — siempre best-effort."""
-    import uuid as _uuid
-
-    from app.infrastructure.database.orm_models import AILogORM
-
-    log = AILogORM(
-        id=str(_uuid.uuid4()),
-        user_id=user_id,
-        patient_id=patient_id,
-        evaluation_id=evaluation_id,
-        session_id=session_id,
-        prompt_id=prompt_id,
-        endpoint=endpoint,
-        provider=provider,
-        model=model,
-        input_length=input_length,
-        output_length=output_length,
-        duration_ms=duration_ms,
-        tokens_in=tokens_in,
-        tokens_out=tokens_out,
-        success=success,
-        error_message=error_message,
-    )
-    db.add(log)
-    db.commit()
 
 
 # ═══════════════════════════════════════════════════════════════════════

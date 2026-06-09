@@ -17,7 +17,7 @@ Variables de entorno soportadas (.env o shell):
     NEUROSOFT_REPORTS_DIR        directorio de informes  (default: reports/)
     NEUROSOFT_LOG_LEVEL          DEBUG | INFO | WARNING  (default: INFO)
     NEUROSOFT_CORS_ORIGINS       JSON list de orígenes   (default: ["*"] en dev)
-    NEUROSOFT_API_VERSION        versión de la API       (default: "2.0.0")
+    NEUROSOFT_API_VERSION        versión de la API       (default: "2.0.1")
     NEUROSOFT_CLINICAL_BRAND     nombre de la marca clínica mostrada en informes
     NEUROSOFT_EXPOSE_DOCS        1|0   habilitar /docs y /redoc (default: 1 en dev, 0 en prod)
     NEUROSOFT_RATE_LIMIT_PER_MIN límite global de peticiones por IP (0 = desactivado)
@@ -126,7 +126,7 @@ if HAS_PYDANTIC:
         )
 
         # ── API ──────────────────────────────────────────────────────
-        api_version: str = Field(default="2.0.0")
+        api_version: str = Field(default="2.0.1")
         api_title: str = Field(default="NeuroSoft API")
         api_description: str = Field(
             default=("Motor de calificación neuropsicológica. 152 variables clínicas · 15 strategies · Colombia.")
@@ -305,7 +305,7 @@ else:
         db_path = _DATA_ROOT / "neurosoft.db"
         baremo_path = _DATA_ROOT / "BD_NEURO_MAESTRA.json"
         reports_dir = _DATA_ROOT / "reports"
-        api_version = "2.0.0"
+        api_version = "2.0.1"
         api_title = "NeuroSoft API"
         api_description = "Motor de calificación neuropsicológica."
         log_level = "INFO"
