@@ -65,11 +65,11 @@ jobs:
         run: ruff format --check app tests
 
       - name: V2 architecture guards
-        working-directory: ..
+        working-directory: ${{ github.workspace }}
         run: python tools/check_v2_guards.py
 
       - name: API manifest alignment
-        working-directory: ..
+        working-directory: ${{ github.workspace }}
         run: python tools/api_manifest_check.py --no-fail-new
 
       - name: Type check (mypy)
