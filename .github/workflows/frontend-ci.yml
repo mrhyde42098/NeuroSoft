@@ -116,13 +116,12 @@ jobs:
         run: npm run build
 
       - name: Sync dist para served_static_dir (dev_static_dir legacy)
-        working-directory: ..
         run: |
           set -euo pipefail
-          DEST="neurosoft-backend/neurosoft-frontend/dist"
+          DEST="../neurosoft-backend/neurosoft-frontend/dist"
           mkdir -p "$(dirname "$DEST")"
           rm -rf "$DEST"
-          cp -a neurosoft-frontend/dist "$DEST"
+          cp -a dist "$DEST"
           test -f "$DEST/index.html"
 
       - name: Prepare E2E database
