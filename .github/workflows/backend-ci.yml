@@ -82,6 +82,7 @@ jobs:
           NEUROSOFT_SECRET_KEY: test-secret-key-at-least-32-characters-long-for-ci
           NEUROSOFT_ADMIN_PASSWORD: neurosoft2025
           NEUROSOFT_BACKUP_DIR: ${{ runner.temp }}/neurosoft-backups
+          PYTHONUTF8: "1"
         run: |
           pytest tests/ -q \
               --cov=app \
