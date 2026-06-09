@@ -60,9 +60,11 @@ def test_crear_backup_crea_archivo_cifrado(tmp_db):
     assert obj["header"]["metadata"]["notas"] == "backup test"
 
 
-def test_listar_backups_detecta_archivos(tmp_db):
+def test_listar_backups_detecta_archivos(tmp_db, _isolated_backup_paths):
     from app.infrastructure.backup import crear_backup, listar_backups
 
+    for old in _isolated_backup_paths.glob("ns-backup-*.enc.gz"):
+        old.unlink(missing_ok=True)
     crear_backup(notas="A")
     crear_backup(notas="B")
     backups = listar_backups()

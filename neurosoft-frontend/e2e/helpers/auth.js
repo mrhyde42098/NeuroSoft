@@ -16,13 +16,14 @@ export async function loginAsAdmin(page) {
   await page.fill('input[placeholder="usuario"]', user);
   await page.fill('input[type="password"]', pass);
 
+  const ciTimeout = process.env.CI ? 45_000 : 15_000;
   const loginResp = page.waitForResponse(
     (r) => r.url().includes("/api/v1/auth/login"),
-    { timeout: 15_000 },
+    { timeout: ciTimeout },
   );
   await page.locator('input[type="password"]').press("Enter");
   const resp = await loginResp;
   expect(resp.status()).toBe(200);
 
-  await expect(page.locator("button >> text=Pacientes")).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("button >> text=Pacientes")).toBeVisible({ timeout: ciTimeout });
 }
