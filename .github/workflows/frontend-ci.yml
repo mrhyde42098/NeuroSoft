@@ -7,7 +7,7 @@
 #   3. Tests E2E con Playwright (smoke + a11y).
 #
 # Runners: ubuntu-latest.
-# CI verde jun 2026 — sprint M1-M20 en main.
+# CI verde jun 2026 — checks sincronizados en main.
 
 name: frontend-ci
 
