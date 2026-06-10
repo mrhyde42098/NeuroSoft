@@ -23,11 +23,12 @@ def _isolated_backup_paths(monkeypatch, tmp_path):
     backup_dir.mkdir(parents=True, exist_ok=True)
 
     def _dir():
-        backup_dir.mkdir(parents=True, exist_ok=True)
-        return backup_dir
+        d = Path(config.settings.backup_dir)
+        d.mkdir(parents=True, exist_ok=True)
+        return d
 
-    monkeypatch.setattr(backup_mod, "_directorio_backups", _dir)
     monkeypatch.setattr(config.settings, "backup_dir", backup_dir)
+    monkeypatch.setattr(backup_mod, "_directorio_backups", _dir)
     yield backup_dir
 
 
