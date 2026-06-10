@@ -87,11 +87,33 @@ jobs:
           NEUROSOFT_BACKUP_DIR: ${{ runner.temp }}/neurosoft-backups
           PYTHONUTF8: "1"
         run: |
+          set +e
           pytest tests/ -q \
               --cov=app \
               --cov-report=xml \
               --cov-report=term-missing:skip-covered \
               --junitxml=pytest-results.xml
+          code=$?
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          p = Path("pytest-results.xml")
+          if not p.exists():
+              raise SystemExit(0)
+          root = ET.parse(p).getroot()
+          fails = []
+          for case in root.iter("testcase"):
+              node = case.find("failure") or case.find("error")
+              if node is not None:
+                  fails.append((case.get("classname"), case.get("name"), (node.text or "")[:800]))
+          if fails:
+              print(f"\n=== PYTEST FAILED ({len(fails)}) ===")
+              for cls, name, msg in fails[:25]:
+                  print(f"- {cls}::{name}")
+                  if msg.strip():
+                      print(msg.strip())
+          PY
+          exit $code
 
       - name: Resumen de tests fallidos
         if: failure()
