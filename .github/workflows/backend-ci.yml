@@ -112,6 +112,9 @@ jobs:
                   print(f"- {cls}::{name}")
                   if msg.strip():
                       print(msg.strip())
+                  title = f"{cls}::{name}".replace("%", "%25")[:180]
+                  safe = (msg or "").replace("%", "%25").replace("\r", "").replace("\n", "%0A")[:800]
+                  print(f"::error title={title}::{safe}")
           PY
           exit $code
 
